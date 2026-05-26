@@ -61,7 +61,22 @@ The Ping tool in NetUtil is a wrapper around `/sbin/ping`. It uses `Process` and
 
 ---
 
-## Testing Strategy
+---
+
+## Release Automation Procedure (Automated via GitHub Actions)
+
+To trigger a new official release:
+1. **Update Version**: Sync `MARKETING_VERSION` in Xcode and update `CHANGELOG.md`.
+2. **Commit Changes**: Commit the version bump and changelog update.
+3. **Push Tag**: Push a new tag (e.g., `git tag v1.3.0 && git push origin v1.3.0`).
+4. **GitHub Actions**: The `release.yml` workflow will automatically:
+    - Build the application in Release mode.
+    - Generate the branded DMG installer.
+    - Create a GitHub Release with auto-generated release notes.
+    - Attach the DMG file to the release assets.
+    - Send a notification (if `DISCORD_WEBHOOK` is configured in Secrets).
+
+---
 - Since there are no automated tests, manual validation is required:
     - Test with valid hostnames (`google.com`).
     - Test with invalid hostnames (`this.does.not.exist`).

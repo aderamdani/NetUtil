@@ -246,7 +246,15 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 
 ---
 
-## Release Checklist
+## Finalize Release Workflow (Automated)
+
+When a release is ready, execute:
+1. Update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in Xcode project.
+2. Update `CHANGELOG.md` with new version and changes.
+3. Commit and push to main.
+4. Push a tag: `git tag v1.x.y && git push origin v1.x.y`.
+
+**GitHub Actions (`release.yml`)** will automatically build the DMG and create the GitHub Release.
 
 Every time commits are ready to ship, complete **all** steps below in order.
 
