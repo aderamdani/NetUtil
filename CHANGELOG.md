@@ -4,6 +4,18 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.4.1] — 2026-05-27
+
+### Fixed
+- **Force close on Interfaces and Wi-Fi tools**: Moving `WiFiInspectorViewModel` and `NetworkInterfaceViewModel` into `ToolStore` introduced an `@EnvironmentObject` pattern that SwiftUI couldn't resolve at runtime (only `ToolStore` itself was injected, not the child VM types). Reverted to `@ObservedObject` with VM passed as an init parameter — consistent with all other tools.
+
+### Changed
+- `AboutView` tool list now includes Dashboard and updated acknowledgements (MapKit, CoreLocation, Swift Charts).
+- `HelpView` Traceroute section expanded with Route Map, Bottleneck Detection, and IP Info Card topics.
+- README and DOCUMENTATION.md updated to reflect v1.4.x feature set.
+
+---
+
 ## [1.4.0] — 2026-05-27
 
 ### Added

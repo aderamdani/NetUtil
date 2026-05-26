@@ -206,6 +206,7 @@ struct AboutView: View {
     }
 
     private let toolList: [(String, String)] = [
+        ("square.grid.2x2", "Dashboard"),
         ("antenna.radiowaves.left.and.right", "Ping"),
         ("point.3.connected.trianglepath.dotted", "Traceroute"),
         ("dot.radiowaves.left.and.right", "Multi-Ping"),
@@ -233,12 +234,15 @@ struct AboutView: View {
         • /usr/sbin/netstat — Routing table
 
         Apple Frameworks:
+        • SwiftUI + Swift Charts — UI and data visualization
         • Network.framework — TCP port scanning
         • CoreWLAN.framework — Wi-Fi inspection
+        • MapKit — Traceroute Route Map
+        • CoreLocation — Geo coordinate handling
         • CryptoKit — SHA-256 certificate fingerprinting
 
         Geolocation data provided by ipinfo.io
-        (opt-in, can be disabled in Settings)
+        (opt-in, can be disabled in Settings → Privacy)
         """
         alert.addButton(withTitle: "OK")
         alert.runModal()
