@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AA02AA02AA02AA02AA02AA02 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA01AA01AA01AA01AA01AA01 /* CoreWLAN.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
-		2C46D5282FC4FCCC006CF18C /* NetUtil.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetUtil.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C46D5792FC4FF85006CF18C /* NetUtil.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetUtil.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA01AA01AA01AA01AA01AA01 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA02AA02AA02AA02AA02AA02 /* CoreWLAN.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,16 +39,9 @@
 			isa = PBXGroup;
 			children = (
 				2C46D52A2FC4FCCC006CF18C /* NetUtil */,
-				2C46D5292FC4FCCC006CF18C /* Products */,
+				2C46D5792FC4FF85006CF18C /* NetUtil.app */,
+				AA01AA01AA01AA01AA01AA01 /* CoreWLAN.framework */,
 			);
-			sourceTree = "<group>";
-		};
-		2C46D5292FC4FCCC006CF18C /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				2C46D5282FC4FCCC006CF18C /* NetUtil.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -67,7 +66,7 @@
 			packageProductDependencies = (
 			);
 			productName = NetUtil;
-			productReference = 2C46D5282FC4FCCC006CF18C /* NetUtil.app */;
+			productReference = 2C46D5792FC4FF85006CF18C /* NetUtil.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -82,6 +81,7 @@
 				TargetAttributes = {
 					2C46D5272FC4FCCC006CF18C = {
 						CreatedOnToolsVersion = 26.5;
+						LastSwiftMigration = 2650;
 					};
 				};
 			};
@@ -95,7 +95,7 @@
 			mainGroup = 2C46D51F2FC4FCCC006CF18C;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 2C46D5292FC4FCCC006CF18C /* Products */;
+			productRefGroup = 2C46D51F2FC4FCCC006CF18C;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -248,12 +248,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = NetUtil/NetUtil.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -268,6 +269,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -278,12 +280,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = NetUtil/NetUtil.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
