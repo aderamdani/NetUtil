@@ -79,6 +79,8 @@ The Ping tool in NetUtil is a wrapper around `/sbin/ping`. It uses `Process` and
 
 When the user asks to **"commit, build DMG, and release"** (or similar), perform these steps automatically:
 
+0.  **Sync Local**: Run `git pull` to ensure you are working on the latest code.
+
 1.  **Version Management (SemVer Rules)**:
     - **Major (X.0.0)**: Full system upgrade or major architectural change.
     - **Minor (0.X.0)**: New feature added (e.g., a new tool or dashboard module).
