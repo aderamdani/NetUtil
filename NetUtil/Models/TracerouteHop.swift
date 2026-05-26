@@ -55,6 +55,17 @@ struct TracerouteHop: Identifiable {
     }
     var minRtt: Double? { validSamples.min() }
     var maxRtt: Double? { validSamples.max() }
+    var jitter: Double? {
+        let v = validSamples
+        guard v.count > 1, let avg = avgRtt else { return nil }
+        let variance = v.map { pow($0 - avg, 2) }.reduce(0, +) / Double(v.count)
+        return sqrt(variance)
+    }
+    var consecutiveLoss: Int {
+        var n = 0
+        for s in samples.reversed() { if s.rtt == nil { n += 1 } else { break } }
+        return n
+    }
 
     mutating func appendRound(_ rtts: [Double?], at timestamp: Date) {
         let valid = rtts.compactMap { $0 }
