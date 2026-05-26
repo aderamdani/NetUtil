@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct NetworkInterfaceView: View {
-    @EnvironmentObject private var vm: NetworkInterfaceViewModel
+    @ObservedObject var vm: NetworkInterfaceViewModel
     @State private var showAll = false
 
     private var displayed: [NetworkInterface] {
