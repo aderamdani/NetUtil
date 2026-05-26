@@ -148,11 +148,16 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 
 ### Build & Release Workflow
 When requested to **"commit, build DMG, and release"**, follow this checklist:
-1. **Sync Documentation**: Update `CHANGELOG.md`, `README.md`, `DOCUMENTATION.md`, and `AboutView.swift`.
-2. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive`.
-3. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`.
-4. **Package**: Run `bash scripts/build_dmg.sh`.
-5. **Commit**: `git commit -m "docs: release vX.X.X"` (do not push unless asked).
+1. **Update Version (SemVer)**:
+   - **Patch (+0.0.1)**: Minor tweaks, UI polish, or bug fixes.
+   - **Minor (+0.1.0)**: New feature or significant tool improvement.
+   - **Major (+1.0.0)**: Complete overhaul or massive core change.
+   - Update `MARKETING_VERSION` in `project.pbxproj` and `CHANGELOG.md`.
+2. **Sync Documentation**: Update `README.md`, `DOCUMENTATION.md`, and `AboutView.swift`.
+3. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive`.
+4. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`.
+5. **Package**: Run `bash scripts/build_dmg.sh`.
+6. **Commit**: `git commit -m "docs: release vX.X.X"` (do not push unless asked).
 
 ### Ping
 - Input: hostname or IP, optional count (default from `defaultPingCount`), interval (default `defaultPingInterval`), infinite toggle (`∞`)
