@@ -44,6 +44,11 @@ struct DNSView: View {
                 TextField("Hostname or IP", text: $host)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 200)
+                    .onSubmit {
+                        guard !host.isEmpty, !vm.isRunning else { return }
+                        history.record(host)
+                        vm.lookup(host: host, type: recordType, server: server)
+                    }
                 if !history.hosts.isEmpty {
                     Menu {
                         ForEach(history.hosts, id: \.self) { h in

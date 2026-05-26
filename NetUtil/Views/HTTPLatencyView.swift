@@ -43,6 +43,10 @@ struct HTTPLatencyView: View {
             TextField("https://example.com", text: $urlString)
                 .textFieldStyle(.roundedBorder)
                 .frame(minWidth: 280)
+                .onSubmit {
+                    guard !urlString.isEmpty, !vm.isRunning else { return }
+                    vm.run(urlString: urlString, method: method, followRedirects: followRedirects)
+                }
 
             Picker("", selection: $method) {
                 ForEach(methods, id: \.self) { Text($0).tag($0) }

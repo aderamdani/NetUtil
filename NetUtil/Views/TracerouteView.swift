@@ -52,6 +52,13 @@ struct TracerouteView: View {
                 TextField("Hostname or IP", text: $host)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 200)
+                    .onSubmit {
+                        guard !host.isEmpty, !vm.isRunning else { return }
+                        history.record(host)
+                        vm.start(host: host,
+                                 maxHops: Int(maxHopsText) ?? 30,
+                                 interval: Double(intervalText) ?? 5)
+                    }
                 if !history.hosts.isEmpty {
                     Menu {
                         ForEach(history.hosts, id: \.self) { h in
