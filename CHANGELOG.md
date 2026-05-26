@@ -4,6 +4,18 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.7.1] — 2026-05-27
+
+### Added
+- **Modernized Welcome Screen**: The `AboutView` is now the default screen when no tool is selected, providing a premium onboarding experience.
+
+### Improved
+- **Visual Depth**: Significantly strengthened card shadows across the Dashboard for better contrast and a modern "elevated" feel.
+- **Typography Standardisation**: Standardized all Dashboard fonts to San Francisco (SF) Pro for a cleaner, unified macOS aesthetic.
+- **Layout Refinement**: Increased whitespace and adjusted spacing to resolve previous overcrowding issues, ensuring a breathable UI.
+
+---
+
 ## [1.7.0] — 2026-05-27
 
 ### Added
