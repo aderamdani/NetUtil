@@ -75,16 +75,18 @@ The Ping tool in NetUtil is a wrapper around `/sbin/ping`. It uses `Process` and
 - [x] **Automated Release Prompt**: Added instructions to handle full release cycles (docs + build + DMG) in one go.
 
 ---
-
 ## 🤖 Release Automation Prompt Procedure
 
 When the user asks to **"commit, build DMG, and release"** (or similar), perform these steps automatically:
 
-1.  **Documentation Sync**:
-    - Update `CHANGELOG.md` with latest features.
-    - Sync `README.md` and `DOCUMENTATION.md` versions.
-    - Update `AboutView.swift` tool lists and acknowledgments.
-2.  **Clean Up**:
+1.  **Version Management (SemVer Rules)**:
+    - **Major (X.0.0)**: Full system upgrade or major architectural change.
+    - **Minor (0.X.0)**: New feature added (e.g., a new tool or dashboard module).
+    - **Patch (0.0.X)**: Minor fixes, UI tweaks, or documentation updates.
+    - *Action*: Update `MARKETING_VERSION` in Xcode and `CHANGELOG.md` accordingly.
+
+2.  **Documentation Sync**:
+...
     - Remove old artifacts: `rm -rf dist/NetUtil.xcarchive`.
 3.  **Build & Package**:
     - Run full build verification: `xcodebuild build ...`.
