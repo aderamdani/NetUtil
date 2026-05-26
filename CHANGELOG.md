@@ -4,7 +4,27 @@ All notable changes to NetUtil are documented here.
 
 ---
 
-## [1.4.1] — 2026-05-27
+## [1.4.0] — 2026-05-27
+
+### Added
+- **Ultra-Interactive Dashboard**: A new high-level "Mission Control" center for the entire app.
+    - **Quick Action Buttons**: Start/Stop Ping, Multi-Ping, and Port Scans directly from the Dashboard.
+    - **Live Sparklines**: Real-time RTT and Wi-Fi signal (RSSI) trend charts using high-performance Canvas.
+    - **Network Identity Header**: Instant view of Hostname, Local IP, External IP, and VPN Status.
+    - **IP Intelligence**: Integrated analysis for IP Class (A/B/C), Public/Private status, and Netmask detection.
+    - **Interactive Navigation**: Click any dashboard card to jump directly to the detailed tool view.
+    - **System Health Badges**: Live CPU load and Memory pressure indicators.
+- **Enhanced Network Discovery**: Updated network interface logic to capture kernel-level netmask and prefix info.
+- **Community Standards**: Added official `LICENSE` (MIT), `CONTRIBUTING.md`, and `SECURITY.md`.
+
+### Improved
+- **Modernized Help System**: Redesigned `HelpView` with categorized sections and documentation for all v1.4.0 features.
+- **Visual Feedback**: Added animated pulse indicators, hover scaling, and glossy glassmorphism effects.
+- **Architecture**: Centralized network state management in `ToolStore` for better synchronization.
+
+---
+
+## [1.3.0] — 2026-05-26
 
 ### Fixed
 - **Force close on Interfaces and Wi-Fi tools**: Moving `WiFiInspectorViewModel` and `NetworkInterfaceViewModel` into `ToolStore` introduced an `@EnvironmentObject` pattern that SwiftUI couldn't resolve at runtime (only `ToolStore` itself was injected, not the child VM types). Reverted to `@ObservedObject` with VM passed as an init parameter — consistent with all other tools.

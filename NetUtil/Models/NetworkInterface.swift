@@ -6,6 +6,7 @@ struct NetworkInterface: Identifiable {
     let name: String
     let ipv4: [String]
     let ipv6: [String]
+    let netmasks: [String] // Added to store subnet masks
     let mac: String?
     let mtu: Int?
     let isUp: Bool
@@ -70,6 +71,14 @@ struct NetworkInterfaceFetcher {
                 getnameinfo(addr, socklen_t(MemoryLayout<sockaddr_in>.size),
                             &buf, socklen_t(buf.count), nil, 0, NI_NUMERICHOST)
                 builders[name]?.ipv4.append(String(cString: buf))
+                
+                // Get netmask
+                if let netmask = ifa.pointee.ifa_netmask {
+                    var mbuf = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                    getnameinfo(netmask, socklen_t(MemoryLayout<sockaddr_in>.size),
+                                &mbuf, socklen_t(mbuf.count), nil, 0, NI_NUMERICHOST)
+                    builders[name]?.netmasks.append(String(cString: mbuf))
+                }
 
             case AF_INET6:
                 var buf = [CChar](repeating: 0, count: Int(NI_MAXHOST))
@@ -114,6 +123,7 @@ struct NetworkInterfaceFetcher {
         let flags: UInt32
         var ipv4: [String] = []
         var ipv6: [String] = []
+        var netmasks: [String] = []
         var mac: String?
         var mtu: Int?
         var ifType: UInt8 = 0
@@ -123,6 +133,7 @@ struct NetworkInterfaceFetcher {
                 name: name,
                 ipv4: ipv4,
                 ipv6: ipv6,
+                netmasks: netmasks,
                 mac: mac,
                 mtu: mtu,
                 isUp: flags & UInt32(IFF_UP) != 0,
