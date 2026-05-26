@@ -11,4 +11,6 @@ class ToolStore: ObservableObject {
     let httpLatency = HTTPLatencyViewModel()
     let ssl         = SSLInspectorViewModel()
     let whois       = WhoisViewModel()
+    let wifi        = WiFiInspectorViewModel()
+    let interfaces  = NetworkInterfaceViewModel()
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HelpView: View {
     @State private var search = ""
-    @State private var selectedTitle: String? = "Ping"
+    @State private var selectedTitle: String? = "Dashboard"
 
     var body: some View {
         HSplitView {
@@ -173,6 +173,26 @@ private struct HelpSection: Identifiable {
 
 private let allSections: [HelpSection] = [
     HelpSection(
+        title: "Dashboard",
+        icon: "square.grid.2x2",
+        subtitle: "Real-time network overview",
+        topics: [
+            HelpTopic(heading: "What it does",
+                      body: "The Dashboard provides a centralized, high-level summary of your network environment and the status of active diagnostic tools.",
+                      tips: nil),
+            HelpTopic(heading: "Interactive Cards",
+                      body: "Each card on the dashboard acts as a quick-access button. Clicking a card will navigate you directly to the corresponding tool for deeper analysis.",
+                      tips: [
+                        "Cards with a green pulse indicate an active diagnostic session.",
+                        "Hover over cards to see a subtle scale effect and highlighted borders.",
+                        "Tooltips provide a brief description of each tool's primary purpose."
+                      ]),
+            HelpTopic(heading: "System Health",
+                      body: "The header displays real-time badges for CPU load and memory pressure, helping you correlate network performance with local system resources.",
+                      tips: nil)
+        ]
+    ),
+    HelpSection(
         title: "Ping",
         icon: "antenna.radiowaves.left.and.right",
         subtitle: "ICMP echo request latency",
@@ -201,16 +221,20 @@ private let allSections: [HelpSection] = [
         subtitle: "Hop-by-hop path discovery",
         topics: [
             HelpTopic(heading: "What it does",
-                      body: "Uses /usr/sbin/traceroute to discover each network hop between your machine and the destination. Three probes are sent per hop; RTT is measured for each.",
+                      body: "Uses /usr/sbin/traceroute to discover each network hop between your machine and the destination. Features a modern Timeline View for visual path analysis.",
                       tips: nil),
-            HelpTopic(heading: "Path summary",
-                      body: "A strip below the toolbar shows a quick summary: total responding hops, the last responding host, its RTT (color-coded), and average path loss (hops returning * * *).",
-                      tips: nil),
-            HelpTopic(heading: "Geolocation column",
-                      body: "When Geolocation is enabled, each public IP is resolved to country + city via ipinfo.io. Private IPs (RFC 1918) are skipped. Disable in Settings if you prefer offline operation.",
+            HelpTopic(heading: "Timeline View",
+                      body: "Switch to the Timeline tab to see a stacked bar chart of RTTs for every hop. This provides a clear visual comparison of latency across the entire network path.",
                       tips: [
-                        "Flag emoji + city name appears in the Location column.",
-                        "Disable geolocation to skip API calls and speed up traces."
+                        "Canvas-drawn bars show the last 60 RTT samples per hop.",
+                        "Tap any hop row to expand a detailed RTT area chart for that specific hop."
+                      ]),
+            HelpTopic(heading: "Route Health",
+                      body: "The Route Health banner automatically assesses the path quality. It monitors for significant packet loss or excessive latency at any hop.",
+                      tips: [
+                        "Critical: Significant loss (≥50%) or severe latency detected.",
+                        "Degraded: Moderate loss (>0%) or high jitter observed.",
+                        "Healthy: Low latency and zero packet loss throughout the path."
                       ]),
             HelpTopic(heading: "Reading results",
                       body: "* * * means all three probes for that hop timed out. This is common for routers that drop ICMP TTL-exceeded packets but still forward traffic — the path isn't broken.",

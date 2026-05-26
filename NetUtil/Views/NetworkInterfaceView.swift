@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct NetworkInterfaceView: View {
-    @StateObject private var vm = NetworkInterfaceViewModel()
+    @EnvironmentObject private var vm: NetworkInterfaceViewModel
     @State private var showAll = false
 
     private var displayed: [NetworkInterface] {
@@ -24,6 +24,7 @@ struct NetworkInterfaceView: View {
             }
         }
         .padding(.vertical)
+        .onAppear { vm.refresh() }
     }
 
     private var toolbar: some View {
