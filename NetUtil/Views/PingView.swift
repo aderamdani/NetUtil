@@ -26,6 +26,11 @@ struct PingView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             controlBar
+                .onAppear {
+                    if host.isEmpty, !vm.currentHost.isEmpty {
+                        host = vm.currentHost
+                    }
+                }
             
             if let err = vm.error {
                 Text(err).foregroundColor(.red).font(.caption)
