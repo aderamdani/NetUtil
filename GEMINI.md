@@ -63,6 +63,38 @@ The Ping tool in NetUtil is a wrapper around `/sbin/ping`. It uses `Process` and
 
 ---
 
+## Optimization Plan (v1.4.0 & Beyond)
+
+### 1. Dashboard & Global State
+- [x] **Ultra-Interactive Dashboard**: Centralized summary with clickable cards and mini-sparklines.
+- [x] **Network Identity**: Automatic detection of Local IP, Public IP, VPN IP, and Hostname in the header.
+- [x] **IP Intelligence**: Integrated `IPAddressDetails` model for Class/Public/Private/Subnet analysis.
+- [x] **Unified State**: Moving Wi-Fi and Interface ViewModels into `ToolStore` for shared real-time data.
+
+### 2. Automation & Integrity
+- [x] **Automated Release Prompt**: Added instructions to handle full release cycles (docs + build + DMG) in one go.
+
+---
+
+## 🤖 Release Automation Prompt Procedure
+
+When the user asks to **"commit, build DMG, and release"** (or similar), perform these steps automatically:
+
+1.  **Documentation Sync**:
+    - Update `CHANGELOG.md` with latest features.
+    - Sync `README.md` and `DOCUMENTATION.md` versions.
+    - Update `AboutView.swift` tool lists and acknowledgments.
+2.  **Clean Up**:
+    - Remove old artifacts: `rm -rf dist/NetUtil.xcarchive`.
+3.  **Build & Package**:
+    - Run full build verification: `xcodebuild build ...`.
+    - Generate DMG: `bash scripts/build_dmg.sh`.
+4.  **Version Control**:
+    - Commit with a professional message: `docs: release vX.X.X - <key features>`.
+    - DO NOT push unless explicitly asked.
+
+---
+
 ## Release Automation Procedure (Automated via GitHub Actions)
 
 To trigger a new official release:

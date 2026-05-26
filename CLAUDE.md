@@ -139,6 +139,21 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 
 ## Feature Notes (per tool)
 
+### Dashboard (v1.4.0)
+- **Features**: Ultra-interactive hub with clickable cards, sparklines (RTT/RSSI), and system health badges (CPU/RAM).
+- **Network Identity Header**: Displays Hostname, Local IP, Public IP (fetched from ipify.org), and VPN Status (utun detection).
+- **IP Analysis**: Uses `IPAddressDetails` model for automated Class/Private/Netmask detection.
+- **Quick Actions**: Circle play/stop buttons on cards; uses shared ViewModels from `ToolStore`.
+- **Navigation**: Click cards to update `selection` binding and navigate sidebar.
+
+### Build & Release Workflow
+When requested to **"commit, build DMG, and release"**, follow this checklist:
+1. **Sync Documentation**: Update `CHANGELOG.md`, `README.md`, `DOCUMENTATION.md`, and `AboutView.swift`.
+2. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive`.
+3. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`.
+4. **Package**: Run `bash scripts/build_dmg.sh`.
+5. **Commit**: `git commit -m "docs: release vX.X.X"` (do not push unless asked).
+
 ### Ping
 - Input: hostname or IP, optional count (default from `defaultPingCount`), interval (default `defaultPingInterval`), infinite toggle (`∞`)
 - Stats bar: Sent · Recv · Loss% · Min · Avg · Max · **Jitter** — all color-coded against RTT thresholds
