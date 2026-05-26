@@ -87,8 +87,6 @@ struct TracerouteHop: Identifiable {
         for s in samples.reversed() { if s.rtt == nil { n += 1 } else { break } }
         return n
     }
-    
-    var isBottleneck: Bool = false
 
     mutating func appendRound(_ rtts: [Double?], at timestamp: Date) {
         let valid = rtts.compactMap { $0 }
