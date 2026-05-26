@@ -11,10 +11,40 @@ struct MultiPingView: View {
             if vm.slots.isEmpty {
                 emptyState
             } else {
+                summaryBar
                 slotsTable
             }
         }
         .padding()
+    }
+
+    private var summaryBar: some View {
+        let running = vm.slots.filter { $0.isRunning }.count
+        let responding = vm.slots.filter { $0.loss < 100 && $0.sent > 0 }.count
+        let avgLoss = vm.slots.isEmpty ? 0.0
+            : vm.slots.map { $0.loss }.reduce(0, +) / Double(vm.slots.count)
+        return HStack(spacing: 10) {
+            summaryChip("Hosts", "\(vm.slots.count)", .primary)
+            summaryChip("Running", "\(running)", running > 0 ? .accentColor : .secondary)
+            summaryChip("Responding", "\(responding)/\(vm.slots.count)",
+                        responding == vm.slots.count ? .green : responding > 0 ? .orange : .red)
+            summaryChip("Avg Loss", String(format: "%.1f%%", avgLoss),
+                        avgLoss == 0 ? .secondary : avgLoss < 10 ? .orange : .red)
+            Spacer()
+        }
+    }
+
+    private func summaryChip(_ label: String, _ value: String, _ color: Color) -> some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(.system(.body, design: .monospaced).bold())
+                .foregroundColor(color)
+            Text(label).font(.caption2).foregroundColor(.secondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(Color(.controlBackgroundColor))
+        .cornerRadius(8)
     }
 
     private var addBar: some View {
