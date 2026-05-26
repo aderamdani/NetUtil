@@ -158,7 +158,8 @@ When requested to **"commit, build DMG, and release"**, follow this checklist:
 3. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive`.
 4. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`.
 5. **Package**: Run `bash scripts/build_dmg.sh`.
-6. **Commit**: `git commit -m "docs: release vX.X.X"` (do not push unless asked).
+6. **Commit & Push**: `git commit -m "docs: release vX.X.X"` then `git push origin main && git push origin --tags`.
+7. **Manual Fallback**: If CI fails, use `gh release create vX.X.X dist/NetUtil-X.X.X.dmg`.
 
 ### Ping
 - Input: hostname or IP, optional count (default from `defaultPingCount`), interval (default `defaultPingInterval`), infinite toggle (`∞`)
