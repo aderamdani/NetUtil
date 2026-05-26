@@ -14,6 +14,7 @@ struct PingView: View {
     @State private var infinite = false
     @State private var showRaw = false
     @State private var showHistory = false
+    @State private var tableScrollID: PingResult.ID?
 
     private var resolvedCount: String { countText.isEmpty ? "\(defaultCount)" : countText }
     private var resolvedInterval: String { intervalText.isEmpty ? String(format: "%.1f", defaultInterval) : intervalText }
@@ -236,6 +237,10 @@ struct PingView: View {
                     .foregroundColor(rttColor(r.rtt))
             }
             .width(100)
+        }
+        .scrollPosition(id: $tableScrollID)
+        .onChange(of: vm.results.count) {
+            tableScrollID = vm.results.last?.id
         }
     }
 
