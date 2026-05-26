@@ -149,17 +149,22 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 ### Build & Release Workflow
 When requested to **"commit, build DMG, and release"**, follow this checklist:
 0. **Sync**: Run `git pull` before making any changes.
-1. **Update Version (SemVer)**:
-   - **Patch (+0.0.1)**: Minor tweaks, UI polish, or bug fixes.
-   - **Minor (+0.1.0)**: New feature or significant tool improvement.
-   - **Major (+1.0.0)**: Complete overhaul or massive core change.
+1. **Update Version (SemVer Rules)**:
+   - **Patch (+0.0.1)**: Perubahan minor banget, UI polish, atau bug fix.
+   - **Minor (+0.1.0)**: Penambahan 1 fitur atau peningkatan alat yang signifikan.
+   - **Major (+1.0.0)**: Full upgrade, perombakan sistem, atau perubahan core besar.
    - Update `MARKETING_VERSION` in `project.pbxproj` and `CHANGELOG.md`.
 2. **Sync Documentation**: Update `README.md`, `DOCUMENTATION.md`, and `AboutView.swift`.
-3. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive`.
+3. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive` (Hapus xcarchive lama di dist).
 4. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`.
 5. **Package**: Run `bash scripts/build_dmg.sh`.
-6. **Commit & Push**: `git commit -m "docs: release vX.X.X"` then `git push origin main && git push origin --tags`.
-7. **Manual Fallback**: If CI fails, use `gh release create vX.X.X dist/NetUtil-X.X.X.dmg`.
+6. **Commit & Push**: 
+   - `git commit -m "docs: release vX.X.X - <summary>"`
+   - `git push origin main`
+   - `git tag vX.X.X`
+   - `git push origin --tags`
+7. **Manual Fallback**: Jika CI GitHub Actions gagal (billing issue), gunakan GitHub CLI:
+   `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X" --notes "Release notes summary"`
 
 ### Ping
 - Input: hostname or IP, optional count (default from `defaultPingCount`), interval (default `defaultPingInterval`), infinite toggle (`∞`)
