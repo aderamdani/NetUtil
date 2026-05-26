@@ -1,0 +1,35 @@
+name: Swift CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build and Analyze
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project NetUtil.xcodeproj \
+            -scheme NetUtil \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Lint (Optional)
+        run: |
+          # If SwiftLint is used in the future, it can be added here.
+          echo "Skipping linting for now as no SwiftLint config is present."
