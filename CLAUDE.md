@@ -137,6 +137,105 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 
 ---
 
+## Feature Notes (per tool)
+
+### Ping
+- Input: hostname or IP, optional count (default from `defaultPingCount`), interval (default `defaultPingInterval`), infinite toggle (`∞`)
+- Stats bar: Sent · Recv · Loss% · Min · Avg · Max · **Jitter** — all color-coded against RTT thresholds
+- Live RTT chart: last 60 results, `LineMark + AreaMark + PointMark` via Swift Charts; points colored green/orange/red
+- Output toggle: Table view (auto-scrolls to latest row via `scrollPosition`) ↔ Raw monospaced output (also auto-scrolls)
+- Export: CSV and JSON via `Exporter`, triggered from toolbar menu
+- Host history: dropdown with clock icon, 20-entry MRU via `HostHistory.shared`, clearable
+- Regex parsing: two pre-compiled `NSRegularExpression` patterns (IPv4 `icmp_seq` + IPv6 `icmp6_seq`), parsed on background thread
+- Stats model (`PingStats`): tracks transmitted, received, min/avg/max RTT, jitter (mean absolute deviation of consecutive RTTs)
+
+### Traceroute
+- Input: hostname/IP, max hops (default 30), re-trace interval (default 5 s)
+- Reruns automatically every `interval` seconds while running — `round` counter shown in toolbar
+- Hops table columns: #, Host/IP, Location, Snt, Loss%, Last, Avg, Best, Wrst, Updated, **sparkline bar graph** (last 60 samples, Canvas-drawn)
+- Row background: red tint at ≥50% loss, orange at >0% loss
+- **Path summary strip**: Hops count · Last Seen host · Last RTT · Avg Loss — chips above table
+- Detail panel (split view): click any hop to see per-hop RTT area chart over time with timeout markers (red ×)
+- Geolocation: queries `ipinfo.io` per unique IP (opt-in, cached per session, disabled in Settings → Privacy)
+- Geo display: flag + city/country + ISP in Location column; full org in `.help()` tooltip
+- Export: CSV and JSON
+- Raw output tab available
+
+### Multi-Ping
+- Add unlimited hosts; each runs independent `/sbin/ping` process (infinite mode)
+- Table: Host · Snt · Loss% · Last (ms) · Avg (ms) · **sparkline** (last 60 samples)
+- Status dot per row: green = 0% loss, orange = some loss, red = ≥50% loss
+- Start All / Stop All buttons
+- Remove individual sessions with ×
+- Sessions persist across sidebar navigation (owned by `ToolStore`)
+
+### Port Scanner
+- Presets: **Common** (well-known services ~20 ports) · **Well-known** (1–1023) · **All** (1–65535) · **Custom** (free-form: `80,443,8000-9000`)
+- Concurrency stepper: 1–200 threads (default from `portScanConcurrency`)
+- Timeout: configurable per connection (default from `portScanTimeout`)
+- Progress bar with scanned/total count and live **ETA** estimate
+- Stats bar: Scanned · Open · Closed/Filtered
+- Filter toggle: "Open only" hides closed/filtered rows
+- Status badges: `open` (green capsule) · `closed` (red) · `filtered` (orange)
+- Service name lookup: maps port → service name string
+- Export: All ports CSV · Open ports CSV
+- Elapsed timer shown during scan
+
+### HTTP Latency
+- Methods: GET · HEAD · POST · PUT · OPTIONS
+- Follow Redirects toggle
+- Waterfall chart: **DNS · TCP · TLS · Request · TTFB · Download** phases from `URLSessionTaskMetrics`
+- Summary bar: HTTP status (color-coded) · Total ms · Body bytes
+- History table: keeps all runs from the session, selectable to re-display waterfall
+- "Run Again" button re-runs same URL/method
+
+### DNS Lookup
+- Record types: A, AAAA, MX, TXT, NS, CNAME, SOA, PTR
+- Uses `/usr/bin/dig`; output displayed with syntax highlighting
+- Export raw output
+
+### WHOIS
+- Uses `/usr/bin/whois`; key/value parsed display, comments dimmed
+- Export raw output
+
+### SSL/TLS Inspector
+- Input: hostname or URL (strips `https://` prefix), configurable port (default 443)
+- Full certificate chain display — click tab per cert in chain
+- Per-cert: Subject, Issuer, SANs, Not Before/After, Serial, Key Type (RSA/EC + bit size), SHA-256 fingerprint
+- Expiry countdown badge: days remaining, colored green/orange/red
+- TLS version badge + cipher suite badge (from `URLAuthenticationChallenge`)
+- Certificate parsing via `SecCertificateCopyValues` with pre-cast CFString keys
+
+### Network Interfaces
+- Lists all `getifaddrs()` interfaces (excludes loopback option)
+- Per interface: IPv4, IPv6, MAC, MTU, Up/Down status
+- Auto-refreshes every 3 s
+
+### Wi-Fi Inspector
+- Data source: `CoreWLAN.CWWiFiClient`
+- Displays: SSID, BSSID (selectable text), channel, band, security type, country code
+- RSSI in dBm + color-coded signal quality (green/orange/red)
+- SNR display with color coding
+- Transmit rate (Mbps)
+- RSSI history sparkline (last N samples)
+- Manual refresh button
+- Auto-refreshes on timer
+
+### Route Table
+- Runs `/usr/sbin/netstat -rn`, shows IPv4 and IPv6 routes
+- Columns: Destination · Gateway · Flags · Interface
+- Flag descriptions shown as tooltips
+- Live text filter field
+
+### Bandwidth Monitor
+- Polls `getifaddrs()` on configurable interval (default 1 s, from `bandwidthInterval`)
+- Per-interface card: RX rate + TX rate in auto-scaled units (B/s → KB/s → MB/s)
+- 60-second rolling area chart per interface (smooth interpolation)
+- "Active only" toggle hides interfaces with no traffic
+- Grid layout, 2 columns, excludes loopback
+
+---
+
 ## Windows & Scenes
 
 - **Main window** — `WindowGroup` → `ContentView` (NavigationSplitView, min 900×580)
