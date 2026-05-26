@@ -37,7 +37,7 @@ enum Tool: String, CaseIterable, Identifiable {
 }
 
 struct ContentView: View {
-    @State private var selection: Tool? = .dashboard
+    @State private var selection: Tool? = nil
     @EnvironmentObject private var tools: ToolStore
 
     var body: some View {
@@ -93,11 +93,7 @@ struct ContentView: View {
             case .bandwidth:
                 BandwidthView()
             case nil:
-                ContentUnavailableView(
-                    "Select a Tool",
-                    systemImage: "network",
-                    description: Text("Choose a tool from the sidebar")
-                )
+                AboutView()
             }
         }
         .frame(minWidth: 900, minHeight: 580)
