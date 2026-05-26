@@ -4,11 +4,12 @@ struct AboutView: View {
     private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.2.0"
     private let build   = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "2"
     
+    @StateObject private var updater = Updater()
     @State private var checkingForUpdates = false
     @State private var updateMessage: String?
     @State private var updateAlertTitle = ""
     @State private var showUpdateAlert = false
-    @State private var latestVersionURL: URL?
+    @State private var latestDMGURL: URL?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -28,21 +29,39 @@ struct AboutView: View {
                             .font(.system(.subheadline, design: .monospaced))
                             .foregroundColor(.secondary)
                         
-                        Button {
-                            checkForUpdates()
-                        } label: {
-                            if checkingForUpdates {
-                                ProgressView()
-                                    .controlSize(.mini)
-                                    .scaleEffect(0.6)
-                            } else {
-                                Text("Check for Updates")
-                                    .font(.system(size: 10, weight: .medium))
+                        if updater.updateReady {
+                            Button("Install & Restart") {
+                                updater.installAndRelaunch()
                             }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.mini)
+                            .tint(.green)
+                        } else if updater.isDownloading {
+                            HStack(spacing: 8) {
+                                ProgressView(value: updater.downloadProgress)
+                                    .frame(width: 60)
+                                    .controlSize(.small)
+                                Text("\(Int(updater.downloadProgress * 100))%")
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                            }
+                        } else {
+                            Button {
+                                checkForUpdates()
+                            } label: {
+                                if checkingForUpdates {
+                                    ProgressView()
+                                        .controlSize(.mini)
+                                        .scaleEffect(0.6)
+                                } else {
+                                    Text("Check for Updates")
+                                        .font(.system(size: 10, weight: .medium))
+                                }
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.mini)
+                            .disabled(checkingForUpdates)
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.mini)
-                        .disabled(checkingForUpdates)
                     }
                 }
             }
@@ -54,6 +73,14 @@ struct AboutView: View {
 
             // Description
             VStack(alignment: .leading, spacing: 14) {
+                if let error = updater.error {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .frame(maxWidth: .infinity)
+                    Divider()
+                }
+
                 Text("A professional network diagnostics toolkit for macOS. Monitor, analyze, and debug network connectivity with ease.")
                     .font(.callout)
                     .foregroundColor(.secondary)
@@ -111,9 +138,9 @@ struct AboutView: View {
         .frame(width: 360)
         .fixedSize()
         .alert(updateAlertTitle, isPresented: $showUpdateAlert) {
-            if let url = latestVersionURL {
-                Button("Download") {
-                    NSWorkspace.shared.open(url)
+            if let url = latestDMGURL {
+                Button("Download & Update") {
+                    updater.downloadAndInstall(from: url)
                 }
                 Button("Later", role: .cancel) { }
             } else {
@@ -145,7 +172,7 @@ struct AboutView: View {
                 guard let data = data,
                       let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                       let tagName = json["tag_name"] as? String,
-                      let htmlUrl = json["html_url"] as? String else {
+                      let assets = json["assets"] as? [[String: Any]] else {
                     self.updateAlertTitle = "Check Failed"
                     self.updateMessage = "Could not parse update information from GitHub."
                     self.showUpdateAlert = true
@@ -154,14 +181,24 @@ struct AboutView: View {
                 
                 let latestVersion = tagName.replacingOccurrences(of: "v", with: "")
                 
-                if latestVersion.compare(currentVersion, options: .numeric) == .orderedDescending {
-                    self.updateAlertTitle = "Update Available"
-                    self.updateMessage = "A new version (v\(latestVersion)) is available. Would you like to download it now?"
-                    self.latestVersionURL = URL(string: htmlUrl)
+                // Find DMG asset
+                if let dmgAsset = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".dmg") == true }),
+                   let downloadURLString = dmgAsset["browser_download_url"] as? String,
+                   let downloadURL = URL(string: downloadURLString) {
+                    
+                    if latestVersion.compare(currentVersion, options: .numeric) == .orderedDescending {
+                        self.updateAlertTitle = "Update Available"
+                        self.updateMessage = "A new version (v\(latestVersion)) is available. Would you like to update automatically?"
+                        self.latestDMGURL = downloadURL
+                    } else {
+                        self.updateAlertTitle = "Up to Date"
+                        self.updateMessage = "NetUtil v\(currentVersion) is currently the newest version."
+                        self.latestDMGURL = nil
+                    }
                 } else {
-                    self.updateAlertTitle = "Up to Date"
-                    self.updateMessage = "NetUtil v\(currentVersion) is currently the newest version."
-                    self.latestVersionURL = nil
+                    self.updateAlertTitle = "Check Failed"
+                    self.updateMessage = "No installer found for the latest version."
+                    self.latestDMGURL = nil
                 }
                 self.showUpdateAlert = true
             }
