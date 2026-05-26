@@ -4,6 +4,23 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.3.0] — 2026-05-26
+
+### Added
+- **Traceroute Timeline View**: PingPlotter-style stacked hop rows with Canvas-drawn RTT bars; tap any hop to expand a detail chart.
+- **Route Health Banner**: Automatic Critical/Degraded/Healthy assessment based on consecutive packet loss and worst hop RTT across the entire path.
+- **Column Guide**: Help sheet explaining every table column and a "How to Read Traceroute Results" guide.
+- **Jitter per Hop**: Standard deviation of RTT samples shown in a new Jitter column (color-coded green/orange/red).
+- **Consecutive Loss Badge**: Warning icon appears on any hop with 3+ consecutive timeouts.
+- **Copy per Hop**: Copy button in each hop row copies host, geolocation, avg RTT, loss, and jitter to clipboard.
+- **Column Tooltips**: `.help()` text on all table column headers.
+
+### Changed
+- Traceroute view mode picker: Hops / Timeline / Raw (replaces single table view).
+- `HopDetailChart` now includes dashed `RuleMark` threshold lines (warn / crit).
+
+---
+
 ## [1.2.0] — 2026-05-26
 
 ### Added
