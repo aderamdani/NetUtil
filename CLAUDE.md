@@ -147,16 +147,89 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 
 ---
 
-## Release Process
+## Release Checklist
 
-```bash
-git tag v1.x.x
-git push origin main --tags
-bash scripts/build_dmg.sh          # produces dist/NetUtil-1.x.x.dmg
-gh release create v1.x.x --title "NetUtil v1.x.x" --notes "..." dist/NetUtil-1.x.x.dmg
+Every time commits are ready to ship, complete **all** steps below in order.
+
+### 1 — Bump version in Xcode
+Open `NetUtil.xcodeproj` → target **NetUtil** → General tab:
+- **Version** (`CFBundleShortVersionString`) → new semver, e.g. `1.2.0`
+- **Build** (`CFBundleVersion`) → increment integer, e.g. `3`
+
+`AboutView` reads these from `Bundle.main.infoDictionary` at runtime — no hardcoded strings to update.
+
+### 2 — Update CHANGELOG.md
+Add a new section at the top of `CHANGELOG.md`:
+
+```markdown
+## [x.y.z] — YYYY-MM-DD
+
+### Added
+- ...
+
+### Changed
+- ...
+
+### Fixed
+- ...
 ```
 
-`build_dmg.sh` reads version from `git describe --tags`. Requires `create-dmg` (`brew install create-dmg`). Skips Xcode build if `dist/NetUtil.app` already exists.
+### 3 — Commit everything
+```bash
+git add NetUtil.xcodeproj CHANGELOG.md
+git commit -m "Bump version to x.y.z"
+git push origin main
+```
+
+### 4 — Tag and push tag
+```bash
+git tag vx.y.z
+git push origin vx.y.z
+```
+
+### 5 — Build DMG
+```bash
+bash scripts/build_dmg.sh
+# produces dist/NetUtil-x.y.z.dmg
+# reads version from git describe --tags automatically
+```
+Requires `create-dmg` (`brew install create-dmg`). Skips Xcode build step if `dist/NetUtil.app` already exists.
+
+### 6 — Create GitHub release
+```bash
+gh release create vx.y.z \
+  --title "NetUtil vx.y.z" \
+  --notes "$(cat <<'EOF'
+## What's New
+
+### Added
+- ...
+
+### Fixed
+- ...
+
+---
+
+## Download
+
+**NetUtil-x.y.z.dmg** — open, drag to Applications, run.
+> First launch: right-click → Open to bypass Gatekeeper.
+
+## Requirements
+- macOS 15 Sequoia or later
+
+See [CHANGELOG.md](https://github.com/aderamdani/NetUtil/blob/main/CHANGELOG.md) for full history.
+EOF
+)" \
+  dist/NetUtil-x.y.z.dmg
+```
+
+### Summary of files touched per release
+| File | Change |
+|------|--------|
+| `NetUtil.xcodeproj/project.pbxproj` | Version + Build bump |
+| `CHANGELOG.md` | New version section at top |
+| `dist/NetUtil-x.y.z.dmg` | Rebuilt DMG (not committed, uploaded to release) |
 
 ---
 
