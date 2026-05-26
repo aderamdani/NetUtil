@@ -197,36 +197,28 @@ struct TracerouteView: View {
         let finalResponding = vm.hops.last(where: { $0.avgRtt != nil })
         let reachHop = vm.hops.last(where: { $0.ip != nil || $0.host != nil })
 
-        return HStack(spacing: 10) {
-            summaryChip("Hops", "\(vm.hops.count)", .primary)
+        return HStack(spacing: 12) {
+            StatCard(title: "Hops", value: "\(vm.hops.count)", icon: "arrow.triangle.branch")
+                .help("Total number of network hops (routers) discovered along the path.")
+            
             if let hop = reachHop {
-                summaryChip("Last Seen", hop.displayHost, .accentColor)
+                StatCard(title: "Last Seen", value: hop.displayHost, icon: "eye")
+                    .help("The furthest host reached in the current trace.")
             }
+            
             if let hop = finalResponding, let avg = hop.avgRtt {
-                summaryChip("Last RTT", String(format: "%.1f ms", avg), rttColorLocal(avg))
+                StatCard(title: "Last RTT", value: String(format: "%.1f", avg), unit: "ms", icon: "waveform.path.ecg", color: rttColorLocal(avg))
+                    .help("The average Round Trip Time to the last responding hop.")
             }
+            
             let totalLoss = vm.hops.isEmpty ? 0.0 :
                 vm.hops.map(\.loss).reduce(0, +) / Double(vm.hops.count)
             if totalLoss > 0 {
-                summaryChip("Avg Loss", String(format: "%.0f%%", totalLoss),
-                            totalLoss >= 20 ? .red : .orange)
+                StatCard(title: "Avg Loss", value: String(format: "%.0f%%", totalLoss), icon: "exclamationmark.triangle", color: totalLoss >= 20 ? .red : .orange)
+                    .help("Average packet loss across all hops in the path.")
             }
             Spacer()
         }
-    }
-
-    private func summaryChip(_ label: String, _ value: String, _ color: Color) -> some View {
-        VStack(spacing: 1) {
-            Text(value)
-                .font(.system(.caption, design: .monospaced).bold())
-                .foregroundColor(color)
-                .lineLimit(1)
-            Text(label).font(.caption2).foregroundColor(.secondary)
-        }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 4)
-        .background(Color(.controlBackgroundColor))
-        .cornerRadius(6)
     }
 
     // MARK: - Route Health Banner
@@ -555,11 +547,24 @@ private struct HopRow: View {
                 .font(.system(.caption, design: .monospaced))
                 .frame(width: 32, alignment: .leading)
 
-            Text(hop.displayHost)
-                .font(.system(.caption, design: .monospaced))
-                .foregroundColor(hop.host == nil && hop.ip == nil ? .secondary : .primary)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 4) {
+                Text(hop.displayHost)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(hop.host == nil && hop.ip == nil ? .secondary : .primary)
+                    .lineLimit(1)
+                
+                if hop.isBottleneck {
+                    Text("BOTTLENECK")
+                        .font(.system(size: 7, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(Color.red)
+                        .cornerRadius(3)
+                        .help("Significant latency jump detected at this hop.")
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Group {
                 if let geo = hop.geo {

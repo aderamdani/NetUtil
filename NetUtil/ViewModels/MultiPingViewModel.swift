@@ -84,9 +84,19 @@ final class PingSlot: ObservableObject, Identifiable {
     }
 }
 
+enum MultiPingSort: String, CaseIterable, Identifiable {
+    case name = "Name"
+    case latency = "Latency"
+    case loss = "Packet Loss"
+    var id: String { self.rawValue }
+}
+
 @MainActor
 class MultiPingViewModel: ObservableObject {
     @Published var slots: [PingSlot] = []
+    @Published var sortMode: MultiPingSort = .name {
+        didSet { sortSlots() }
+    }
 
     func add(host: String) {
         guard !host.trimmingCharacters(in: .whitespaces).isEmpty,
@@ -94,6 +104,7 @@ class MultiPingViewModel: ObservableObject {
         let slot = PingSlot(host: host)
         slots.append(slot)
         slot.start()
+        sortSlots()
     }
 
     func remove(_ slot: PingSlot) {
@@ -103,4 +114,17 @@ class MultiPingViewModel: ObservableObject {
 
     func stopAll() { slots.forEach { $0.stop() } }
     func startAll() { slots.forEach { $0.start() } }
+    
+    func sortSlots() {
+        slots.sort { a, b in
+            switch sortMode {
+            case .name:
+                return a.host.localizedCompare(b.host) == .orderedAscending
+            case .latency:
+                return (a.avgRtt ?? 999999) < (b.avgRtt ?? 999999)
+            case .loss:
+                return a.loss > b.loss
+            }
+        }
+    }
 }

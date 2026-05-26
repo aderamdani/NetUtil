@@ -29,7 +29,7 @@
 #### 📡 Connectivity & Performance
 *   **Advanced Ping**: Beyond just ICMP. Features real-time RTT charts, jitter analysis, distribution histograms, and audible alerts for packet loss.
 *   **Multi-Ping**: Monitor multiple targets simultaneously with live stability sparklines—ideal for server farm monitoring.
-*   **Traceroute**: Comprehensive hop-by-hop analysis with integrated geolocation and visual path stability tracking.
+*   **Traceroute**: Comprehensive hop-by-hop analysis with **Timeline View**, automatic **Route Health** assessment, geolocation, and visual path stability tracking.
 *   **HTTP Latency**: Detailed breakdown of every request phase (DNS, TCP, TLS, TTFB) using native `URLSessionTaskMetrics`.
 
 #### 🔍 Inspection & Discovery
@@ -66,7 +66,7 @@
 #### 📡 Konektivitas & Performa
 *   **Advanced Ping**: Lebih dari sekadar ICMP. Dilengkapi grafik latensi real-time, analisis jitter, histogram distribusi, dan peringatan suara saat terjadi paket hilang.
 *   **Multi-Ping**: Pantau banyak target secara bersamaan dengan grafik sparkline stabilitas—cocok untuk pemantauan server farm.
-*   **Traceroute**: Analisis rute per hop yang lengkap dengan geolokasi terintegrasi dan pelacakan stabilitas jalur visual.
+*   **Traceroute**: Analisis rute per hop yang lengkap dengan **Timeline View**, penilaian **Kesehatan Rute** otomatis, geolokasi terintegrasi, dan pelacakan stabilitas jalur visual.
 *   **HTTP Latency**: Breakdown detail setiap fase permintaan (DNS, TCP, TLS, TTFB) menggunakan `URLSessionTaskMetrics` bawaan.
 
 #### 🔍 Inspeksi & Discovery
@@ -95,6 +95,13 @@
 
 ## 📄 Documentation
 For advanced technical details and development guides, please refer to **[DOCUMENTATION.md](./DOCUMENTATION.md)**.
+If you'd like to contribute, see **[CONTRIBUTING.md](./CONTRIBUTING.md)**.
+
+## 🛡️ Security
+Please see **[SECURITY.md](./SECURITY.md)** for our security policy.
+
+## ⚖️ License
+This project is licensed under the MIT License - see the **[LICENSE](./LICENSE)** file for details.
 
 ## ✍️ Author
 **Ade Ramdani** - [GitHub](https://github.com/aderamdani)

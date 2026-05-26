@@ -147,26 +147,17 @@ struct PortScanView: View {
     }
 
     private var statsBar: some View {
-        HStack(spacing: 14) {
-            statChip("Scanned", "\(vm.scanned)", .primary)
-            statChip("Open", "\(vm.openCount)", vm.openCount > 0 ? .green : .secondary)
-            statChip("Closed/Filtered",
-                     "\(vm.scanned - vm.openCount)",
-                     .secondary)
+        HStack(spacing: 12) {
+            StatCard(title: "Scanned", value: "\(vm.scanned)", icon: "checklist")
+                .help("Total number of ports probed during this scan.")
+            StatCard(title: "Open", value: "\(vm.openCount)", icon: "lock.open", color: vm.openCount > 0 ? .green : .secondary)
+                .help("Number of ports found to be open and accepting connections.")
+            StatCard(title: "Closed/Filtered",
+                     value: "\(vm.scanned - vm.openCount)",
+                     icon: "lock.slash",
+                     color: .secondary)
+                .help("Ports that are either closed or blocked by a firewall (filtered).")
         }
-    }
-
-    private func statChip(_ label: String, _ value: String, _ color: Color) -> some View {
-        VStack(spacing: 2) {
-            Text(value)
-                .font(.system(.body, design: .monospaced).bold())
-                .foregroundColor(color)
-            Text(label).font(.caption2).foregroundColor(.secondary)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(Color(.controlBackgroundColor))
-        .cornerRadius(8)
     }
 
     private var resultsTable: some View {

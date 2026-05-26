@@ -1,10 +1,15 @@
 import Foundation
 import Combine
+import CoreLocation
 
 private struct IPInfoResponse: Decodable {
     let city: String?
     let country: String?
     let org: String?
+    let hostname: String?
+    let loc: String?
+    let postal: String?
+    let timezone: String?
 }
 
 @MainActor
@@ -125,6 +130,22 @@ class TracerouteViewModel: ObservableObject {
             }
         }
         hops.sort { $0.hop < $1.hop }
+        detectBottlenecks()
+    }
+
+    private func detectBottlenecks() {
+        guard hops.count > 1 else { return }
+        var prevAvg: Double? = nil
+        for i in 0..<hops.count {
+            guard let curr = hops[i].avgRtt else { prevAvg = nil; continue }
+            if let prev = prevAvg {
+                let delta = curr - prev
+                hops[i].isBottleneck = delta > 30 && curr > 50
+            } else {
+                hops[i].isBottleneck = false
+            }
+            prevAvg = curr
+        }
     }
 
     private func lookupGeoForNewHops() {
@@ -167,7 +188,14 @@ class TracerouteViewModel: ObservableObject {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let json = try JSONDecoder().decode(IPInfoResponse.self, from: data)
-            return GeoInfo(country: json.country ?? "", city: json.city ?? "", org: json.org ?? "")
+            var coord: CLLocationCoordinate2D?
+        if let loc = json.loc {
+            let parts = loc.split(separator: ",").compactMap { Double($0) }
+            if parts.count == 2 { coord = CLLocationCoordinate2D(latitude: parts[0], longitude: parts[1]) }
+        }
+        return GeoInfo(country: json.country ?? "", city: json.city ?? "", org: json.org ?? "",
+                       hostname: json.hostname, postal: json.postal, timezone: json.timezone,
+                       coordinate: coord)
         } catch { return nil }
     }
 
