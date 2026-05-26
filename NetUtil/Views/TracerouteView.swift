@@ -1,7 +1,8 @@
 import SwiftUI
 import Charts
+import MapKit
 
-private enum TraceViewMode { case hops, timeline, raw }
+private enum TraceViewMode { case hops, timeline, map, raw }
 
 struct TracerouteView: View {
     @ObservedObject var vm: TracerouteViewModel
@@ -11,6 +12,7 @@ struct TracerouteView: View {
     @State private var intervalText = "5"
     @State private var viewMode: TraceViewMode = .hops
     @State private var selectedHopID: UUID?
+    @State private var infoHop: TracerouteHop?
     @State private var showColumnHelp = false
     @AppStorage("rttWarnThreshold") private var rttWarn: Double = 20.0
     @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
@@ -41,6 +43,8 @@ struct TracerouteView: View {
                 }
             case .timeline:
                 timelineView
+            case .map:
+                routeMapView
             case .raw:
                 rawOutput
             }
@@ -48,6 +52,9 @@ struct TracerouteView: View {
         .padding()
         .sheet(isPresented: $showColumnHelp) {
             columnHelpSheet
+        }
+        .sheet(item: $infoHop) { hop in
+            IPInfoCard(hop: hop)
         }
     }
 
@@ -154,10 +161,11 @@ struct TracerouteView: View {
             Picker("", selection: $viewMode) {
                 Text("Hops").tag(TraceViewMode.hops)
                 Text("Timeline").tag(TraceViewMode.timeline)
+                Text("Map").tag(TraceViewMode.map)
                 Text("Raw").tag(TraceViewMode.raw)
             }
             .pickerStyle(.segmented)
-            .frame(width: 240)
+            .frame(width: 320)
             Spacer()
             Button {
                 showColumnHelp = true
@@ -181,6 +189,13 @@ struct TracerouteView: View {
             legendItem(.green,  "< \(Int(rttWarn)) ms")
             legendItem(.orange, "\(Int(rttWarn))–\(Int(rttCrit)) ms")
             legendItem(.red,    "> \(Int(rttCrit)) ms")
+            Spacer()
+            if vm.hops.contains(where: { $0.isBottleneck }) {
+                HStack(spacing: 4) {
+                    Image(systemName: "bolt.fill").font(.caption2).foregroundColor(.red)
+                    Text("= Bottleneck").font(.caption2).foregroundColor(.red)
+                }
+            }
         }
     }
 
@@ -196,29 +211,41 @@ struct TracerouteView: View {
     private var pathSummary: some View {
         let finalResponding = vm.hops.last(where: { $0.avgRtt != nil })
         let reachHop = vm.hops.last(where: { $0.ip != nil || $0.host != nil })
+        let bottleneckCount = vm.hops.filter(\.isBottleneck).count
 
-        return HStack(spacing: 12) {
-            StatCard(title: "Hops", value: "\(vm.hops.count)", icon: "arrow.triangle.branch")
-                .help("Total number of network hops (routers) discovered along the path.")
-            
+        return HStack(spacing: 10) {
+            summaryChip("Hops", "\(vm.hops.count)", .primary)
             if let hop = reachHop {
-                StatCard(title: "Last Seen", value: hop.displayHost, icon: "eye")
-                    .help("The furthest host reached in the current trace.")
+                summaryChip("Last Seen", hop.displayHost, .accentColor)
             }
-            
             if let hop = finalResponding, let avg = hop.avgRtt {
-                StatCard(title: "Last RTT", value: String(format: "%.1f", avg), unit: "ms", icon: "waveform.path.ecg", color: rttColorLocal(avg))
-                    .help("The average Round Trip Time to the last responding hop.")
+                summaryChip("Last RTT", String(format: "%.1f ms", avg), rttColorLocal(avg))
             }
-            
             let totalLoss = vm.hops.isEmpty ? 0.0 :
                 vm.hops.map(\.loss).reduce(0, +) / Double(vm.hops.count)
             if totalLoss > 0 {
-                StatCard(title: "Avg Loss", value: String(format: "%.0f%%", totalLoss), icon: "exclamationmark.triangle", color: totalLoss >= 20 ? .red : .orange)
-                    .help("Average packet loss across all hops in the path.")
+                summaryChip("Avg Loss", String(format: "%.0f%%", totalLoss),
+                            totalLoss >= 20 ? .red : .orange)
+            }
+            if bottleneckCount > 0 {
+                summaryChip("Bottlenecks", "\(bottleneckCount)", .red)
             }
             Spacer()
         }
+    }
+
+    private func summaryChip(_ label: String, _ value: String, _ color: Color) -> some View {
+        VStack(spacing: 1) {
+            Text(value)
+                .font(.system(.caption, design: .monospaced).bold())
+                .foregroundColor(color)
+                .lineLimit(1)
+            Text(label).font(.caption2).foregroundColor(.secondary)
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 4)
+        .background(Color(.controlBackgroundColor))
+        .cornerRadius(6)
     }
 
     // MARK: - Route Health Banner
@@ -308,7 +335,8 @@ struct TracerouteView: View {
                 LazyVStack(spacing: 0) {
                     ForEach(vm.hops) { hop in
                         HopRow(hop: hop, isSelected: selectedHopID == hop.id,
-                               rttWarn: rttWarn, rttCrit: rttCrit)
+                               rttWarn: rttWarn, rttCrit: rttCrit,
+                               onInfo: { infoHop = hop })
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 selectedHopID = selectedHopID == hop.id ? nil : hop.id
@@ -359,6 +387,91 @@ struct TracerouteView: View {
             .foregroundColor(.secondary)
             .frame(width: width, alignment: .leading)
             .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
+    }
+
+    // MARK: - Route Map View
+
+    private var routeMapView: some View {
+        let geoHops: [(TracerouteHop, CLLocationCoordinate2D)] = vm.hops.compactMap { hop in
+            guard let coord = hop.geo?.coordinate else { return nil }
+            return (hop, coord)
+        }
+
+        return Group {
+            if geoHops.isEmpty {
+                VStack(spacing: 10) {
+                    Image(systemName: "map")
+                        .font(.largeTitle)
+                        .foregroundColor(.secondary)
+                    Text(vm.hops.isEmpty
+                         ? "Run a traceroute to see the route map"
+                         : "Waiting for geolocation data…")
+                        .foregroundColor(.secondary)
+                        .font(.callout)
+                    if !vm.hops.isEmpty && !geoEnabled {
+                        Text("Enable Geo in Settings → Privacy")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.textBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor), lineWidth: 0.5))
+            } else {
+                Map {
+                    ForEach(geoHops, id: \.0.id) { hop, coord in
+                        Annotation("Hop \(hop.hop)", coordinate: coord) {
+                            Button {
+                                infoHop = hop
+                            } label: {
+                                ZStack {
+                                    Circle()
+                                        .fill(hopMapColor(hop))
+                                        .frame(width: 28, height: 28)
+                                        .shadow(radius: 2)
+                                    if hop.isBottleneck {
+                                        Image(systemName: "bolt.fill")
+                                            .font(.system(size: 9, weight: .bold))
+                                            .foregroundColor(.white)
+                                    } else {
+                                        Text("\(hop.hop)")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .help("\(hop.displayHost)\(hop.geo.map { " · \($0.shortLabel)" } ?? "")")
+                        }
+                    }
+                    if geoHops.count > 1 {
+                        MapPolyline(coordinates: geoHops.map(\.1))
+                            .stroke(.blue.opacity(0.5), lineWidth: 2)
+                    }
+                }
+                .mapStyle(.standard(elevation: .realistic))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor), lineWidth: 0.5))
+                .overlay(alignment: .bottomTrailing) {
+                    Text("\(geoHops.count) of \(vm.hops.count) hops mapped · tap pin for details")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .padding(6)
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .padding(10)
+                }
+            }
+        }
+    }
+
+    private func hopMapColor(_ hop: TracerouteHop) -> Color {
+        if hop.isBottleneck { return .red }
+        guard let avg = hop.avgRtt else { return .gray }
+        if avg < rttWarn { return .green }
+        if avg < rttCrit { return .orange }
+        return .red
     }
 
     // MARK: - Timeline View (PingPlotter-style)
@@ -540,28 +653,34 @@ private struct HopRow: View {
     let isSelected: Bool
     var rttWarn: Double = 20.0
     var rttCrit: Double = 100.0
+    var onInfo: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 0) {
-            Text("\(hop.hop)")
-                .font(.system(.caption, design: .monospaced))
-                .frame(width: 32, alignment: .leading)
+            HStack(spacing: 2) {
+                Text("\(hop.hop)")
+                    .font(.system(.caption, design: .monospaced))
+                if hop.isBottleneck {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 7))
+                        .foregroundColor(.red)
+                }
+            }
+            .frame(width: 32, alignment: .leading)
 
             HStack(spacing: 4) {
                 Text(hop.displayHost)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundColor(hop.host == nil && hop.ip == nil ? .secondary : .primary)
                     .lineLimit(1)
-                
                 if hop.isBottleneck {
-                    Text("BOTTLENECK")
-                        .font(.system(size: 7, weight: .bold))
-                        .foregroundColor(.white)
+                    Text("Bottleneck")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundColor(.red)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 1)
-                        .background(Color.red)
+                        .background(Color.red.opacity(0.12))
                         .cornerRadius(3)
-                        .help("Significant latency jump detected at this hop.")
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -595,6 +714,7 @@ private struct HopRow: View {
             sparkline
 
             copyButton
+            infoButton
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
@@ -603,6 +723,7 @@ private struct HopRow: View {
 
     private var rowBackground: Color {
         if isSelected { return Color.accentColor.opacity(0.12) }
+        if hop.isBottleneck { return Color.red.opacity(0.04) }
         if hop.loss >= 50 { return Color.red.opacity(0.06) }
         if hop.loss > 0 { return Color.orange.opacity(0.04) }
         return Color.clear
@@ -705,6 +826,17 @@ private struct HopRow: View {
         .help("Copy hop info to clipboard")
     }
 
+    private var infoButton: some View {
+        Button { onInfo?() } label: {
+            Image(systemName: "info.circle")
+                .font(.system(size: 9))
+                .foregroundColor(.accentColor)
+        }
+        .buttonStyle(.borderless)
+        .frame(width: 22)
+        .help("Show full IP info card")
+    }
+
     private func rttColor(_ rtt: Double) -> Color {
         if rtt < rttWarn { return .green }
         if rtt < rttCrit { return .orange }
@@ -715,6 +847,160 @@ private struct HopRow: View {
         if loss == 0 { return .secondary }
         if loss < 10 { return .orange }
         return .red
+    }
+}
+
+// MARK: - IP Info Card
+
+private struct IPInfoCard: View {
+    let hop: TracerouteHop
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Hop \(hop.hop)").font(.headline)
+                    Text(hop.displayHost)
+                        .font(.system(.subheadline, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .textSelection(.enabled)
+                }
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding()
+            .background(Color(.windowBackgroundColor))
+
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+
+                    if let ip = hop.ip {
+                        HStack(spacing: 8) {
+                            Label(hop.isPrivateIP ? "Private IP" : "Public IP",
+                                  systemImage: hop.isPrivateIP ? "lock.fill" : "globe")
+                                .font(.caption.bold())
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(hop.isPrivateIP ? Color.orange.opacity(0.15) : Color.green.opacity(0.12))
+                                .foregroundColor(hop.isPrivateIP ? .orange : .green)
+                                .cornerRadius(4)
+                            Text(ip)
+                                .font(.system(.body, design: .monospaced))
+                                .textSelection(.enabled)
+                        }
+                    }
+
+                    if let geo = hop.geo {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Geolocation").font(.caption.bold()).foregroundColor(.secondary)
+                            infoRow("Location",
+                                    "\(geo.flag) \(geo.city.isEmpty ? geo.country : "\(geo.city), \(geo.country)")")
+                            infoRow("ISP / ASN", geo.org)
+                            if let h = geo.hostname, !h.isEmpty { infoRow("Hostname", h) }
+                            if let tz = geo.timezone, !tz.isEmpty { infoRow("Timezone", tz) }
+                            if let postal = geo.postal, !postal.isEmpty { infoRow("Postal", postal) }
+                            if let coord = geo.coordinate {
+                                infoRow("Coordinates",
+                                        String(format: "%.4f°, %.4f°", coord.latitude, coord.longitude))
+                            }
+                        }
+                        .padding(12)
+                        .background(Color(.controlBackgroundColor))
+                        .cornerRadius(8)
+                    } else if hop.isPrivateIP {
+                        HStack(spacing: 6) {
+                            Image(systemName: "lock.fill").foregroundColor(.orange)
+                            Text("Private address — geolocation not available")
+                                .font(.caption).foregroundColor(.secondary)
+                        }
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(.controlBackgroundColor))
+                        .cornerRadius(8)
+                    } else if hop.ip != nil {
+                        HStack(spacing: 6) {
+                            ProgressView().scaleEffect(0.7)
+                            Text("Loading geolocation…")
+                                .font(.caption).foregroundColor(.secondary)
+                        }
+                        .padding(12)
+                        .background(Color(.controlBackgroundColor))
+                        .cornerRadius(8)
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Performance").font(.caption.bold()).foregroundColor(.secondary)
+                        LazyVGrid(
+                            columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
+                            alignment: .leading, spacing: 8
+                        ) {
+                            statItem("Avg RTT", hop.avgRtt.map { String(format: "%.2f ms", $0) } ?? "—")
+                            statItem("Min RTT", hop.minRtt.map { String(format: "%.2f ms", $0) } ?? "—")
+                            statItem("Max RTT", hop.maxRtt.map { String(format: "%.2f ms", $0) } ?? "—")
+                            statItem("Jitter",  hop.jitter.map  { String(format: "%.2f ms", $0) } ?? "—")
+                            statItem("Loss",    String(format: "%.1f%%", hop.loss))
+                            statItem("Sent",    "\(hop.sent) pkts")
+                        }
+                    }
+                    .padding(12)
+                    .background(Color(.controlBackgroundColor))
+                    .cornerRadius(8)
+
+                    if hop.isBottleneck {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "bolt.fill")
+                                .foregroundColor(.red)
+                                .font(.title3)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("Bottleneck Detected")
+                                    .font(.callout.bold())
+                                    .foregroundColor(.red)
+                                Text("Latency jumps significantly at this hop compared to the previous one. This router may be congested or geographically distant from the prior hop.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .padding(12)
+                        .background(Color.red.opacity(0.08))
+                        .cornerRadius(8)
+                        .overlay(RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.red.opacity(0.2), lineWidth: 0.5))
+                    }
+                }
+                .padding()
+            }
+        }
+        .frame(width: 360, height: 500)
+    }
+
+    private func infoRow(_ label: String, _ value: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .frame(width: 76, alignment: .trailing)
+            Text(value)
+                .font(.caption)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+        }
+    }
+
+    private func statItem(_ label: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label).font(.caption2).foregroundColor(.secondary)
+            Text(value).font(.system(.caption, design: .monospaced).bold())
+        }
     }
 }
 
@@ -771,8 +1057,7 @@ private struct TimelineHopRow: View {
 
             Group {
                 if let avg = hop.avgRtt {
-                    Text(String(format: "%.0f ms", avg))
-                        .foregroundColor(rttColor(avg))
+                    Text(String(format: "%.0f ms", avg)).foregroundColor(rttColor(avg))
                 } else {
                     Text("*").foregroundColor(.secondary)
                 }
@@ -819,10 +1104,8 @@ private struct HopDetailChart: View {
                             .font(.caption2).foregroundColor(.secondary).lineLimit(1)
                     }
                 }
-
                 Text("Hop \(hop.hop)").font(.caption).foregroundColor(.secondary)
                 Spacer()
-
                 if let avg = hop.avgRtt {
                     statPill(String(format: "Avg %.1f ms", avg), .secondary)
                 }
@@ -830,8 +1113,8 @@ private struct HopDetailChart: View {
                     statPill(String(format: "Jitter %.1f ms", j),
                              j < 5 ? .green : j < 20 ? .orange : .red)
                 }
-                statPill(String(format: "Loss %.1f%%", hop.loss),
-                         hop.loss > 0 ? .red : .secondary)
+                statPill(String(format: "Loss %.1f%%", hop.loss), hop.loss > 0 ? .red : .secondary)
+                if hop.isBottleneck { statPill("Bottleneck", .red) }
             }
             .padding(.horizontal, 12)
             .padding(.top, 8)
@@ -845,18 +1128,14 @@ private struct HopDetailChart: View {
                     if !validSamples.isEmpty {
                         ForEach(validSamples) { s in
                             AreaMark(x: .value("Time", s.timestamp), y: .value("RTT", s.rtt!))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [rttColor(s.rtt!).opacity(0.3), rttColor(s.rtt!).opacity(0.03)],
-                                        startPoint: .top, endPoint: .bottom
-                                    )
-                                )
+                                .foregroundStyle(LinearGradient(
+                                    colors: [rttColor(s.rtt!).opacity(0.3), rttColor(s.rtt!).opacity(0.03)],
+                                    startPoint: .top, endPoint: .bottom))
                             LineMark(x: .value("Time", s.timestamp), y: .value("RTT", s.rtt!))
                                 .foregroundStyle(rttColor(s.rtt!).opacity(0.9))
                                 .lineStyle(StrokeStyle(lineWidth: 1.5))
                             PointMark(x: .value("Time", s.timestamp), y: .value("RTT", s.rtt!))
-                                .symbolSize(20)
-                                .foregroundStyle(rttColor(s.rtt!))
+                                .symbolSize(20).foregroundStyle(rttColor(s.rtt!))
                         }
                     }
                     ForEach(timeoutSamples) { s in
@@ -872,7 +1151,7 @@ private struct HopDetailChart: View {
                         .foregroundStyle(Color.red.opacity(0.5))
                 }
                 .chartXAxis {
-                    AxisMarks(values: .automatic) { val in
+                    AxisMarks(values: .automatic) { _ in
                         AxisGridLine()
                         AxisValueLabel(format: .dateTime.hour().minute().second())
                             .font(.system(.caption2, design: .monospaced))
