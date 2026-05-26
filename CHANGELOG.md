@@ -4,6 +4,23 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.4.0] — 2026-05-27
+
+### Added
+- **Dashboard**: New home screen with live overview cards for all active tools — Ping session stats, Multi-Ping host count/loss, Port Scan progress, Wi-Fi SSID/RSSI, Network Interfaces summary, Bandwidth, and quick-access to DNS/SSL.
+- **Traceroute — Route Map**: New "Map" view mode with MapKit-powered pins per geo-tagged hop, `MapPolyline` connecting hops in order, and tap-to-inspect integration.
+- **Traceroute — Smart Bottleneck Detection**: Automatically flags hops where RTT delta exceeds 30 ms vs. previous hop (and avg > 50 ms). "Bottleneck" badge shown in hop rows, map pins, summary strip, and IP Info Card.
+- **Traceroute — IP Info Card**: ⓘ button per hop opens a detail sheet showing Private/Public IP badge, full geo (flag/city/country/ISP/hostname/timezone/postal/coordinates), performance grid (Avg/Min/Max RTT, Jitter, Loss, Sent), and bottleneck warning.
+- **ROADMAP.md**: Comprehensive development roadmap documenting planned features across v1.3.1 → v1.6.0.
+
+### Changed
+- `WiFiInspectorViewModel` and `NetworkInterfaceViewModel` moved into `ToolStore` — these tools now persist state across sidebar navigation.
+- `NetworkInterfaceView` and `WiFiInspectorView` use `@EnvironmentObject` instead of creating local `@StateObject` instances.
+- `HelpView` updated with Dashboard section and revised Traceroute docs covering Timeline View, Route Health, Bottleneck detection, and IP Info Card.
+- Traceroute mode picker widened to accommodate Map tab (320 pt).
+
+---
+
 ## [1.3.0] — 2026-05-26
 
 ### Added
