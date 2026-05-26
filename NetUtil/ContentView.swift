@@ -1,6 +1,7 @@
 import SwiftUI
 
 enum Tool: String, CaseIterable, Identifiable {
+    case dashboard   = "Dashboard"
     case ping        = "Ping"
     case traceroute  = "Traceroute"
     case dns         = "DNS Lookup"
@@ -18,6 +19,7 @@ enum Tool: String, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
+        case .dashboard:   "square.grid.2x2"
         case .ping:        "antenna.radiowaves.left.and.right"
         case .traceroute:  "point.3.connected.trianglepath.dotted"
         case .dns:         "globe"
@@ -35,12 +37,15 @@ enum Tool: String, CaseIterable, Identifiable {
 }
 
 struct ContentView: View {
-    @State private var selection: Tool? = .ping
+    @State private var selection: Tool? = .dashboard
     @EnvironmentObject private var tools: ToolStore
 
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
+                Section {
+                    Label(Tool.dashboard.rawValue, systemImage: Tool.dashboard.icon).tag(Tool.dashboard)
+                }
                 Section("Active Probing") {
                     ForEach([Tool.ping, .traceroute, .multiPing, .portScan, .httpLatency]) {
                         Label($0.rawValue, systemImage: $0.icon).tag($0)
@@ -61,6 +66,8 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 160, ideal: 185, max: 220)
         } detail: {
             switch selection {
+            case .dashboard:
+                DashboardView(selection: $selection)
             case .ping:
                 PingView(vm: tools.ping)
             case .traceroute:
