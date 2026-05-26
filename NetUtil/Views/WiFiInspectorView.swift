@@ -35,45 +35,93 @@ struct WiFiInspectorView: View {
     }
 
     private func signalCard(_ info: WiFiInfo) -> some View {
-        HStack(spacing: 20) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Image(systemName: signalIcon(info.rssi))
-                        .font(.title)
-                        .foregroundColor(signalColor(info.rssi))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(info.ssid ?? "Hidden Network")
-                            .font(.title2.bold())
-                        if let bssid = info.bssid {
-                            Text(bssid)
-                                .font(.system(.caption, design: .monospaced))
-                                .foregroundColor(.secondary)
-                                .textSelection(.enabled)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Image(systemName: signalIcon(info.rssi))
+                            .font(.title)
+                            .foregroundColor(signalColor(info.rssi))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(info.ssid ?? "Hidden Network")
+                                .font(.title2.bold())
+                            if let bssid = info.bssid {
+                                Text(bssid)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                                    .textSelection(.enabled)
+                            }
+                        }
+                    }
+                }
+                Spacer()
+                if let rssi = info.rssi {
+                    VStack(spacing: 2) {
+                        Text("\(rssi)")
+                            .font(.system(.title, design: .monospaced).bold())
+                            .foregroundColor(signalColor(rssi))
+                        Text("dBm RSSI").font(.caption2).foregroundColor(.secondary)
+                    }
+                    if let noise = info.noise {
+                        VStack(spacing: 2) {
+                            Text("\(rssi - noise)")
+                                .font(.system(.title, design: .monospaced).bold())
+                                .foregroundColor(snrColor(rssi - noise))
+                            Text("dB SNR").font(.caption2).foregroundColor(.secondary)
                         }
                     }
                 }
             }
-            Spacer()
-            if let rssi = info.rssi {
-                VStack(spacing: 2) {
-                    Text("\(rssi)")
-                        .font(.system(.title, design: .monospaced).bold())
-                        .foregroundColor(signalColor(rssi))
-                    Text("dBm RSSI").font(.caption2).foregroundColor(.secondary)
-                }
-                if let noise = info.noise {
-                    VStack(spacing: 2) {
-                        Text("\(rssi - noise)")
-                            .font(.system(.title, design: .monospaced).bold())
-                            .foregroundColor(.primary)
-                        Text("dB SNR").font(.caption2).foregroundColor(.secondary)
-                    }
-                }
+
+            if vm.rssiHistory.count > 1 {
+                rssiSparkline
             }
         }
         .padding(16)
         .background(Color(.controlBackgroundColor))
         .cornerRadius(12)
+    }
+
+    private var rssiSparkline: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("RSSI history (last \(vm.rssiHistory.count) samples)")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+
+            GeometryReader { geo in
+                let history = vm.rssiHistory
+                let minVal = Double(history.min() ?? -100)
+                let maxVal = Double(history.max() ?? -30)
+                let range = max(maxVal - minVal, 10)
+                let w = geo.size.width
+                let h = geo.size.height
+                let slotW = w / CGFloat(max(history.count - 1, 1))
+
+                Path { path in
+                    for (i, rssi) in history.enumerated() {
+                        let x = CGFloat(i) * slotW
+                        let ratio = CGFloat((Double(rssi) - minVal) / range)
+                        let y = h - (ratio * (h - 4)) - 2
+                        if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
+                        else { path.addLine(to: CGPoint(x: x, y: y)) }
+                    }
+                }
+                .stroke(signalColor(history.last), lineWidth: 1.5)
+
+                if let last = history.last {
+                    let x = w
+                    let ratio = CGFloat((Double(last) - minVal) / range)
+                    let y = h - (ratio * (h - 4)) - 2
+                    Circle()
+                        .fill(signalColor(last))
+                        .frame(width: 6, height: 6)
+                        .position(x: x - 3, y: y)
+                }
+            }
+            .frame(height: 32)
+            .background(Color(.textBackgroundColor).opacity(0.5))
+            .cornerRadius(4)
+        }
     }
 
     private func detailGrid(_ info: WiFiInfo) -> some View {
@@ -133,15 +181,21 @@ struct WiFiInspectorView: View {
 
     private func signalIcon(_ rssi: Int?) -> String {
         guard let r = rssi else { return "wifi.slash" }
-        if r >= -50 { return "wifi" }
-        if r >= -70 { return "wifi" }
-        return "wifi"
+        if r >= -60 { return "wifi" }
+        if r >= -75 { return "wifi.exclamationmark" }
+        return "wifi.slash"
     }
 
     private func signalColor(_ rssi: Int?) -> Color {
         guard let r = rssi else { return .secondary }
-        if r >= -50 { return .green }
-        if r >= -70 { return .orange }
+        if r >= -60 { return .green }
+        if r >= -75 { return .orange }
+        return .red
+    }
+
+    private func snrColor(_ snr: Int) -> Color {
+        if snr >= 25 { return .green }
+        if snr >= 15 { return .orange }
         return .red
     }
 }
@@ -163,8 +217,10 @@ struct WiFiInfo {
 class WiFiInspectorViewModel: ObservableObject {
     @Published var info: WiFiInfo?
     @Published var lastUpdated: Date = Date()
+    @Published var rssiHistory: [Int] = []
 
     private var timer: Timer?
+    private static let rssiHistoryLimit = 30
 
     func start() {
         refresh()
@@ -195,10 +251,11 @@ class WiFiInspectorViewModel: ObservableObject {
         default:              secLabel = "Unknown"
         }
 
+        let rssi = iface.rssiValue() == 0 ? nil : iface.rssiValue()
         info = WiFiInfo(
             ssid: iface.ssid(),
             bssid: iface.bssid(),
-            rssi: iface.rssiValue() == 0 ? nil : iface.rssiValue(),
+            rssi: rssi,
             noise: iface.noiseMeasurement() == 0 ? nil : iface.noiseMeasurement(),
             channel: iface.wlanChannel()?.channelNumber,
             security: secLabel,
@@ -207,5 +264,12 @@ class WiFiInspectorViewModel: ObservableObject {
             hardwareAddress: iface.hardwareAddress(),
             interfaceName: iface.interfaceName
         )
+
+        if let r = rssi {
+            rssiHistory.append(r)
+            if rssiHistory.count > Self.rssiHistoryLimit {
+                rssiHistory.removeFirst()
+            }
+        }
     }
 }

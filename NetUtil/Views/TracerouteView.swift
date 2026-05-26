@@ -28,6 +28,10 @@ struct TracerouteView: View {
 
             rttLegend
 
+            if !vm.hops.isEmpty {
+                pathSummary
+            }
+
             if showRaw {
                 rawOutput
             } else {
@@ -170,6 +174,48 @@ struct TracerouteView: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color(.separatorColor), lineWidth: 0.5)
         )
+    }
+
+    private var pathSummary: some View {
+        let finalResponding = vm.hops.last(where: { $0.avgRtt != nil })
+        let reachHop = vm.hops.last(where: { $0.ip != nil || $0.host != nil })
+
+        return HStack(spacing: 10) {
+            summaryChip("Hops", "\(vm.hops.count)", .primary)
+            if let hop = reachHop {
+                summaryChip("Last Seen", hop.displayHost, .accentColor)
+            }
+            if let hop = finalResponding, let avg = hop.avgRtt {
+                summaryChip("Last RTT", String(format: "%.1f ms", avg), rttColorLocal(avg))
+            }
+            let totalLoss = vm.hops.isEmpty ? 0.0 :
+                vm.hops.map(\.loss).reduce(0, +) / Double(vm.hops.count)
+            if totalLoss > 0 {
+                summaryChip("Avg Loss", String(format: "%.0f%%", totalLoss),
+                            totalLoss >= 20 ? .red : .orange)
+            }
+            Spacer()
+        }
+    }
+
+    private func summaryChip(_ label: String, _ value: String, _ color: Color) -> some View {
+        VStack(spacing: 1) {
+            Text(value)
+                .font(.system(.caption, design: .monospaced).bold())
+                .foregroundColor(color)
+                .lineLimit(1)
+            Text(label).font(.caption2).foregroundColor(.secondary)
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 4)
+        .background(Color(.controlBackgroundColor))
+        .cornerRadius(6)
+    }
+
+    private func rttColorLocal(_ rtt: Double) -> Color {
+        if rtt < rttWarn { return .green }
+        if rtt < rttCrit { return .orange }
+        return .red
     }
 
     private var rttLegend: some View {
