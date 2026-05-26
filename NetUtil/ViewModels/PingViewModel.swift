@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import AppKit
 
 @MainActor
 class PingViewModel: ObservableObject {
@@ -8,9 +9,15 @@ class PingViewModel: ObservableObject {
     @Published var isRunning = false
     @Published var rawLines: [String] = []
     @Published var error: String?
+    @Published var resolvedIP: String?
+    @Published var beepOnLoss: Bool = false
+    
+    /// Auto-stop if this many timeouts happen in a row (nil to disable)
+    @Published var autoStopTimeoutLimit: Int? = 5
 
     private var process: Process?
     private var outputPipe: Pipe?
+    private var consecutiveTimeouts: Int = 0
 
     private static let rawLinesLimit = 500
 
@@ -21,17 +28,27 @@ class PingViewModel: ObservableObject {
         try! NSRegularExpression(
             pattern: #"(\d+) bytes from (.*?): icmp6_seq=(\d+) hlim=(\d+) time=(\d+\.?\d*) ms"#)
     ]
+    
+    private nonisolated static let headerPattern = try! NSRegularExpression(
+        pattern: #"PING .*? \((.*?)\):"#
+    )
+
+    private nonisolated static let timeoutPattern = try! NSRegularExpression(
+        pattern: #"Request timeout for icmp(?:6)?_seq (\d+)"#
+    )
 
     deinit {
         process?.terminate()
     }
 
-    func start(host: String, count: Int?, interval: Double) {
+    func start(host: String, count: Int?, interval: Double, packetSize: Int? = nil) {
         stop()
         results.removeAll()
         rawLines.removeAll()
         stats = PingStats()
         error = nil
+        resolvedIP = nil
+        consecutiveTimeouts = 0
         isRunning = true
 
         let p = Process()
@@ -40,6 +57,7 @@ class PingViewModel: ObservableObject {
         p.executableURL = URL(fileURLWithPath: "/sbin/ping")
         var args: [String] = []
         if let count { args += ["-c", "\(count)"] }
+        if let packetSize { args += ["-s", "\(packetSize)"] }
         args += ["-i", "\(max(0.2, interval))", host]
         p.arguments = args
         p.standardOutput = pipe
@@ -50,13 +68,25 @@ class PingViewModel: ObservableObject {
             let data = fh.availableData
             guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
 
-            // Parse on background thread (readabilityHandler is already background)
+            // Parse on background thread
             let lines = text.components(separatedBy: "\n").filter { !$0.isEmpty }
-            let parsed = lines.compactMap { Self.parseLine($0) }
-            let timeoutCount = lines.filter { Self.isTimeout($0) }.count
+            
+            // Check for IP in header
+            var foundIP: String?
+            for line in lines {
+                if let ip = Self.parseHeader(line) {
+                    foundIP = ip
+                    break
+                }
+            }
+
+            let parsed = lines.compactMap { Self.parseLine($0, ip: foundIP) }
+            let timeouts = lines.compactMap { Self.parseTimeout($0) }
 
             Task { @MainActor [weak self] in
                 guard let self else { return }
+                if let foundIP { self.resolvedIP = foundIP }
+                
                 self.rawLines.append(contentsOf: lines)
                 if self.rawLines.count > Self.rawLinesLimit {
                     self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
@@ -64,9 +94,30 @@ class PingViewModel: ObservableObject {
                 for result in parsed {
                     self.results.append(result)
                     self.stats.record(rtt: result.rtt)
+                    self.consecutiveTimeouts = 0 // Reset on success
                 }
-                for _ in 0..<timeoutCount {
+                for timeoutSeq in timeouts {
                     self.stats.recordTimeout()
+                    self.consecutiveTimeouts += 1
+                    
+                    if self.beepOnLoss {
+                        NSSound.beep()
+                    }
+                    
+                    self.results.append(PingResult(
+                        sequence: timeoutSeq,
+                        bytes: 0,
+                        host: host,
+                        ipAddress: self.resolvedIP,
+                        ttl: 0,
+                        rtt: 0,
+                        status: .timeout
+                    ))
+                    
+                    if let limit = self.autoStopTimeoutLimit, self.consecutiveTimeouts >= limit {
+                        self.stop()
+                        self.error = "Auto-stopped after \(limit) consecutive timeouts"
+                    }
                 }
             }
         }
@@ -97,11 +148,27 @@ class PingViewModel: ObservableObject {
         isRunning = false
     }
 
-    private nonisolated static func isTimeout(_ line: String) -> Bool {
-        line.hasPrefix("Request timeout for icmp")
+    private nonisolated static func parseHeader(_ line: String) -> String? {
+        guard let m = headerPattern.firstMatch(
+            in: line, range: NSRange(line.startIndex..., in: line)
+        ) else { return nil }
+
+        let r = m.range(at: 1)
+        guard r.location != NSNotFound, let range = Range(r, in: line) else { return nil }
+        return String(line[range])
     }
 
-    private nonisolated static func parseLine(_ line: String) -> PingResult? {
+    private nonisolated static func parseTimeout(_ line: String) -> Int? {
+        guard let m = timeoutPattern.firstMatch(
+            in: line, range: NSRange(line.startIndex..., in: line)
+        ) else { return nil }
+
+        let r = m.range(at: 1)
+        guard r.location != NSNotFound, let range = Range(r, in: line) else { return nil }
+        return Int(line[range])
+    }
+
+    private nonisolated static func parseLine(_ line: String, ip: String?) -> PingResult? {
         for regex in pingPatterns {
             guard let m = regex.firstMatch(
                 in: line, range: NSRange(line.startIndex..., in: line)
@@ -123,8 +190,10 @@ class PingViewModel: ObservableObject {
                 sequence: seq,
                 bytes: bytes,
                 host: host.trimmingCharacters(in: .whitespaces),
+                ipAddress: ip,
                 ttl: ttl,
-                rtt: rtt
+                rtt: rtt,
+                status: .success
             )
         }
         return nil
