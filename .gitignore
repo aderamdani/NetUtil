@@ -1,0 +1,7 @@
+dist/
+*.dmg
+*.app
+DerivedData/
+.DS_Store
+xcuserdata/
+*.xcuserstate
