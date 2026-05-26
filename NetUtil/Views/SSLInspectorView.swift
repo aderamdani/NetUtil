@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SSLInspectorView: View {
-    @StateObject private var vm = SSLInspectorViewModel()
+    @ObservedObject var vm: SSLInspectorViewModel
     @State private var host = ""
     @State private var portText = "443"
     @State private var selectedCertIndex = 0

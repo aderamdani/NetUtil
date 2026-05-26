@@ -2,7 +2,7 @@ import SwiftUI
 import Charts
 
 struct HTTPLatencyView: View {
-    @StateObject private var vm = HTTPLatencyViewModel()
+    @ObservedObject var vm: HTTPLatencyViewModel
     @State private var urlString = ""
     @State private var method = "GET"
     @State private var followRedirects = true

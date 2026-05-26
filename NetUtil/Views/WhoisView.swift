@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 
 struct WhoisView: View {
-    @StateObject private var vm = WhoisViewModel()
+    @ObservedObject var vm: WhoisViewModel
     @StateObject private var history = HostHistory.shared
     @State private var query = ""
 

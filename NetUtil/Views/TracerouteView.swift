@@ -2,7 +2,7 @@ import SwiftUI
 import Charts
 
 struct TracerouteView: View {
-    @StateObject private var vm = TracerouteViewModel()
+    @ObservedObject var vm: TracerouteViewModel
     @StateObject private var history = HostHistory.shared
     @State private var host = ""
     @State private var maxHopsText = "30"

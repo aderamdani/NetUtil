@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MultiPingView: View {
-    @StateObject private var vm = MultiPingViewModel()
+    @ObservedObject var vm: MultiPingViewModel
     @StateObject private var history = HostHistory.shared
     @State private var newHost = ""
 
@@ -15,7 +15,6 @@ struct MultiPingView: View {
             }
         }
         .padding()
-        .onDisappear { vm.stopAll() }
     }
 
     private var addBar: some View {
