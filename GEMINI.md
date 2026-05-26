@@ -93,9 +93,11 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
 3.  **Build & Package**:
     - Run full build verification: `xcodebuild build ...`.
     - Generate DMG: `bash scripts/build_dmg.sh`.
-4.  **Version Control**:
+4.  **Version Control & GitHub**:
     - Commit with a professional message: `docs: release vX.X.X - <key features>`.
-    - DO NOT push unless explicitly asked.
+    - Push code and tags: `git push origin main && git push origin --tags`.
+    - **Fallback (Manual Release)**: If GitHub Actions fails (e.g., billing issues), run:
+      `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X" --notes "Release notes..."`
 
 ---
 
