@@ -152,7 +152,9 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 ### Traceroute
 - Input: hostname/IP, max hops (default 30), re-trace interval (default 5 s)
 - Reruns automatically every `interval` seconds while running — `round` counter shown in toolbar
-- Hops table columns: #, Host/IP, Location, Snt, Loss%, Last, Avg, Best, Wrst, Updated, **sparkline bar graph** (last 60 samples, Canvas-drawn)
+- **View Modes**: Hops (Table) / Timeline (Stacked Canvas bars) / Raw
+- Hops table columns: #, Host/IP, Location, Snt, Loss%, **Jitter**, Last, Avg, Best, Wrst, Updated, **sparkline bar graph** (last 60 samples, Canvas-drawn)
+- **Route Health Banner**: Automatic Critical/Degraded/Healthy assessment based on path loss/RTT
 - Row background: red tint at ≥50% loss, orange at >0% loss
 - **Path summary strip**: Hops count · Last Seen host · Last RTT · Avg Loss — chips above table
 - Detail panel (split view): click any hop to see per-hop RTT area chart over time with timeout markers (red ×)

@@ -34,9 +34,9 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 ## 3. Detailed Toolset
 
 ### 🌐 Connectivity & Latency
-- **Ping**: Live RTT chart, jitter analysis, packet loss tracking, and audio feedback.
-- **Multi-Ping**: Monitor multiple hosts simultaneously with live sparklines.
-- **Traceroute**: Detailed hop-by-hop analysis with automatic geolocation for each hop.
+- **Ping**: Live RTT chart with packet loss bars, jitter analysis, RTT distribution histograms, and configurable audio feedback ("Beep on Loss"). Supports custom packet sizes and auto-stop safety logic.
+- **Multi-Ping**: Monitor multiple hosts simultaneously with live sparklines and color-coded stability indicators.
+- **Traceroute**: Comprehensive hop-by-hop analysis. Features a **Timeline View** with Canvas-drawn RTT bars, per-hop jitter analysis, automatic **Route Health** assessment, and geolocation integration.
 - **HTTP Latency**: Phase-by-phase breakdown (DNS, TCP, TLS, TTFB) using `URLSessionTaskMetrics`.
 
 ### 🔍 Discovery & Analysis
@@ -73,7 +73,7 @@ open NetUtil.xcodeproj
 ### CI/CD Workflow
 The project uses GitHub Actions for automated testing and delivery:
 1. **Swift CI**: Runs on every push/PR to ensure the code builds successfully.
-2. **Release Automation**: Triggered by pushing a version tag (e.g., `v1.2.0`).
+2. **Release Automation**: Triggered by pushing a version tag (e.g., `v1.3.0`).
    - Automatically builds a release-ready app.
    - Generates a branded DMG installer using `scripts/build_dmg.sh`.
    - Creates a GitHub Release and attaches the DMG.
@@ -98,5 +98,5 @@ Refer to these internal documents for specific guidance:
 
 ---
 
-*Documentation Version: 1.0.0 (May 2026)*
+*Documentation Version: 1.3.0 (May 2026)*
 *Primary Developer: Ade Ramdani*

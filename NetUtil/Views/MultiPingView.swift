@@ -23,28 +23,21 @@ struct MultiPingView: View {
         let responding = vm.slots.filter { $0.loss < 100 && $0.sent > 0 }.count
         let avgLoss = vm.slots.isEmpty ? 0.0
             : vm.slots.map { $0.loss }.reduce(0, +) / Double(vm.slots.count)
-        return HStack(spacing: 10) {
-            summaryChip("Hosts", "\(vm.slots.count)", .primary)
-            summaryChip("Running", "\(running)", running > 0 ? .accentColor : .secondary)
-            summaryChip("Responding", "\(responding)/\(vm.slots.count)",
-                        responding == vm.slots.count ? .green : responding > 0 ? .orange : .red)
-            summaryChip("Avg Loss", String(format: "%.1f%%", avgLoss),
-                        avgLoss == 0 ? .secondary : avgLoss < 10 ? .orange : .red)
+        return HStack(spacing: 12) {
+            StatCard(title: "Hosts", value: "\(vm.slots.count)", icon: "server.rack")
+                .help("Total number of host targets being monitored.")
+            StatCard(title: "Running", value: "\(running)", icon: "play.circle", color: running > 0 ? .accentColor : .secondary)
+                .help("Number of active ping sessions currently running.")
+            StatCard(title: "Responding", value: "\(responding)/\(vm.slots.count)", 
+                     icon: "checkmark.circle",
+                     color: responding == vm.slots.count ? .green : responding > 0 ? .orange : .red)
+                .help("Number of hosts that have replied to at least one packet.")
+            StatCard(title: "Avg Loss", value: String(format: "%.1f%%", avgLoss), 
+                     icon: "exclamationmark.triangle",
+                     color: avgLoss == 0 ? .secondary : avgLoss < 10 ? .orange : .red)
+                .help("Average packet loss across all monitored hosts.")
             Spacer()
         }
-    }
-
-    private func summaryChip(_ label: String, _ value: String, _ color: Color) -> some View {
-        VStack(spacing: 2) {
-            Text(value)
-                .font(.system(.body, design: .monospaced).bold())
-                .foregroundColor(color)
-            Text(label).font(.caption2).foregroundColor(.secondary)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(Color(.controlBackgroundColor))
-        .cornerRadius(8)
     }
 
     private var addBar: some View {
@@ -71,6 +64,19 @@ struct MultiPingView: View {
             Button("Add") { addHost() }
                 .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
                 .keyboardShortcut(.return)
+
+            Divider().frame(height: 16)
+            
+            HStack(spacing: 6) {
+                Text("Sort:").font(.caption).foregroundColor(.secondary)
+                Picker("", selection: $vm.sortMode) {
+                    ForEach(MultiPingSort.allCases) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 100)
+            }
 
             Spacer()
 
