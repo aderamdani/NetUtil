@@ -60,17 +60,25 @@ struct AboutView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Developed by **Ade Ramdani**")
                             .font(.caption)
-                        Text("Built with SwiftUI · macOS 15+")
+                        Text("Built with SwiftUI · macOS 15+ · Zero dependencies")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     Spacer()
-                    Button("Acknowledgements") {
-                        showAck()
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Button("GitHub") {
+                            NSWorkspace.shared.open(URL(string: "https://github.com/aderamdani/NetUtil")!)
+                        }
+                        .font(.caption)
+                        .buttonStyle(.borderless)
+                        .foregroundColor(.accentColor)
+                        Button("Acknowledgements") {
+                            showAck()
+                        }
+                        .font(.caption)
+                        .buttonStyle(.borderless)
+                        .foregroundColor(.accentColor)
                     }
-                    .font(.caption)
-                    .buttonStyle(.borderless)
-                    .foregroundColor(.accentColor)
                 }
             }
             .padding(20)
@@ -98,16 +106,21 @@ struct AboutView: View {
         let alert = NSAlert()
         alert.messageText = "Acknowledgements"
         alert.informativeText = """
-        NetUtil uses the following system tools:
+        System tools & frameworks used by NetUtil:
+
         • /sbin/ping — ICMP echo requests
-        • /usr/sbin/traceroute — Hop discovery
+        • /usr/sbin/traceroute — Hop-by-hop path discovery
         • /usr/bin/whois — WHOIS queries
-        • /usr/bin/dig — DNS lookups
+        • /usr/bin/dig — DNS record lookups
         • /usr/sbin/netstat — Routing table
 
-        Geolocation data provided by ipinfo.io.
-        Network.framework by Apple Inc.
-        CoreWLAN.framework by Apple Inc.
+        Apple Frameworks:
+        • Network.framework — TCP port scanning
+        • CoreWLAN.framework — Wi-Fi inspection
+        • CryptoKit — SHA-256 certificate fingerprinting
+
+        Geolocation data provided by ipinfo.io
+        (opt-in, can be disabled in Settings)
         """
         alert.addButton(withTitle: "OK")
         alert.runModal()
