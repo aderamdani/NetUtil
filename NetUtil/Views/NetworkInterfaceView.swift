@@ -104,6 +104,18 @@ private struct InterfaceCard: View {
 
             Spacer()
 
+            Button {
+                let addrs = (iface.ipv4 + iface.ipv6).joined(separator: "\n")
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(addrs, forType: .string)
+            } label: {
+                Image(systemName: "doc.on.clipboard")
+                    .font(.caption)
+            }
+            .buttonStyle(.borderless)
+            .help("Copy all addresses")
+            .opacity((iface.ipv4 + iface.ipv6).isEmpty ? 0 : 1)
+
             statusBadge
         }
     }

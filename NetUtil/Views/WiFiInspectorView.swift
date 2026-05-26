@@ -69,6 +69,7 @@ struct WiFiInspectorView: View {
                                 .foregroundColor(snrColor(rssi - noise))
                             Text("dB SNR").font(.caption2).foregroundColor(.secondary)
                         }
+                        .help("Signal-to-Noise Ratio. ≥ 25 dB = good, 15–24 dB = acceptable, < 15 dB = poor")
                     }
                 }
             }
@@ -125,8 +126,10 @@ struct WiFiInspectorView: View {
     }
 
     private func detailGrid(_ info: WiFiInfo) -> some View {
+        let channelStr = [info.channel.map { "\($0)" }, info.band]
+            .compactMap { $0 }.joined(separator: " · ")
         let items: [(String, String?)] = [
-            ("Channel",      info.channel.map { "\($0)" }),
+            ("Channel",      channelStr.isEmpty ? nil : channelStr),
             ("Security",     info.security),
             ("TX Rate",      info.transmitRate.map { String(format: "%.0f Mbps", $0) }),
             ("Country",      info.countryCode),
@@ -206,6 +209,7 @@ struct WiFiInfo {
     let rssi: Int?
     let noise: Int?
     let channel: Int?
+    let band: String?
     let security: String?
     let countryCode: String?
     let transmitRate: Double?
@@ -252,12 +256,21 @@ class WiFiInspectorViewModel: ObservableObject {
         }
 
         let rssi = iface.rssiValue() == 0 ? nil : iface.rssiValue()
+        let wlanChannel = iface.wlanChannel()
+        let bandLabel: String?
+        switch wlanChannel?.channelBand {
+        case .band2GHz:  bandLabel = "2.4 GHz"
+        case .band5GHz:  bandLabel = "5 GHz"
+        case .band6GHz:  bandLabel = "6 GHz"
+        default:         bandLabel = nil
+        }
         info = WiFiInfo(
             ssid: iface.ssid(),
             bssid: iface.bssid(),
             rssi: rssi,
             noise: iface.noiseMeasurement() == 0 ? nil : iface.noiseMeasurement(),
-            channel: iface.wlanChannel()?.channelNumber,
+            channel: wlanChannel?.channelNumber,
+            band: bandLabel,
             security: secLabel,
             countryCode: iface.countryCode(),
             transmitRate: iface.transmitRate() == 0 ? nil : iface.transmitRate(),

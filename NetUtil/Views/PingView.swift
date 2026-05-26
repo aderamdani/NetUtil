@@ -143,6 +143,7 @@ struct PingView: View {
             statChip("Recv", "\(vm.stats.received)", .primary)
             statChip("Loss", String(format: "%.1f%%", vm.stats.loss),
                      vm.stats.loss > lossAlert ? .red : vm.stats.loss > 0 ? .orange : .primary)
+            .help("Packet loss percentage")
             statChip("Min", vm.stats.minRtt == .infinity ? "—" : String(format: "%.2f ms", vm.stats.minRtt),
                      vm.stats.minRtt == .infinity ? .secondary : rttColor(vm.stats.minRtt))
             statChip("Avg", String(format: "%.2f ms", vm.stats.avgRtt), rttColor(vm.stats.avgRtt))
@@ -152,6 +153,7 @@ struct PingView: View {
                      vm.stats.jitter == 0 ? .secondary
                          : vm.stats.jitter < 5 ? .green
                          : vm.stats.jitter < 20 ? .orange : .red)
+            .help("Jitter: standard deviation of RTT. < 5 ms = good, < 20 ms = acceptable, > 20 ms = poor")
         }
     }
 
@@ -159,23 +161,37 @@ struct PingView: View {
 
     private var rttChart: some View {
         let recent = Array(vm.results.suffix(60))
-        return Chart(recent) { r in
-            LineMark(
-                x: .value("Seq", r.sequence),
-                y: .value("RTT", r.rtt)
-            )
-            .foregroundStyle(.blue.opacity(0.8))
-            AreaMark(
-                x: .value("Seq", r.sequence),
-                y: .value("RTT", r.rtt)
-            )
-            .foregroundStyle(.blue.opacity(0.1))
-            PointMark(
-                x: .value("Seq", r.sequence),
-                y: .value("RTT", r.rtt)
-            )
-            .symbolSize(25)
-            .foregroundStyle(rttColor(r.rtt))
+        return Chart {
+            ForEach(recent) { r in
+                LineMark(
+                    x: .value("Seq", r.sequence),
+                    y: .value("RTT", r.rtt)
+                )
+                .foregroundStyle(.blue.opacity(0.8))
+                AreaMark(
+                    x: .value("Seq", r.sequence),
+                    y: .value("RTT", r.rtt)
+                )
+                .foregroundStyle(.blue.opacity(0.1))
+                PointMark(
+                    x: .value("Seq", r.sequence),
+                    y: .value("RTT", r.rtt)
+                )
+                .symbolSize(25)
+                .foregroundStyle(rttColor(r.rtt))
+            }
+            RuleMark(y: .value("Warn", rttWarn))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                .foregroundStyle(Color.orange.opacity(0.55))
+                .annotation(position: .top, alignment: .trailing, spacing: 2) {
+                    Text("warn").font(.system(size: 8)).foregroundColor(.orange).opacity(0.8)
+                }
+            RuleMark(y: .value("Crit", rttCrit))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                .foregroundStyle(Color.red.opacity(0.55))
+                .annotation(position: .top, alignment: .trailing, spacing: 2) {
+                    Text("crit").font(.system(size: 8)).foregroundColor(.red).opacity(0.8)
+                }
         }
         .chartYAxisLabel("RTT (ms)")
         .chartXAxisLabel("icmp_seq")

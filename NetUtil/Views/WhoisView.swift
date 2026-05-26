@@ -5,6 +5,13 @@ struct WhoisView: View {
     @ObservedObject var vm: WhoisViewModel
     @StateObject private var history = HostHistory.shared
     @State private var query = ""
+    @State private var filterText = ""
+
+    private var displayedLines: [WhoisLine] {
+        guard !filterText.isEmpty else { return vm.lines }
+        let q = filterText.lowercased()
+        return vm.lines.filter { $0.raw.lowercased().contains(q) }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -19,12 +26,35 @@ struct WhoisView: View {
                 }
             }
             if !vm.lines.isEmpty {
+                filterBar
                 outputView
             } else if !vm.isRunning {
                 emptyState
             }
         }
         .padding()
+    }
+
+    private var filterBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "line.3.horizontal.decrease.circle")
+                .foregroundColor(.secondary)
+                .font(.caption)
+            TextField("Filter…", text: $filterText)
+                .textFieldStyle(.roundedBorder)
+                .frame(maxWidth: 220)
+            if !filterText.isEmpty {
+                Text("\(displayedLines.count) of \(vm.lines.count)")
+                    .font(.caption.monospacedDigit())
+                    .foregroundColor(.secondary)
+                Button { filterText = "" } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.borderless)
+            }
+            Spacer()
+        }
     }
 
     private var controlBar: some View {
@@ -72,7 +102,7 @@ struct WhoisView: View {
     private var outputView: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 1) {
-                ForEach(vm.lines) { line in
+                ForEach(displayedLines) { line in
                     HStack(spacing: 0) {
                         if let label = line.label {
                             Text(label + ":")

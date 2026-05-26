@@ -62,9 +62,19 @@ struct SSLInspectorView: View {
                     .foregroundColor(.green)
                 Text(result.host)
                     .font(.system(.body, design: .monospaced).bold())
+                    .textSelection(.enabled)
                 Text(":\(result.port)")
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(.secondary)
+                Button {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString("\(result.host):\(result.port)", forType: .string)
+                } label: {
+                    Image(systemName: "doc.on.clipboard")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderless)
+                .help("Copy host:port")
                 Spacer()
                 Text(result.timestamp.formatted(date: .omitted, time: .standard))
                     .font(.caption.monospacedDigit())
@@ -142,10 +152,22 @@ struct SSLInspectorView: View {
                     }
                 }
                 infoSection("Fingerprint (SHA-256)") {
-                    Text(cert.sha256)
-                        .font(.system(.caption2, design: .monospaced))
-                        .textSelection(.enabled)
-                        .foregroundColor(.secondary)
+                    HStack(alignment: .top, spacing: 8) {
+                        Text(cert.sha256)
+                            .font(.system(.caption2, design: .monospaced))
+                            .textSelection(.enabled)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(cert.sha256, forType: .string)
+                        } label: {
+                            Image(systemName: "doc.on.clipboard")
+                                .font(.caption)
+                        }
+                        .buttonStyle(.borderless)
+                        .help("Copy SHA-256 fingerprint")
+                    }
                 }
             }
         }
