@@ -4,7 +4,10 @@ set -e
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
-VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "1.0.0")
+# Extract version from project file
+VERSION=$(grep -m 1 "MARKETING_VERSION" NetUtil.xcodeproj/project.pbxproj | sed -E 's/.*= ([0-9.]+);/\1/' | tr -d ' ')
+if [ -z "$VERSION" ]; then VERSION="1.0.0"; fi
+
 APP_NAME="NetUtil"
 DMG_NAME="${APP_NAME}-${VERSION}.dmg"
 DIST_DIR="$REPO_ROOT/dist"
