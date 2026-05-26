@@ -4,7 +4,7 @@ All notable changes to NetUtil are documented here.
 
 ---
 
-## [1.4.0] — 2026-05-27
+## [1.5.0] — 2026-05-27
 
 ### Added
 - **Ultra-Interactive Dashboard**: A new high-level "Mission Control" center for the entire app.
@@ -36,7 +36,7 @@ All notable changes to NetUtil are documented here.
 
 ---
 
-## [1.4.0] — 2026-05-27
+## [1.5.0] — 2026-05-27
 
 ### Added
 - **Dashboard**: New home screen with live overview cards for all active tools — Ping session stats, Multi-Ping host count/loss, Port Scan progress, Wi-Fi SSID/RSSI, Network Interfaces summary, Bandwidth, and quick-access to DNS/SSL.

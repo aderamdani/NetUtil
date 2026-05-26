@@ -139,7 +139,7 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 
 ## Feature Notes (per tool)
 
-### Dashboard (v1.4.0)
+### Dashboard (v1.5.0)
 - **Features**: Ultra-interactive hub with clickable cards, sparklines (RTT/RSSI), and system health badges (CPU/RAM).
 - **Network Identity Header**: Displays Hostname, Local IP, Public IP (fetched from ipify.org), and VPN Status (utun detection).
 - **IP Analysis**: Uses `IPAddressDetails` model for automated Class/Private/Netmask detection.

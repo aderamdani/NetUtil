@@ -63,7 +63,7 @@ The Ping tool in NetUtil is a wrapper around `/sbin/ping`. It uses `Process` and
 
 ---
 
-## Optimization Plan (v1.4.0 & Beyond)
+## Optimization Plan (v1.5.0 & Beyond)
 
 ### 1. Dashboard & Global State
 - [x] **Ultra-Interactive Dashboard**: Centralized summary with clickable cards and mini-sparklines.
