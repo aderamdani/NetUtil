@@ -18,10 +18,10 @@ enum Tool: String, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .ping:       "antenna.radiowaves.left.and.right"
-        case .traceroute: "point.3.connected.trianglepath.dotted"
-        case .dns:        "globe"
-        case .portScan:   "checklist"
+        case .ping:        "antenna.radiowaves.left.and.right"
+        case .traceroute:  "point.3.connected.trianglepath.dotted"
+        case .dns:         "globe"
+        case .portScan:    "checklist"
         case .interfaces:  "network"
         case .httpLatency: "stopwatch"
         case .multiPing:   "dot.radiowaves.left.and.right"
@@ -43,17 +43,17 @@ struct ContentView: View {
             List(selection: $selection) {
                 Section("Active Probing") {
                     ForEach([Tool.ping, .traceroute, .multiPing, .portScan, .httpLatency]) {
-                        toolRow($0)
+                        Label($0.rawValue, systemImage: $0.icon).tag($0)
                     }
                 }
                 Section("Lookup") {
                     ForEach([Tool.dns, .whois, .ssl]) {
-                        toolRow($0)
+                        Label($0.rawValue, systemImage: $0.icon).tag($0)
                     }
                 }
                 Section("Network Info") {
                     ForEach([Tool.interfaces, .wifi, .routes, .bandwidth]) {
-                        toolRow($0)
+                        Label($0.rawValue, systemImage: $0.icon).tag($0)
                     }
                 }
             }
@@ -94,26 +94,5 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 900, minHeight: 580)
-    }
-
-    @ViewBuilder
-    private func toolRow(_ tool: Tool) -> some View {
-        Label(tool.rawValue, systemImage: tool.icon)
-            .tag(tool)
-            .badge(runningBadge(tool))
-    }
-
-    private func runningBadge(_ tool: Tool) -> Int {
-        switch tool {
-        case .ping:       return tools.ping.isRunning ? 1 : 0
-        case .traceroute: return tools.traceroute.isRunning ? 1 : 0
-        case .portScan:   return tools.portScan.isRunning ? 1 : 0
-        case .multiPing:  return tools.multiPing.slots.filter(\.isRunning).count
-        case .httpLatency: return tools.httpLatency.isRunning ? 1 : 0
-        case .dns:        return tools.dns.isRunning ? 1 : 0
-        case .ssl:        return tools.ssl.isRunning ? 1 : 0
-        case .whois:      return tools.whois.isRunning ? 1 : 0
-        default:          return 0
-        }
     }
 }
