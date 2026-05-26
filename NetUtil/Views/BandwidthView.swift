@@ -114,12 +114,39 @@ private struct BandwidthCard: View {
             if history.count > 1 {
                 Chart {
                     ForEach(history) { s in
-                        LineMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps),
-                                 series: .value("dir", "RX"))
-                            .foregroundStyle(.blue.opacity(0.8))
-                        LineMark(x: .value("t", s.timestamp), y: .value("TX", s.txBps),
-                                 series: .value("dir", "TX"))
-                            .foregroundStyle(.orange.opacity(0.8))
+                        AreaMark(
+                            x: .value("t", s.timestamp),
+                            y: .value("RX", s.rxBps),
+                            series: .value("dir", "RX")
+                        )
+                        .foregroundStyle(.blue.opacity(0.12))
+                        .interpolationMethod(.catmullRom)
+
+                        LineMark(
+                            x: .value("t", s.timestamp),
+                            y: .value("RX", s.rxBps),
+                            series: .value("dir", "RX")
+                        )
+                        .foregroundStyle(.blue.opacity(0.85))
+                        .lineStyle(StrokeStyle(lineWidth: 1.5))
+                        .interpolationMethod(.catmullRom)
+
+                        AreaMark(
+                            x: .value("t", s.timestamp),
+                            y: .value("TX", s.txBps),
+                            series: .value("dir", "TX")
+                        )
+                        .foregroundStyle(.orange.opacity(0.1))
+                        .interpolationMethod(.catmullRom)
+
+                        LineMark(
+                            x: .value("t", s.timestamp),
+                            y: .value("TX", s.txBps),
+                            series: .value("dir", "TX")
+                        )
+                        .foregroundStyle(.orange.opacity(0.85))
+                        .lineStyle(StrokeStyle(lineWidth: 1.5))
+                        .interpolationMethod(.catmullRom)
                     }
                 }
                 .chartXAxis(.hidden)

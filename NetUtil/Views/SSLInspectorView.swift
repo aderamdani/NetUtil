@@ -71,6 +71,30 @@ struct SSLInspectorView: View {
                     .foregroundColor(.secondary)
             }
 
+            if result.tlsVersion != nil || result.cipherSuite != nil {
+                HStack(spacing: 8) {
+                    if let tls = result.tlsVersion {
+                        Text(tls)
+                            .font(.system(.caption, design: .monospaced).bold())
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.green.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+                    if let cipher = result.cipherSuite {
+                        Text(cipher)
+                            .font(.system(.caption2, design: .monospaced))
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color(.quaternaryLabelColor))
+                            .clipShape(Capsule())
+                            .lineLimit(1)
+                    }
+                }
+            }
+
             if result.chain.count > 1 {
                 Picker("Certificate", selection: $selectedCertIndex) {
                     ForEach(result.chain.indices, id: \.self) { i in

@@ -53,6 +53,7 @@ class PingViewModel: ObservableObject {
             // Parse on background thread (readabilityHandler is already background)
             let lines = text.components(separatedBy: "\n").filter { !$0.isEmpty }
             let parsed = lines.compactMap { Self.parseLine($0) }
+            let timeoutCount = lines.filter { Self.isTimeout($0) }.count
 
             Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -62,8 +63,10 @@ class PingViewModel: ObservableObject {
                 }
                 for result in parsed {
                     self.results.append(result)
-                    self.stats.transmitted += 1
                     self.stats.record(rtt: result.rtt)
+                }
+                for _ in 0..<timeoutCount {
+                    self.stats.recordTimeout()
                 }
             }
         }
@@ -92,6 +95,10 @@ class PingViewModel: ObservableObject {
         process = nil
         outputPipe = nil
         isRunning = false
+    }
+
+    private nonisolated static func isTimeout(_ line: String) -> Bool {
+        line.hasPrefix("Request timeout for icmp")
     }
 
     private nonisolated static func parseLine(_ line: String) -> PingResult? {

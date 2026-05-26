@@ -6,6 +6,7 @@ struct HTTPLatencyView: View {
     @State private var urlString = ""
     @State private var method = "GET"
     @State private var followRedirects = true
+    @State private var historySelection: HTTPLatencyResult.ID?
 
     private let methods = ["GET", "HEAD", "POST", "PUT", "OPTIONS"]
 
@@ -82,6 +83,15 @@ struct HTTPLatencyView: View {
             Text(r.timestamp.formatted(date: .omitted, time: .standard))
                 .font(.caption.monospacedDigit())
                 .foregroundColor(.secondary)
+            Button {
+                guard !urlString.isEmpty else { return }
+                vm.run(urlString: urlString, method: method, followRedirects: followRedirects)
+            } label: {
+                Label("Run Again", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .disabled(vm.isRunning || urlString.isEmpty)
         }
     }
 
@@ -174,11 +184,17 @@ struct HTTPLatencyView: View {
 
     private var historyTable: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("History")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            HStack {
+                Text("History")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text("Click row to restore URL")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
 
-            Table(vm.history) {
+            Table(vm.history, selection: $historySelection) {
                 TableColumn("Time") { r in
                     Text(r.timestamp.formatted(date: .omitted, time: .standard))
                         .font(.system(.caption, design: .monospaced))
@@ -213,6 +229,13 @@ struct HTTPLatencyView: View {
                 }
             }
             .frame(height: min(CGFloat(vm.history.count) * 28 + 30, 220))
+            .onChange(of: historySelection) { _, newValue in
+                if let id = newValue,
+                   let result = vm.history.first(where: { $0.id == id }) {
+                    urlString = result.url
+                    method = result.method
+                }
+            }
         }
     }
 

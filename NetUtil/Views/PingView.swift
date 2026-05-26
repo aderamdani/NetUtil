@@ -139,6 +139,11 @@ struct PingView: View {
                      vm.stats.minRtt == .infinity ? .secondary : rttColor(vm.stats.minRtt))
             statChip("Avg", String(format: "%.2f ms", vm.stats.avgRtt), rttColor(vm.stats.avgRtt))
             statChip("Max", String(format: "%.2f ms", vm.stats.maxRtt), rttColor(vm.stats.maxRtt))
+            statChip("Jitter",
+                     vm.stats.jitter == 0 ? "—" : String(format: "%.2f ms", vm.stats.jitter),
+                     vm.stats.jitter == 0 ? .secondary
+                         : vm.stats.jitter < 5 ? .green
+                         : vm.stats.jitter < 20 ? .orange : .red)
         }
     }
 

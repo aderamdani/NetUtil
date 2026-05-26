@@ -127,6 +127,8 @@ struct MultiPingView: View {
 private struct SlotRow: View {
     @ObservedObject var slot: PingSlot
     let onRemove: () -> Void
+    @AppStorage("rttWarnThreshold") private var rttWarn: Double = 20.0
+    @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
 
     var body: some View {
         HStack(spacing: 0) {
@@ -230,10 +232,8 @@ private struct SlotRow: View {
     }
 
     private func rttColor(_ rtt: Double) -> Color {
-        switch rtt {
-        case ..<20: return .green
-        case 20..<100: return .orange
-        default: return .red
-        }
+        if rtt < rttWarn { return .green }
+        if rtt < rttCrit { return .orange }
+        return .red
     }
 }
