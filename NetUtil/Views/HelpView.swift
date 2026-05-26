@@ -236,6 +236,23 @@ private let allSections: [HelpSection] = [
                         "Degraded: Moderate loss (>0%) or high jitter observed.",
                         "Healthy: Low latency and zero packet loss throughout the path."
                       ]),
+            HelpTopic(heading: "Route Map",
+                      body: "The Map tab renders a live geographic map of your packet's journey. Each geo-resolved hop appears as a numbered pin connected by a polyline. Tap any pin to open the IP Info Card for that hop.",
+                      tips: [
+                        "Pins use geo data from ipinfo.io — enable Geolocation in Settings.",
+                        "Bottleneck hops appear as red pins with a bolt icon.",
+                        "Private/unresolved IPs are skipped on the map."
+                      ]),
+            HelpTopic(heading: "Bottleneck Detection",
+                      body: "NetUtil automatically flags hops where latency spikes sharply compared to the previous hop. A hop is marked as a bottleneck if the RTT delta exceeds 30 ms and the hop's average RTT exceeds 50 ms.",
+                      tips: [
+                        "Bottleneck badge appears in the Hops table, on the Route Map pin, and in the path summary strip.",
+                        "A bottleneck at hop N means congestion is at or between hop N-1 and N.",
+                        "A single bottleneck hop is usually normal inter-ISP peering — multiple in a row indicates a real problem."
+                      ]),
+            HelpTopic(heading: "IP Info Card",
+                      body: "Tap the ⓘ button on any hop row (or tap a map pin) to open the IP Info Card. It shows the Private/Public classification, full geolocation (country, city, ISP, hostname, timezone, coordinates), and a performance grid with Avg/Min/Max RTT, Jitter, Loss%, and packets sent.",
+                      tips: nil),
             HelpTopic(heading: "Reading results",
                       body: "* * * means all three probes for that hop timed out. This is common for routers that drop ICMP TTL-exceeded packets but still forward traffic — the path isn't broken.",
                       tips: [

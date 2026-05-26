@@ -33,23 +33,33 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 
 ## 3. Detailed Toolset
 
+### 🏠 Overview
+- **Dashboard**: Home screen with live status cards for Ping, Multi-Ping, Port Scanner, Wi-Fi, Network Interfaces, Bandwidth, and DNS/SSL. Cards are interactive — clicking navigates to the tool. Pulsing green dot indicates active sessions.
+
 ### 🌐 Connectivity & Latency
 - **Ping**: Live RTT chart with packet loss bars, jitter analysis, RTT distribution histograms, and configurable audio feedback ("Beep on Loss"). Supports custom packet sizes and auto-stop safety logic.
 - **Multi-Ping**: Monitor multiple hosts simultaneously with live sparklines and color-coded stability indicators.
-- **Traceroute**: Comprehensive hop-by-hop analysis. Features a **Timeline View** with Canvas-drawn RTT bars, per-hop jitter analysis, automatic **Route Health** assessment, and geolocation integration.
-- **HTTP Latency**: Phase-by-phase breakdown (DNS, TCP, TLS, TTFB) using `URLSessionTaskMetrics`.
+- **Traceroute**: Comprehensive hop-by-hop analysis with four view modes:
+  - **Hops Table**: Per-hop columns — jitter, loss%, sparkline bar graph, geo location.
+  - **Timeline View**: Canvas-drawn RTT bars per hop (last 60 samples). Tap a hop to expand a detail RTT area chart.
+  - **Route Map**: MapKit-powered interactive map. Each geo-resolved hop is a numbered colored pin connected by polyline. Tap pin → opens IP Info Card.
+  - **Raw**: Plain traceroute CLI output.
+  - **Bottleneck Detection**: Auto-flags hops where RTT delta > 30 ms vs. previous hop (and avg RTT > 50 ms). Shown as red bolt badge in table, red pin on map, chip in path summary strip.
+  - **IP Info Card**: Tap ⓘ per hop — shows Private/Public classification, full geolocation (flag, city, country, ISP, hostname, timezone, postal, coordinates), and RTT performance grid (Avg/Min/Max, Jitter, Loss%, Sent).
+  - **Route Health Banner**: Automatic Critical / Degraded / Healthy path quality assessment.
+- **HTTP Latency**: Phase-by-phase breakdown (DNS, TCP, TLS, TTFB, Download) using `URLSessionTaskMetrics`.
 
 ### 🔍 Discovery & Analysis
-- **Port Scanner**: High-speed TCP port scanner with customizable ranges and concurrency controls.
-- **SSL/TLS Inspector**: Full certificate chain analysis, expiry tracking, and cipher suite verification.
-- **DNS Lookup**: Comprehensive query tool (A, AAAA, MX, TXT, etc.) using `dig`.
-- **WHOIS**: Structured display of domain registration and ownership records.
+- **Port Scanner**: High-speed TCP port scanner with customizable ranges and concurrency controls. Presets: Common / Well-known / All / Custom.
+- **SSL/TLS Inspector**: Full certificate chain analysis, expiry tracking, TLS version badge, and cipher suite verification.
+- **DNS Lookup**: Comprehensive query tool (A, AAAA, MX, TXT, NS, CNAME, SOA, PTR, ANY) using `dig`. Multiple server presets.
+- **WHOIS**: Structured key/value display of domain registration and ownership records, with inline filter.
 
 ### 📊 System & Monitoring
-- **Bandwidth Monitor**: Real-time traffic analysis per interface with rolling history charts.
-- **Network Interfaces**: Detailed view of all hardware interfaces (MAC, IP, MTU, Status).
-- **Wi-Fi Inspector**: Comprehensive signal analysis (RSSI, SNR, Channel, Band, Security).
-- **Route Table**: Live view of IPv4 and IPv6 routing rules.
+- **Bandwidth Monitor**: Real-time RX/TX rate per interface with 60-second rolling area charts. State persists across navigation.
+- **Network Interfaces**: All hardware interfaces via `getifaddrs()` — MAC, IPv4, IPv6, MTU, up/down status. State persists across navigation.
+- **Wi-Fi Inspector**: Signal analysis via CoreWLAN — SSID, BSSID, RSSI, SNR, channel, band, security, tx rate, RSSI sparkline. State persists across navigation.
+- **Route Table**: IPv4 and IPv6 routing rules via `netstat -rn`, with flag descriptions and live text filter.
 
 ---
 
@@ -98,5 +108,5 @@ Refer to these internal documents for specific guidance:
 
 ---
 
-*Documentation Version: 1.3.0 (May 2026)*
+*Documentation Version: 1.4.1 (May 2026)*
 *Primary Developer: Ade Ramdani*

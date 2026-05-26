@@ -26,10 +26,13 @@
 
 ### 🌟 Key Features
 
+#### 🏠 Overview
+*   **Dashboard**: Centralized home screen with live status cards for all active tools — ping stats, multi-ping host health, port scan progress, Wi-Fi signal, interface summary, and quick navigation.
+
 #### 📡 Connectivity & Performance
 *   **Advanced Ping**: Beyond just ICMP. Features real-time RTT charts, jitter analysis, distribution histograms, and audible alerts for packet loss.
-*   **Multi-Ping**: Monitor multiple targets simultaneously with live stability sparklines—ideal for server farm monitoring.
-*   **Traceroute**: Comprehensive hop-by-hop analysis with **Timeline View**, automatic **Route Health** assessment, geolocation, and visual path stability tracking.
+*   **Multi-Ping**: Monitor multiple targets simultaneously with live stability sparklines — ideal for server farm monitoring.
+*   **Traceroute**: Comprehensive hop-by-hop analysis with **Timeline View**, **Route Map** (MapKit), automatic **Bottleneck Detection**, **IP Info Cards**, and **Route Health** assessment. Geo-resolved hops shown on an interactive map with colored pins.
 *   **HTTP Latency**: Detailed breakdown of every request phase (DNS, TCP, TLS, TTFB) using native `URLSessionTaskMetrics`.
 
 #### 🔍 Inspection & Discovery
@@ -63,10 +66,13 @@
 
 ### 🌟 Fitur Utama
 
+#### 🏠 Ikhtisar
+*   **Dashboard**: Layar utama terpusat dengan kartu status live untuk semua tool aktif — statistik ping, kesehatan host multi-ping, progres port scan, sinyal Wi-Fi, ringkasan antarmuka, dan navigasi cepat.
+
 #### 📡 Konektivitas & Performa
 *   **Advanced Ping**: Lebih dari sekadar ICMP. Dilengkapi grafik latensi real-time, analisis jitter, histogram distribusi, dan peringatan suara saat terjadi paket hilang.
-*   **Multi-Ping**: Pantau banyak target secara bersamaan dengan grafik sparkline stabilitas—cocok untuk pemantauan server farm.
-*   **Traceroute**: Analisis rute per hop yang lengkap dengan **Timeline View**, penilaian **Kesehatan Rute** otomatis, geolokasi terintegrasi, dan pelacakan stabilitas jalur visual.
+*   **Multi-Ping**: Pantau banyak target secara bersamaan dengan grafik sparkline stabilitas — cocok untuk pemantauan server farm.
+*   **Traceroute**: Analisis rute per hop yang lengkap dengan **Timeline View**, **Peta Rute** (MapKit), deteksi **Bottleneck** otomatis, **Kartu Info IP**, dan penilaian **Kesehatan Rute**. Hop yang tergeolokasi ditampilkan di peta interaktif dengan pin berwarna.
 *   **HTTP Latency**: Breakdown detail setiap fase permintaan (DNS, TCP, TLS, TTFB) menggunakan `URLSessionTaskMetrics` bawaan.
 
 #### 🔍 Inspeksi & Discovery
