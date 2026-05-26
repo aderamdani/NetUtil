@@ -148,6 +148,7 @@ All host/URL fields use `.onSubmit { vm.start(...) }` for Return key support.
 
 ### Build & Release Workflow
 When requested to **"commit, build DMG, and release"**, follow this checklist:
+0. **Sync**: Run `git pull` before making any changes.
 1. **Update Version (SemVer)**:
    - **Patch (+0.0.1)**: Minor tweaks, UI polish, or bug fixes.
    - **Minor (+0.1.0)**: New feature or significant tool improvement.
