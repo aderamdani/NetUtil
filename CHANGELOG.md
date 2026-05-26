@@ -4,6 +4,24 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.2.0] — 2026-05-26
+
+### Added
+- **Enhanced Ping Feature**: Complete overhaul of the Ping tool.
+- **Data Tracking**: Auto IP resolution, RTT distribution analysis, and timeout sequence tracking.
+- **Audio Feedback**: "Beep on Loss" toggle for audible alerts during packet loss.
+- **Auto-Stop Logic**: Configurable safety mechanism to stop pinging after consecutive timeouts.
+- **Packet Size Control**: New input field for custom ICMP payload size (`-s`).
+- **Copy Summary**: Quick-share summary (Sent/Recv/Loss/RTT) via the Export menu.
+
+### Changed
+- **Modern UI**: Grid-based `StatCard` layout with icons and descriptive tooltips.
+- **Advanced Visualization**: RTT chart now includes loss bars, gradient areas, and distribution bar.
+- **User Guidance**: Added detailed "Help Popups" (tooltips) for all UI controls and metrics.
+- **Clarity**: Renamed technical terms (e.g., `icmp_seq` → `Packet No.`, `Interval` → `Delay`) for easier understanding.
+
+---
+
 ## [1.1.0] — 2026-05-26
 
 ### Added
