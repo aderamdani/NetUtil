@@ -1,0 +1,65 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build DMG and Create Release
+    runs-on: macos-15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Install dependencies
+        run: |
+          brew install create-dmg
+
+      - name: Build and Package DMG
+        run: |
+          # Build the app bundle first to avoid ExportOptions issues in CI without profiles
+          xcodebuild build \
+            -project NetUtil.xcodeproj \
+            -scheme NetUtil \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -derivedDataPath ./build \
+            CODE_SIGNING_ALLOWED=NO
+          
+          # Setup dist directory and move app
+          mkdir -p dist
+          mv build/Build/Products/Release/NetUtil.app dist/
+          
+          # Run the DMG script (it will skip building since dist/NetUtil.app exists)
+          bash scripts/build_dmg.sh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.dmg
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify (Discord Placeholder)
+        if: always()
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK }}" ]; then
+            STATUS="${{ job.status }}"
+            MESSAGE="🚀 NetUtil Release ${{ github.ref_name }} - Status: $STATUS\nCheck it out: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+            curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"$MESSAGE\"}" ${{ secrets.DISCORD_WEBHOOK }}
+          else
+            echo "Discord Webhook not configured. Skipping notification."
+          fi
