@@ -1,0 +1,151 @@
+import SwiftUI
+
+struct RouteTableView: View {
+    @State private var entries: [RouteEntry] = []
+    @State private var showIPv6 = false
+    @State private var filterText = ""
+    @State private var lastUpdated = Date()
+    @State private var isLoading = false
+
+    private var displayed: [RouteEntry] {
+        let filtered = entries.filter { $0.isIPv6 == showIPv6 }
+        guard !filterText.isEmpty else { return filtered }
+        let q = filterText.lowercased()
+        return filtered.filter {
+            $0.destination.lowercased().contains(q) ||
+            $0.gateway.lowercased().contains(q) ||
+            $0.netif.lowercased().contains(q)
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            toolbar
+            routeTable
+        }
+        .padding()
+        .onAppear { load() }
+    }
+
+    private var toolbar: some View {
+        HStack(spacing: 10) {
+            Picker("", selection: $showIPv6) {
+                Text("IPv4").tag(false)
+                Text("IPv6").tag(true)
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 120)
+
+            TextField("Filter…", text: $filterText)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 180)
+
+            Spacer()
+
+            if isLoading { ProgressView().controlSize(.small) }
+
+            Text("Updated \(lastUpdated.formatted(date: .omitted, time: .standard))")
+                .font(.caption.monospacedDigit())
+                .foregroundColor(.secondary)
+
+            Button { load() } label: {
+                Image(systemName: "arrow.clockwise")
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+
+    private var routeTable: some View {
+        Table(displayed) {
+            TableColumn("Destination") { r in
+                HStack(spacing: 6) {
+                    if r.isDefault {
+                        Text("default")
+                            .font(.system(.body, design: .monospaced).bold())
+                            .foregroundColor(.accentColor)
+                    } else {
+                        Text(r.destination)
+                            .font(.system(.body, design: .monospaced))
+                    }
+                }
+            }
+            .width(min: 160, ideal: 200)
+
+            TableColumn("Gateway") { r in
+                Text(r.gateway)
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundColor(r.gateway == "link#" || r.gateway.hasPrefix("link#") ? .secondary : .primary)
+            }
+            .width(min: 140, ideal: 180)
+
+            TableColumn("Flags") { r in
+                HStack(spacing: 4) {
+                    Text(r.flags)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .width(70)
+
+            TableColumn("Interface") { r in
+                Text(r.netif)
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundColor(.primary)
+            }
+            .width(80)
+        }
+    }
+
+    private func load() {
+        isLoading = true
+        Task.detached {
+            let result = await Self.fetchRoutes()
+            await MainActor.run {
+                entries = result
+                lastUpdated = Date()
+                isLoading = false
+            }
+        }
+    }
+
+    private static func fetchRoutes() async -> [RouteEntry] {
+        let p = Process()
+        let pipe = Pipe()
+        p.executableURL = URL(fileURLWithPath: "/usr/sbin/netstat")
+        p.arguments = ["-rn"]
+        p.standardOutput = pipe
+        p.standardError = Pipe()
+
+        do {
+            try p.run()
+            p.waitUntilExit()
+        } catch {
+            return []
+        }
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        guard let output = String(data: data, encoding: .utf8) else { return [] }
+
+        var results: [RouteEntry] = []
+        var isIPv6 = false
+
+        for line in output.components(separatedBy: "\n") {
+            if line.contains("Internet6:") { isIPv6 = true; continue }
+            if line.contains("Internet:") { isIPv6 = false; continue }
+            if line.hasPrefix("Destination") || line.hasPrefix("Routing") || line.isEmpty { continue }
+
+            let cols = line.split(separator: " ", omittingEmptySubsequences: true).map(String.init)
+            guard cols.count >= 4 else { continue }
+
+            results.append(RouteEntry(
+                destination: cols[0],
+                gateway: cols[1],
+                flags: cols[2],
+                netif: cols.count > 5 ? cols[5] : cols[3],
+                isIPv6: isIPv6
+            ))
+        }
+
+        return results
+    }
+}
