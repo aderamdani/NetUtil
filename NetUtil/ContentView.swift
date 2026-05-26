@@ -77,13 +77,13 @@ struct ContentView: View {
             case .portScan:
                 PortScanView(vm: tools.portScan)
             case .interfaces:
-                NetworkInterfaceView()
+                NetworkInterfaceView(vm: tools.interfaces)
             case .httpLatency:
                 HTTPLatencyView(vm: tools.httpLatency)
             case .multiPing:
                 MultiPingView(vm: tools.multiPing)
             case .wifi:
-                WiFiInspectorView()
+                WiFiInspectorView(vm: tools.wifi)
             case .routes:
                 RouteTableView()
             case .ssl:

@@ -3,7 +3,7 @@ import CoreWLAN
 import Combine
 
 struct WiFiInspectorView: View {
-    @EnvironmentObject private var vm: WiFiInspectorViewModel
+    @ObservedObject var vm: WiFiInspectorViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
