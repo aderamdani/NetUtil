@@ -13,6 +13,7 @@ class ToolStore: ObservableObject {
     let whois       = WhoisViewModel()
     let wifi        = WiFiInspectorViewModel()
     let interfaces  = NetworkInterfaceViewModel()
+    let system      = SystemMonitor()
     
     @Published var externalIP: String = "Checking..."
     @Published var isVPNActive: Bool = false

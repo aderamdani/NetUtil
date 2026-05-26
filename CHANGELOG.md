@@ -4,6 +4,21 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.7.0] — 2026-05-27
+
+### Added
+- **Real-time System Monitoring**: Integrated CPU load and RAM pressure tracking directly into the Dashboard header.
+    - Uses Darwin kernel APIs for high-accuracy live measurement.
+    - Color-coded badges for instant health assessment.
+- **Educational Tooltips**: Comprehensive networking tooltips added across the Dashboard to help beginners understand technical terms (Latency, RSSI, IP Classes, etc.).
+
+### Improved
+- **UI Proportionality Overhaul**: Fixed oversized fonts and scaled down Dashboard elements for a more balanced and professional macOS feel.
+- **Symmetry & Grid Layout**: Redesigned Dashboard cards with uniform heights and perfectly aligned grids.
+- **Sparkline Refinement**: Adjusted mini-charts to be more concise and visually integrated within metric views.
+
+---
+
 ## [1.6.0] — 2026-05-27
 
 ### Improved
