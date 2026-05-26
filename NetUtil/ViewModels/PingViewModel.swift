@@ -13,12 +13,8 @@ class PingViewModel: ObservableObject {
     @Published var beepOnLoss: Bool = false
     @Published var currentHost: String = ""
 
-    /// Auto-stop if this many timeouts happen in a row (nil to disable)
-    @Published var autoStopTimeoutLimit: Int? = 5
-
     private var process: Process?
     private var outputPipe: Pipe?
-    private var consecutiveTimeouts: Int = 0
 
     private static let rawLinesLimit = 500
 
@@ -49,7 +45,6 @@ class PingViewModel: ObservableObject {
         stats = PingStats()
         error = nil
         resolvedIP = nil
-        consecutiveTimeouts = 0
         currentHost = host
         isRunning = true
 
@@ -96,14 +91,12 @@ class PingViewModel: ObservableObject {
                 for result in parsed {
                     self.results.append(result)
                     self.stats.record(rtt: result.rtt)
-                    self.consecutiveTimeouts = 0 // Reset on success
                 }
                 for timeoutSeq in timeouts {
                     self.stats.recordTimeout()
-                    self.consecutiveTimeouts += 1
                     
                     if self.beepOnLoss {
-                        NSSound.beep()
+                        NSSound(named: "Tink")?.play()
                     }
                     
                     self.results.append(PingResult(
@@ -115,11 +108,6 @@ class PingViewModel: ObservableObject {
                         rtt: 0,
                         status: .timeout
                     ))
-                    
-                    if let limit = self.autoStopTimeoutLimit, self.consecutiveTimeouts >= limit {
-                        self.stop()
-                        self.error = "Auto-stopped after \(limit) consecutive timeouts"
-                    }
                 }
             }
         }

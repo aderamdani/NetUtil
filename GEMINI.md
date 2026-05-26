@@ -3,21 +3,40 @@
 Specialized instructions for the Ping feature optimization and codebase conventions.
 
 ---
-
 ## Technical Context: Ping Feature
 
-The Ping tool in NetUtil is a wrapper around `/sbin/ping`. It uses `Process` and `Pipe` to capture live output, which is then parsed using regular expressions on a background thread.
+The Ping tool in NetUtil is a high-performance wrapper around `/sbin/ping`, utilizing `Process` and `Pipe` for real-time output capture and asynchronous regex parsing.
 
-### Current Architecture
-- **Model**: `PingResult` (sequence, bytes, host, ttl, rtt, timestamp). `PingStats` tracks aggregate data.
-- **ViewModel**: `PingViewModel` (manages `Process`, parses lines, updates `@Published` results).
-- **View**: `PingView` (Swift Charts for RTT, Table for results, Stats bar for summary).
+### Current Architecture & UI/UX (v1.7.2)
+- **Model**: `PingResult` (sequence, bytes, host, ttl, rtt, status, timestamp).
+- **ViewModel**: `@MainActor PingViewModel` (handles process lifecycle, unlimited timeout logic, and audio feedback via "Tink" system sound).
+- **UI Style**: 
+    - **Typography**: Pure San Francisco (SF) Pro standard (no rounded/monospaced variations for headers).
+    - **Symmetry**: Grid-based layout with consistent card heights (160pt tool/140pt connectivity).
+    - **Hierarchy**: Clear sectioning with bold headers and functional descriptions.
+- **Interactive Visuals**:
+    - **Health Strip**: GitHub-style bar representing the last 100 packets (Green/Orange/Red).
+    - **Smart Interpretation**: Logic-driven status summary (Excellent, Congested, etc.) with dynamic icons.
+    - **Scrollable Chart**: Interactive Swift Chart with horizontal scrolling, packet selection, and reference lines.
+    - **Auto-Scroll Table**: Custom `ScrollViewReader` based table for guaranteed real-time scrolling to the latest results.
+- **Reporting**:
+    - **PDF Report**: Branded documents with app logo, detailed stats, and timestamped filenames.
+    - **CSV Export**: Standardized timestamped file naming for systemic archiving.
 
 ---
 
-## Optimization Plan (v1.6.0 & Beyond)
+## Optimization Plan (v1.7.2 & Beyond)
 
-### 1. Dashboard & Global State
+### 1. Ping & Diagnostics
+- [x] **Smart Interpretation**: Connection quality assessment for educational value.
+- [x] **Health Strip**: Instant 100-packet stability visualization.
+- [x] **Scrollable RTT Chart**: Historical data navigation.
+- [x] **Premium Audio Feedback**: Modern "Tink" sound on packet loss.
+- [x] **Unlimited Session**: Removed auto-stop logic; manual control only.
+- [x] **Branded PDF Export**: Professional reporting with app identity.
+
+### 2. Dashboard & Global State
+...
 - [x] **UI/UX Overhaul**: Premium refactoring for clarity, hierarchy, and macOS native aesthetics.
 - [x] **Ultra-Interactive Dashboard**: Centralized summary with clickable cards and mini-sparklines.
 - [x] **Network Identity**: Automatic detection of Local IP, Public IP, VPN IP, and Hostname in the header.
