@@ -62,6 +62,12 @@ struct PortScanView: View {
                 TextField("Hostname or IP", text: $host)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 200)
+                    .onSubmit {
+                        guard !host.isEmpty, !portsToScan.isEmpty, !vm.isRunning else { return }
+                        history.record(host)
+                        vm.scan(host: host, ports: portsToScan,
+                                concurrency: concurrency, timeout: timeout)
+                    }
                 if !history.hosts.isEmpty {
                     Menu {
                         ForEach(history.hosts, id: \.self) { h in
