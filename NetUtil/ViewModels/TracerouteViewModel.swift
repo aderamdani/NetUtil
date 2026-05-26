@@ -14,6 +14,7 @@ class TracerouteViewModel: ObservableObject {
     @Published var rawLines: [String] = []
     @Published var error: String?
     @Published var round = 0
+    @Published var currentHost: String = ""
 
     private var interval: Double = 5
     private var maxHops: Int = 30
@@ -39,6 +40,7 @@ class TracerouteViewModel: ObservableObject {
         error = nil
         round = 0
         targetHost = host
+        currentHost = host
         self.maxHops = maxHops
         self.interval = interval
         isRunning = true

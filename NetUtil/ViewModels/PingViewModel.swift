@@ -11,7 +11,8 @@ class PingViewModel: ObservableObject {
     @Published var error: String?
     @Published var resolvedIP: String?
     @Published var beepOnLoss: Bool = false
-    
+    @Published var currentHost: String = ""
+
     /// Auto-stop if this many timeouts happen in a row (nil to disable)
     @Published var autoStopTimeoutLimit: Int? = 5
 
@@ -49,6 +50,7 @@ class PingViewModel: ObservableObject {
         error = nil
         resolvedIP = nil
         consecutiveTimeouts = 0
+        currentHost = host
         isRunning = true
 
         let p = Process()
