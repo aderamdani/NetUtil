@@ -4,6 +4,20 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.6.0] — 2026-05-27
+
+### Improved
+- **Dashboard UI/UX Overhaul**: Major refactoring for better clarity and neatness.
+    - **Hero Header**: Enhanced visual hierarchy with a bolder "Network Overview" and localized system hostname.
+    - **Refined Identity Bar**: More distinct, color-coded badges for Local IP, Public IP, and VPN Status with improved spacing.
+    - **Standardized Card Layout**: Unified padding and corner radius across all dashboard cards for a cleaner look.
+    - **Informational Descriptions**: Added clear descriptions to each dashboard section to guide the user.
+    - **Advanced Metric Visualization**: New `MetricView` component for consistent and readable data points (Latency, Loss, Signal).
+    - **Enhanced Sparklines**: Thicker strokes and smoother gradients for real-time trend charts.
+    - **Smooth Interactions**: Refined hover animations and pulse indicators for a more premium "native" feel.
+
+---
+
 ## [1.5.0] — 2026-05-27
 
 ### Added
