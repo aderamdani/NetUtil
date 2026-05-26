@@ -15,54 +15,6 @@ The Ping tool in NetUtil is a wrapper around `/sbin/ping`. It uses `Process` and
 
 ---
 
-## Optimization Plan (Ping Feature)
-
-### 1. Model & Data Enhancements
-- [x] **Extended `PingResult`**: Add `ipAddress` (resolved during ping) and `status` enum (`success`, `timeout`, `error`).
-- [x] **Distribution Analysis**: In `PingStats`, add buckets for RTT distribution (e.g., <20ms, 20-50ms, 50-100ms, >100ms).
-- [x] **IP Resolution**: Update `PingViewModel` to extract the destination IP from the initial ping output line (e.g., `PING google.com (142.251.x.x)`).
-
-### 2. UI/UX Improvements
-- [x] **Enhanced Stats Bar**: Use a grid-based `StatCard` component with icons and descriptive tooltips.
-- [x] **Modern Charting**:
-    - [x] Add `BarMark` at the bottom of the chart to visualize packet loss/timeouts (red bars).
-    - [x] Implement `chartOverlay` or `chartBackground` for interactive hover state to show RTT at specific points. (Note: implemented distribution bar and better visual markers)
-    - [x] Color-coded line segments based on RTT thresholds (Green/Orange/Red).
-- [x] **Status Indicators**: Add a "Live" pulse indicator in the toolbar when pinging is active.
-- [x] **Quick Actions**: Add "Copy Summary" to the export menu for quick sharing.
-
-### 3. Feature Additions
-- [x] **Audio Feedback**: Add a toggle in Settings for "Beep on Loss" (using `NSSound`).
-- [x] **Packet Size Control**: Add a slider or text field for `ping -s <size>`.
-- [x] **Auto-Stop Logic**: Add a setting to stop pinging after X consecutive timeouts.
-
----
-
-## Coding Standards & Patterns
-
-### MVVM + Concurrency
-- Always use `Task { @MainActor in ... }` for UI updates from background threads (e.g., `readabilityHandler`).
-- Keep regex patterns `nonisolated static` to avoid re-compilation and thread-safety issues.
-
-### SwiftUI
-- Prefer **Vanilla SwiftUI** and **Swift Charts**.
-- Use `.help()` for tooltips on all stat chips and icons.
-- Use `Table` for list data with `scrollPosition` for auto-scrolling.
-
-### Environment & State
-- Shared ViewModels must be accessed via `ToolStore` (EnvironmentObject).
-- Transient settings (like packet size for a single session) go in the View; persistent defaults go in `AppStorage`.
-
----
-
-## Memory & Persistence
-- Host history is managed by `HostHistory.shared`. Always call `history.record(host)` before starting a ping.
-- Clear history should only be done via the provided UI or Settings.
-
----
-
----
-
 ## Optimization Plan (v1.5.0 & Beyond)
 
 ### 1. Dashboard & Global State
@@ -82,22 +34,31 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
 0.  **Sync Local**: Run `git pull` to ensure you are working on the latest code.
 
 1.  **Version Management (SemVer Rules)**:
-    - **Major (X.0.0)**: Full system upgrade or major architectural change.
-    - **Minor (0.X.0)**: New feature added (e.g., a new tool or dashboard module).
-    - **Patch (0.0.X)**: Minor fixes, UI tweaks, or documentation updates.
+    - **Major (X.0.0)**: Full upgrade, perombakan sistem, atau perubahan core besar.
+    - **Minor (0.X.0)**: Penambahan 1 fitur atau peningkatan alat yang signifikan.
+    - **Patch (0.0.X)**: Perubahan minor banget, UI polish, atau bug fix.
     - *Action*: Update `MARKETING_VERSION` in Xcode and `CHANGELOG.md` accordingly.
 
 2.  **Documentation Sync**:
-...
-    - Remove old artifacts: `rm -rf dist/NetUtil.xcarchive`.
-3.  **Build & Package**:
-    - Run full build verification: `xcodebuild build ...`.
+    - Update `CHANGELOG.md` with latest features.
+    - Sync `README.md` and `DOCUMENTATION.md` versions.
+    - Update `AboutView.swift` tool lists and acknowledgments.
+
+3.  **Clean Up**:
+    - Remove old artifacts: `rm -rf dist/NetUtil.xcarchive` (Hapus xcarchive lama di dist).
+
+4.  **Build & Package**:
+    - Run full build verification: `xcodebuild build -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`.
     - Generate DMG: `bash scripts/build_dmg.sh`.
-4.  **Version Control & GitHub**:
+
+5.  **Version Control & GitHub**:
     - Commit with a professional message: `docs: release vX.X.X - <key features>`.
-    - Push code and tags: `git push origin main && git push origin --tags`.
-    - **Fallback (Manual Release)**: If GitHub Actions fails (e.g., billing issues), run:
-      `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X" --notes "Release notes..."`
+    - Push code and tags: 
+      - `git push origin main`
+      - `git tag vX.X.X`
+      - `git push origin --tags`
+    - **Fallback (Manual Release)**: Jika CI GitHub Actions gagal (billing issue), jalankan:
+      `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X" --notes "Release notes summary"`
 
 ---
 
