@@ -36,23 +36,24 @@ enum Tool: String, CaseIterable, Identifiable {
 
 struct ContentView: View {
     @State private var selection: Tool? = .ping
+    @EnvironmentObject private var tools: ToolStore
 
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
                 Section("Active Probing") {
                     ForEach([Tool.ping, .traceroute, .multiPing, .portScan, .httpLatency]) {
-                        Label($0.rawValue, systemImage: $0.icon).tag($0)
+                        toolRow($0)
                     }
                 }
                 Section("Lookup") {
                     ForEach([Tool.dns, .whois, .ssl]) {
-                        Label($0.rawValue, systemImage: $0.icon).tag($0)
+                        toolRow($0)
                     }
                 }
                 Section("Network Info") {
                     ForEach([Tool.interfaces, .wifi, .routes, .bandwidth]) {
-                        Label($0.rawValue, systemImage: $0.icon).tag($0)
+                        toolRow($0)
                     }
                 }
             }
@@ -61,27 +62,27 @@ struct ContentView: View {
         } detail: {
             switch selection {
             case .ping:
-                PingView()
+                PingView(vm: tools.ping)
             case .traceroute:
-                TracerouteView()
+                TracerouteView(vm: tools.traceroute)
             case .dns:
-                DNSView()
+                DNSView(vm: tools.dns)
             case .portScan:
-                PortScanView()
+                PortScanView(vm: tools.portScan)
             case .interfaces:
                 NetworkInterfaceView()
             case .httpLatency:
-                HTTPLatencyView()
+                HTTPLatencyView(vm: tools.httpLatency)
             case .multiPing:
-                MultiPingView()
+                MultiPingView(vm: tools.multiPing)
             case .wifi:
                 WiFiInspectorView()
             case .routes:
                 RouteTableView()
             case .ssl:
-                SSLInspectorView()
+                SSLInspectorView(vm: tools.ssl)
             case .whois:
-                WhoisView()
+                WhoisView(vm: tools.whois)
             case .bandwidth:
                 BandwidthView()
             case nil:
@@ -93,5 +94,26 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 900, minHeight: 580)
+    }
+
+    @ViewBuilder
+    private func toolRow(_ tool: Tool) -> some View {
+        Label(tool.rawValue, systemImage: tool.icon)
+            .tag(tool)
+            .badge(runningBadge(tool))
+    }
+
+    private func runningBadge(_ tool: Tool) -> Int {
+        switch tool {
+        case .ping:       return tools.ping.isRunning ? 1 : 0
+        case .traceroute: return tools.traceroute.isRunning ? 1 : 0
+        case .portScan:   return tools.portScan.isRunning ? 1 : 0
+        case .multiPing:  return tools.multiPing.slots.filter(\.isRunning).count
+        case .httpLatency: return tools.httpLatency.isRunning ? 1 : 0
+        case .dns:        return tools.dns.isRunning ? 1 : 0
+        case .ssl:        return tools.ssl.isRunning ? 1 : 0
+        case .whois:      return tools.whois.isRunning ? 1 : 0
+        default:          return 0
+        }
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 
 struct PortScanView: View {
-    @StateObject private var vm = PortScanViewModel()
+    @ObservedObject var vm: PortScanViewModel
     @StateObject private var history = HostHistory.shared
     @State private var host = ""
     @State private var preset = PortPreset.common

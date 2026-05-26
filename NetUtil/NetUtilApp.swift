@@ -3,10 +3,12 @@ import SwiftUI
 @main
 struct NetUtilApp: App {
     @Environment(\.openWindow) private var openWindow
+    @StateObject private var tools = ToolStore()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(tools)
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)

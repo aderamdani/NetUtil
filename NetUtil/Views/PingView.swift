@@ -2,7 +2,7 @@ import SwiftUI
 import Charts
 
 struct PingView: View {
-    @StateObject private var vm = PingViewModel()
+    @ObservedObject var vm: PingViewModel
     @StateObject private var history = HostHistory.shared
     @State private var host = ""
     @AppStorage("defaultPingCount")    private var defaultCount: Int = 20
