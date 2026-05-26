@@ -4,6 +4,25 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.7.2] — 2026-05-27
+
+### Added
+- **Premium PDF Diagnostics**: Branded PDF reports for Ping with app logo, detailed stats, and automatic timestamping.
+- **Visual Intelligence**: 
+    - **Health Strip**: GitHub-style 100-packet stability bar for instant quality assessment.
+    - **Smart Interpretation**: Logic-driven connection quality summary (Excellent/Stable/Congested).
+
+### Improved
+- **Interactive Graphs**: Horizontal scrolling enabled for RTT charts to browse historical data.
+- **Auto-Scroll Engine**: Definitively fixed real-time table scrolling using a robust `ScrollViewReader` implementation.
+- **Global UI Overhaul**:
+    - Standardized all typography to San Francisco (SF) Pro for a pure macOS aesthetic.
+    - Enhanced visual depth with stronger, multi-layered card shadows.
+    - Refined global whitespace and padding for a cleaner, "breathable" interface.
+- **Traceroute Restoration**: Fully restored and enhanced premium components (`IPInfoCard`, `TimelineView`, `HopDetailChart`).
+
+---
+
 ## [1.7.1] — 2026-05-27
 
 ### Added

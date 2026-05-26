@@ -110,8 +110,7 @@ struct AboutView: View {
     private var versionBadge: some View {
         HStack(spacing: 12) {
             Text("v\(currentVersion)")
-                .font(.system(.subheadline, design: .monospaced).bold())
-                .padding(.horizontal, 10)
+                .font(.system(.subheadline, design: .monospaced).bold())                .padding(.horizontal, 10)
                 .padding(.vertical, 4)
                 .background(Color.accentColor.opacity(0.1))
                 .foregroundColor(.accentColor)

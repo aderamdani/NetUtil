@@ -18,13 +18,17 @@ struct PingView: View {
     @State private var showRaw = false
     @State private var showHistory = false
     @State private var tableScrollID: PingResult.ID?
+    
+    // Interactive chart state
+    @State private var selectedPacket: Int?
+    @State private var isHoveringChart = false
 
     private var resolvedCount: String { countText.isEmpty ? "\(defaultCount)" : countText }
     private var resolvedInterval: String { intervalText.isEmpty ? String(format: "%.1f", defaultInterval) : intervalText }
     private var resolvedPacketSize: Int? { Int(packetSizeText) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 20) {
             controlBar
                 .onAppear {
                     if host.isEmpty, !vm.currentHost.isEmpty {
@@ -33,381 +37,505 @@ struct PingView: View {
                 }
             
             if let err = vm.error {
-                Text(err).foregroundColor(.red).font(.caption)
-            }
-            
-            if let ip = vm.resolvedIP {
-                HStack(spacing: 6) {
-                    Image(systemName: "network")
-                        .foregroundColor(.secondary)
-                    Text("Pinging \(host) (\(ip))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    if vm.isRunning {
-                        Circle()
-                            .fill(Color.green)
-                            .frame(width: 6, height: 6)
-                            .opacity(0.8)
-                    }
+                HStack {
+                    Image(systemName: "exclamationmark.octagon.fill")
+                    Text(err)
                 }
-                .padding(.horizontal, 4)
+                .foregroundColor(.red)
+                .font(.system(size: 13, weight: .bold))
+                .padding(8)
+                .background(Color.red.opacity(0.1))
+                .cornerRadius(6)
             }
             
             if !vm.results.isEmpty {
                 statsBar
-            }
-            if vm.results.count > 1 {
-                rttChart
-                distributionBar
-            }
-            HStack {
-                Picker("", selection: $showRaw) {
-                    Text("Table").tag(false)
-                    Text("Raw").tag(true)
+                
+                VStack(alignment: .leading, spacing: 16) {
+                    // Smart Interpretation Header
+                    HStack(alignment: .center, spacing: 12) {
+                        let interpretation = interpretConnection()
+                        Image(systemName: interpretation.icon)
+                            .font(.title2)
+                            .foregroundColor(interpretation.color)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(interpretation.status)
+                                .font(.headline)
+                            Text(interpretation.description)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        // Health Strip (Last 100 packets)
+                        healthStrip
+                    }
+                    .padding(.bottom, 8)
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Label("RTT LATENCY HISTORY", systemImage: "chart.line.uptrend.xyaxis")
+                                .font(.system(size: 10, weight: .black))
+                                .foregroundColor(.secondary)
+                                .kerning(1)
+                            Spacer()
+                            if let selected = selectedPacket, let result = vm.results.first(where: { $0.sequence == selected }) {
+                                HStack(spacing: 8) {
+                                    Text("Packet #\(result.sequence)").font(.system(size: 12, weight: .bold))
+                                    Text("\(String(format: "%.2f", result.rtt)) ms").font(.system(size: 12)).foregroundColor(rttColor(result.rtt))
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Color.secondary.opacity(0.1))
+                                .cornerRadius(4)
+                            }
+                        }
+                        
+                        rttChart
+                            .frame(height: 180)
+                            .chartScrollableAxes(.horizontal)
+                            .chartXVisibleDomain(length: 60)
+                        
+                        distributionBar
+                    }
+                    .padding(16)
+                    .background(Color(.controlBackgroundColor).opacity(0.5))
+                    .cornerRadius(12)
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 150)
-                Spacer()
-                rttLegend
             }
-            if showRaw {
-                rawOutput
-            } else {
-                resultsTable
+            
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Picker("", selection: $showRaw) {
+                        Text("Data Table").tag(false)
+                        Text("Console Output").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 240)
+                    
+                    Spacer()
+                    
+                    rttLegend
+                }
+                
+                if showRaw {
+                    rawOutput
+                } else {
+                    resultsTable
+                }
             }
         }
-        .padding()
+        .padding(24)
     }
 
     private var controlBar: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 0) {
-                TextField("Hostname or IP", text: $host)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 200)
-                    .help("Enter the domain name (e.g., google.com) or IP address to test connectivity.")
-                    .onSubmit {
-                        guard !host.isEmpty, !vm.isRunning else { return }
-                        history.record(host)
-                        let count = infinite ? nil : Int(resolvedCount)
-                        vm.beepOnLoss = beepOnLoss
-                        vm.autoStopTimeoutLimit = autoStopLimit > 0 ? autoStopLimit : nil
-                        vm.start(host: host, count: count,
-                                 interval: Double(resolvedInterval) ?? defaultInterval,
-                                 packetSize: resolvedPacketSize)
-                    }
-                if !history.hosts.isEmpty {
-                    Menu {
-                        ForEach(history.hosts, id: \.self) { h in
-                            Button(h) { host = h }
+        HStack(spacing: 12) {
+            TextField("Hostname or IP address", text: $host)
+                .textFieldStyle(.roundedBorder)
+                .controlSize(.large)
+                .frame(width: 250)
+                .help("Target host to ping.")
+                .onSubmit(startAction)
+                .overlay(alignment: .trailing) {
+                    if !history.hosts.isEmpty {
+                        Menu {
+                            ForEach(history.hosts, id: \.self) { h in
+                                Button(h) { host = h }
+                            }
+                            Divider()
+                            Button("Clear History", role: .destructive) { history.clear() }
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundColor(.secondary)
                         }
-                        Divider()
-                        Button("Clear History", role: .destructive) { history.clear() }
-                    } label: {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .foregroundColor(.secondary)
+                        .menuStyle(.borderlessButton)
+                        .frame(width: 28)
+                        .padding(.trailing, 4)
                     }
-                    .menuStyle(.borderlessButton)
-                    .frame(width: 28)
-                    .help("Recent host history")
                 }
-            }
 
-            Toggle("Continuous", isOn: $infinite)
-                .toggleStyle(.checkbox)
-                .help("If enabled, ping will run indefinitely until stopped manually.")
+            Toggle("∞", isOn: $infinite)
+                .toggleStyle(.button)
+                .help("Infinite ping")
             
             Toggle(isOn: $beepOnLoss) {
-                Image(systemName: "speaker.wave.2")
+                Image(systemName: beepOnLoss ? "speaker.wave.2.fill" : "speaker.slash.fill")
             }
             .toggleStyle(.button)
-            .help("Play a system beep sound whenever a packet is lost (timeout).")
+            .help("Beep on packet loss")
 
             if !infinite {
-                HStack(spacing: 4) {
-                    Text("Packets:")
-                        .fixedSize()
-                    TextField("", text: $countText)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 45)
-                }
-                .help("Number of packets to send before stopping automatically.")
+                TextField("Count", text: $countText)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 60)
+                    .help("Packets to send")
             }
 
-            HStack(spacing: 4) {
-                Text("Delay:")
-                    .fixedSize()
-                TextField("", text: $intervalText)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 45)
-                Text("sec")
-                    .fixedSize()
-            }
-            .help("Wait time between sending each packet (in seconds).")
+            TextField("Interval", text: $intervalText)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 65)
+                .help("Interval (sec)")
 
-            HStack(spacing: 4) {
-                Text("Size:")
-                    .fixedSize()
-                TextField("56", text: $packetSizeText)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 45)
-                Text("bytes")
-                    .fixedSize()
-            }
-            .help("Size of the data payload in bytes. Default is 56 (64 bytes total with header).")
+            TextField("Size", text: $packetSizeText)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 60)
+                .help("Packet size (bytes)")
 
             Spacer()
 
             if !vm.results.isEmpty {
                 Menu {
-                    Button("Copy Summary") {
+                    Button("Copy Text Summary") {
                         let summary = """
                         Ping Summary for \(host) (\(vm.resolvedIP ?? "unresolved")):
-                        Sent: \(vm.stats.transmitted)
-                        Received: \(vm.stats.received)
-                        Loss: \(String(format: "%.1f%%", vm.stats.loss))
+                        Sent: \(vm.stats.transmitted) | Received: \(vm.stats.received) | Loss: \(String(format: "%.1f%%", vm.stats.loss))
                         RTT Min/Avg/Max/Jitter: \(String(format: "%.2f/%.2f/%.2f/%.2f", vm.stats.minRtt, vm.stats.avgRtt, vm.stats.maxRtt, vm.stats.jitter)) ms
                         """
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(summary, forType: .string)
                     }
                     Divider()
-                    Button("Export CSV") {
-                        Exporter.save(
-                            string: Exporter.csvString(from: vm.results),
-                            defaultName: "ping-\(host).csv", ext: "csv"
-                        )
+                    Button("Export as PDF Report...") {
+                        Exporter.savePingPDF(results: vm.results, stats: vm.stats, host: host, resolvedIP: vm.resolvedIP)
                     }
-                    Button("Export JSON") {
-                        if let data = try? Exporter.jsonData(from: vm.results) {
-                            Exporter.save(data: data, defaultName: "ping-\(host).json", ext: "json")
-                        }
+                    Button("Export as CSV...") {
+                        let date = Date()
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
+                        let fileDate = formatter.string(from: date)
+                        Exporter.save(string: Exporter.csvString(from: vm.results), defaultName: "NetUtil-Ping-\(host)-\(fileDate).csv", ext: "csv")
                     }
                 } label: {
-                    Image(systemName: "square.and.arrow.up")
+                    Label("Share", systemImage: "square.and.arrow.up")
+                        .font(.system(size: 13, weight: .semibold))
                 }
-                .menuStyle(.borderlessButton)
-                .frame(width: 32)
+                .buttonStyle(.bordered)
             }
 
-            Button(vm.isRunning ? "Stop" : "Ping") {
-                if vm.isRunning {
-                    vm.stop()
-                } else {
-                    history.record(host)
-                    let count = infinite ? nil : Int(resolvedCount)
-                    vm.beepOnLoss = beepOnLoss
-                    vm.autoStopTimeoutLimit = autoStopLimit > 0 ? autoStopLimit : nil
-                    vm.start(host: host, count: count, 
-                             interval: Double(resolvedInterval) ?? defaultInterval,
-                             packetSize: resolvedPacketSize)
+            Button(action: startAction) {
+                HStack(spacing: 6) {
+                    if vm.isRunning {
+                        Image(systemName: "stop.fill")
+                            .font(.system(size: 11, weight: .bold))
+                        Text("Stop")
+                    } else {
+                        Image(systemName: "play.fill")
+                        Text("Start Ping")
+                    }
                 }
+                .font(.system(size: 13, weight: .semibold))
+                .frame(minWidth: 90)
             }
             .buttonStyle(.borderedProminent)
             .tint(vm.isRunning ? .red : .accentColor)
             .disabled(!vm.isRunning && host.isEmpty)
-            .keyboardShortcut(.return)
+        }
+    }
+    
+    private func startAction() {
+        if vm.isRunning {
+            vm.stop()
+        } else {
+            guard !host.isEmpty else { return }
+            history.record(host)
+            let count = infinite ? nil : Int(resolvedCount)
+            vm.beepOnLoss = beepOnLoss
+            vm.start(host: host, count: count,
+                     interval: Double(resolvedInterval) ?? defaultInterval,
+                     packetSize: resolvedPacketSize)
         }
     }
 
     private var statsBar: some View {
         HStack(spacing: 12) {
-            StatCard(title: "Sent", value: "\(vm.stats.transmitted)", icon: "paperplane")
-                .help("Total number of ICMP echo request packets sent.")
-            StatCard(title: "Received", value: "\(vm.stats.received)", icon: "tray.and.arrow.down")
-                .help("Total number of successful echo replies received back from the host.")
-            StatCard(title: "Loss", 
-                     value: String(format: "%.1f%%", vm.stats.loss), 
-                     icon: "exclamationmark.triangle",
-                     color: vm.stats.loss > lossAlert ? .red : vm.stats.loss > 0 ? .orange : .primary)
-                .help("Percentage of packets that failed to return (Packet Loss). Lower is better.")
-            StatCard(title: "Min", 
-                     value: vm.stats.minRtt == .infinity ? "—" : String(format: "%.2f", vm.stats.minRtt), 
-                     unit: "ms",
-                     icon: "arrow.down.to.line",
-                     color: vm.stats.minRtt == .infinity ? .secondary : rttColor(vm.stats.minRtt))
-                .help("Minimum Round Trip Time recorded during this session.")
-            StatCard(title: "Avg", 
-                     value: String(format: "%.2f", vm.stats.avgRtt), 
-                     unit: "ms",
-                     icon: "equal",
-                     color: rttColor(vm.stats.avgRtt))
-                .help("Average Round Trip Time. This is the typical latency of your connection.")
-            StatCard(title: "Max", 
-                     value: String(format: "%.2f", vm.stats.maxRtt), 
-                     unit: "ms",
-                     icon: "arrow.up.to.line",
-                     color: rttColor(vm.stats.maxRtt))
-                .help("Maximum Round Trip Time recorded. High values can indicate temporary congestion.")
-            StatCard(title: "Jitter", 
-                     value: vm.stats.jitter == 0 ? "—" : String(format: "%.2f", vm.stats.jitter), 
-                     unit: "ms",
-                     icon: "waveform.path.ecg",
-                     color: vm.stats.jitter == 0 ? .secondary
-                         : vm.stats.jitter < 5 ? .green
-                         : vm.stats.jitter < 20 ? .orange : .red)
-                .help("Standard deviation of RTT. Measures latency stability. < 5ms is excellent, > 20ms may affect real-time apps like gaming or VOIP.")
+            StatCard(title: "SENT", value: "\(vm.stats.transmitted)", icon: "paperplane")
+            StatCard(title: "RECEIVED", value: "\(vm.stats.received)", icon: "tray.and.arrow.down")
+            StatCard(title: "LOSS", value: String(format: "%.1f%%", vm.stats.loss), icon: "exclamationmark.triangle", 
+                     color: vm.stats.loss > 0 ? .red : .secondary)
+            
+            Divider().frame(height: 30).padding(.horizontal, 4)
+            
+            StatCard(title: "AVG RTT", value: String(format: "%.1f", vm.stats.avgRtt), unit: "ms", icon: "equal", color: rttColor(vm.stats.avgRtt))
+            StatCard(title: "JITTER", value: String(format: "%.1f", vm.stats.jitter), unit: "ms", icon: "waveform.path.ecg", 
+                     color: vm.stats.jitter > 10 ? .orange : .secondary)
         }
     }
 
-    @AppStorage("lossAlertThreshold") private var lossAlert: Double = 10.0
+    private var healthStrip: some View {
+        let results = vm.results.suffix(100)
+        return HStack(spacing: 2) {
+            ForEach(results) { r in
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(healthColor(r))
+                    .frame(width: 4, height: 14)
+            }
+        }
+        .help("Health Strip: Last 100 packets. Red = Timeout, Orange = High Latency, Green = Healthy.")
+    }
+
+    private func healthColor(_ r: PingResult) -> Color {
+        if r.status == .timeout { return .red }
+        if r.rtt > rttCrit { return .red }
+        if r.rtt > rttWarn { return .orange }
+        return .green
+    }
+
+    private func interpretConnection() -> (status: String, description: String, icon: String, color: Color) {
+        let loss = vm.stats.loss
+        let jitter = vm.stats.jitter
+        let avg = vm.stats.avgRtt
+        
+        if loss > 10 {
+            return ("Intermittent", "Significant packet loss detected. Check your physical connection or ISP.", "wifi.exclamationmark", .red)
+        } else if avg > rttCrit {
+            return ("Severe Latency", "Extremely slow response times. Network congestion is likely.", "tortoise.fill", .red)
+        } else if jitter > 20 {
+            return ("Unstable (High Jitter)", "Large RTT variations. Common on congested Wi-Fi or saturated links.", "waveform.path.ecg", .orange)
+        } else if loss > 0 {
+            return ("Minor Instability", "Occasional packet drops. Usually acceptable but not ideal.", "shield.exclamationmark.fill", .orange)
+        } else if avg > rttWarn {
+            return ("Moderate Latency", "Solid connection but slightly higher response time than ideal.", "hand.thumbsup.fill", .green)
+        } else {
+            return ("Excellent", "Perfectly stable connection with minimal latency.", "checkmark.seal.fill", .green)
+        }
+    }
 
     private var rttChart: some View {
-        let recent = Array(vm.results.suffix(60))
-        return Chart {
-            ForEach(recent) { r in
+        Chart {
+            ForEach(vm.results) { r in
                 if r.status == .success {
-                    LineMark(
-                        x: .value("Seq", r.sequence),
-                        y: .value("RTT", r.rtt)
-                    )
-                    .foregroundStyle(.blue.opacity(0.8))
-                    .interpolationMethod(.monotone)
-                    
                     AreaMark(
-                        x: .value("Seq", r.sequence),
+                        x: .value("Packet", r.sequence),
                         y: .value("RTT", r.rtt)
                     )
                     .foregroundStyle(LinearGradient(
-                        colors: [.blue.opacity(0.2), .blue.opacity(0.01)],
+                        colors: [rttColor(r.rtt).opacity(0.3), rttColor(r.rtt).opacity(0.05)],
                         startPoint: .top,
                         endPoint: .bottom
                     ))
                     .interpolationMethod(.monotone)
 
-                    PointMark(
-                        x: .value("Seq", r.sequence),
+                    LineMark(
+                        x: .value("Packet", r.sequence),
                         y: .value("RTT", r.rtt)
                     )
-                    .symbolSize(20)
                     .foregroundStyle(rttColor(r.rtt))
+                    .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                    .interpolationMethod(.monotone)
+                    
+                    if vm.results.count < 30 || selectedPacket == r.sequence {
+                        PointMark(
+                            x: .value("Packet", r.sequence),
+                            y: .value("RTT", r.rtt)
+                        )
+                        .symbolSize(selectedPacket == r.sequence ? 100 : 40)
+                        .foregroundStyle(rttColor(r.rtt))
+                    }
                 } else {
-                    // Show timeouts as red bars at the bottom
                     BarMark(
-                        x: .value("Seq", r.sequence),
-                        y: .value("RTT", 10) // Fixed height for visualization
+                        x: .value("Packet", r.sequence),
+                        yStart: .value("Base", 0),
+                        yEnd: .value("Max", vm.stats.maxRtt > 0 ? vm.stats.maxRtt : 100)
                     )
-                    .foregroundStyle(.red.opacity(0.6))
+                    .foregroundStyle(Color.red.opacity(0.2))
                 }
             }
-            RuleMark(y: .value("Warn", rttWarn))
-                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
-                .foregroundStyle(Color.orange.opacity(0.55))
-            RuleMark(y: .value("Crit", rttCrit))
-                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
-                .foregroundStyle(Color.red.opacity(0.55))
+            
+            if let selected = selectedPacket, let _ = vm.results.first(where: { $0.sequence == selected }) {
+                RuleMark(x: .value("Selected", selected))
+                    .foregroundStyle(Color.secondary.opacity(0.3))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [2, 2]))
+            }
+            
+            RuleMark(y: .value("Avg", vm.stats.avgRtt))
+                .foregroundStyle(Color.primary.opacity(0.2))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
+                .annotation(position: .trailing, alignment: .leading) {
+                    Text("avg").font(.system(size: 8, weight: .bold)).foregroundColor(.secondary)
+                }
         }
-        .chartYAxisLabel("RTT (ms)")
-        .chartXAxisLabel("Packet No.")
-        .frame(height: 130)
-        .padding(.horizontal, 2)
+        .chartXScale(domain: .automatic)
+        .chartYScale(domain: 0...(max(vm.stats.maxRtt * 1.1, 50)))
+        .chartXSelection(value: $selectedPacket)
+        .chartYAxis {
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
+                AxisValueLabel {
+                    if let val = value.as(Double.self) {
+                        Text("\(Int(val))ms").font(.system(size: 9))
+                    }
+                }
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 6)) { value in
+                AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
+                AxisValueLabel {
+                    if let val = value.as(Int.self) {
+                        Text("#\(val)").font(.system(size: 9))
+                    }
+                }
+            }
+        }
     }
 
     private var distributionBar: some View {
-        HStack(spacing: 2) {
-            distributionSegment(count: vm.stats.bucketLow, color: .green, label: "<20ms")
-            distributionSegment(count: vm.stats.bucketMedium, color: .orange, label: "20-50ms")
-            distributionSegment(count: vm.stats.bucketHigh, color: .red.opacity(0.8), label: "50-100ms")
-            distributionSegment(count: vm.stats.bucketCritical, color: .purple, label: ">100ms")
+        VStack(alignment: .leading, spacing: 6) {
+            Text("LATENCY DISTRIBUTION")
+                .font(.system(size: 9, weight: .bold))
+                .foregroundColor(.secondary)
+            
+            GeometryReader { geo in
+                HStack(spacing: 1) {
+                    distributionSegment(count: vm.stats.bucketLow, color: .green, total: geo.size.width)
+                    distributionSegment(count: vm.stats.bucketMedium, color: .orange, total: geo.size.width)
+                    distributionSegment(count: vm.stats.bucketHigh, color: .red, total: geo.size.width)
+                    distributionSegment(count: vm.stats.bucketCritical, color: .purple, total: geo.size.width)
+                }
+            }
+            .frame(height: 8)
+            .clipShape(Capsule())
         }
-        .frame(height: 12)
-        .cornerRadius(6)
-        .padding(.horizontal, 2)
     }
 
-    private func distributionSegment(count: Int, color: Color, label: String) -> some View {
-        let total = max(1, vm.stats.received)
-        let width = CGFloat(count) / CGFloat(total)
-        return Group {
-            if count > 0 {
-                Rectangle()
-                    .fill(color)
-                    .frame(maxWidth: width * 1000) // proportional width
-                    .help("\(label): \(count) (\(Int(width * 100))%)")
+    private func distributionSegment(count: Int, color: Color, total: CGFloat) -> some View {
+        let totalCount = max(1, vm.stats.received)
+        let ratio = CGFloat(count) / CGFloat(totalCount)
+        return Rectangle()
+            .fill(color)
+            .frame(width: max(0, ratio * total))
+    }
+
+    private var resultsTable: some View {
+        VStack(spacing: 0) {
+            // macOS Style Sticky Header
+            HStack(spacing: 0) {
+                headerCell("Seq", width: 60)
+                headerCell("Status", width: 90)
+                headerCell("RTT", width: 110)
+                headerCell("IP Address", width: nil)
+                headerCell("TTL", width: 50)
+                headerCell("Timestamp", width: 140)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background(Color(.windowBackgroundColor))
+            
+            Divider()
+            
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(vm.results) { r in
+                            HStack(spacing: 0) {
+                                Text("\(r.sequence)")
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .frame(width: 60, alignment: .leading)
+                                    .foregroundColor(r.status == .timeout ? .red : .primary)
+                                
+                                HStack(spacing: 8) {
+                                    Circle().fill(r.status == .success ? rttColor(r.rtt) : .red).frame(width: 6, height: 6)
+                                    Text(r.status == .success ? "Success" : "Timeout")
+                                        .font(.system(size: 11))
+                                }
+                                .frame(width: 90, alignment: .leading)
+                                
+                                Text(r.status == .success ? String(format: "%.3f ms", r.rtt) : "—")
+                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                    .frame(width: 110, alignment: .leading)
+                                    .foregroundColor(rttColor(r.rtt))
+                                
+                                Text(r.ipAddress ?? vm.resolvedIP ?? "—")
+                                    .font(.system(size: 11))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .foregroundColor(.secondary)
+                                
+                                Text(r.status == .success ? "\(r.ttl)" : "—")
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .frame(width: 50, alignment: .leading)
+                                    .foregroundColor(.secondary)
+                                
+                                Text(r.timestamp, format: .dateTime.hour().minute().second())
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .frame(width: 140, alignment: .trailing)
+                                    .foregroundColor(.secondary.opacity(0.8))
+                            }
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 16)
+                            .id(r.id)
+                            
+                            Divider().opacity(0.2)
+                        }
+                    }
+                }
+                .onChange(of: vm.results.count) {
+                    if let lastID = vm.results.last?.id {
+                        withAnimation {
+                            proxy.scrollTo(lastID, anchor: .bottom)
+                        }
+                    }
+                }
             }
         }
+        .background(Color(.textBackgroundColor))
+        .cornerRadius(8)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
+    }
+    
+    private func headerCell(_ title: String, width: CGFloat?) -> some View {
+        Text(title.uppercased())
+            .font(.system(size: 10, weight: .black))
+            .foregroundColor(.secondary)
+            .frame(width: width, alignment: .leading)
+            .frame(maxWidth: width == nil ? .infinity : nil, alignment: .leading)
     }
 
     private var rawOutput: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 1) {
+                LazyVStack(alignment: .leading, spacing: 2) {
                     ForEach(Array(vm.rawLines.enumerated()), id: \.offset) { i, line in
                         Text(line)
-                            .font(.system(.caption, design: .monospaced))
+                            .font(.system(size: 11))
+                            .padding(.horizontal, 4)
                             .id(i)
                     }
                 }
-                .padding(8)
+                .padding(.vertical, 8)
             }
             .background(Color(.textBackgroundColor))
             .cornerRadius(8)
             .onChange(of: vm.rawLines.count) {
                 if let last = vm.rawLines.indices.last {
-                    withAnimation { proxy.scrollTo(last, anchor: .bottom) }
+                    proxy.scrollTo(last, anchor: .bottom)
                 }
             }
         }
     }
 
-    private var resultsTable: some View {
-        Table(vm.results) {
-            TableColumn("Time") { r in
-                Text(r.timestamp, format: .dateTime.hour().minute().second())
-                    .font(.system(.body, design: .monospaced))
-            }
-            .width(80)
-            TableColumn("#") { r in
-                Text("\(r.sequence)")
-                    .font(.system(.body, design: .monospaced))
-            }
-            .width(50)
-            TableColumn("Host") { r in
-                Text(r.host)
-                    .font(.system(.body, design: .monospaced))
-            }
-            TableColumn("Bytes") { r in
-                Text("\(r.bytes)")
-                    .font(.system(.body, design: .monospaced))
-            }
-            .width(60)
-            TableColumn("TTL") { r in
-                Text("\(r.ttl)")
-                    .font(.system(.body, design: .monospaced))
-            }
-            .width(50)
-            TableColumn("RTT") { r in
-                Text(String(format: "%.3f ms", r.rtt))
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundColor(rttColor(r.rtt))
-            }
-            .width(100)
-        }
-        .scrollPosition(id: $tableScrollID)
-        .onChange(of: vm.results.count) {
-            tableScrollID = vm.results.last?.id
-        }
-    }
-
     private var rttLegend: some View {
-        HStack(spacing: 12) {
-            Text("RTT:").font(.caption2).foregroundColor(.secondary)
-            legendItem(.green,  "< \(Int(rttWarn)) ms")
-            legendItem(.orange, "\(Int(rttWarn))–\(Int(rttCrit)) ms")
-            legendItem(.red,    "> \(Int(rttCrit)) ms")
+        HStack(spacing: 16) {
+            legendItem(.green,  "Stable")
+            legendItem(.orange, "Lagging")
+            legendItem(.red,    "Critical")
+            legendItem(.purple, "Spiking")
         }
     }
 
     private func legendItem(_ color: Color, _ label: String) -> some View {
-        HStack(spacing: 4) {
-            Circle().fill(color).frame(width: 7, height: 7)
-            Text(label).font(.caption2).foregroundColor(.secondary)
+        HStack(spacing: 6) {
+            Circle().fill(color).frame(width: 6, height: 6)
+            Text(label).font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
         }
     }
 
     private func rttColor(_ rtt: Double) -> Color {
         if rtt < rttWarn { return .green }
         if rtt < rttCrit { return .orange }
-        return .red
+        if rtt < 250 { return .red }
+        return .purple
     }
 }
