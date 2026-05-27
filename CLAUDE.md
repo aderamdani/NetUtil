@@ -63,24 +63,55 @@ bash scripts/build_dmg.sh
 - **Navigation**: Click cards to update `selection` binding and navigate sidebar.
 
 ### Build & Release Workflow
-When requested to **"commit, build DMG, and release"**, follow this checklist:
+When requested to **"commit, build DMG, and release"** (or similar), follow this checklist **without exception**. Every file below must be updated every release.
+
 0. **Sync**: Run `git pull` before making any changes.
+
 1. **Update Version (SemVer Rules)**:
    - **Patch (+0.0.1)**: Perubahan minor banget, UI polish, atau bug fix.
    - **Minor (+0.1.0)**: Penambahan 1 fitur atau peningkatan alat yang signifikan.
    - **Major (+1.0.0)**: Full upgrade, perombakan sistem, atau perubahan core besar.
-   - Update `MARKETING_VERSION` in `project.pbxproj` and `CHANGELOG.md`.
-2. **Sync Documentation**: Update `README.md`, `DOCUMENTATION.md`, and `AboutView.swift`.
-3. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive` (Hapus xcarchive lama di dist).
-4. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`.
-5. **Package**: Run `bash scripts/build_dmg.sh`.
-6. **Commit & Push**: 
+   - Files to update:
+     - `project.pbxproj` → `MARKETING_VERSION` (both Debug + Release configs) and `CURRENT_PROJECT_VERSION` (+1)
+
+2. **Sync ALL Documentation (no exceptions)**:
+   - `CHANGELOG.md` → add new `[X.X.X] — YYYY-MM-DD` section at the top
+   - `README.md` → reflect any new/changed features (EN + ID sections)
+   - `DOCUMENTATION.md` → update footer version, update toolset section if tools changed
+   - `AboutView.swift` → update version fallback string AND verify `toolList` matches canonical list below
+
+3. **Verify AboutView toolList** — must match this canonical list exactly (same order, same names, same SF symbols):
+   ```swift
+   ("square.grid.2x2",                       "Mission Dashboard"),
+   ("antenna.radiowaves.left.and.right",      "Advanced Ping"),
+   ("point.3.connected.trianglepath.dotted",  "Traceroute"),
+   ("dot.radiowaves.left.and.right",          "Multi-Ping"),
+   ("checklist",                              "Port Scanner"),
+   ("stopwatch",                              "HTTP Latency"),
+   ("globe",                                  "DNS Lookup"),
+   ("magnifyingglass.circle",                 "WHOIS"),
+   ("lock.shield",                            "SSL/TLS Inspector"),
+   ("network",                                "Network Interfaces"),
+   ("wifi",                                   "Wi-Fi Inspector"),
+   ("arrow.triangle.branch",                  "Route Table"),
+   ("chart.bar.xaxis",                        "Bandwidth Monitor"),
+   ```
+   If a new tool is added to `ContentView.swift` Tool enum, add it here too (same SF symbol, same display name).
+
+4. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive`
+
+5. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`
+
+6. **Package**: `bash scripts/build_dmg.sh`
+
+7. **Commit & Push**:
    - `git commit -m "docs: release vX.X.X - <summary>"`
    - `git push origin main`
    - `git tag vX.X.X`
    - `git push origin --tags`
-7. **Manual Fallback**: Jika CI GitHub Actions gagal (billing issue), gunakan GitHub CLI:
-   `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X" --notes "Release notes summary"`
+
+8. **GitHub Release**:
+   `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X — <short title>" --notes "..."`
 
 ### Ping (v1.7.2 Premium)
 - **Features**: Smart Interpretation header (Excellent/Stable/Congested) with dynamic icons; Health Strip (GitHub-style 100-packet stability bar).
