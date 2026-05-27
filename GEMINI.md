@@ -85,31 +85,33 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
 
 ---
 
-## UI/UX Standardization Rules
+## Native macOS Anti-Slop Guidelines (v2.3+)
 
-All diagnostic views must strictly follow this symmetrical structure:
+To maintain a professional, "Apple Artisan" aesthetic, NEVER use AI-generated web-style layouts. All views MUST strictly adhere to these Native Mac principles:
 
-### 1. Unified Control Bar (Header)
-- **Position**: Always fixed at the top (`VStack` with 0 spacing, followed by `ScrollView`).
+### 1. The "Material" Rule (No Fake Opacity)
+- **NEVER** use `.background(Color(...).opacity(...))` for cards or containers. This is considered "AI Slop".
+- **ALWAYS** use SwiftUI's native materials: `.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))`. This ensures true vibrancy that reacts to the user's macOS wallpaper.
+
+### 2. Flat Data Hierarchy (No Box-in-Box)
+- **NEVER** wrap data tables, lists, or large charts in heavily shadowed, thick-bordered boxes.
+- **ALWAYS** let data flow naturally. Separate rows using simple `Divider().opacity(0.5)` with generous horizontal padding (`12pt`-`16pt`). The outer container should only have a very subtle border: `.overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))`.
+
+### 3. Refined Typography (No Shouting)
+- **NEVER** use forced ALL CAPS with heavy weights (e.g., `.font(.system(size: 10, weight: .black))`) for section titles.
+- **ALWAYS** use standard system typographics: `.font(.headline)` for sections, `.font(.subheadline)` for descriptions, and `.font(.system(size: 11, design: .monospaced))` for technical data. Use Sentence Case or Title Case.
+
+### 4. Silent Empty States & Data-Dense Headers
+- **NEVER** use massive 40pt+ icons with chatty instructions (e.g., "Ready to analyze! Enter a URL...") for empty states. Use silent, `.secondary` text: `Text("No Target Selected")`.
+- **NEVER** use conversational text in status headers (e.g., "All Systems Go! 2 out of 2 endpoints...").
+- **ALWAYS** use data-dense, clinical terminology (e.g., "Active: 2", "Status: Secure"). 
+
+### 5. Unified Control Bar (Fixed Top)
+- **Position**: Always locked at the top (`VStack` with 0 spacing, followed by `ScrollView`).
 - **Layout**: `HStack` with 12pt spacing.
-    - **Left**: Main Input (TextField) with trailing history overlay (clock icon). 250–300pt width.
-    - **Center**: Variable settings (Toggles, Pickers, Steppers). Aligned contextually.
-    - **Right**: Action Group: `[Report Menu]`, `[Start/Stop Button]`, `[Learning Guide Button]`.
-
-### 2. Interpretation Header
-- Located immediately below the control bar inside the `ScrollView`.
-- **Left**: Dynamic Icon + Large Status Title + Subtitle Description.
-- **Right**: Auxiliary visual (Health Strip for Ping, Progress for Port Scan/Traceroute).
-
-### 3. Stat Bar
-- Row of `StatCard` components.
-- Standard titles: ALL CAPS, font size 10, weight black, kerning 1.
-- Value spacing: Standardized padding and shadow (Opacity 0.08, Y-offset 4).
-
-### 4. Results Container
-- 12pt corner radius, background `.controlBackgroundColor` (0.5 opacity).
-- Shadow: Radius 8, Y-offset 4, Opacity 0.08.
-- Border: 1pt stroke, `.separatorColor` (0.1 opacity).
+    - **Left**: Main Input (TextField) with trailing history overlay (clock icon `clock.arrow.circlepath`).
+    - **Center**: Variable settings (Toggles, Pickers).
+    - **Right**: Action Group: `[Report Menu]`, `[Start/Stop Button]`, `[Learning Guide (questionmark.circle)]`.
 
 ---
 

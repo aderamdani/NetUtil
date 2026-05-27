@@ -82,19 +82,20 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
 
 3. **Verify AboutView toolList** — must match this canonical list exactly (same order, same names, same SF symbols):
    ```swift
-   ("square.grid.2x2",                       "Mission Dashboard"),
-   ("antenna.radiowaves.left.and.right",      "Advanced Ping"),
+   ("square.grid.2x2",                       "Dashboard"),
+   ("antenna.radiowaves.left.and.right",      "Ping"),
    ("point.3.connected.trianglepath.dotted",  "Traceroute"),
    ("dot.radiowaves.left.and.right",          "Multi-Ping"),
    ("checklist",                              "Port Scanner"),
    ("stopwatch",                              "HTTP Latency"),
+   ("number.square",                          "Subnet Calc"),
    ("globe",                                  "DNS Lookup"),
+   ("lock.shield",                            "SSL/TLS"),
    ("magnifyingglass.circle",                 "WHOIS"),
-   ("lock.shield",                            "SSL/TLS Inspector"),
-   ("network",                                "Network Interfaces"),
-   ("wifi",                                   "Wi-Fi Inspector"),
-   ("arrow.triangle.branch",                  "Route Table"),
-   ("chart.bar.xaxis",                        "Bandwidth Monitor"),
+   ("chart.bar.xaxis",                        "Bandwidth"),
+   ("network",                                "Interfaces"),
+   ("wifi",                                   "Wi-Fi"),
+   ("arrow.triangle.branch",                  "Routes"),
    ```
    If a new tool is added to `ContentView.swift` Tool enum, add it here too (same SF symbol, same display name).
 
@@ -113,38 +114,35 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
 8. **GitHub Release**:
    `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X — <short title>" --notes "..."`
 
-### Ping (v2.0.0)
-- **Features**: Smart Interpretation header (Excellent/Stable/Congested) with dynamic icons; Health Strip (GitHub-style 100-packet stability bar).
-- **Chart**: Scrollable RTT history chart using `.chartScrollableAxes(.horizontal)`; supports packet selection for detail view; Avg RTT reference line.
-- **Audio Feedback**: Subtle "Tink" sound on packet loss (toggled via beep icon).
-- **Persistence**: No auto-stop on timeouts; manual control only for unlimited monitoring.
-- **Table**: Custom `ScrollViewReader` based table with sticky header; guaranteed real-time auto-scroll to latest results; 6pt row padding for readability.
-- **Reporting**:
-  - **PDF**: Branded report with NetUtil logo, detailed summary, 100-packet table, and timestamped filename.
-  - **CSV**: Standardized raw data export with timestamped filename.
-- **Typography**: Strictly San Francisco (SF) Pro for all headers and labels; monospaced for data numbers only.
+---
 
-### Multi-Ping
-- **Features**: Independent concurrent ping sessions to multiple hosts.
-- **Sparklines**: Last 60 RTT samples as color-coded bars in each row.
-- **Status Dots**: Quick visual indicator of host reachability.
-- **Persistence**: Sessions continue running even when navigating away from the view.
+## Native macOS Anti-Slop Guidelines (v2.3+)
 
-### Traceroute
-- **Features**: Hop-by-hop path discovery with modern Timeline View (stacked Canvas bars).
-- **Route Health**: Automatic banner assessment (Healthy/Degraded/Critical).
-- **Detail View**: Expand any hop to see full RTT area chart history.
-- **Geolocation**: Integrated IP lookup for each hop (opt-in).
+To maintain a professional, "Apple Artisan" aesthetic, NEVER use AI-generated web-style layouts. All views MUST strictly adhere to these Native Mac principles:
 
-### Port Scanner
-- **Features**: High-speed parallelized TCP scanner using `URLSessionStreamTask`.
-- **Presets**: Quick selections for Common (15) and Well-known (1023) ports.
-- **Progress**: Real-time progress bar and open port count.
+### 1. The "Material" Rule (No Fake Opacity)
+- **NEVER** use `.background(Color(...).opacity(...))` for cards or containers.
+- **ALWAYS** use SwiftUI's native materials: `.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))`.
 
-### Bandwidth Monitor
-- **Features**: Per-interface real-time traffic monitoring.
-- **Visuals**: Area chart overlaying RX (download) and TX (upload) rates.
-- **Auto-Scaling**: Dynamic Y-axis based on current peak throughput.
+### 2. Flat Data Hierarchy (No Box-in-Box)
+- **NEVER** wrap data tables, lists, or large charts in heavily shadowed, thick-bordered boxes.
+- **ALWAYS** let data flow naturally. Separate rows using simple `Divider().opacity(0.5)` with generous horizontal padding (`12pt`-`16pt`).
+
+### 3. Refined Typography (No Shouting)
+- **NEVER** use forced ALL CAPS with heavy weights (e.g., `.font(.system(size: 10, weight: .black))`) for section titles.
+- **ALWAYS** use standard system typographics: `.font(.headline)`, `.font(.subheadline)`, and `.font(.system(size: 11, design: .monospaced))` for technical data.
+
+### 4. Silent Empty States & Data-Dense Headers
+- **NEVER** use massive 40pt+ icons with chatty instructions for empty states. Use silent, `.secondary` text: `Text("No Target Selected")`.
+- **NEVER** use conversational text in status headers.
+- **ALWAYS** use data-dense, clinical terminology (e.g., "Active: 2", "Status: Secure").
+
+### 5. Unified Control Bar (Fixed Top)
+- **Position**: Always locked at the top (`VStack` with 0 spacing, followed by `ScrollView`).
+- **Layout**: `HStack` with 12pt spacing.
+    - **Left**: Main Input (TextField) with trailing history overlay (clock icon `clock.arrow.circlepath`).
+    - **Center**: Variable settings (Toggles, Pickers).
+    - **Right**: Action Group: `[Report Menu]`, `[Start/Stop Button]`, `[Learning Guide (questionmark.circle)]`.
 
 ---
 
