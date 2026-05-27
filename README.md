@@ -45,11 +45,14 @@
 *   **Wi-Fi Inspector**: Deep dive into SSID, BSSID, RSSI/SNR history, and channel congestion.
 *   **Interface Explorer**: Detailed hardware state for every physical and virtual adapter.
 
+#### ⚙️ Settings
+*   **Comprehensive Settings**: macOS System Settings–style sidebar with General, Thresholds, Tools, and Privacy panes. Live RTT color-zone preview bar, per-tool timeout controls, and geolocation toggle.
+
 ### 🚀 Technical Excellence
 *   **Native Swift & SwiftUI**: Built for macOS 15+ using Swift 6 to ensure maximum battery efficiency and UI responsiveness.
 *   **Zero Dependencies**: No third-party frameworks. Clean, secure, and lightweight (8MB).
 *   **Apple Silicon Native**: Optimized for M1/M2/M3/M4 architectures.
-*   **CI/CD Pipeline**: Fully automated testing, DMG packaging, and GitHub Releases via GitHub Actions.
+*   **Reproducible Builds**: DMG packaging via `scripts/build_dmg.sh`. Releases published to GitHub Releases.
 
 ### 🛠 Installation
 1.  Visit the **[Releases](https://github.com/aderamdani/NetUtil/releases)** page.
@@ -84,6 +87,9 @@
 *   **Bandwidth Monitor**: Grafik throughput RX/TX langsung untuk setiap antarmuka.
 *   **Wi-Fi Inspector**: Analisis mendalam SSID, BSSID, riwayat RSSI/SNR, dan kemacetan saluran.
 *   **Interface Explorer**: Status perangkat keras detail untuk setiap adapter fisik maupun virtual.
+
+#### ⚙️ Pengaturan
+*   **Pengaturan Lengkap**: Navigasi sidebar ala macOS System Settings dengan panel General, Thresholds, Tools, dan Privacy. Preview bar zona warna RTT secara live, kontrol timeout per tool, dan toggle geolokasi.
 
 ### 🚀 Keunggulan Teknis
 *   **Native Swift & SwiftUI**: Dibangun untuk macOS 15+ menggunakan Swift 6 untuk menjamin efisiensi baterai dan responsivitas UI yang maksimal.
