@@ -4,6 +4,15 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.4.2] — 2026-05-28
+
+### Improved
+- **Transparent Updater UX**: Introduced a floating progress panel that appears automatically when downloading an update.
+- **Automated Installation Flow**: The update DMG is now automatically opened upon download completion, followed by an instruction dialog to guide the installation.
+- **Visual Feedback**: Real-time download percentage and progress bar added to both the floating panel and the About view.
+
+---
+
 ## [2.4.1] — 2026-05-28
 
 ### Changed
