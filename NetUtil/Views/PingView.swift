@@ -29,107 +29,88 @@ struct PingView: View {
     private var resolvedPacketSize: Int? { Int(packetSizeText) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 0) {
+            // STANDARD HEADER
             controlBar
-                .onAppear {
-                    if host.isEmpty, !vm.currentHost.isEmpty {
-                        host = vm.currentHost
-                    }
-                }
+                .padding(.bottom, 24)
             
-            if let err = vm.error {
-                HStack {
-                    Image(systemName: "exclamationmark.octagon.fill")
-                    Text(err)
-                }
-                .foregroundColor(.red)
-                .font(.system(size: 13, weight: .bold))
-                .padding(8)
-                .background(Color.red.opacity(0.1))
-                .cornerRadius(6)
-            }
-            
-            if !vm.results.isEmpty {
-                statsBar
-                
-                VStack(alignment: .leading, spacing: 16) {
-                    // Smart Interpretation Header
-                    HStack(alignment: .center, spacing: 12) {
-                        let interpretation = interpretConnection()
-                        Image(systemName: interpretation.icon)
-                            .font(.title2)
-                            .foregroundColor(interpretation.color)
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(interpretation.status)
-                                .font(.headline)
-                            Text(interpretation.description)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        // Health Strip (Last 100 packets)
-                        healthStrip
-                    }
-                    .padding(.bottom, 8)
-
-                    VStack(alignment: .leading, spacing: 10) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    if let err = vm.error {
                         HStack {
-                            Label("RTT LATENCY HISTORY", systemImage: "chart.line.uptrend.xyaxis")
-                                .font(.system(size: 10, weight: .black))
-                                .foregroundColor(.secondary)
-                                .kerning(1)
-                            Spacer()
-                            if let selected = selectedPacket, let result = vm.results.first(where: { $0.sequence == selected }) {
-                                HStack(spacing: 8) {
-                                    Text("Packet #\(result.sequence)").font(.system(size: 12, weight: .bold))
-                                    Text("\(String(format: "%.2f", result.rtt)) ms").font(.system(size: 12)).foregroundColor(rttColor(result.rtt))
+                            Image(systemName: "exclamationmark.octagon.fill")
+                            Text(err)
+                        }
+                        .foregroundColor(.red)
+                        .font(.system(size: 13, weight: .bold))
+                        .padding(8)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(6)
+                    }
+                    
+                    if !vm.results.isEmpty {
+                        interpretationHeader
+                        
+                        statsBar
+                        
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Label("RTT LATENCY HISTORY", systemImage: "chart.line.uptrend.xyaxis")
+                                    .font(.system(size: 10, weight: .black))
+                                    .foregroundColor(.secondary)
+                                    .kerning(1)
+                                Spacer()
+                                if let selected = selectedPacket, let result = vm.results.first(where: { $0.sequence == selected }) {
+                                    HStack(spacing: 8) {
+                                        Text("Packet #\(result.sequence)").font(.system(size: 12, weight: .bold))
+                                        Text("\(String(format: "%.2f", result.rtt)) ms").font(.system(size: 12)).foregroundColor(rttColor(result.rtt))
+                                    }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(Color.secondary.opacity(0.1))
+                                    .cornerRadius(4)
                                 }
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(Color.secondary.opacity(0.1))
-                                .cornerRadius(4)
+                            }
+                            
+                            rttChart
+                                .frame(height: 180)
+                                .chartScrollableAxes(.horizontal)
+                                .chartXVisibleDomain(length: 60)
+                            
+                            distributionBar
+                        }
+                        .padding(16)
+                        .background(Color(.controlBackgroundColor).opacity(0.5))
+                        .cornerRadius(12)
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Picker("", selection: $showRaw) {
+                                    Text("Data Table").tag(false)
+                                    Text("Console Output").tag(true)
+                                }
+                                .pickerStyle(.segmented)
+                                .frame(width: 240)
+                                
+                                Spacer()
+                                
+                                rttLegend
+                            }
+                            
+                            if showRaw {
+                                rawOutput
+                            } else {
+                                resultsTable
                             }
                         }
-                        
-                        rttChart
-                            .frame(height: 180)
-                            .chartScrollableAxes(.horizontal)
-                            .chartXVisibleDomain(length: 60)
-                        
-                        distributionBar
+                    } else {
+                        emptyState
                     }
-                    .padding(16)
-                    .background(Color(.controlBackgroundColor).opacity(0.5))
-                    .cornerRadius(12)
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
-                }
-            }
-            
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Picker("", selection: $showRaw) {
-                        Text("Data Table").tag(false)
-                        Text("Console Output").tag(true)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 240)
-                    
-                    Spacer()
-                    
-                    rttLegend
-                }
-                
-                if showRaw {
-                    rawOutput
-                } else {
-                    resultsTable
                 }
             }
         }
-        .padding(24)
+        .padding(32)
         .sheet(isPresented: $showLearningGuide) {
             learningGuideSheet
         }
@@ -137,6 +118,7 @@ struct PingView: View {
 
     private var controlBar: some View {
         HStack(spacing: 12) {
+            // 1. Target Input with History
             TextField("Hostname or IP address", text: $host)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
@@ -147,7 +129,7 @@ struct PingView: View {
                     if !history.hosts.isEmpty {
                         Menu {
                             ForEach(history.hosts, id: \.self) { h in
-                                Button(h) { host = h }
+                                Button(h) { host = h; startAction() }
                             }
                             Divider()
                             Button("Clear History", role: .destructive) { history.clear() }
@@ -161,35 +143,36 @@ struct PingView: View {
                     }
                 }
 
-            Toggle("∞", isOn: $infinite)
+            // 2. Variable Settings
+            Group {
+                Toggle("∞", isOn: $infinite)
+                    .toggleStyle(.button)
+                    .help("Infinite ping")
+                
+                Toggle(isOn: $beepOnLoss) {
+                    Image(systemName: beepOnLoss ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                }
                 .toggleStyle(.button)
-                .help("Infinite ping")
-            
-            Toggle(isOn: $beepOnLoss) {
-                Image(systemName: beepOnLoss ? "speaker.wave.2.fill" : "speaker.slash.fill")
-            }
-            .toggleStyle(.button)
-            .help("Beep on packet loss")
+                .help("Beep on packet loss")
 
-            if !infinite {
-                TextField("Count", text: $countText)
+                if !infinite {
+                    TextField("Count", text: $countText)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 60)
+                }
+
+                TextField("Interval", text: $intervalText)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 65)
+
+                TextField("Size", text: $packetSizeText)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 60)
-                    .help("Packets to send")
             }
-
-            TextField("Interval", text: $intervalText)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 65)
-                .help("Interval (sec)")
-
-            TextField("Size", text: $packetSizeText)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 60)
-                .help("Packet size (bytes)")
 
             Spacer()
 
+            // 3. Action Group (Standardized)
             if !vm.results.isEmpty {
                 Menu {
                     Button("Copy Text Summary") {
@@ -217,13 +200,13 @@ struct PingView: View {
                         .font(.system(size: 13, weight: .semibold))
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.large)
             }
 
             Button(action: startAction) {
                 HStack(spacing: 6) {
                     if vm.isRunning {
-                        Image(systemName: "stop.fill")
-                            .font(.system(size: 11, weight: .bold))
+                        Image(systemName: "stop.fill").font(.system(size: 11, weight: .bold))
                         Text("Stop")
                     } else {
                         Image(systemName: "play.fill")
@@ -234,60 +217,58 @@ struct PingView: View {
                 .frame(minWidth: 90)
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.large)
             .tint(vm.isRunning ? .red : .accentColor)
             .disabled(!vm.isRunning && host.isEmpty)
             
             Button { showLearningGuide = true } label: {
-                Image(systemName: "book.fill")
-                    .font(.system(size: 14))
+                Image(systemName: "book.fill").font(.system(size: 14))
             }
             .buttonStyle(.bordered)
+            .controlSize(.large)
             .help("Ping Learning Guide")
         }
     }
     
-    private var learningGuideSheet: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Ping Learning Guide").font(.title2.bold())
-                    Text("Learn how to interpret network latency diagnostics.").font(.subheadline).foregroundColor(.secondary)
-                }
-                Spacer()
-                Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent)
-            }
-            .padding(24)
+    private var interpretationHeader: some View {
+        HStack(alignment: .center, spacing: 12) {
+            let interpretation = interpretConnection()
+            Image(systemName: interpretation.icon)
+                .font(.title2)
+                .foregroundColor(interpretation.color)
             
-            Divider()
-            
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    GuideSection(title: "What is Ping?", icon: "antenna.radiowaves.left.and.right") {
-                        Text("Ping is a basic diagnostic tool that sends a small packet of data (ICMP Echo Request) to a destination and waits for a reply. It measures how fast your connection is and if any data is being lost.")
-                    }
-                    
-                    GuideSection(title: "Understanding Metrics", icon: "gauge.medium") {
-                        VStack(alignment: .leading, spacing: 12) {
-                            GuidePoint(title: "RTT (Round Trip Time)", desc: "The time (in milliseconds) it takes for a packet to go to the host and back. Lower is better (e.g., <20ms for gaming, <100ms for browsing).")
-                            GuidePoint(title: "Jitter", desc: "The variation in RTT between packets. High jitter (>20ms) causes stuttering in video calls and online gaming.")
-                            GuidePoint(title: "Packet Loss", desc: "The percentage of packets that failed to reach the destination. Even 1% loss can cause noticeable lag.")
-                        }
-                    }
-                    
-                    GuideSection(title: "Reading the Chart", icon: "chart.line.uptrend.xyaxis") {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("• **Green Zone**: Stable connection with low latency.")
-                            Text("• **Orange/Red Peaks**: Sudden lag spikes, often caused by local network congestion or ISP routing issues.")
-                            Text("• **Red Bars**: Timeouts (100% loss) where the destination didn't respond.")
-                        }
-                    }
-                }
-                .padding(24)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(interpretation.status)
+                    .font(.headline)
+                Text(interpretation.description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
+            
+            Spacer()
+            healthStrip
         }
-        .frame(width: 500, height: 600)
+        .padding(.bottom, 8)
     }
-
+    
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            ZStack {
+                Circle().fill(Color.accentColor.opacity(0.1)).frame(width: 80, height: 80)
+                Image(systemName: "antenna.radiowaves.left.and.right").font(.system(size: 32)).foregroundColor(.accentColor)
+            }
+            Text("Ready to measure connection stability. Enter a target host and press Start.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, minHeight: 300)
+        .padding(.top, 40)
+    }
+    
     private func startAction() {
         if vm.isRunning {
             vm.stop()
@@ -590,6 +571,48 @@ struct PingView: View {
         if rtt < rttCrit { return .orange }
         if rtt < 250 { return .red }
         return .purple
+    }
+
+    private var learningGuideSheet: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Ping Learning Guide").font(.title2.bold())
+                    Text("Learn how to interpret network latency diagnostics.").font(.subheadline).foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent)
+            }
+            .padding(24)
+            
+            Divider()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    GuideSection(title: "What is Ping?", icon: "antenna.radiowaves.left.and.right") {
+                        Text("Ping is a basic diagnostic tool that sends a small packet of data (ICMP Echo Request) to a destination and waits for a reply. It measures how fast your connection is and if any data is being lost.")
+                    }
+                    
+                    GuideSection(title: "Understanding Metrics", icon: "gauge.medium") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            GuidePoint(title: "RTT (Round Trip Time)", desc: "The time (in milliseconds) it takes for a packet to go to the host and back. Lower is better (e.g., <20ms for gaming, <100ms for browsing).")
+                            GuidePoint(title: "Jitter", desc: "The variation in RTT between packets. High jitter (>20ms) causes stuttering in video calls and online gaming.")
+                            GuidePoint(title: "Packet Loss", desc: "The percentage of packets that failed to reach the destination. Even 1% loss can cause noticeable lag.")
+                        }
+                    }
+                    
+                    GuideSection(title: "Reading the Chart", icon: "chart.line.uptrend.xyaxis") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("• **Green Zone**: Stable connection with low latency.")
+                            Text("• **Orange/Red Peaks**: Sudden lag spikes, often caused by local network congestion or ISP routing issues.")
+                            Text("• **Red Bars**: Timeouts (100% loss) where the destination didn't respond.")
+                        }
+                    }
+                }
+                .padding(24)
+            }
+        }
+        .frame(width: 500, height: 600)
     }
 }
 

@@ -19,52 +19,55 @@ struct TracerouteView: View {
     @AppStorage("geoEnabled") private var geoEnabled: Bool = true
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 0) {
+            // FIXED HEADER (Control Bar)
             controlBar
-                .onAppear {
-                    if host.isEmpty, !vm.currentHost.isEmpty {
-                        host = vm.currentHost
+                .padding(.bottom, 24)
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    if let err = vm.error {
+                        HStack {
+                            Image(systemName: "exclamationmark.octagon.fill")
+                            Text(err)
+                        }
+                        .foregroundColor(.red)
+                        .font(.system(size: 13, weight: .bold))
+                        .padding(8)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(6)
+                    }
+                    
+                    modeBar
+                    
+                    if !vm.hops.isEmpty {
+                        pathSummary
+                        routeHealthBanner
+                        
+                        VStack(spacing: 0) {
+                            switch viewMode {
+                            case .hops:
+                                VSplitView {
+                                    hopsTable.frame(minHeight: 120)
+                                    detailPanel.frame(minHeight: 180)
+                                }
+                            case .timeline:
+                                timelineView
+                            case .map:
+                                routeMapView
+                            case .raw:
+                                rawOutput
+                            }
+                        }
+                        .background(Color(.controlBackgroundColor).opacity(0.5))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
+                    } else if !vm.isRunning {
+                        emptyState
                     }
                 }
-            
-            if let err = vm.error {
-                HStack {
-                    Image(systemName: "exclamationmark.octagon.fill")
-                    Text(err)
-                }
-                .foregroundColor(.red)
-                .font(.system(size: 13, weight: .bold))
-                .padding(8)
-                .background(Color.red.opacity(0.1))
-                .cornerRadius(6)
             }
-            
-            modeBar
-            
-            if !vm.hops.isEmpty {
-                pathSummary
-                routeHealthBanner
-            }
-
-            VStack(spacing: 0) {
-                switch viewMode {
-                case .hops:
-                    VSplitView {
-                        hopsTable.frame(minHeight: 120)
-                        detailPanel.frame(minHeight: 180)
-                    }
-                case .timeline:
-                    timelineView
-                case .map:
-                    routeMapView
-                case .raw:
-                    rawOutput
-                }
-            }
-            .background(Color(.controlBackgroundColor).opacity(0.5))
-            .cornerRadius(12)
-            .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
         }
         .padding(32)
         .sheet(isPresented: $showColumnHelp) {
@@ -79,24 +82,21 @@ struct TracerouteView: View {
 
     private var controlBar: some View {
         HStack(spacing: 12) {
+            // 1. Target Input with History
             TextField("Hostname or IP address", text: $host)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
                 .frame(width: 250)
-                .help("Target host to ping.")
-                .onSubmit {
-                    guard !host.isEmpty, !vm.isRunning else { return }
-                    history.record(host)
-                    vm.start(host: host,
-                             maxHops: Int(maxHopsText) ?? 30,
-                             interval: Double(intervalText) ?? 5)
-                }
+                .help("Target host to trace.")
+                .onSubmit(startAction)
                 .overlay(alignment: .trailing) {
                     if !history.hosts.isEmpty {
                         Menu {
                             ForEach(history.hosts, id: \.self) { h in
-                                Button(h) { host = h }
+                                Button(h) { host = h; startAction() }
                             }
+                            Divider()
+                            Button("Clear History", role: .destructive) { history.clear() }
                         } label: {
                             Image(systemName: "clock.arrow.circlepath")
                                 .foregroundColor(.secondary)
@@ -107,25 +107,27 @@ struct TracerouteView: View {
                     }
                 }
 
-            HStack(spacing: 4) {
-                Text("Max Hops:").font(.system(size: 12, weight: .bold)).foregroundColor(.secondary)
-                TextField("", text: $maxHopsText)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 45)
+            // 2. Variable Settings
+            HStack(spacing: 8) {
+                HStack(spacing: 4) {
+                    Text("Max Hops:").font(.system(size: 11, weight: .bold)).foregroundColor(.secondary)
+                    TextField("", text: $maxHopsText)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 45)
+                }
+                
+                HStack(spacing: 4) {
+                    Text("Interval:").font(.system(size: 11, weight: .bold)).foregroundColor(.secondary)
+                    TextField("", text: $intervalText)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 45)
+                    Text("s").font(.caption).foregroundColor(.secondary)
+                }
             }
-            .help("Max router hops to probe.")
-
-            HStack(spacing: 4) {
-                Text("Interval:").font(.system(size: 12, weight: .bold)).foregroundColor(.secondary)
-                TextField("", text: $intervalText)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 45)
-                Text("s").font(.caption).foregroundColor(.secondary)
-            }
-            .help("Seconds between trace rounds.")
 
             Spacer()
 
+            // 3. Action Group
             if !vm.hops.isEmpty {
                 Menu {
                     Button("Export CSV") {
@@ -136,15 +138,10 @@ struct TracerouteView: View {
                         .font(.system(size: 13, weight: .semibold))
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.large)
             }
 
-            Button(action: {
-                if vm.isRunning { vm.stop() }
-                else {
-                    history.record(host)
-                    vm.start(host: host, maxHops: Int(maxHopsText) ?? 30, interval: Double(intervalText) ?? 5)
-                }
-            }) {
+            Button(action: startAction) {
                 HStack(spacing: 6) {
                     if vm.isRunning {
                         Image(systemName: "stop.fill").font(.system(size: 11, weight: .bold))
@@ -158,18 +155,26 @@ struct TracerouteView: View {
                 .frame(minWidth: 90)
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.large)
             .tint(vm.isRunning ? .red : .accentColor)
             
             Button { showColumnHelp = true } label: {
-                Image(systemName: "book.fill")
-                    .font(.system(size: 14))
+                Image(systemName: "book.fill").font(.system(size: 14))
             }
             .buttonStyle(.bordered)
+            .controlSize(.large)
             .help("Traceroute Learning Guide")
         }
     }
-
-    // MARK: - Mode bar
+    
+    private func startAction() {
+        if vm.isRunning { vm.stop() }
+        else {
+            guard !host.isEmpty else { return }
+            history.record(host)
+            vm.start(host: host, maxHops: Int(maxHopsText) ?? 30, interval: Double(intervalText) ?? 5)
+        }
+    }
 
     private var modeBar: some View {
         HStack {
@@ -185,8 +190,24 @@ struct TracerouteView: View {
             Spacer()
         }
     }
-
-    // MARK: - Path Summary
+    
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            ZStack {
+                Circle().fill(Color.accentColor.opacity(0.1)).frame(width: 80, height: 80)
+                Image(systemName: "point.3.connected.trianglepath.dotted").font(.system(size: 32)).foregroundColor(.accentColor)
+            }
+            Text("Ready to discover network path. Enter a target host and press Start Trace.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, minHeight: 300)
+        .padding(.top, 40)
+    }
 
     private var pathSummary: some View {
         let bottleneckCount = vm.hops.filter(\.isBottleneck).count
@@ -200,8 +221,6 @@ struct TracerouteView: View {
         }
     }
 
-    // MARK: - Route Health Banner
-
     private var routeHealthBanner: some View {
         let maxLoss = vm.hops.map(\.loss).max() ?? 0
         let (label, color, icon): (String, Color, String)
@@ -212,18 +231,16 @@ struct TracerouteView: View {
         return HStack(spacing: 12) {
             Image(systemName: icon).font(.headline).foregroundColor(color)
             Text("ROUTE STATUS: \(label)")
-                .font(.system(size: 13, weight: .black))
+                .font(.system(size: 11, weight: .black))
                 .foregroundColor(color)
             Spacer()
-            Text("Round \(vm.round)").font(.system(size: 11, weight: .bold, design: .monospaced)).foregroundColor(.secondary)
+            Text("Round \(vm.round)").font(.system(size: 10, weight: .bold, design: .monospaced)).foregroundColor(.secondary)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 10)
         .background(color.opacity(0.1))
         .cornerRadius(10)
     }
-
-    // MARK: - Hops Table
 
     private var hopsTable: some View {
         VStack(spacing: 0) {
@@ -280,7 +297,6 @@ struct TracerouteView: View {
             .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
     }
 
-    // MARK: - Route Map View
     private var routeMapView: some View {
         let geoHops: [(TracerouteHop, CLLocationCoordinate2D)] = vm.hops.compactMap { hop in
             guard let coord = hop.geo?.coordinate else { return nil }
@@ -316,7 +332,6 @@ struct TracerouteView: View {
         return .orange
     }
 
-    // MARK: - Timeline View
     private var timelineView: some View {
         let globalMax = vm.hops.compactMap(\.maxRtt).max() ?? 100
         return ScrollView {
@@ -336,7 +351,6 @@ struct TracerouteView: View {
         }
     }
 
-    // MARK: - Raw Output
     private var rawOutput: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -353,7 +367,6 @@ struct TracerouteView: View {
         }
     }
 
-    // MARK: - Column Help Sheet
     private var columnHelpSheet: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {

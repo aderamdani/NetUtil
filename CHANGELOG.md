@@ -4,6 +4,16 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.8.2] — 2026-05-27
+
+### Changed
+- **Global UI Standardization**: Completely refactored Ping, Multi-Ping, Traceroute, Port Scanner, and HTTP Latency to share an identical, symmetrical interface layout.
+- **Fixed Headers**: Tool control bars are now locked at the top of the window, preventing layout shifts when analysis results populate.
+- **Unified Reporting & History**: "Clear History" options and standardized PDF Report buttons are now consistently available across all major tools.
+- **Modernized Port Scanner**: Replaced the legacy port table with a modern, responsive Mini-Card grid system for better readability.
+
+---
+
 ## [1.8.1] — 2026-05-27
 
 ### Added
