@@ -87,6 +87,7 @@ private struct SidebarRow: View {
             .cornerRadius(7)
         }
         .buttonStyle(.plain)
+        .focusEffectDisabled()
     }
 }
 
