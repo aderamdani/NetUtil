@@ -35,7 +35,8 @@ struct MultiPingView: View {
                                             expandedSlotID = expandedSlotID == slot.id ? nil : slot.id
                                         }
                                     },
-                                    onRemove: { vm.remove(slot) }
+                                    onRemove: { vm.remove(slot) },
+                                    onCommitRename: { vm.sortSlots() }
                                 )
                                 Divider().opacity(0.15)
                             }
@@ -78,6 +79,13 @@ struct MultiPingView: View {
                 }
                 .buttonStyle(.bordered)
             }
+            
+            Button { showLearningGuide = true } label: {
+                Image(systemName: "book.fill")
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.bordered)
+            .help("Multi-Ping Learning Guide")
         }
     }
 
@@ -149,14 +157,6 @@ struct MultiPingView: View {
             .controlSize(.large)
             .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
 
-            Button { showLearningGuide = true } label: {
-                Image(systemName: "book.fill")
-                    .font(.system(size: 14))
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .help("Multi-Ping Learning Guide")
-
             Divider().frame(height: 24).padding(.horizontal, 8)
             
             HStack(spacing: 8) {
@@ -167,7 +167,7 @@ struct MultiPingView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .frame(width: 120)
+                .frame(width: 140)
             }
 
             Spacer()
@@ -190,6 +190,7 @@ struct MultiPingView: View {
 
     private var slotsTableHeader: some View {
         HStack(spacing: 0) {
+            headerCell("Alias Name", width: 160)
             headerCell("Host / Endpoint", flexible: true)
             headerCell("Snt", width: 60)
             headerCell("Loss%", width: 70)
@@ -256,11 +257,27 @@ private struct MultiPingRow: View {
     var rttCrit: Double
     let onToggleExpand: () -> Void
     let onRemove: () -> Void
+    let onCommitRename: () -> Void
+    
+    @FocusState private var isNameFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                // Host & Status Interpretation
+                // 1. Alias Name Column (Renamable, Positioned Left)
+                TextField("Alias Name", text: $slot.customName)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.primary)
+                    .frame(width: 160, alignment: .leading)
+                    .focused($isNameFocused)
+                    .onSubmit {
+                        isNameFocused = false // Release focus
+                        onCommitRename()
+                    }
+                    .help("Click to rename this host alias. Press Enter to apply and sort.")
+                
+                // 2. Host & Status Interpretation
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 8) {
                         Circle()
@@ -268,7 +285,8 @@ private struct MultiPingRow: View {
                             .frame(width: 8, height: 8)
                             .overlay(Circle().stroke(statusColor.opacity(0.3), lineWidth: 3).scaleEffect(slot.isRunning ? 1.5 : 1.0).opacity(slot.isRunning ? 0 : 1))
                         Text(slot.host)
-                            .font(.system(size: 13, weight: .bold))
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
                         
                         Image(systemName: "chevron.right")
                             .font(.system(size: 9, weight: .black))

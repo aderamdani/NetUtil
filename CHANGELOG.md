@@ -4,6 +4,18 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.8.1] — 2026-05-27
+
+### Added
+- **Multi-Ping Custom Aliases**: Added a new "Alias Name" column at the leftmost position, allowing users to provide meaningful labels (e.g., "Main Server") for each endpoint.
+- **Alias Sorting**: Integrated Alias Name into the sorting engine, allowing for alphabetical organization of customized host lists.
+
+### Improved
+- **Smart Focus Management**: Implementing `@FocusState` in Multi-Ping to automatically release keyboard focus after renaming an alias, preventing persistent insertion pointers.
+- **Table Reorganization**: Repositioned columns for better visual hierarchy, prioritizing Custom Aliases as the primary row identity.
+
+---
+
 ## [1.8.0] — 2026-05-27
 
 ### Added

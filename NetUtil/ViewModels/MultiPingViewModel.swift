@@ -5,6 +5,7 @@ import Combine
 final class PingSlot: ObservableObject, Identifiable {
     let id = UUID()
     let host: String
+    @Published var customName: String
 
     @Published var lastRtt: Double?
     @Published var avgRtt: Double?
@@ -17,7 +18,10 @@ final class PingSlot: ObservableObject, Identifiable {
     private var process: Process?
     private var pipe: Pipe?
 
-    init(host: String) { self.host = host }
+    init(host: String) { 
+        self.host = host 
+        self.customName = host
+    }
 
     deinit { process?.terminate() }
 
@@ -85,7 +89,8 @@ final class PingSlot: ObservableObject, Identifiable {
 }
 
 enum MultiPingSort: String, CaseIterable, Identifiable {
-    case name = "Name"
+    case alias = "Alias Name"
+    case host = "Hostname/IP"
     case latency = "Latency"
     case loss = "Packet Loss"
     var id: String { self.rawValue }
@@ -94,7 +99,7 @@ enum MultiPingSort: String, CaseIterable, Identifiable {
 @MainActor
 class MultiPingViewModel: ObservableObject {
     @Published var slots: [PingSlot] = []
-    @Published var sortMode: MultiPingSort = .name {
+    @Published var sortMode: MultiPingSort = .alias {
         didSet { sortSlots() }
     }
 
@@ -118,7 +123,9 @@ class MultiPingViewModel: ObservableObject {
     func sortSlots() {
         slots.sort { a, b in
             switch sortMode {
-            case .name:
+            case .alias:
+                return a.customName.localizedCompare(b.customName) == .orderedAscending
+            case .host:
                 return a.host.localizedCompare(b.host) == .orderedAscending
             case .latency:
                 return (a.avgRtt ?? 999999) < (b.avgRtt ?? 999999)
