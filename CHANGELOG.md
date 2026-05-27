@@ -4,6 +4,17 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.9.0] — 2026-05-27
+
+### Improved
+- **Redesigned Settings**: Complete overhaul from tab-based layout to a macOS System Settings–style sidebar navigation (General, Thresholds, Tools, Privacy panes).
+- **Live RTT Preview Bar**: Animated color-zone bar in Thresholds pane shows green/orange/red zones as sliders move in real time.
+- **Complete Settings Coverage**: Added missing controls — Auto-Stop on Consecutive Loss, Bandwidth refresh interval, all tool timeouts, and concurrency settings.
+- **Privacy Pane**: New dedicated section with geolocation toggle, host history count/clear, and zero-telemetry notice.
+- **Settings UX Fixes**: Sidebar rows fully clickable (entire row, not just text); removed blue focus ring from sidebar buttons.
+
+---
+
 ## [1.8.2] — 2026-05-27
 
 ### Changed
