@@ -248,7 +248,7 @@ struct PDFHeaderView: View {
                         .foregroundColor(.secondary)
                     Text(date.formatted(date: .complete, time: .complete))
                         .font(.system(size: 10, weight: .bold))
-                    Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.7.2")")
+                    Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.0.0")")
                         .font(.system(size: 8, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
