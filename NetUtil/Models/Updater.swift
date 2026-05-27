@@ -67,33 +67,22 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
     func installAndRelaunch() {
         guard let dmgURL = downloadedFileURL else { return }
 
-        let scriptPath = FileManager.default.temporaryDirectory.appendingPathComponent("relaunch.sh")
-        let appPath = Bundle.main.bundlePath
-        let appName = Bundle.main.bundleURL.lastPathComponent
+        // Clear quarantine flag so macOS doesn't block the mounted DMG
+        let xattr = Process()
+        xattr.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
+        xattr.arguments = ["-dr", "com.apple.quarantine", dmgURL.path]
+        try? xattr.run()
+        xattr.waitUntilExit()
 
-        let script = """
-        #!/bin/bash
-        sleep 2
-        MOUNT_POINT=$(hdiutil mount "\(dmgURL.path)" | tail -n1 | cut -f3-)
-        if [ -d "$MOUNT_POINT" ]; then
-            rm -rf "\(appPath)"
-            cp -R "$MOUNT_POINT/\(appName)" "\(appPath)"
-            hdiutil detach "$MOUNT_POINT"
-            rm "\(dmgURL.path)"
-            open "\(appPath)"
-        fi
-        rm -- "$0"
-        """
+        NSWorkspace.shared.open(dmgURL)
 
-        do {
-            try script.write(to: scriptPath, atomically: true, encoding: .utf8)
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/bin/bash")
-            process.arguments = [scriptPath.path]
-            try process.run()
+        let alert = NSAlert()
+        alert.messageText = "Update Ready to Install"
+        alert.informativeText = "The update DMG has been opened. Drag NetUtil to your Applications folder to replace the current version, then relaunch the app."
+        alert.addButton(withTitle: "Quit & Finish Manually")
+        alert.addButton(withTitle: "Later")
+        if alert.runModal() == .alertFirstButtonReturn {
             NSApp.terminate(nil)
-        } catch {
-            self.error = "Failed to launch updater script."
         }
     }
 }

@@ -4,6 +4,13 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.0.1] — 2026-05-27
+
+### Fixed
+- **In-App Updater**: Replaced unreliable bash script installer (broken `hdiutil mount`, missing permissions) with a clean `NSWorkspace.shared.open()` approach — downloads the DMG, clears quarantine flag, opens it in Finder, and guides the user to drag-install.
+
+---
+
 ## [2.0.0] — 2026-05-27
 
 ### Added
