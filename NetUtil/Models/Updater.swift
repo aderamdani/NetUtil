@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import SwiftUI
 import Combine
 
 @MainActor
@@ -13,9 +14,11 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
     @Published var isChecking = false
 
     private var downloadTask: URLSessionDownloadTask?
-    private var latestVersionURL: URL?
+    private var downloadSession: URLSession?
     private var downloadedFileURL: URL?
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.3.0"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.4.1"
+    
+    private var progressPanel: NSPanel?
 
     private override init() {
         super.init()
@@ -81,14 +84,35 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
     }
 
     func downloadAndInstall(from url: URL) {
-        self.latestVersionURL = url
         self.isDownloading = true
         self.error = nil
         self.downloadProgress = 0
+        self.updateReady = false
+        
+        showProgressPanel()
 
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+        self.downloadSession = session
         downloadTask = session.downloadTask(with: url)
         downloadTask?.resume()
+    }
+
+    private func showProgressPanel() {
+        if progressPanel == nil {
+            let panel = NSPanel(
+                contentRect: NSRect(x: 0, y: 0, width: 300, height: 100),
+                styleMask: [.titled, .nonactivatingPanel],
+                backing: .buffered, defer: false)
+            panel.title = "Downloading Update"
+            panel.center()
+            panel.isFloatingPanel = true
+            panel.level = .floating
+            
+            let hostingView = NSHostingView(rootView: DownloadProgressView(updater: self))
+            panel.contentView = hostingView
+            self.progressPanel = panel
+        }
+        progressPanel?.makeKeyAndOrderFront(nil)
     }
 
     // MARK: - URLSessionDownloadDelegate
@@ -113,11 +137,14 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
                 self.downloadedFileURL = tempURL
                 self.isDownloading = false
                 self.updateReady = true
+                self.progressPanel?.close()
+                self.installAndRelaunch()
             }
         } catch {
             Task { @MainActor in
                 self.isDownloading = false
                 self.error = "Failed to prepare update file."
+                self.progressPanel?.close()
             }
         }
     }
@@ -127,6 +154,7 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
             Task { @MainActor in
                 self.isDownloading = false
                 self.error = error.localizedDescription
+                self.progressPanel?.close()
             }
         }
     }
@@ -134,7 +162,6 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
     func installAndRelaunch() {
         guard let dmgURL = downloadedFileURL else { return }
 
-        // Clear quarantine flag so macOS doesn't block the mounted DMG
         let xattr = Process()
         xattr.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
         xattr.arguments = ["-dr", "com.apple.quarantine", dmgURL.path]
@@ -144,12 +171,35 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
         NSWorkspace.shared.open(dmgURL)
 
         let alert = NSAlert()
-        alert.messageText = "Update Ready to Install"
-        alert.informativeText = "The update DMG has been opened. Drag NetUtil to your Applications folder to replace the current version, then relaunch the app."
-        alert.addButton(withTitle: "Quit & Finish Manually")
+        alert.messageText = "Update Downloaded"
+        alert.informativeText = "The update DMG has been opened. Drag NetUtil to your Applications folder to finish installation, then relaunch the app."
+        alert.addButton(withTitle: "Quit & Install")
         alert.addButton(withTitle: "Later")
         if alert.runModal() == .alertFirstButtonReturn {
             NSApp.terminate(nil)
         }
+    }
+}
+
+struct DownloadProgressView: View {
+    @ObservedObject var updater: Updater
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            ProgressView(value: updater.downloadProgress)
+                .progressViewStyle(.linear)
+                .tint(.accentColor)
+            
+            HStack {
+                Text(String(format: "%.0f%%", updater.downloadProgress * 100))
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                Spacer()
+                Text("Downloading installer...")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(20)
+        .frame(width: 300)
     }
 }
