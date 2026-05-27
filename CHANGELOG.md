@@ -4,6 +4,17 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.4.0] — 2026-05-28
+
+### Changed
+- **Help Documentation Redesign**: Completely overhauled the `HelpView` window to follow the Native Mac Anti-Slop guidelines. The sidebar now uses `.regularMaterial` for true macOS vibrancy, and the topic content flows naturally without heavy box-in-box shadows.
+- **Improved Sidebar UX**: Enlarged the clickable hitboxes (`contentShape`) across all navigation sidebars so users can click anywhere on a row, matching standard macOS behavior.
+
+### Fixed
+- **Updater UX**: Moved the "Check for Updates" functionality out of the About window and integrated it natively into the macOS Menu Bar (`NetUtil > Check for Updates...`) and the Status Bar dropdown menu. It now utilizes native `NSAlert` dialogs instead of inline web-style UI.
+
+---
+
 ## [2.3.0] — 2026-05-28
 
 ### Changed
