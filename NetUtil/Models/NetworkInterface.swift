@@ -6,14 +6,20 @@ struct NetworkInterface: Identifiable {
     let name: String
     let ipv4: [String]
     let ipv6: [String]
-    let netmasks: [String] // Added to store subnet masks
+    let netmasks: [String]
     let mac: String?
     let mtu: Int?
     let isUp: Bool
     let isLoopback: Bool
     let ifType: UInt8
+    
+    // VLAN Details
+    var isVLAN: Bool { name.hasPrefix("vlan") }
+    var vlanTag: Int?
+    var parentInterface: String?
 
     var typeIcon: String {
+        if isVLAN { return "tag.fill" }
         if isLoopback { return "arrow.clockwise" }
         switch ifType {
         case 6:   return "cable.connector"       // IFT_ETHER
@@ -28,6 +34,7 @@ struct NetworkInterface: Identifiable {
     }
 
     var typeName: String {
+        if isVLAN { return "VLAN Interface" }
         if isLoopback { return "Loopback" }
         switch ifType {
         case 6:   return "Ethernet"
@@ -72,7 +79,6 @@ struct NetworkInterfaceFetcher {
                             &buf, socklen_t(buf.count), nil, 0, NI_NUMERICHOST)
                 builders[name]?.ipv4.append(String(cString: buf))
                 
-                // Get netmask
                 if let netmask = ifa.pointee.ifa_netmask {
                     var mbuf = [CChar](repeating: 0, count: Int(NI_MAXHOST))
                     getnameinfo(netmask, socklen_t(MemoryLayout<sockaddr_in>.size),
@@ -85,7 +91,6 @@ struct NetworkInterfaceFetcher {
                 getnameinfo(addr, socklen_t(MemoryLayout<sockaddr_in6>.size),
                             &buf, socklen_t(buf.count), nil, 0, NI_NUMERICHOST)
                 let raw = String(cString: buf)
-                // Strip link-local scope suffix (e.g. %en0)
                 let clean = raw.components(separatedBy: "%").first ?? raw
                 builders[name]?.ipv6.append(clean)
 
@@ -114,8 +119,52 @@ struct NetworkInterfaceFetcher {
             }
         }
 
-        return builders.values.map { $0.build() }
-            .sorted { $0.name < $1.name }
+        var results = builders.values.map { $0.build() }
+        
+        // Enrich VLAN interfaces with details from ifconfig
+        for i in 0..<results.count {
+            if results[i].isVLAN {
+                let (tag, parent) = fetchVLANDetails(for: results[i].name)
+                results[i].vlanTag = tag
+                results[i].parentInterface = parent
+            }
+        }
+
+        return results.sorted { $0.name < $1.name }
+    }
+
+    private static func fetchVLANDetails(for name: String) -> (tag: Int?, parent: String?) {
+        let p = Process()
+        let pipe = Pipe()
+        p.executableURL = URL(fileURLWithPath: "/sbin/ifconfig")
+        p.arguments = [name]
+        p.standardOutput = pipe
+        p.standardError = Pipe()
+        
+        do {
+            try p.run()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            guard let output = String(data: data, encoding: .utf8) else { return (nil, nil) }
+            
+            // Expected line: "vlan: 10 parent interface: en0"
+            let lines = output.components(separatedBy: "\n")
+            for line in lines {
+                if line.contains("vlan:") && line.contains("parent interface:") {
+                    let parts = line.trimmingCharacters(in: .whitespaces).components(separatedBy: " ")
+                    var tag: Int? = nil
+                    var parent: String? = nil
+                    
+                    if let tagIdx = parts.firstIndex(of: "vlan:"), tagIdx + 1 < parts.count {
+                        tag = Int(parts[tagIdx + 1].trimmingCharacters(in: CharacterSet.decimalDigits.inverted))
+                    }
+                    if let parentIdx = parts.firstIndex(of: "interface:"), parentIdx + 1 < parts.count {
+                        parent = parts[parentIdx + 1]
+                    }
+                    return (tag, parent)
+                }
+            }
+        } catch { }
+        return (nil, nil)
     }
 
     private struct Builder {

@@ -7,10 +7,11 @@ enum Tool: String, CaseIterable, Identifiable {
     case multiPing   = "Multi-Ping"
     case portScan    = "Port Scanner"
     case httpLatency = "HTTP Latency"
+    case subnet      = "Subnet Calc"
     case dns         = "DNS Lookup"
     case ssl         = "SSL/TLS"
-    case bandwidth   = "Bandwidth"
     case whois       = "WHOIS"
+    case bandwidth   = "Bandwidth"
     case interfaces  = "Interfaces"
     case wifi        = "Wi-Fi"
     case routes      = "Routes"
@@ -32,6 +33,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .ssl:         "lock.shield"
         case .whois:       "magnifyingglass.circle"
         case .bandwidth:   "chart.bar.xaxis"
+        case .subnet:      "number.square"
         }
     }
     
@@ -43,9 +45,9 @@ enum Tool: String, CaseIterable, Identifiable {
         case .multiPing:   "4"
         case .portScan:    "5"
         case .httpLatency: "6"
-        case .dns:         "7"
-        case .ssl:         "8"
-        case .bandwidth:   "9"
+        case .subnet:      "7"
+        case .dns:         "8"
+        case .ssl:         "9"
         default:           nil
         }
     }
@@ -128,6 +130,10 @@ struct ContentView: View {
                             sidebarItem(.portScan)
                             sidebarItem(.httpLatency)
                         }
+
+                        Section("IP Toolbox") {
+                            sidebarItem(.subnet)
+                        }
                         
                         Section("Lookup & Security") {
                             sidebarItem(.dns)
@@ -197,10 +203,6 @@ struct ContentView: View {
     }
     
     private func copyToActiveTool(_ host: String) {
-        // Implementation logic to set host in active tool's state would go here
-        // Since many views hold their own 'host' @State, we can't easily reach them.
-        // However, we can use NSPasteboard or a shared state in ToolStore if needed.
-        // For now, let's just copy to clipboard for convenience if a tool doesn't have shared state.
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(host, forType: .string)
     }
@@ -221,6 +223,7 @@ struct ContentView: View {
         case .ssl:         SSLInspectorView(vm: tools.ssl)
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
+        case .subnet:      SubnetCalculatorView(vm: tools.subnet)
         }
     }
 }

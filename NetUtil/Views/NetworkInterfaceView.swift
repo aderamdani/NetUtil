@@ -120,8 +120,8 @@ struct NetworkInterfaceView: View {
         HStack(spacing: 12) {
             StatCard(title: "TOTAL ADAPTERS", value: "\(vm.interfaces.count)", icon: "laptopcomputer")
             StatCard(title: "ACTIVE UP", value: "\(vm.interfaces.filter(\.isUp).count)", icon: "arrow.up.circle.fill", color: .green)
-            if let vpn = vm.interfaces.first(where: { $0.name.starts(with: "utun") && $0.isUp }) {
-                StatCard(title: "VPN TUNNEL", value: vpn.name, icon: "lock.shield.fill", color: .blue)
+            if let vlan = vm.interfaces.first(where: { $0.isVLAN }) {
+                StatCard(title: "VLAN ACTIVE", value: vlan.name, icon: "tag.fill", color: .purple)
             }
             Spacer()
         }
@@ -157,9 +157,17 @@ struct NetworkInterfaceView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     GuideSection(title: "What is an Interface?", icon: "network") {
-                        Text("An interface is a connection point between your computer and a network. It can be physical (Ethernet, Wi-Fi) or virtual (VPN, Loopback).")
+                        Text("An interface is a connection point between your computer and a network. It can be physical (Ethernet, Wi-Fi) or virtual (VPN, VLAN, Loopback).")
                     }
                     
+                    GuideSection(title: "Virtual LAN (VLAN)", icon: "tag.fill") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("VLANs (802.1Q) allow you to partition a single physical network into multiple logical networks. This improves security and management by separating traffic groups.")
+                            
+                            GuidePoint(title: "Creating VLANs on macOS", desc: "1. Open System Settings > Network.\n2. Click the '...' or arrow icon below the interface list.\n3. Select 'Manage Virtual Interfaces'.\n4. Click '+' and choose 'New VLAN'.\n5. Assign a Name, Tag (1-4094), and select a Parent Interface.")
+                        }
+                    }
+
                     GuideSection(title: "IP Addresses", icon: "number") {
                         VStack(alignment: .leading, spacing: 12) {
                             GuidePoint(title: "IPv4", desc: "The standard 32-bit address format (e.g., 192.168.1.1).")
@@ -182,9 +190,9 @@ private struct InterfaceDetailCard: View {
             HStack(spacing: 12) {
                 Image(systemName: iface.typeIcon)
                     .font(.title3)
-                    .foregroundColor(iface.isUp ? .accentColor : .secondary)
+                    .foregroundColor(iface.isUp ? (iface.isVLAN ? .purple : .accentColor) : .secondary)
                     .frame(width: 32, height: 32)
-                    .background(iface.isUp ? Color.accentColor.opacity(0.1) : Color.secondary.opacity(0.1))
+                    .background(iface.isUp ? (iface.isVLAN ? Color.purple.opacity(0.1) : Color.accentColor.opacity(0.1)) : Color.secondary.opacity(0.1))
                     .cornerRadius(8)
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -203,6 +211,15 @@ private struct InterfaceDetailCard: View {
             Divider().opacity(0.1)
             
             VStack(alignment: .leading, spacing: 10) {
+                if iface.isVLAN {
+                    if let tag = iface.vlanTag {
+                        ifaceRow(icon: "tag", label: "VLAN ID", value: "\(tag)")
+                    }
+                    if let parent = iface.parentInterface {
+                        ifaceRow(icon: "cable.connector", label: "Parent", value: parent)
+                    }
+                }
+                
                 if !iface.ipv4.isEmpty {
                     ForEach(iface.ipv4, id: \.self) { ip in
                         ifaceRow(icon: "number", label: "IPv4", value: ip)
@@ -238,7 +255,7 @@ private struct InterfaceDetailCard: View {
     private func ifaceRow(icon: String, label: String, value: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon).font(.system(size: 10)).foregroundColor(.secondary).frame(width: 12)
-            Text(label.uppercased()).font(.system(size: 9, weight: .black)).foregroundColor(.secondary).frame(width: 40, alignment: .leading)
+            Text(label.uppercased()).font(.system(size: 9, weight: .black)).foregroundColor(.secondary).frame(width: 50, alignment: .leading)
             Text(value).font(.system(size: 12, design: .monospaced)).foregroundColor(.primary).textSelection(.enabled)
             Spacer()
             Button {
