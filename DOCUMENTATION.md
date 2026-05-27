@@ -34,10 +34,10 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 
 ## 3. Detailed Toolset
 
-### 🏠 Overview
+### Overview
 - **Bento Dashboard**: Home screen featuring a curated "Bento Box" layout. Displays live status cards for active tools (Ping, Port Scan, etc.), real-time CPU/RAM gauges, and pulsing green activity indicators.
 
-### 🌐 Connectivity & Latency
+### Connectivity & Latency
 - **Advanced Ping**: Live RTT chart with packet loss bars, jitter analysis, RTT distribution histograms, and configurable audio feedback ("Beep on Loss"). Export via PDF or CSV.
 - **Multi-Ping**: Monitor multiple hosts simultaneously with live sparklines, color-coded stability indicators, and custom host aliases. Consolidated PDF report for all hosts.
 - **Traceroute**: Comprehensive hop-by-hop path analysis with five view modes:
@@ -48,22 +48,22 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
   - **Console**: Plain traceroute CLI output.
 - **HTTP Latency**: Phase-by-phase breakdown (DNS, TCP, TLS, TTFB, Download) using `URLSessionTaskMetrics`. Includes a latency waterfall chart and history tracking.
 
-### 🛠 IP Toolbox
+### IP Toolbox
 - **Subnet Calculator**: Network math utility supporting CIDR prefixes, wildcard masking, IP class detection, and 32-bit binary representation.
 
-### 🔍 Discovery & Analysis
+### Discovery & Analysis
 - **Port Scanner**: High-speed TCP port scanner with customizable ranges and concurrency controls. Results are displayed in a modern, scannable mini-card grid layout.
 - **SSL/TLS Inspector**: Full certificate chain analysis, expiry tracking, TLS version badge, and cipher suite verification.
 - **DNS Lookup**: Comprehensive query tool (A, AAAA, MX, TXT, NS, CNAME, SOA, PTR, ANY) using `dig`. Multiple server presets.
 - **WHOIS**: Structured key/value display of domain registration and ownership records, with inline filtering.
 
-### 📊 System & Monitoring
+### System & Monitoring
 - **Bandwidth Monitor**: Real-time RX/TX rate per interface with 60-second rolling area charts. State persists across navigation.
 - **Network Interfaces**: Hardware interfaces via `getifaddrs()` — MAC, IPv4, IPv6, MTU. Includes automatic detection and labeling of Virtual LANs (802.1Q).
 - **Wi-Fi Inspector**: Signal analysis via CoreWLAN — SSID, BSSID, RSSI, SNR, channel, security. Includes an RSSI stability sparkline.
 - **Route Table**: IPv4 and IPv6 routing rules via `netstat -rn`, with flag descriptions and live text filter.
 
-### ⚙️ Settings
+### Settings
 macOS System Settings–style sidebar navigation with four panes:
 - **General**: Default limits and operational parameters.
 - **Thresholds**: RTT color-zone boundaries (good/warn/critical) with a live animated preview bar.
