@@ -82,6 +82,32 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
     - **Fallback (Manual Release)**: Jika CI GitHub Actions gagal (billing issue), jalankan:
       `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X" --notes "Release notes summary"`
 
+## UI/UX Standardization Rules
+
+To maintain a professional and cohesive enterprise toolkit, all diagnostic views must strictly follow this symmetrical structure:
+
+### 1. Unified Control Bar (Header)
+- **Position**: Always fixed at the top (`VStack` with 0 spacing, followed by `ScrollView`).
+- **Layout**: `HStack` with 12pt spacing.
+    - **Left**: Main Input (TextField) with trailing history overlay (clock icon). 250pt-300pt width.
+    - **Center**: Variable settings (Toggles, Pickers, Steppers). Aligned contextually.
+    - **Right**: Action Group: `[Report Menu]`, `[Start/Stop Button]`, `[Learning Guide Button]`.
+
+### 2. Interpretation Header
+- Located immediately below the control bar inside the `ScrollView`.
+- **Left**: Dynamic Icon + Large Status Title + Subtitle Description.
+- **Right**: Auxiliary visual (Health Strip for Ping, Progress for Port Scan/Traceroute).
+
+### 3. Stat Bar
+- Row of `StatCard` components.
+- Standard titles: ALL CAPS, font size 10, weight black, kerning 1.
+- Value spacing: Standardized padding and shadow (Opacity 0.08, Y-offset 4).
+
+### 4. Results Container
+- 12pt corner radius, background `.controlBackgroundColor` (0.5 opacity).
+- Shadow: Radius 8, Y-offset 4, Opacity 0.08.
+- Border: 1pt stroke, `.separatorColor` (0.1 opacity).
+
 ---
 
 ## Release Automation Procedure (Automated via GitHub Actions)

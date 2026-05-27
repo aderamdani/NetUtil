@@ -94,6 +94,37 @@ enum Exporter {
         }
     }
 
+    @MainActor
+    static func saveHTTPLatencyPDF(result: HTTPLatencyResult, history: [HTTPLatencyResult]) {
+        let date = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
+        let fileDate = formatter.string(from: date)
+        
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "NetUtil-HTTPLatency-\(fileDate).pdf"
+        panel.allowedContentTypes = [.pdf]
+        
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            
+            let printInfo = NSPrintInfo.shared
+            printInfo.horizontalPagination = .fit
+            printInfo.verticalPagination = .automatic
+            printInfo.leftMargin = 40
+            printInfo.rightMargin = 40
+            
+            let reportView = HTTPLatencyPDFReportView(result: result, history: history, generatedDate: date)
+            let hostingView = NSHostingView(rootView: reportView)
+            
+            let totalHeight = 400 + (CGFloat(min(history.count, 20)) * 30)
+            hostingView.frame = NSRect(x: 0, y: 0, width: 550, height: totalHeight)
+            
+            let data = hostingView.dataWithPDF(inside: hostingView.bounds)
+            try? data.write(to: url)
+        }
+    }
+
     // MARK: - Traceroute
 
     static func csvString(from hops: [TracerouteHop]) -> String {
@@ -407,5 +438,137 @@ struct MultiPingPDFReportView: View {
         if slot.loss >= 50 { return "CRITICAL" }
         if slot.loss > 0 { return "DEGRADED" }
         return "HEALTHY"
+    }
+}
+
+// MARK: - HTTP Latency PDF Report
+
+struct HTTPLatencyPDFReportView: View {
+    let result: HTTPLatencyResult
+    let history: [HTTPLatencyResult]
+    let generatedDate: Date
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            PDFHeaderView(title: "HTTP Latency", subtitle: "Web Request Performance Audit", date: generatedDate)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Request Details")
+                    .font(.system(size: 22, weight: .bold))
+                HStack(spacing: 8) {
+                    Text(result.method)
+                        .font(.system(size: 10, weight: .black))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.accentColor.opacity(0.1))
+                        .cornerRadius(4)
+                    Text(result.url)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            
+            PDFSectionHeader(title: "Timing Summary")
+            HStack(spacing: 30) {
+                PDFSummaryBox(label: "Status", value: "\(result.statusCode ?? 0)", color: result.statusCode == 200 ? .green : .orange)
+                PDFSummaryBox(label: "Total Latency", value: String(format: "%.0f ms", result.totalMs))
+                if let bytes = result.bodyBytes {
+                    PDFSummaryBox(label: "Body Size", value: formatBytes(bytes))
+                }
+            }
+            .padding(16)
+            .background(Color.secondary.opacity(0.05))
+            .cornerRadius(10)
+            
+            if !result.phases.isEmpty {
+                PDFSectionHeader(title: "Latency Waterfall")
+                VStack(spacing: 8) {
+                    let maxMs = result.phases.map(\.endMs).max() ?? result.totalMs
+                    ForEach(result.phases) { phase in
+                        HStack(spacing: 10) {
+                            Text(phase.phase.rawValue.uppercased())
+                                .font(.system(size: 8, weight: .black))
+                                .frame(width: 60, alignment: .trailing)
+                            
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(Color.secondary.opacity(0.1))
+                                    .frame(maxWidth: .infinity)
+                                
+                                let total = max(maxMs, 1)
+                                let x = 300 * CGFloat(phase.startMs / total)
+                                let w = max(4, 300 * CGFloat(phase.durationMs / total))
+                                
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(phaseColor(phase.phase))
+                                    .frame(width: w)
+                                    .offset(x: x)
+                            }
+                            .frame(width: 300, height: 12)
+                            
+                            Text(String(format: "%.1f ms", phase.durationMs))
+                                .font(.system(size: 9, design: .monospaced).bold())
+                        }
+                    }
+                }
+                .padding(16)
+                .background(Color.secondary.opacity(0.03))
+                .cornerRadius(8)
+            }
+            
+            PDFSectionHeader(title: "Recent Analysis History")
+            VStack(spacing: 0) {
+                HStack {
+                    Text("TIMESTAMP").frame(width: 100, alignment: .leading)
+                    Text("METHOD").frame(width: 50)
+                    Text("STATUS").frame(width: 50)
+                    Text("TOTAL").frame(width: 70)
+                    Text("URL / ENDPOINT").frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .font(.system(size: 8, weight: .black))
+                .padding(.vertical, 8)
+                .padding(.horizontal, 10)
+                .background(Color.secondary.opacity(0.1))
+                
+                ForEach(history.prefix(15)) { r in
+                    HStack {
+                        Text(r.timestamp.formatted(date: .abbreviated, time: .shortened)).frame(width: 100, alignment: .leading)
+                        Text(r.method).frame(width: 50)
+                        Text("\(r.statusCode ?? 0)").foregroundColor(r.statusCode == 200 ? .green : .orange).frame(width: 50)
+                        Text("\(Int(r.totalMs)) ms").frame(width: 70)
+                        Text(r.url).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .font(.system(size: 8, design: .monospaced))
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 10)
+                    Divider().opacity(0.3)
+                }
+            }
+            
+            Spacer(minLength: 20)
+            PDFFooterInfo()
+        }
+        .padding(35)
+        .frame(width: 550)
+        .background(Color.white)
+    }
+    
+    private func phaseColor(_ phase: HTTPPhase) -> Color {
+        switch phase {
+        case .dns:      return .teal
+        case .tcp:      return .blue
+        case .tls:      return .purple
+        case .request:  return .orange
+        case .ttfb:     return .yellow
+        case .download: return .green
+        }
+    }
+    
+    private func formatBytes(_ bytes: Int64) -> String {
+        let kb = Double(bytes) / 1024
+        if kb < 1 { return "\(bytes) B" }
+        if kb < 1024 { return String(format: "%.1f KB", kb) }
+        return String(format: "%.2f MB", kb / 1024)
     }
 }

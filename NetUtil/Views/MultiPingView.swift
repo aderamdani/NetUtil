@@ -11,42 +11,51 @@ struct MultiPingView: View {
     @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            addBar
+        VStack(alignment: .leading, spacing: 0) {
+            // 1. STANDARD HEADER (Fixed Top)
+            controlBar
+                .padding(.bottom, 24)
             
-            if vm.slots.isEmpty {
-                emptyState
-            } else {
-                summaryBar
-                
-                VStack(spacing: 0) {
-                    slotsTableHeader
-                    
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(vm.slots) { slot in
-                                MultiPingRow(
-                                    slot: slot,
-                                    isExpanded: expandedSlotID == slot.id,
-                                    rttWarn: rttWarn,
-                                    rttCrit: rttCrit,
-                                    onToggleExpand: {
-                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                            expandedSlotID = expandedSlotID == slot.id ? nil : slot.id
-                                        }
-                                    },
-                                    onRemove: { vm.remove(slot) },
-                                    onCommitRename: { vm.sortSlots() }
-                                )
-                                Divider().opacity(0.15)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    if vm.slots.isEmpty {
+                        emptyState
+                    } else {
+                        // 2. INTERPRETATION HEADER (Consistent with Ping)
+                        interpretationHeader
+                        
+                        // 3. STATS BAR (Consistent with Ping)
+                        statsBar
+                        
+                        // 4. RESULTS TABLE
+                        VStack(spacing: 0) {
+                            slotsTableHeader
+                            
+                            LazyVStack(spacing: 0) {
+                                ForEach(vm.slots) { slot in
+                                    MultiPingRow(
+                                        slot: slot,
+                                        isExpanded: expandedSlotID == slot.id,
+                                        rttWarn: rttWarn,
+                                        rttCrit: rttCrit,
+                                        onToggleExpand: {
+                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                expandedSlotID = expandedSlotID == slot.id ? nil : slot.id
+                                            }
+                                        },
+                                        onRemove: { vm.remove(slot) },
+                                        onCommitRename: { vm.sortSlots() }
+                                    )
+                                    Divider().opacity(0.15)
+                                }
                             }
                         }
+                        .background(Color(.controlBackgroundColor).opacity(0.5))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
                     }
                 }
-                .background(Color(.controlBackgroundColor).opacity(0.5))
-                .cornerRadius(12)
-                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
             }
         }
         .padding(32)
@@ -55,19 +64,64 @@ struct MultiPingView: View {
         }
     }
 
-    private var summaryBar: some View {
-        let running = vm.slots.filter { $0.isRunning }.count
-        let responding = vm.slots.filter { $0.loss < 100 && $0.sent > 0 }.count
-        let avgLoss = vm.slots.isEmpty ? 0.0 : vm.slots.map { $0.loss }.reduce(0, +) / Double(vm.slots.count)
-        
-        return HStack(spacing: 12) {
-            StatCard(title: "TOTAL HOSTS", value: "\(vm.slots.count)", icon: "server.rack")
-            StatCard(title: "ACTIVE", value: "\(running)", icon: "play.fill", color: running > 0 ? .green : .secondary)
-            StatCard(title: "RESPONDING", value: "\(responding)", icon: "checkmark.shield.fill", color: responding == vm.slots.count ? .blue : .orange)
-            StatCard(title: "AVG LOSS", value: String(format: "%.1f%%", avgLoss), icon: "exclamationmark.triangle.fill", color: avgLoss > 10 ? .red : .secondary)
-            
+    private var controlBar: some View {
+        HStack(spacing: 12) {
+            // 1. Target Input with History
+            TextField("Enter hostname or IP address", text: $newHost)
+                .textFieldStyle(.roundedBorder)
+                .controlSize(.large)
+                .frame(width: 300)
+                .onSubmit(addHost)
+                .overlay(alignment: .trailing) {
+                    if !history.hosts.isEmpty {
+                        Menu {
+                            ForEach(history.hosts, id: \.self) { h in
+                                Button(h) { newHost = h; addHost() }
+                            }
+                            Divider()
+                            Button("Clear History", role: .destructive) { history.clear() }
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundColor(.secondary)
+                        }
+                        .menuStyle(.borderlessButton)
+                        .frame(width: 28)
+                        .padding(.trailing, 4)
+                    }
+                }
+
+            // 2. Settings Group (Centered Context)
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Text("Sort:").font(.system(size: 11, weight: .bold)).foregroundColor(.secondary)
+                    Picker("", selection: $vm.sortMode) {
+                        ForEach(MultiPingSort.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 140)
+                }
+                
+                if !vm.slots.isEmpty {
+                    Divider().frame(height: 20)
+                    Button(role: .destructive) {
+                        withAnimation {
+                            vm.slots.forEach { $0.stop() }
+                            vm.slots.removeAll()
+                        }
+                    } label: {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                    }
+                    .buttonStyle(.bordered)
+                    .help("Clear All Hosts")
+                }
+            }
+
             Spacer()
-            
+
+            // 3. Action Group (Aligned Right)
             if !vm.slots.isEmpty {
                 Menu {
                     Button("Export as PDF Report...") {
@@ -75,18 +129,138 @@ struct MultiPingView: View {
                     }
                 } label: {
                     Label("Report", systemImage: "doc.text.fill")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: 13, weight: .semibold))
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.large)
             }
-            
+
+            Button(action: addHost) {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Add Target")
+                }
+                .font(.system(size: 13, weight: .semibold))
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
+
             Button { showLearningGuide = true } label: {
-                Image(systemName: "book.fill")
-                    .font(.system(size: 14))
+                Image(systemName: "book.fill").font(.system(size: 14))
             }
             .buttonStyle(.bordered)
+            .controlSize(.large)
             .help("Multi-Ping Learning Guide")
         }
+    }
+
+    private var interpretationHeader: some View {
+        HStack(alignment: .center, spacing: 12) {
+            let responding = vm.slots.filter { $0.loss < 100 && $0.sent > 0 }.count
+            let total = vm.slots.count
+            
+            Image(systemName: responding == total ? "checkmark.shield.fill" : "exclamationmark.shield.fill")
+                .font(.title2)
+                .foregroundColor(responding == total ? .green : .orange)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(responding == total ? "All Systems Go" : "Partial Response")
+                    .font(.headline)
+                Text("\(responding) of \(total) monitored endpoints are responding to requests.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            if !vm.slots.isEmpty {
+                HStack(spacing: 8) {
+                    Button(action: { vm.stopAll() }) {
+                        Label("Stop All", systemImage: "stop.fill").font(.caption.bold())
+                    }
+                    .buttonStyle(.bordered)
+                    .foregroundColor(.orange)
+                    
+                    Button(action: { vm.startAll() }) {
+                        Label("Start All", systemImage: "play.fill").font(.caption.bold())
+                    }
+                    .buttonStyle(.bordered)
+                    .foregroundColor(.green)
+                }
+            }
+        }
+        .padding(.bottom, 8)
+    }
+
+    private var statsBar: some View {
+        let running = vm.slots.filter { $0.isRunning }.count
+        let avgLoss = vm.slots.isEmpty ? 0.0 : vm.slots.map { $0.loss }.reduce(0, +) / Double(vm.slots.count)
+        
+        return HStack(spacing: 12) {
+            StatCard(title: "TOTAL HOSTS", value: "\(vm.slots.count)", icon: "server.rack")
+            StatCard(title: "ACTIVE", value: "\(running)", icon: "play.fill", color: running > 0 ? .green : .secondary)
+            StatCard(title: "AVG LOSS", value: String(format: "%.1f%%", avgLoss), icon: "exclamationmark.triangle.fill", color: avgLoss > 10 ? .red : .secondary)
+            Spacer()
+        }
+    }
+
+    private var slotsTableHeader: some View {
+        HStack(spacing: 0) {
+            headerCell("Alias Name", width: 160)
+            headerCell("Host / Endpoint", flexible: true)
+            headerCell("Snt", width: 60)
+            headerCell("Loss%", width: 70)
+            headerCell("Last", width: 80)
+            headerCell("Avg RTT", width: 80)
+            headerCell("Stability Bar (60)", width: 150)
+            headerCell("", width: 40)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 20)
+        .background(Color(.windowBackgroundColor))
+        .overlay(VStack { Spacer(); Divider() })
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.1))
+                    .frame(width: 100, height: 100)
+                Image(systemName: "dot.radiowaves.left.and.right")
+                    .font(.system(size: 40))
+                    .foregroundColor(.accentColor)
+            }
+            VStack(spacing: 4) {
+                Text("Multi-Host Monitoring")
+                    .font(.title2.bold())
+                Text("Enter a hostname above to start monitoring multiple endpoints simultaneously.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 400)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 300)
+        .padding(.top, 40)
+    }
+
+    private func headerCell(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
+        Text(title.uppercased())
+            .font(.system(size: 10, weight: .black))
+            .foregroundColor(.secondary)
+            .kerning(1)
+            .frame(width: width, alignment: .leading)
+            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
+    }
+
+    private func addHost() {
+        let h = newHost.trimmingCharacters(in: .whitespaces)
+        guard !h.isEmpty else { return }
+        history.record(h)
+        vm.add(host: h)
+        newHost = ""
     }
 
     private var multiPingLearningGuideSheet: some View {
@@ -125,126 +299,6 @@ struct MultiPingView: View {
             }
         }
         .frame(width: 500, height: 600)
-    }
-
-    private var addBar: some View {
-        HStack(spacing: 12) {
-            TextField("Enter hostname or IP address", text: $newHost)
-                .textFieldStyle(.roundedBorder)
-                .controlSize(.large)
-                .frame(width: 300)
-                .onSubmit(addHost)
-                .overlay(alignment: .trailing) {
-                    if !history.hosts.isEmpty {
-                        Menu {
-                            ForEach(history.hosts, id: \.self) { h in
-                                Button(h) { newHost = h; addHost() }
-                            }
-                        } label: {
-                            Image(systemName: "clock.arrow.circlepath")
-                                .foregroundColor(.secondary)
-                        }
-                        .menuStyle(.borderlessButton)
-                        .frame(width: 28)
-                        .padding(.trailing, 4)
-                    }
-                }
-
-            Button(action: addHost) {
-                Label("Add Target", systemImage: "plus.circle.fill")
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
-
-            Divider().frame(height: 24).padding(.horizontal, 8)
-            
-            HStack(spacing: 8) {
-                Text("Sort:").font(.system(size: 12, weight: .bold)).foregroundColor(.secondary)
-                Picker("", selection: $vm.sortMode) {
-                    ForEach(MultiPingSort.allCases) { mode in
-                        Text(mode.rawValue).tag(mode)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 140)
-            }
-
-            Spacer()
-
-            if !vm.slots.isEmpty {
-                HStack(spacing: 8) {
-                    Button(action: { vm.stopAll() }) {
-                        Label("Stop All", systemImage: "stop.fill")
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Button(action: { vm.startAll() }) {
-                        Label("Start All", systemImage: "play.fill")
-                    }
-                    .buttonStyle(.bordered)
-                }
-            }
-        }
-    }
-
-    private var slotsTableHeader: some View {
-        HStack(spacing: 0) {
-            headerCell("Alias Name", width: 160)
-            headerCell("Host / Endpoint", flexible: true)
-            headerCell("Snt", width: 60)
-            headerCell("Loss%", width: 70)
-            headerCell("Last", width: 80)
-            headerCell("Avg RTT", width: 80)
-            headerCell("Stability Bar (Last 60)", width: 150)
-            headerCell("", width: 40)
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 20)
-        .background(Color(.windowBackgroundColor))
-        .overlay(VStack { Spacer(); Divider() })
-    }
-
-    private var emptyState: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            ZStack {
-                Circle()
-                    .fill(Color.accentColor.opacity(0.1))
-                    .frame(width: 100, height: 100)
-                Image(systemName: "dot.radiowaves.left.and.right")
-                    .font(.system(size: 40))
-                    .foregroundColor(.accentColor)
-            }
-            VStack(spacing: 4) {
-                Text("Multi-Host Monitoring")
-                    .font(.title2.bold())
-                Text("Enter a hostname above to start monitoring multiple endpoints simultaneously.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 400)
-            }
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func headerCell(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title.uppercased())
-            .font(.system(size: 10, weight: .black))
-            .foregroundColor(.secondary)
-            .kerning(1)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
-    }
-
-    private func addHost() {
-        let h = newHost.trimmingCharacters(in: .whitespaces)
-        guard !h.isEmpty else { return }
-        history.record(h)
-        vm.add(host: h)
-        newHost = ""
     }
 }
 
@@ -416,6 +470,14 @@ private struct MultiPingRow: View {
         return .green
     }
 
+    private func interpretStatus() -> (status: String, description: String) {
+        guard slot.sent > 0 else { return ("Idle", "Waiting to start") }
+        if slot.loss > 20 { return ("Critical", "Severe packet loss") }
+        if slot.loss > 0 { return ("Degraded", "Minor instability") }
+        if let avg = slot.avgRtt, avg > rttWarn { return ("Lagging", "Higher latency") }
+        return ("Healthy", "Stable connection")
+    }
+
     private var statusColor: Color {
         guard slot.sent > 0 else { return .secondary }
         if slot.loss >= 50 { return .red }
@@ -428,14 +490,6 @@ private struct MultiPingRow: View {
         if slot.loss >= 50 { return Color.red.opacity(0.05) }
         if slot.loss > 0 { return Color.orange.opacity(0.03) }
         return Color.clear
-    }
-
-    private func interpretStatus() -> (status: String, description: String) {
-        guard slot.sent > 0 else { return ("Idle", "Waiting to start") }
-        if slot.loss > 20 { return ("Critical", "Severe packet loss") }
-        if slot.loss > 0 { return ("Degraded", "Minor instability") }
-        if let avg = slot.avgRtt, avg > rttWarn { return ("Lagging", "Higher latency") }
-        return ("Healthy", "Stable connection")
     }
 
     private func rttColor(_ rtt: Double) -> Color {
