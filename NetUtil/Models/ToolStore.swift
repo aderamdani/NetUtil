@@ -13,6 +13,7 @@ class ToolStore: ObservableObject {
     let whois       = WhoisViewModel()
     let wifi        = WiFiInspectorViewModel()
     let interfaces  = NetworkInterfaceViewModel()
+    let subnet      = SubnetViewModel()
     let system      = SystemMonitor()
     
     @Published var externalIP: String = "Checking..."

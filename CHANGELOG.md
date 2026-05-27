@@ -4,6 +4,18 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.2.1] — 2026-05-27
+
+### Added
+- **VLAN Audit Support**: Automatically detects virtual interfaces (`vlan`) and extracts VLAN ID (802.1Q tag) and Parent Interface details.
+- **VLAN Learning Guide**: Added a dedicated section in the Interface guide explaining VLAN concepts and step-by-step instructions for creating them on macOS.
+
+### Improved
+- **Final Symmetry Refinement**: Polished the headers and interpretation bars across all 13 tools for absolute consistency in information positioning.
+- **VLAN Visualization**: Introduced a unique purple theme and `tag.fill` icon for virtual interfaces to distinguish them from physical adapters.
+
+---
+
 ## [2.2.0] — 2026-05-27
 
 ### Added
