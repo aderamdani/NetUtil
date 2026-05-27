@@ -168,6 +168,30 @@ enum Exporter {
         return try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
     }
 
+    @MainActor
+    static func saveTraceroutePDF(hops: [TracerouteHop], host: String, round: Int) {
+        let date = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
+        let fileDate = formatter.string(from: date)
+
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "NetUtil-Traceroute-\(host)-\(fileDate).pdf"
+        panel.allowedContentTypes = [.pdf]
+
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+
+            let reportView = TraceroutePDFReportView(hops: hops, host: host, round: round, generatedDate: date)
+            let hostingView = NSHostingView(rootView: reportView)
+            let rowH: CGFloat = 26
+            let totalHeight = 280 + CGFloat(hops.count) * rowH
+            hostingView.frame = NSRect(x: 0, y: 0, width: 560, height: totalHeight)
+            let data = hostingView.dataWithPDF(inside: hostingView.bounds)
+            try? data.write(to: url)
+        }
+    }
+
     // MARK: - Save panel helpers
 
     static func save(string: String, defaultName: String, ext: String) {
@@ -564,11 +588,119 @@ struct HTTPLatencyPDFReportView: View {
         case .download: return .green
         }
     }
-    
+
     private func formatBytes(_ bytes: Int64) -> String {
         let kb = Double(bytes) / 1024
         if kb < 1 { return "\(bytes) B" }
         if kb < 1024 { return String(format: "%.1f KB", kb) }
         return String(format: "%.2f MB", kb / 1024)
+    }
+}
+
+// MARK: - Traceroute PDF Report View
+
+struct TraceroutePDFReportView: View {
+    let hops: [TracerouteHop]
+    let host: String
+    let round: Int
+    let generatedDate: Date
+
+    @AppStorage("rttWarnThreshold") private var rttWarn: Double = 20.0
+    @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            PDFHeaderView(title: "Traceroute Report", subtitle: "HOP-BY-HOP PATH ANALYSIS", date: generatedDate)
+
+            // Summary row
+            HStack(spacing: 12) {
+                summaryBox("TARGET",     host)
+                summaryBox("HOPS",       "\(hops.count)")
+                summaryBox("ROUNDS",     "\(round)")
+                summaryBox("BOTTLENECKS","\(hops.filter(\.isBottleneck).count)")
+                summaryBox("MAX LOSS",   String(format: "%.1f%%", hops.map(\.loss).max() ?? 0))
+            }
+
+            PDFSectionHeader(title: "Hop-by-Hop Analysis")
+
+            // Table header
+            HStack(spacing: 0) {
+                colH("#",         36)
+                colH("Host / IP", 9999)
+                colH("Location",  110)
+                colH("Sent",       40)
+                colH("Loss%",      50)
+                colH("Min ms",     60)
+                colH("Avg ms",     60)
+                colH("Max ms",     60)
+                colH("StdDev",     60)
+            }
+            .padding(.vertical, 6).padding(.horizontal, 10)
+            .background(Color.secondary.opacity(0.12))
+            .cornerRadius(4)
+
+            // Rows
+            VStack(spacing: 0) {
+                ForEach(Array(hops.enumerated()), id: \.element.id) { idx, hop in
+                    HStack(spacing: 0) {
+                        colV("\(hop.hop)",                                             36,   .secondary)
+                        colV(hop.displayHost,                                          9999, .primary, isBold: true)
+                        colV(hop.geo?.shortLabel ?? (hop.isPrivateIP ? "Private" : "—"), 110, .secondary)
+                        colV("\(hop.sent)",                                             40,  .secondary)
+                        colV(String(format: "%.0f%%", hop.loss),                        50,  hop.loss > 0 ? .red : .secondary)
+                        colV(hop.minRtt.map { String(format: "%.1f", $0) } ?? "—",     60,  .primary)
+                        colV(hop.avgRtt.map { String(format: "%.1f", $0) } ?? "—",     60,  avgColor(hop))
+                        colV(hop.maxRtt.map { String(format: "%.1f", $0) } ?? "—",     60,  .primary)
+                        colV(hop.jitter.map { String(format: "±%.1f", $0) } ?? "—",    60,  .secondary)
+                    }
+                    .padding(.vertical, 5).padding(.horizontal, 10)
+                    .background(idx.isMultiple(of: 2) ? Color.secondary.opacity(0.03) : Color.clear)
+                }
+            }
+            .background(Color.secondary.opacity(0.04))
+            .cornerRadius(6)
+
+            Spacer()
+            PDFFooterInfo()
+        }
+        .padding(28)
+        .background(Color(.windowBackgroundColor))
+    }
+
+    private func summaryBox(_ label: String, _ value: String) -> some View {
+        VStack(spacing: 3) {
+            Text(label).font(.system(size: 8, weight: .black)).foregroundColor(.secondary)
+            Text(value).font(.system(size: 13, weight: .bold, design: .monospaced))
+        }
+        .frame(maxWidth: .infinity).padding(.vertical, 8)
+        .background(Color.secondary.opacity(0.06)).cornerRadius(6)
+    }
+
+    @ViewBuilder
+    private func colH(_ title: String, _ width: CGFloat) -> some View {
+        let t = Text(title.uppercased())
+            .font(.system(size: 8, weight: .black)).foregroundColor(.secondary)
+        if width > 500 {
+            t.frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            t.frame(width: width, alignment: .leading)
+        }
+    }
+
+    @ViewBuilder
+    private func colV(_ value: String, _ width: CGFloat, _ color: Color, isBold: Bool = false) -> some View {
+        let t = Text(value)
+            .font(.system(size: 9, weight: isBold ? .semibold : .regular))
+            .foregroundColor(color).lineLimit(1).truncationMode(.tail)
+        if width > 500 {
+            t.frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            t.frame(width: width, alignment: .leading)
+        }
+    }
+
+    private func avgColor(_ hop: TracerouteHop) -> Color {
+        guard let avg = hop.avgRtt else { return .secondary }
+        return avg < rttWarn ? .green : avg < rttCrit ? .orange : .red
     }
 }

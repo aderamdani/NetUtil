@@ -20,6 +20,14 @@ class TracerouteViewModel: ObservableObject {
     @Published var error: String?
     @Published var round = 0
     @Published var currentHost: String = ""
+    @Published var startTime: Date?
+
+    var pathAvgRtt: Double? {
+        let avgs = hops.compactMap(\.avgRtt)
+        guard !avgs.isEmpty else { return nil }
+        return avgs.reduce(0, +) / Double(avgs.count)
+    }
+    var pathLoss: Double { hops.map(\.loss).max() ?? 0 }
 
     private var interval: Double = 5
     private var maxHops: Int = 30
@@ -44,6 +52,7 @@ class TracerouteViewModel: ObservableObject {
         rawLines.removeAll()
         error = nil
         round = 0
+        startTime = Date()
         targetHost = host
         currentHost = host
         self.maxHops = maxHops

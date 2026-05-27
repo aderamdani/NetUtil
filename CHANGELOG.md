@@ -4,6 +4,28 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.0.0] — 2026-05-27
+
+### Added
+- **PingPlotter-Style Live Graph**: New default Traceroute view mode — heatmap grid where each row = one hop, each column = one round. Cell color encodes RTT (green/orange/red intensity), solid dark red = packet loss. Select any row to expand RTT area chart inline.
+- **5 Traceroute View Modes**: Live Graph · Hops Table · Timeline · Route Map · Raw Console.
+- **Sortable Hops Table**: Click any column header (# / Host / Location / Sent / Loss% / Min / Avg / Max / StdDev) to sort ascending/descending.
+- **Complete Hop Stats**: Added Min, Max, StdDev columns. Renamed Jitter → StdDev for accuracy.
+- **Copy Hop**: Per-row copy button copies hop stats to clipboard.
+- **PDF Export for Traceroute**: Branded PDF report with hop-by-hop analysis table, summary stats, and timestamps.
+- **Improved IP Info Card**: Full geo section (flag, city, country, ISP, hostname, timezone, postal, coordinates), 7-cell performance grid (Sent/Recv/Loss/Min/Avg/Max/StdDev), Public/Private badge.
+- **Path Summary Stats**: Path Avg RTT, Path Loss%, Bottleneck count, Round counter as StatCards.
+- **Inline Detail Chart**: Click any hop in Hops Table, Live Graph, or Timeline to expand RTT history chart with threshold rule lines (Warn/Crit markers).
+- **Loading State**: Shows progress indicator while initial trace is running.
+
+### Improved
+- **Route Map**: Numbered pin labels (1–N) instead of "Hop N" annotations; shadow glow color matches hop health.
+- **Timeline**: Shows Avg RTT + Loss% per hop in trailing column; inline chart expansion on row tap.
+- **Route Health Banner**: Added description subtitle explaining the status.
+- **Settings (v1.9.0)**: Already released — sidebar navigation, live RTT preview bar, complete coverage.
+
+---
+
 ## [1.9.0] — 2026-05-27
 
 ### Improved
