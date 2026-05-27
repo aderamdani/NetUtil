@@ -61,6 +61,7 @@ struct TracerouteHop: Identifiable {
     }
 
     var sent: Int { samples.count }
+    var recv: Int { samples.filter { $0.rtt != nil }.count }
 
     var loss: Double {
         guard !samples.isEmpty else { return 0 }

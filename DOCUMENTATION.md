@@ -39,14 +39,15 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 ### 🌐 Connectivity & Latency
 - **Ping**: Live RTT chart with packet loss bars, jitter analysis, RTT distribution histograms, and configurable audio feedback ("Beep on Loss"). Supports custom packet sizes and auto-stop safety logic. Export via PDF or CSV.
 - **Multi-Ping**: Monitor multiple hosts simultaneously with live sparklines, color-coded stability indicators, and custom host aliases. Consolidated PDF report for all hosts.
-- **Traceroute**: Comprehensive hop-by-hop analysis with four view modes:
-  - **Hops Table**: Per-hop columns — jitter, loss%, sparkline bar graph, geo location.
-  - **Timeline View**: Canvas-drawn RTT bars per hop (last 60 samples). Tap a hop to expand a detail RTT area chart.
-  - **Route Map**: MapKit-powered interactive map. Each geo-resolved hop is a numbered colored pin connected by polyline. Tap pin → opens IP Info Card.
-  - **Raw**: Plain traceroute CLI output.
-  - **Bottleneck Detection**: Auto-flags hops where RTT delta > 30 ms vs. previous hop (and avg RTT > 50 ms). Shown as red bolt badge in table, red pin on map, chip in path summary strip.
-  - **IP Info Card**: Tap ⓘ per hop — shows Private/Public classification, full geolocation (flag, city, country, ISP, hostname, timezone, postal, coordinates), and RTT performance grid (Avg/Min/Max, Jitter, Loss%, Sent).
-  - **Route Health Banner**: Automatic Critical / Degraded / Healthy path quality assessment.
+- **Traceroute**: Comprehensive hop-by-hop path analysis with five view modes:
+  - **Live Graph** (default): PingPlotter-style heatmap — rows = hops, columns = rounds, cell color encodes RTT intensity, dark red = loss. Select a row to expand RTT history chart inline.
+  - **Hops Table**: Sortable columns — #, Host/IP, Location, Sent, Loss%, Min, Avg, Max, StdDev, sparkline. Click column header to sort. Per-row copy and ⓘ buttons.
+  - **Timeline**: Stacked per-hop bar charts (last 60 rounds). Tap row to expand inline detail chart.
+  - **Route Map**: MapKit-powered interactive map. Numbered colored pins connected by polyline. Tap a pin → opens IP Info Card.
+  - **Raw**: Plain traceroute CLI output with auto-scroll.
+  - **Bottleneck Detection**: Auto-flags hops where RTT delta > 30 ms vs. previous hop (and avg RTT > 50 ms). Shown as red border in heatmap, red bolt badge in table, red pin on map.
+  - **IP Info Card**: Full geo section (flag, city, country, ISP, hostname, timezone, postal, coordinates) + 7-stat performance grid (Sent/Recv/Loss/Min/Avg/Max/StdDev) + Public/Private badge.
+  - **Route Health Banner**: Automatic Critical / Degraded / Healthy path quality assessment with description.
 - **HTTP Latency**: Phase-by-phase breakdown (DNS, TCP, TLS, TTFB, Download) using `URLSessionTaskMetrics`.
 
 ### 🔍 Discovery & Analysis
@@ -117,5 +118,5 @@ Refer to these internal documents for specific guidance:
 
 ---
 
-*Documentation Version: 1.9.0 (May 2026)*
+*Documentation Version: 2.0.0 (May 2026)*
 *Primary Developer: Ade Ramdani*
