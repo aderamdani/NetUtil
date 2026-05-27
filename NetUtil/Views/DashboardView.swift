@@ -72,7 +72,7 @@ struct DashboardView: View {
                     gatewayChip(label: "PUBLIC IP", value: tools.externalIP)
                     if tools.isVPNActive {
                         Label("VPN ACTIVE", systemImage: "lock.shield.fill")
-                            .font(.system(size: 9, weight: .black))
+                            .font(.system(size: 9, weight: .bold))
                             .foregroundColor(.green)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
@@ -94,7 +94,7 @@ struct DashboardView: View {
     
     private func gatewayChip(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 1) {
-            Text(label).font(.system(size: 8, weight: .black)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 9, weight: .semibold)).foregroundColor(.secondary)
             Text(value).font(.system(size: 11, weight: .semibold, design: .monospaced))
         }
         .padding(.trailing, 12)
@@ -102,13 +102,12 @@ struct DashboardView: View {
     
     private func healthGauge(label: String, value: String, color: Color) -> some View {
         VStack(alignment: .trailing, spacing: 2) {
-            Text(label).font(.system(size: 9, weight: .black)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 9, weight: .semibold)).foregroundColor(.secondary)
             Text(value).font(.system(size: 14, weight: .bold, design: .monospaced)).foregroundColor(color)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color.secondary.opacity(0.05))
-        .cornerRadius(8)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
     }
 
     private func sectionHeader(_ title: String, icon: String) -> some View {

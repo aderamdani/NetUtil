@@ -40,14 +40,13 @@ struct WhoisView: View {
                                 Spacer()
                                 HStack(spacing: 8) {
                                     Image(systemName: "line.3.horizontal.decrease.circle").foregroundColor(.secondary)
-                                    TextField("Filter...", text: $filterText).textFieldStyle(.plain).font(.system(size: 12, weight: .semibold)).frame(width: 150)
+                                    TextField("Filter...", text: $filterText).textFieldStyle(.plain).font(.system(size: 12, weight: .medium)).frame(width: 150)
                                 }
-                                .padding(.horizontal, 10).padding(.vertical, 4).background(Color.secondary.opacity(0.08)).cornerRadius(8)
+                                .padding(.horizontal, 10).padding(.vertical, 4).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
                             }
                             
                             outputView
-                                .background(Color(.controlBackgroundColor).opacity(0.3))
-                                .cornerRadius(16).overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                         }
                     } else if !vm.isRunning {
                         emptyState

@@ -157,18 +157,17 @@ private struct SettingSection<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(title.uppercased())
-                .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.secondary)
-                .kerning(0.8)
-                .padding(.bottom, 6)
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.primary)
+                .padding(.bottom, 8)
             VStack(spacing: 0) {
                 content
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(Color(.controlBackgroundColor))
-            .cornerRadius(10)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 }

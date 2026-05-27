@@ -117,7 +117,7 @@ struct HTTPLatencyView: View {
             let maxMs = r.phases.map(\.endMs).max() ?? r.totalMs
             ForEach(r.phases) { phase in
                 HStack(spacing: 12) {
-                    Text(phase.phase.rawValue.uppercased()).font(.system(size: 9, weight: .semibold)).foregroundColor(.secondary).frame(width: 70, alignment: .trailing)
+                    Text(phase.phase.rawValue.capitalized).font(.system(size: 10, weight: .semibold)).foregroundColor(.secondary).frame(width: 70, alignment: .trailing)
                     GeometryReader { geo in
                         let x = geo.size.width * CGFloat(phase.startMs / max(maxMs, 1))
                         let w = max(4, geo.size.width * CGFloat(phase.durationMs / max(maxMs, 1)))
