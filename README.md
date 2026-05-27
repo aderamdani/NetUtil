@@ -15,9 +15,9 @@
 
 ---
 
-### 🌟 Core Diagnostics
+### Core Diagnostics
 
-**NetUtil** provides 14 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
+NetUtil provides 14 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
 
 *   **Bento Dashboard**: A dynamic mission control featuring live sparklines, pulsing activity indicators, and real-time CPU/RAM gauges.
 *   **Advanced Ping**: Beyond ICMP. Visualizes latency history, analyzes jitter, and provides GitHub-style health strips.
@@ -32,7 +32,7 @@
 
 ---
 
-### 🎨 Native Mac Polish
+### Native Mac Polish
 
 NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slop" or web-style designs. 
 
@@ -43,7 +43,8 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 
 ---
 
-### 🚀 Technical Excellence
+### Technical Excellence
+
 *   **Swift 6 & SwiftUI**: Built exclusively for macOS 15+ ensuring maximum efficiency and minimal battery footprint.
 *   **Zero Dependencies**: No third-party frameworks or bloated SDKs. Pure Apple APIs (`Network`, `CoreWLAN`, `MapKit`).
 *   **Apple Silicon Native**: Hardware-accelerated for M1/M2/M3/M4 chips.
@@ -51,7 +52,7 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 
 ---
 
-### 🛠 Installation
+### Installation
 
 1.  Visit the **[Releases](https://github.com/aderamdani/NetUtil/releases)** page.
 2.  Download the latest `NetUtil-vX.X.X.dmg`.
@@ -60,11 +61,11 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 
 ---
 
-## 🇮🇩 Bahasa Indonesia
+## Bahasa Indonesia
 
 **NetUtil** adalah utilitas macOS berperforma tinggi yang dirakit secara manual (*handcrafted*) untuk para *network engineer*. Menggabungkan kekuatan alat CLI klasik dengan antarmuka SwiftUI yang simetris dan modern. Dirancang dengan prinsip "Apple Artisan", NetUtil menghadirkan diagnosa jaringan tanpa kompromi, mengedepankan analitik yang padat data dan bebas dari desain *web* generik.
 
-### 🌟 Fitur Utama
+### Fitur Utama
 *   **Dashboard Bento**: Pusat kendali dengan *sparkline* hidup, indikator aktivitas yang berdenyut, serta pantauan CPU/RAM secara *real-time*.
 *   **Advanced Ping & Multi-Ping**: Visualisasi riwayat latensi, analisis *jitter*, dan pemantauan banyak *server* sekaligus dengan laporan PDF terpadu.
 *   **Traceroute Geografis**: Deteksi *hop-by-hop* dengan Peta Rute, grafik *timeline*, dan deteksi *bottleneck* otomatis.
@@ -78,15 +79,17 @@ Didesain 100% menggunakan **Swift 6 & SwiftUI** tanpa *framework* pihak ketiga m
 
 ---
 
-## 📄 Documentation & Links
+## Documentation & Links
+
 *   **[DOCUMENTATION.md](./DOCUMENTATION.md)** - Technical details and architecture guide.
 *   **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Guidelines for contributing to the project.
 *   **[SECURITY.md](./SECURITY.md)** - Vulnerability reporting and security policy.
 
-## ⚖️ License
+## License
+
 This project is licensed under the MIT License - see the **[LICENSE](./LICENSE)** file for details.
 
 <div align="center">
   <br>
-  <sub>Built with ❤️ by Ade Ramdani. Native Swift. Zero Third-Party Dependencies.</sub>
+  <sub>Built by Ade Ramdani. Native Swift. Zero Third-Party Dependencies.</sub>
 </div>
