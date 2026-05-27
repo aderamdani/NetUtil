@@ -85,6 +85,7 @@ private struct SidebarRow: View {
             .padding(.vertical, 7)
             .background(isSelected ? Color.accentColor : Color.clear)
             .cornerRadius(7)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .focusEffectDisabled()
