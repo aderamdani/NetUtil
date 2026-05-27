@@ -50,21 +50,45 @@ enum Exporter {
             printInfo.verticalPagination = .automatic
             printInfo.leftMargin = 40
             printInfo.rightMargin = 40
-            printInfo.topMargin = 40
-            printInfo.bottomMargin = 40
             
-            // Create a dedicated view for PDF rendering
-            let reportView = PingPDFReportView(results: results, stats: stats, host: host, resolvedIP: resolvedIP, generatedDate: date)
+            // Unified Report View based on Multi-Ping reference
+            let reportView = SinglePingPDFReportView(results: results, stats: stats, host: host, resolvedIP: resolvedIP, generatedDate: date)
             let hostingView = NSHostingView(rootView: reportView)
             
-            // Calculate height based on number of rows (simple estimate)
-            let rowHeight: CGFloat = 20
-            let headerHeight: CGFloat = 250
-            let totalHeight = headerHeight + (CGFloat(min(results.count, 100)) * rowHeight)
+            let totalHeight = 350 + (CGFloat(min(results.count, 100)) * 25)
+            hostingView.frame = NSRect(x: 0, y: 0, width: 550, height: totalHeight)
             
-            hostingView.frame = NSRect(x: 0, y: 0, width: 500, height: totalHeight)
+            let data = hostingView.dataWithPDF(inside: hostingView.bounds)
+            try? data.write(to: url)
+        }
+    }
+
+    @MainActor
+    static func saveMultiPingPDF(slots: [PingSlot]) {
+        let date = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
+        let fileDate = formatter.string(from: date)
+        
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "NetUtil-MultiPing-Report-\(fileDate).pdf"
+        panel.allowedContentTypes = [.pdf]
+        
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
             
-            // Use NSView's dataWithPDFInsideRect
+            let printInfo = NSPrintInfo.shared
+            printInfo.horizontalPagination = .fit
+            printInfo.verticalPagination = .automatic
+            printInfo.leftMargin = 40
+            printInfo.rightMargin = 40
+            
+            let reportView = MultiPingPDFReportView(slots: slots, generatedDate: date)
+            let hostingView = NSHostingView(rootView: reportView)
+            
+            let totalHeight = 300 + (CGFloat(slots.count) * 40)
+            hostingView.frame = NSRect(x: 0, y: 0, width: 550, height: totalHeight)
+            
             let data = hostingView.dataWithPDF(inside: hostingView.bounds)
             try? data.write(to: url)
         }
@@ -136,20 +160,16 @@ enum Exporter {
     }
 }
 
-// MARK: - PDF View Component
+// MARK: - Common PDF Components
 
-struct PingPDFReportView: View {
-    let results: [PingResult]
-    let stats: PingStats
-    let host: String
-    let resolvedIP: String?
-    let generatedDate: Date
+struct PDFHeaderView: View {
+    let title: String
+    let subtitle: String
+    let date: Date
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Header with Logo
             HStack(alignment: .center, spacing: 15) {
-                // App Logo Placeholder (using Image(nsImage:))
                 Image(nsImage: NSApp.applicationIconImage)
                     .resizable()
                     .frame(width: 48, height: 48)
@@ -159,7 +179,7 @@ struct PingPDFReportView: View {
                     Text("NetUtil")
                         .font(.system(size: 28, weight: .black))
                         .foregroundColor(.accentColor)
-                    Text("Professional Network Diagnostics")
+                    Text(subtitle)
                         .font(.system(size: 10, weight: .bold))
                         .foregroundColor(.secondary)
                         .kerning(1)
@@ -171,127 +191,221 @@ struct PingPDFReportView: View {
                     Text("REPORT GENERATED")
                         .font(.system(size: 8, weight: .black))
                         .foregroundColor(.secondary)
-                    Text(generatedDate.formatted(date: .complete, time: .complete))
+                    Text(date.formatted(date: .complete, time: .complete))
                         .font(.system(size: 10, weight: .bold))
                     Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.7.2")")
                         .font(.system(size: 8, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }
-            
             Divider()
+        }
+    }
+}
+
+struct PDFSectionHeader: View {
+    let title: String
+    var body: some View {
+        Text(title.uppercased())
+            .font(.system(size: 9, weight: .black))
+            .foregroundColor(.secondary)
+            .padding(.top, 10)
+    }
+}
+
+struct PDFFooterInfo: View {
+    var body: some View {
+        Text("Generated by NetUtil for macOS — Native Infrastructure Monitoring.")
+            .font(.system(size: 7))
+            .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, 20)
+    }
+}
+
+// MARK: - Single Ping PDF Report
+
+struct SinglePingPDFReportView: View {
+    let results: [PingResult]
+    let stats: PingStats
+    let host: String
+    let resolvedIP: String?
+    let generatedDate: Date
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            PDFHeaderView(title: "Ping Report", subtitle: "Diagnostic Endpoint Measurement", date: generatedDate)
             
-            // Title Section
             VStack(alignment: .leading, spacing: 8) {
-                Text("Ping Diagnostics Result")
-                    .font(.system(size: 20, weight: .bold))
-                
+                Text("Diagnostic Result")
+                    .font(.system(size: 22, weight: .bold))
                 HStack(spacing: 12) {
                     Label(host, systemImage: "link")
-                    if let ip = resolvedIP {
-                        Text("(\(ip))")
-                    }
+                    if let ip = resolvedIP { Text("(\(ip))") }
                 }
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             }
-            .padding(.vertical, 10)
             
-            // Stats Summary Grid
-            VStack(alignment: .leading, spacing: 12) {
-                Text("SUMMARY STATISTICS")
-                    .font(.system(size: 9, weight: .black))
-                    .foregroundColor(.secondary)
-                
-                HStack(spacing: 40) {
-                    PDFStatItem(label: "Packets Sent", value: "\(stats.transmitted)")
-                    PDFStatItem(label: "Packets Recv", value: "\(stats.received)")
-                    PDFStatItem(label: "Packet Loss", value: String(format: "%.1f%%", stats.loss))
-                    PDFStatItem(label: "Jitter", value: String(format: "%.2fms", stats.jitter))
-                }
-                
-                HStack(spacing: 40) {
-                    PDFStatItem(label: "Min RTT", value: String(format: "%.2fms", stats.minRtt))
-                    PDFStatItem(label: "Avg RTT", value: String(format: "%.2fms", stats.avgRtt))
-                    PDFStatItem(label: "Max RTT", value: String(format: "%.2fms", stats.maxRtt))
-                }
+            PDFSectionHeader(title: "Summary Statistics")
+            HStack(spacing: 30) {
+                PDFSummaryBox(label: "Packets Sent", value: "\(stats.transmitted)")
+                PDFSummaryBox(label: "Packets Recv", value: "\(stats.received)")
+                PDFSummaryBox(label: "Loss %", value: String(format: "%.1f%%", stats.loss), color: stats.loss > 0 ? .red : .primary)
+                PDFSummaryBox(label: "Jitter", value: String(format: "%.2fms", stats.jitter))
+                PDFSummaryBox(label: "Avg RTT", value: String(format: "%.2fms", stats.avgRtt))
             }
             .padding(16)
             .background(Color.secondary.opacity(0.05))
-            .cornerRadius(8)
+            .cornerRadius(10)
             
-            // Data Table
-            VStack(alignment: .leading, spacing: 10) {
-                Text("DETAILED MEASUREMENTS")
-                    .font(.system(size: 9, weight: .black))
-                    .foregroundColor(.secondary)
+            PDFSectionHeader(title: "Detailed Measurements (Last 100)")
+            VStack(spacing: 0) {
+                HStack {
+                    Text("SEQ").frame(width: 40, alignment: .leading)
+                    Text("STATUS").frame(width: 80, alignment: .leading)
+                    Text("RTT (MS)").frame(width: 80, alignment: .leading)
+                    Text("TIMESTAMP").frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                .font(.system(size: 8, weight: .black))
+                .padding(.vertical, 8)
+                .padding(.horizontal, 10)
+                .background(Color.secondary.opacity(0.1))
                 
-                VStack(spacing: 0) {
-                    // Table Header
+                ForEach(results.suffix(100)) { r in
                     HStack {
-                        Text("SEQ").frame(width: 40, alignment: .leading)
-                        Text("STATUS").frame(width: 80, alignment: .leading)
-                        Text("RTT (MS)").frame(width: 80, alignment: .leading)
-                        Text("TIMESTAMP").frame(maxWidth: .infinity, alignment: .trailing)
+                        Text("\(r.sequence)").frame(width: 40, alignment: .leading)
+                        Text(r.status == .success ? "SUCCESS" : "TIMEOUT")
+                            .foregroundColor(r.status == .success ? .green : .red)
+                            .font(.system(size: 8, weight: .bold))
+                            .frame(width: 80, alignment: .leading)
+                        Text(r.status == .success ? String(format: "%.3f", r.rtt) : "—")
+                            .frame(width: 80, alignment: .leading)
+                        Text(r.timestamp, format: .dateTime.hour().minute().second())
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                     }
-                    .font(.system(size: 8, weight: .bold))
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 8)
-                    .background(Color.secondary.opacity(0.1))
-                    
-                    ForEach(results.suffix(100)) { r in
-                        HStack {
-                            Text("\(r.sequence)").frame(width: 40, alignment: .leading)
-                            Text(r.status == .success ? "Success" : "Timeout")
-                                .foregroundColor(r.status == .success ? .green : .red)
-                                .frame(width: 80, alignment: .leading)
-                            Text(r.status == .success ? String(format: "%.3f", r.rtt) : "—")
-                                .frame(width: 80, alignment: .leading)
-                            Text(r.timestamp, format: .dateTime.hour().minute().second())
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        .font(.system(size: 8, design: .monospaced))
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 8)
-                        
-                        Divider().opacity(0.3)
-                    }
-                    
-                    if results.count > 100 {
-                        Text("... showing last 100 measurements ...")
-                            .font(.system(size: 7, weight: .bold))
-                            .foregroundColor(.secondary)
-                            .padding(.top, 10)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    }
+                    .font(.system(size: 8, design: .monospaced))
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 10)
+                    Divider().opacity(0.3)
                 }
             }
             
             Spacer(minLength: 20)
-            
-            // Footer
-            Text("Generated by NetUtil for macOS — Zero Telemetry, Private Diagnostics.")
-                .font(.system(size: 7))
-                .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center)
+            PDFFooterInfo()
         }
-        .padding(30)
-        .frame(width: 500) // Fixed width for A4-style portrait rendering
+        .padding(35)
+        .frame(width: 550)
         .background(Color.white)
     }
 }
 
-struct PDFStatItem: View {
+struct PDFSummaryBox: View {
     let label: String
     let value: String
+    var color: Color = .primary
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(label.uppercased())
-                .font(.system(size: 7, weight: .bold))
+                .font(.system(size: 7, weight: .black))
                 .foregroundColor(.secondary)
             Text(value)
-                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                .foregroundColor(color)
         }
+    }
+}
+
+// MARK: - Multi-Ping PDF Report
+
+struct MultiPingPDFReportView: View {
+    let slots: [PingSlot]
+    let generatedDate: Date
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            PDFHeaderView(title: "Multi-Ping", subtitle: "Consolidated Infrastructure Report", date: generatedDate)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Infrastructure Status")
+                    .font(.system(size: 22, weight: .bold))
+                Text("Monitoring \(slots.count) active network endpoints.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            PDFSectionHeader(title: "Overview")
+            HStack(spacing: 40) {
+                PDFSummaryBox(label: "Targets", value: "\(slots.count)")
+                let avgLoss = slots.isEmpty ? 0 : slots.map(\.loss).reduce(0, +) / Double(slots.count)
+                PDFSummaryBox(label: "Avg Global Loss", value: String(format: "%.1f%%", avgLoss), color: avgLoss > 10 ? .red : .primary)
+                let healthyCount = slots.filter { $0.loss == 0 }.count
+                PDFSummaryBox(label: "Healthy Nodes", value: "\(healthyCount)", color: healthyCount == slots.count ? .green : .primary)
+            }
+            .padding(16)
+            .background(Color.secondary.opacity(0.05))
+            .cornerRadius(10)
+
+            PDFSectionHeader(title: "Endpoint Details")
+            VStack(spacing: 0) {
+                HStack {
+                    Text("HOST / ENDPOINT").frame(maxWidth: .infinity, alignment: .leading)
+                    Text("SENT").frame(width: 40)
+                    Text("LOSS").frame(width: 50)
+                    Text("AVG RTT").frame(width: 70)
+                    Text("STATUS").frame(width: 80, alignment: .trailing)
+                }
+                .font(.system(size: 8, weight: .black))
+                .padding(.vertical, 8)
+                .padding(.horizontal, 10)
+                .background(Color.secondary.opacity(0.1))
+                
+                ForEach(slots) { slot in
+                    HStack {
+                        Text(slot.host)
+                            .font(.system(size: 9, weight: .bold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Text("\(slot.sent)").frame(width: 40)
+                        
+                        Text(String(format: "%.0f%%", slot.loss))
+                            .foregroundColor(slot.loss > 0 ? .red : .secondary)
+                            .frame(width: 50)
+                        
+                        Text(slot.avgRtt.map { String(format: "%.1f", $0) } ?? "—")
+                            .frame(width: 70)
+                        
+                        Text(interpretStatus(slot))
+                            .font(.system(size: 8, weight: .black))
+                            .foregroundColor(statusColor(slot))
+                            .frame(width: 80, alignment: .trailing)
+                    }
+                    .font(.system(size: 9, design: .monospaced))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 10)
+                    
+                    Divider().opacity(0.3)
+                }
+            }
+            
+            Spacer(minLength: 20)
+            PDFFooterInfo()
+        }
+        .padding(35)
+        .frame(width: 550)
+        .background(Color.white)
+    }
+    
+    private func statusColor(_ slot: PingSlot) -> Color {
+        if slot.loss >= 50 { return .red }
+        if slot.loss > 0 { return .orange }
+        return .green
+    }
+    
+    private func interpretStatus(_ slot: PingSlot) -> String {
+        if slot.loss >= 50 { return "CRITICAL" }
+        if slot.loss > 0 { return "DEGRADED" }
+        return "HEALTHY"
     }
 }
