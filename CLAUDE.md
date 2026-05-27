@@ -54,7 +54,7 @@ bash scripts/build_dmg.sh
 
 ## Feature Notes (per tool)
 
-### Dashboard (v1.7.2)
+### Dashboard (v2.0.0)
 - **Features**: Ultra-interactive hub with clickable cards, sparklines (RTT/RSSI), and system health badges (CPU/RAM).
 - **Network Identity Header**: Displays Hostname, Local IP, Public IP (fetched from ipify.org), and VPN Status (utun detection).
 - **IP Analysis**: Uses `IPAddressDetails` model for automated Class/Private/Netmask detection.
@@ -113,7 +113,7 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
 8. **GitHub Release**:
    `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X — <short title>" --notes "..."`
 
-### Ping (v1.7.2 Premium)
+### Ping (v2.0.0)
 - **Features**: Smart Interpretation header (Excellent/Stable/Congested) with dynamic icons; Health Strip (GitHub-style 100-packet stability bar).
 - **Chart**: Scrollable RTT history chart using `.chartScrollableAxes(.horizontal)`; supports packet selection for detail view; Avg RTT reference line.
 - **Audio Feedback**: Subtle "Tink" sound on packet loss (toggled via beep icon).

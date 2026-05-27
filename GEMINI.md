@@ -8,7 +8,7 @@ Specialized instructions for codebase conventions, UI standards, and release pro
 
 The Ping tool in NetUtil is a high-performance wrapper around `/sbin/ping`, utilizing `Process` and `Pipe` for real-time output capture and asynchronous regex parsing.
 
-### Current Architecture & UI/UX (v1.9.0)
+### Current Architecture & UI/UX (v2.0.0)
 - **Model**: `PingResult` (sequence, bytes, host, ttl, rtt, status, timestamp).
 - **ViewModel**: `@MainActor PingViewModel` (handles process lifecycle, unlimited timeout logic, and audio feedback via "Tink" system sound).
 - **UI Style**: 
