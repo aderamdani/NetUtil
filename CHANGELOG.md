@@ -4,6 +4,18 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.3.0] — 2026-05-28
+
+### Changed
+- **The Native Mac Polish**: Completely overhauled the entire application to eliminate web-centric "AI Slop" and embrace authentic macOS design patterns.
+- **Bento Box Dashboard**: Replaced the generic dashboard grid with a curated, dynamic Bento Box layout featuring live sparklines and pulsing activity indicators.
+- **Vibrant Materials**: Removed fake transparency colors and implemented native `.regularMaterial` across all containers to support dynamic wallpaper vibrancy.
+- **Flat Data Hierarchy**: Eliminated excessive box-in-box wrapping on data tables. Results now flow naturally with refined 0.5pt system dividers, matching native macOS utilities like Activity Monitor.
+- **Silent States & Data-Dense Typography**: Removed shouting ALL-CAPS headers and noisy empty states. Implemented a calmer typographic scale (`.headline`, `.subheadline`) and clinical, data-dense status indicators.
+- **Permanent Design Guidelines**: Enshrined the new "Native macOS Anti-Slop" rules into the project's AI context documentation to ensure all future updates automatically inherit this premium artisan aesthetic.
+
+---
+
 ## [2.2.1] — 2026-05-27
 
 ### Added

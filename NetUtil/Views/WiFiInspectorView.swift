@@ -8,41 +8,25 @@ struct WiFiInspectorView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // 1. STANDARD HEADER (Fixed Top)
-            controlBar
-                .padding(.bottom, 24)
+            controlBar.padding(.bottom, 24)
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 32) {
                     if let info = vm.info {
-                        // 2. INTERPRETATION HEADER
                         interpretationHeader(info)
+                        statsBar(info).padding(.bottom, 8)
                         
-                        // 3. STATS BAR
-                        statsBar(info)
-                        
-                        // 4. SIGNAL & DETAILS
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("SIGNAL STABILITY")
-                                .font(.system(size: 10, weight: .black))
-                                .foregroundColor(.secondary)
-                                .kerning(1)
-                            
+                        VStack(alignment: .leading, spacing: 16) {
                             if vm.rssiHistory.count > 1 {
+                                sectionHeader("Signal Stability")
                                 rssiSparkline
-                                    .padding(20)
-                                    .background(Color(.controlBackgroundColor).opacity(0.5))
-                                    .cornerRadius(12)
-                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
+                                    .padding(16)
+                                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
                             }
                         }
                         
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("NETWORK PARAMETERS")
-                                .font(.system(size: 10, weight: .black))
-                                .foregroundColor(.secondary)
-                                .kerning(1)
-                            
+                        VStack(alignment: .leading, spacing: 16) {
+                            sectionHeader("Network Parameters")
                             detailGrid(info)
                         }
                     } else {
@@ -54,53 +38,37 @@ struct WiFiInspectorView: View {
         .padding(32)
         .onAppear { vm.start() }
         .onDisappear { vm.stop() }
-        .sheet(isPresented: $showLearningGuide) {
-            wifiLearningGuideSheet
-        }
+        .sheet(isPresented: $showLearningGuide) { wifiLearningGuideSheet }
     }
 
     private var controlBar: some View {
         HStack(spacing: 12) {
-            // 1. Static Info (Visual Anchor)
             HStack(spacing: 10) {
-                Image(systemName: "wifi")
-                    .foregroundColor(.accentColor)
-                Text(vm.info?.ssid ?? "Searching...")
-                    .font(.system(size: 14, weight: .bold))
+                Image(systemName: "wifi").foregroundColor(.accentColor)
+                Text(vm.info?.ssid ?? "Searching...").font(.headline)
             }
-            .padding(.horizontal, 16)
-            .frame(height: 38)
-            .background(Color.accentColor.opacity(0.1))
-            .cornerRadius(8)
-            .frame(width: 250, alignment: .leading)
+            .padding(.horizontal, 16).frame(height: 38).background(Color.accentColor.opacity(0.1)).cornerRadius(8).frame(width: 250, alignment: .leading)
 
-            // 2. Variable Settings (Centered)
             HStack(spacing: 8) {
-                Text("Update:").font(.system(size: 11, weight: .bold)).foregroundColor(.secondary)
-                Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
-                    .foregroundColor(.secondary)
+                Text("Updated").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
+                Text(vm.lastUpdated.formatted(date: .omitted, time: .standard)).font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
             }
 
             Spacer()
 
-            // 3. Action Group
             Button(action: { vm.refresh() }) {
-                Label("Refresh", systemImage: "arrow.clockwise")
-                    .font(.system(size: 13, weight: .semibold))
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.clockwise")
+                    Text("Refresh")
+                }.font(.system(size: 13, weight: .medium))
+            }.buttonStyle(.bordered)
 
-            Button { showLearningGuide = true } label: {
-                Image(systemName: "book.fill").font(.system(size: 14))
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .help("Wi-Fi Analytics Guide")
+            Button { showLearningGuide = true } label: { Image(systemName: "questionmark.circle") }.buttonStyle(.borderless)
         }
     }
     
+    private func sectionHeader(_ title: String) -> some View { Text(title).font(.headline).foregroundColor(.primary) }
+
     private func interpretationHeader(_ info: WiFiInfo) -> some View {
         HStack(alignment: .center, spacing: 12) {
             let rssi = info.rssi ?? -100
@@ -110,15 +78,11 @@ struct WiFiInspectorView: View {
                 return ("Weak Signal", "Connection may be unstable or slow.", "wifi.exclamationmark", .red)
             }()
             
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-            
+            Image(systemName: icon).font(.title2).foregroundColor(color)
             VStack(alignment: .leading, spacing: 2) {
                 Text(status).font(.headline)
-                Text(desc).font(.caption).foregroundColor(.secondary)
+                Text(desc).font(.subheadline).foregroundColor(.secondary)
             }
-            
             Spacer()
         }
         .padding(.bottom, 8)
@@ -126,23 +90,19 @@ struct WiFiInspectorView: View {
 
     private func statsBar(_ info: WiFiInfo) -> some View {
         HStack(spacing: 12) {
-            if let rssi = info.rssi {
-                StatCard(title: "SIGNAL (RSSI)", value: "\(rssi)", unit: "dBm", icon: "waveform", color: signalColor(rssi))
-            }
-            if let noise = info.noise, let rssi = info.rssi {
-                StatCard(title: "SNR", value: "\(rssi - noise)", unit: "dB", icon: "shield.checkerboard", color: snrColor(rssi - noise))
-            }
-            StatCard(title: "BAND", value: info.band ?? "Unknown", icon: "antenna.radiowaves.left.and.right")
+            if let rssi = info.rssi { StatCard(title: "Signal (RSSI)", value: "\(rssi)", unit: "dBm", icon: "waveform", color: signalColor(rssi)) }
+            if let noise = info.noise, let rssi = info.rssi { StatCard(title: "SNR", value: "\(rssi - noise)", unit: "dB", icon: "shield.checkerboard", color: snrColor(rssi - noise)) }
+            StatCard(title: "Band", value: info.band ?? "Unknown", icon: "antenna.radiowaves.left.and.right")
             Spacer()
         }
     }
 
     private var rssiSparkline: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("RSSI HISTORY").font(.system(size: 9, weight: .black)).foregroundColor(.secondary)
+                Text("History").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
                 Spacer()
-                Text("\(vm.rssiHistory.count) samples").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                Text("\(vm.rssiHistory.count) samples").font(.system(size: 11)).foregroundColor(.secondary)
             }
             
             GeometryReader { geo in
@@ -163,25 +123,21 @@ struct WiFiInspectorView: View {
                         else { path.addLine(to: CGPoint(x: x, y: y)) }
                     }
                 }
-                .stroke(signalColor(history.last), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                .stroke(signalColor(history.last), style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
 
                 if let last = history.last {
                     let x = w
                     let ratio = CGFloat((Double(last) - minVal) / range)
                     let y = h - (ratio * (h - 4)) - 2
-                    Circle()
-                        .fill(signalColor(last))
-                        .frame(width: 8, height: 8)
-                        .position(x: x - 4, y: y)
+                    Circle().fill(signalColor(last)).frame(width: 6, height: 6).position(x: x - 3, y: y)
                 }
             }
-            .frame(height: 60)
+            .frame(height: 50)
         }
     }
 
     private func detailGrid(_ info: WiFiInfo) -> some View {
-        let channelStr = [info.channel.map { "\($0)" }, info.band]
-            .compactMap { $0 }.joined(separator: " · ")
+        let channelStr = [info.channel.map { "\($0)" }, info.band].compactMap { $0 }.joined(separator: " · ")
         let items: [(String, String?, String)] = [
             ("Channel",      channelStr.isEmpty ? nil : channelStr, "number.square"),
             ("Security",     info.security, "lock.shield"),
@@ -193,30 +149,13 @@ struct WiFiInspectorView: View {
 
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             ForEach(items, id: \.0) { label, value, icon in
-                if let value {
-                    WiFiDetailCard(label: label, value: value, icon: icon)
-                }
+                if let value { WiFiDetailCard(label: label, value: value, icon: icon) }
             }
         }
     }
 
     private var noWiFiState: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            ZStack {
-                Circle().fill(Color.accentColor.opacity(0.1)).frame(width: 80, height: 80)
-                Image(systemName: "wifi.slash").font(.system(size: 32)).foregroundColor(.accentColor)
-            }
-            Text("No Wi-Fi Connection")
-                .font(.title3.bold())
-            Text("Please ensure Wi-Fi is enabled and connected to a network.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 300)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        VStack { Spacer(); Text("No Wi-Fi Connection").font(.headline).foregroundColor(.secondary); Spacer() }.frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func signalColor(_ rssi: Int?) -> Color {
@@ -234,32 +173,14 @@ struct WiFiInspectorView: View {
     
     private var wifiLearningGuideSheet: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Wi-Fi Analytics Guide").font(.title2.bold())
-                    Text("Learn how to audit wireless performance.").font(.subheadline).foregroundColor(.secondary)
-                }
-                Spacer()
-                Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent)
-            }
-            .padding(24)
-            
+            HStack { Text("Wi-Fi Analytics Guide").font(.title2.bold()); Spacer(); Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent) }.padding(24)
             Divider()
-            
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    GuideSection(title: "Signal Strength (RSSI)", icon: "waveform") {
-                        Text("RSSI measures how well your device can hear a signal from a router. -30 dBm is perfect, while -80 dBm is unusable.")
-                    }
-                    
-                    GuideSection(title: "Noise & SNR", icon: "shield.checkerboard") {
-                        Text("SNR (Signal-to-Noise Ratio) tells you how much stronger the signal is compared to background noise. Aim for ≥ 25 dB for a stable connection.")
-                    }
-                }
-                .padding(24)
+                    GuideSection(title: "Signal Strength (RSSI)", icon: "waveform") { Text("RSSI measures how well your device can hear a signal.") }
+                }.padding(24)
             }
-        }
-        .frame(width: 500, height: 600)
+        }.frame(width: 500, height: 600)
     }
 }
 
@@ -267,20 +188,12 @@ struct WiFiDetailCard: View {
     let label: String
     let value: String
     let icon: String
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
-                Image(systemName: icon).foregroundColor(.accentColor).font(.system(size: 10))
-                Text(label.uppercased()).font(.system(size: 9, weight: .black)).foregroundColor(.secondary).kerning(0.5)
-            }
-            Text(value).font(.system(size: 12, weight: .bold, design: .monospaced)).lineLimit(1).textSelection(.enabled)
+            Text(label).font(.system(size: 10, weight: .medium)).foregroundColor(.secondary)
+            Text(value).font(.system(size: 12, design: .monospaced)).lineLimit(1).textSelection(.enabled)
         }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.secondary.opacity(0.05))
-        .cornerRadius(10)
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.secondary.opacity(0.1), lineWidth: 1))
+        .padding(14).frame(maxWidth: .infinity, alignment: .leading).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -329,7 +242,6 @@ class WiFiInspectorViewModel: ObservableObject {
         let rssi = iface.rssiValue()
         let noise = iface.noiseMeasurement()
         
-        // Channel/Band info
         var channelNum: Int? = nil
         var bandStr: String? = nil
         if let chan = iface.wlanChannel() {
@@ -342,40 +254,22 @@ class WiFiInspectorViewModel: ObservableObject {
             }
         }
         
-        // Security info
         let security: String = switch iface.security() {
-        case .none: "Open"
-        case .WEP: "WEP"
-        case .wpaPersonal: "WPA Personal"
-        case .wpa2Personal: "WPA2 Personal"
-        case .wpaEnterprise: "WPA Enterprise"
-        case .wpa2Enterprise: "WPA2 Enterprise"
-        case .dynamicWEP: "Dynamic WEP"
-        case .wpa3Personal: "WPA3 Personal"
-        case .wpa3Enterprise: "WPA3 Enterprise"
-        default: "Unknown"
+        case .none: "Open"; case .WEP: "WEP"; case .wpaPersonal: "WPA Personal"; case .wpa2Personal: "WPA2 Personal"
+        case .wpaEnterprise: "WPA Enterprise"; case .wpa2Enterprise: "WPA2 Enterprise"; case .dynamicWEP: "Dynamic WEP"
+        case .wpa3Personal: "WPA3 Personal"; case .wpa3Enterprise: "WPA3 Enterprise"; default: "Unknown"
         }
 
         self.lastUpdated = Date()
         self.info = WiFiInfo(
-            ssid: iface.ssid(),
-            bssid: iface.bssid(),
-            rssi: rssi,
-            noise: noise,
-            channel: channelNum,
-            band: bandStr,
-            security: security,
-            transmitRate: iface.transmitRate(),
-            countryCode: iface.countryCode(),
-            interfaceName: iface.interfaceName,
-            hardwareAddress: iface.hardwareAddress()
+            ssid: iface.ssid(), bssid: iface.bssid(), rssi: rssi, noise: noise, channel: channelNum, band: bandStr,
+            security: security, transmitRate: iface.transmitRate(), countryCode: iface.countryCode(),
+            interfaceName: iface.interfaceName, hardwareAddress: iface.hardwareAddress()
         )
 
         if rssi != 0 {
             rssiHistory.append(rssi)
-            if rssiHistory.count > Self.rssiHistoryLimit {
-                rssiHistory.removeFirst()
-            }
+            if rssiHistory.count > Self.rssiHistoryLimit { rssiHistory.removeFirst() }
         }
     }
 }
