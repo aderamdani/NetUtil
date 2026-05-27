@@ -144,6 +144,9 @@ To maintain a professional, "Apple Artisan" aesthetic, NEVER use AI-generated we
     - **Center**: Variable settings (Toggles, Pickers).
     - **Right**: Action Group: `[Report Menu]`, `[Start/Stop Button]`, `[Learning Guide (questionmark.circle)]`.
 
+### 6. No Decorative Emojis (Professional Tone)
+- **NEVER** use emojis in documentation files (`README.md`, `DOCUMENTATION.md`, `CHANGELOG.md`) or UI labels. Keep the tone clinical, enterprise-grade, and minimalist. Do not use generic AI-style excitement markers (🚀, 🌟).
+
 ---
 
 ## Coding Standards & Preferences
