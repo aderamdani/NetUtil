@@ -37,8 +37,8 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 - **Dashboard**: Home screen with live status cards for Ping, Multi-Ping, Port Scanner, Wi-Fi, Network Interfaces, Bandwidth, and DNS/SSL. Cards are interactive — clicking navigates to the tool. Pulsing green dot indicates active sessions.
 
 ### 🌐 Connectivity & Latency
-- **Ping**: Live RTT chart with packet loss bars, jitter analysis, RTT distribution histograms, and configurable audio feedback ("Beep on Loss"). Supports custom packet sizes and auto-stop safety logic.
-- **Multi-Ping**: Monitor multiple hosts simultaneously with live sparklines and color-coded stability indicators.
+- **Ping**: Live RTT chart with packet loss bars, jitter analysis, RTT distribution histograms, and configurable audio feedback ("Beep on Loss"). Supports custom packet sizes and auto-stop safety logic. Export via PDF or CSV.
+- **Multi-Ping**: Monitor multiple hosts simultaneously with live sparklines, color-coded stability indicators, and custom host aliases. Consolidated PDF report for all hosts.
 - **Traceroute**: Comprehensive hop-by-hop analysis with four view modes:
   - **Hops Table**: Per-hop columns — jitter, loss%, sparkline bar graph, geo location.
   - **Timeline View**: Canvas-drawn RTT bars per hop (last 60 samples). Tap a hop to expand a detail RTT area chart.
@@ -50,7 +50,7 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 - **HTTP Latency**: Phase-by-phase breakdown (DNS, TCP, TLS, TTFB, Download) using `URLSessionTaskMetrics`.
 
 ### 🔍 Discovery & Analysis
-- **Port Scanner**: High-speed TCP port scanner with customizable ranges and concurrency controls. Presets: Common / Well-known / All / Custom.
+- **Port Scanner**: High-speed TCP port scanner with customizable ranges and concurrency controls. Presets: Common / Well-known / All / Custom. Mini-card grid layout for results.
 - **SSL/TLS Inspector**: Full certificate chain analysis, expiry tracking, TLS version badge, and cipher suite verification.
 - **DNS Lookup**: Comprehensive query tool (A, AAAA, MX, TXT, NS, CNAME, SOA, PTR, ANY) using `dig`. Multiple server presets.
 - **WHOIS**: Structured key/value display of domain registration and ownership records, with inline filter.
@@ -60,6 +60,13 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 - **Network Interfaces**: All hardware interfaces via `getifaddrs()` — MAC, IPv4, IPv6, MTU, up/down status. State persists across navigation.
 - **Wi-Fi Inspector**: Signal analysis via CoreWLAN — SSID, BSSID, RSSI, SNR, channel, band, security, tx rate, RSSI sparkline. State persists across navigation.
 - **Route Table**: IPv4 and IPv6 routing rules via `netstat -rn`, with flag descriptions and live text filter.
+
+### ⚙️ Settings
+macOS System Settings–style sidebar navigation with four panes:
+- **General**: Default ping count/interval, auto-stop on consecutive loss, traceroute max hops, re-trace interval, max raw output lines.
+- **Thresholds**: RTT color-zone boundaries (good/warn/critical) with live animated preview bar. Packet loss alert threshold. Reset to Defaults button.
+- **Tools**: Per-tool timeouts and concurrency — Port Scanner (connect timeout, thread count), HTTP Latency (request timeout), SSL Inspector (connect timeout), Bandwidth Monitor (refresh interval).
+- **Privacy**: Geolocation toggle (ipinfo.io lookups in Traceroute), host history management, zero-telemetry disclosure.
 
 ---
 
@@ -78,24 +85,26 @@ cd NetUtil
 
 # Open in Xcode
 open NetUtil.xcodeproj
+
+# Build DMG (requires create-dmg)
+bash scripts/build_dmg.sh
 ```
 
-### CI/CD Workflow
-The project uses GitHub Actions for automated testing and delivery:
-1. **Swift CI**: Runs on every push/PR to ensure the code builds successfully.
-2. **Release Automation**: Triggered by pushing a version tag (e.g., `v1.3.0`).
-   - Automatically builds a release-ready app.
-   - Generates a branded DMG installer using `scripts/build_dmg.sh`.
-   - Creates a GitHub Release and attaches the DMG.
+### Release Workflow
+Releases are built locally and published via GitHub CLI:
+1. Bump `MARKETING_VERSION` in `project.pbxproj` and add entry to `CHANGELOG.md`.
+2. Build: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release`.
+3. Package: `bash scripts/build_dmg.sh` → produces `dist/NetUtil-X.X.X.dmg`.
+4. Commit, push, tag, create GitHub Release with the DMG attached.
 
 ---
 
 ## 5. User Interface Conventions
 
 - **Tooltips**: Hover over any metric or button to see a detailed explanation of its purpose.
-- **Exporting**: All diagnostic results can be exported as CSV or JSON for external analysis.
-- **Keyboard Shortcuts**: Common actions (like starting/stopping a scan) are mapped to standard macOS shortcuts.
+- **Exporting**: Ping and Multi-Ping support PDF report export. Ping and Port Scanner support CSV export.
 - **Dark Mode**: Fully supports native macOS appearance settings.
+- **Persistence**: Running sessions (Ping, Multi-Ping, Wi-Fi, Interfaces, Bandwidth) continue when navigating between sidebar tools.
 
 ---
 
@@ -103,10 +112,10 @@ The project uses GitHub Actions for automated testing and delivery:
 
 Refer to these internal documents for specific guidance:
 - `CLAUDE.md`: Build commands, project structure, and release checklist.
-- `GEMINI.md`: Specialized instructions for Ping feature, coding standards, and release automation.
 - `CHANGELOG.md`: Historical record of all versions and changes.
+- `ROADMAP.md`: Planned features and versioning roadmap.
 
 ---
 
-*Documentation Version: 1.4.1 (May 2026)*
+*Documentation Version: 1.9.0 (May 2026)*
 *Primary Developer: Ade Ramdani*
