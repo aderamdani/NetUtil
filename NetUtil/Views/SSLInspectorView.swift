@@ -2,118 +2,193 @@ import SwiftUI
 
 struct SSLInspectorView: View {
     @ObservedObject var vm: SSLInspectorViewModel
+    @StateObject private var history = HostHistory.shared
     @State private var host = ""
     @State private var portText = "443"
     @State private var selectedCertIndex = 0
+    @State private var showLearningGuide = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
+            // 1. STANDARD HEADER (Fixed Top)
             controlBar
-            if let err = vm.error {
-                Text(err).foregroundColor(.red).font(.caption)
-            }
-            if vm.isRunning {
-                HStack {
-                    ProgressView().controlSize(.small)
-                    Text("Connecting…").font(.caption).foregroundColor(.secondary)
+                .padding(.bottom, 24)
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    if let err = vm.error {
+                        HStack {
+                            Image(systemName: "exclamationmark.octagon.fill")
+                            Text(err)
+                        }
+                        .foregroundColor(.red)
+                        .font(.system(size: 13, weight: .bold))
+                        .padding(8)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(6)
+                    }
+                    
+                    if let result = vm.result {
+                        // 2. INTERPRETATION HEADER
+                        interpretationHeader(result)
+                        
+                        // 3. STATS BAR
+                        statsBar(result)
+                        
+                        // 4. CERT CONTENT
+                        certContent(result)
+                    } else if !vm.isRunning {
+                        emptyState
+                    }
+                    
+                    if vm.isRunning {
+                        HStack(spacing: 12) {
+                            ProgressView().controlSize(.small)
+                            Text("Securing handshake and inspecting certificate chain...")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.top, 8)
+                    }
                 }
             }
-            if let result = vm.result {
-                certContent(result)
-            } else if !vm.isRunning {
-                emptyState
-            }
         }
-        .padding()
+        .padding(32)
+        .sheet(isPresented: $showLearningGuide) {
+            sslLearningGuideSheet
+        }
     }
 
     private var controlBar: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
+            // 1. Target Input with History
             TextField("hostname or URL", text: $host)
                 .textFieldStyle(.roundedBorder)
-                .frame(minWidth: 240)
-                .onSubmit { inspect() }
+                .controlSize(.large)
+                .frame(minWidth: 250)
+                .help("Host to inspect SSL/TLS certificate.")
+                .onSubmit(startInspection)
+                .overlay(alignment: .trailing) {
+                    if !history.hosts.isEmpty {
+                        Menu {
+                            ForEach(history.hosts, id: \.self) { h in
+                                Button(h) { host = h; startInspection() }
+                            }
+                            Divider()
+                            Button("Clear History", role: .destructive) { history.clear() }
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundColor(.secondary)
+                        }
+                        .menuStyle(.borderlessButton)
+                        .frame(width: 28)
+                        .padding(.trailing, 4)
+                    }
+                }
 
-            HStack(spacing: 4) {
-                Text("Port:")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+            // 2. Settings Group
+            HStack(spacing: 8) {
+                Text("Port:").font(.system(size: 11, weight: .bold)).foregroundColor(.secondary)
                 TextField("", text: $portText)
                     .textFieldStyle(.roundedBorder)
-                    .frame(width: 52)
+                    .frame(width: 60)
             }
 
             Spacer()
 
-            Button(vm.isRunning ? "Cancel" : "Inspect") {
-                if vm.isRunning { vm.cancel() } else { inspect() }
+            // 3. Action Group
+            if let result = vm.result {
+                Menu {
+                    Button("Copy SHA-256 Fingerprint") {
+                        if let cert = result.chain.first {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(cert.sha256, forType: .string)
+                        }
+                    }
+                    Divider()
+                    Button("Copy Host:Port") {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString("\(result.host):\(result.port)", forType: .string)
+                    }
+                } label: {
+                    Label("Report", systemImage: "doc.text.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+            }
+
+            Button(action: startInspection) {
+                HStack(spacing: 6) {
+                    if vm.isRunning {
+                        Image(systemName: "stop.fill").font(.system(size: 11, weight: .bold))
+                        Text("Stop")
+                    } else {
+                        Image(systemName: "play.fill")
+                        Text("Inspect")
+                    }
+                }
+                .font(.system(size: 13, weight: .semibold))
+                .frame(minWidth: 80)
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.large)
             .tint(vm.isRunning ? .red : .accentColor)
-            .keyboardShortcut(.return)
             .disabled(!vm.isRunning && host.isEmpty)
+            
+            Button { showLearningGuide = true } label: {
+                Image(systemName: "book.fill").font(.system(size: 14))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .help("SSL/TLS Learning Guide")
+        }
+    }
+    
+    private func interpretationHeader(_ r: CertResult) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            let isExpired = (r.chain.first?.daysRemaining ?? 0) <= 0
+            Image(systemName: isExpired ? "xmark.shield.fill" : "lock.shield.fill")
+                .font(.title2)
+                .foregroundColor(isExpired ? .red : .green)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(isExpired ? "Insecure / Expired" : "Connection Secure")
+                    .font(.headline)
+                Text(isExpired ? "The remote certificate has expired or is invalid." : "TLS handshake established using modern encryption.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+        }
+        .padding(.bottom, 8)
+    }
+
+    private func statsBar(_ r: CertResult) -> some View {
+        HStack(spacing: 12) {
+            if let tls = r.tlsVersion {
+                StatCard(title: "TLS VERSION", value: tls, icon: "shield.fill", color: .green)
+            }
+            StatCard(title: "CHAIN LENGTH", value: "\(r.chain.count)", icon: "link")
+            if let days = r.chain.first?.daysRemaining {
+                StatCard(title: "EXPIRY", value: "\(days)", unit: "days", icon: "calendar", color: days < 30 ? .orange : .secondary)
+            }
+            Spacer()
         }
     }
 
     private func certContent(_ result: CertResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 6) {
-                Image(systemName: "lock.fill")
-                    .foregroundColor(.green)
-                Text(result.host)
-                    .font(.system(.body, design: .monospaced).bold())
-                    .textSelection(.enabled)
-                Text(":\(result.port)")
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundColor(.secondary)
-                Button {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString("\(result.host):\(result.port)", forType: .string)
-                } label: {
-                    Image(systemName: "doc.on.clipboard")
-                        .font(.caption)
-                }
-                .buttonStyle(.borderless)
-                .help("Copy host:port")
-                Spacer()
-                Text(result.timestamp.formatted(date: .omitted, time: .standard))
-                    .font(.caption.monospacedDigit())
-                    .foregroundColor(.secondary)
-            }
-
-            if result.tlsVersion != nil || result.cipherSuite != nil {
-                HStack(spacing: 8) {
-                    if let tls = result.tlsVersion {
-                        Text(tls)
-                            .font(.system(.caption, design: .monospaced).bold())
-                            .foregroundColor(.green)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(Color.green.opacity(0.12))
-                            .clipShape(Capsule())
-                    }
-                    if let cipher = result.cipherSuite {
-                        Text(cipher)
-                            .font(.system(.caption2, design: .monospaced))
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(Color(.quaternaryLabelColor))
-                            .clipShape(Capsule())
-                            .lineLimit(1)
-                    }
-                }
-            }
-
+        VStack(alignment: .leading, spacing: 16) {
             if result.chain.count > 1 {
-                Picker("Certificate", selection: $selectedCertIndex) {
+                Picker("Certificate Chain", selection: $selectedCertIndex) {
                     ForEach(result.chain.indices, id: \.self) { i in
-                        Text(result.chain[i].isLeaf ? "Leaf" : "Chain [\(i)]")
+                        Text(result.chain[i].isLeaf ? "Leaf Certificate" : "Root/Intermediate [\(i)]")
                             .tag(i)
                     }
                 }
                 .pickerStyle(.segmented)
-                .frame(maxWidth: 300)
+                .frame(maxWidth: 400)
             }
 
             if let cert = result.chain[safe: selectedCertIndex] {
@@ -123,134 +198,128 @@ struct SSLInspectorView: View {
     }
 
     private func certDetail(_ cert: CertInfo) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                if let days = cert.daysRemaining {
-                    expiryBanner(days: days, notAfter: cert.notAfter)
+        VStack(alignment: .leading, spacing: 12) {
+            infoSection("Subject & Issuer") {
+                kv("Subject", cert.subject)
+                kv("Issuer", cert.issuer)
+                kv("Key Type", cert.keyType)
+                kv("Serial", cert.serialNumber)
+            }
+            
+            infoSection("Validity Period") {
+                if let d = cert.notBefore {
+                    kv("Not Before", d.formatted(date: .abbreviated, time: .standard))
                 }
-                infoSection("Subject & Issuer") {
-                    kv("Subject", cert.subject)
-                    kv("Issuer", cert.issuer)
-                    kv("Key", cert.keyType)
-                    kv("Serial", cert.serialNumber)
+                if let d = cert.notAfter {
+                    kv("Not After", d.formatted(date: .abbreviated, time: .standard))
                 }
-                infoSection("Validity") {
-                    if let d = cert.notBefore {
-                        kv("Not Before", d.formatted(date: .abbreviated, time: .standard))
-                    }
-                    if let d = cert.notAfter {
-                        kv("Not After", d.formatted(date: .abbreviated, time: .standard))
-                    }
-                }
-                if !cert.sans.isEmpty {
-                    infoSection("Subject Alternative Names") {
+            }
+            
+            if !cert.sans.isEmpty {
+                infoSection("Subject Alternative Names") {
+                    VStack(alignment: .leading, spacing: 4) {
                         ForEach(cert.sans, id: \.self) { san in
                             Text(san)
-                                .font(.system(.caption, design: .monospaced))
+                                .font(.system(size: 11, design: .monospaced))
                                 .textSelection(.enabled)
+                                .foregroundColor(.secondary)
                         }
                     }
                 }
-                infoSection("Fingerprint (SHA-256)") {
-                    HStack(alignment: .top, spacing: 8) {
-                        Text(cert.sha256)
-                            .font(.system(.caption2, design: .monospaced))
-                            .textSelection(.enabled)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Button {
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(cert.sha256, forType: .string)
-                        } label: {
-                            Image(systemName: "doc.on.clipboard")
-                                .font(.caption)
-                        }
-                        .buttonStyle(.borderless)
-                        .help("Copy SHA-256 fingerprint")
-                    }
-                }
+            }
+            
+            infoSection("Security Fingerprint") {
+                Text(cert.sha256)
+                    .font(.system(size: 10, design: .monospaced))
+                    .textSelection(.enabled)
+                    .foregroundColor(.secondary)
             }
         }
     }
 
-    private func expiryBanner(days: Int, notAfter: Date?) -> some View {
-        let (bg, fg, icon): (Color, Color, String) = {
-            if days > 30 { return (.green.opacity(0.12), .green, "checkmark.shield") }
-            if days > 7  { return (.orange.opacity(0.12), .orange, "exclamationmark.triangle") }
-            return (.red.opacity(0.12), .red, "xmark.shield")
-        }()
-        return HStack(spacing: 10) {
-            Image(systemName: icon).foregroundColor(fg)
-            if days > 0 {
-                Text("Expires in \(days) day\(days == 1 ? "" : "s")")
-                    .font(.callout.bold())
-                    .foregroundColor(fg)
-            } else {
-                Text("Expired \(-days) day\(-days == 1 ? "" : "s") ago")
-                    .font(.callout.bold())
-                    .foregroundColor(.red)
-            }
+    private var emptyState: some View {
+        VStack(spacing: 16) {
             Spacer()
-            if let d = notAfter {
-                Text(d.formatted(date: .abbreviated, time: .omitted))
-                    .font(.caption)
-                    .foregroundColor(fg)
+            ZStack {
+                Circle().fill(Color.accentColor.opacity(0.1)).frame(width: 80, height: 80)
+                Image(systemName: "lock.shield").font(.system(size: 32)).foregroundColor(.accentColor)
             }
+            Text("Ready to audit security certificates. Enter a host and press Inspect.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
         }
-        .padding(12)
-        .background(bg)
-        .cornerRadius(8)
+        .frame(maxWidth: .infinity, minHeight: 300)
+        .padding(.top, 40)
     }
 
     @ViewBuilder
     private func infoSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption.bold())
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title.uppercased())
+                .font(.system(size: 10, weight: .black))
                 .foregroundColor(.secondary)
-            VStack(alignment: .leading, spacing: 4) {
+                .kerning(1)
+            
+            VStack(alignment: .leading, spacing: 6) {
                 content()
             }
-            .padding(10)
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.controlBackgroundColor))
-            .cornerRadius(8)
+            .background(Color(.controlBackgroundColor).opacity(0.5))
+            .cornerRadius(12)
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
         }
     }
 
     private func kv(_ label: String, _ value: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: 12) {
             Text(label)
-                .font(.system(.caption, design: .monospaced))
+                .font(.system(size: 11, weight: .bold))
                 .foregroundColor(.secondary)
-                .frame(width: 70, alignment: .trailing)
+                .frame(width: 100, alignment: .trailing)
             Text(value)
-                .font(.system(.caption, design: .monospaced))
+                .font(.system(size: 11, design: .monospaced))
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
-    private var emptyState: some View {
-        VStack(spacing: 8) {
-            Spacer()
-            Image(systemName: "lock.magnifyingglass")
-                .font(.largeTitle)
-                .foregroundColor(.secondary)
-            Text("Enter a hostname and press Inspect")
-                .foregroundColor(.secondary)
-                .font(.callout)
-                .padding(.top, 8)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.textBackgroundColor))
-        .cornerRadius(8)
+    private func startInspection() {
+        guard !host.isEmpty else { return }
+        history.record(host)
+        vm.inspect(host: host, port: Int(portText) ?? 443)
     }
 
-    private func inspect() {
-        guard !host.isEmpty else { return }
-        vm.inspect(host: host, port: Int(portText) ?? 443)
+    private var sslLearningGuideSheet: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("SSL/TLS Learning Guide").font(.title2.bold())
+                    Text("Learn how encryption secures the web.").font(.subheadline).foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent)
+            }
+            .padding(24)
+            
+            Divider()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    GuideSection(title: "What is SSL/TLS?", icon: "lock.shield") {
+                        Text("SSL (Secure Sockets Layer) and its successor TLS (Transport Layer Security) are protocols for establishing authenticated and encrypted links between networked computers.")
+                    }
+                    
+                    GuideSection(title: "What is a Certificate?", icon: "doc.text.fill") {
+                        Text("A digital certificate is like a virtual passport. It proves that the website you're visiting is actually owned by who they claim to be, verified by a Trusted Authority.")
+                    }
+                }
+                .padding(24)
+            }
+        }
+        .frame(width: 500, height: 600)
     }
 }
 

@@ -28,7 +28,7 @@ struct PortScanView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // STANDARD HEADER (Fixed Top)
+            // 1. STANDARD HEADER (Fixed Top)
             controlBar
                 .padding(.bottom, 24)
             
@@ -47,10 +47,13 @@ struct PortScanView: View {
                     }
                     
                     if vm.total > 0 || !vm.results.isEmpty {
+                        // 2. INTERPRETATION HEADER (Consistent with Ping)
                         interpretationHeader
                         
+                        // 3. STATS BAR (Consistent with Ping)
                         statsBar
                         
+                        // 4. RESULTS GRID
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Text("AUDIT RESULTS")
@@ -111,37 +114,35 @@ struct PortScanView: View {
                     }
                 }
 
-            // 2. Variable Settings
-            Picker("", selection: $preset) {
-                ForEach(PortPreset.allCases) { p in
-                    Text(p.rawValue).tag(p)
+            // 2. Settings Group (Centered Context)
+            HStack(spacing: 8) {
+                Picker("", selection: $preset) {
+                    ForEach(PortPreset.allCases) { p in
+                        Text(p.rawValue).tag(p)
+                    }
                 }
-            }
-            .pickerStyle(.menu)
-            .frame(width: 130)
+                .pickerStyle(.menu)
+                .frame(width: 130)
 
-            if preset == .custom {
-                TextField("Range...", text: $customRange)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 120)
-            }
+                if preset == .custom {
+                    TextField("Range...", text: $customRange)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 120)
+                }
 
-            HStack(spacing: 4) {
-                Text("Threads:").font(.system(size: 11, weight: .bold)).foregroundColor(.secondary)
-                Stepper("\(concurrency)", value: $concurrency, in: 1...200)
-                    .frame(width: 90)
+                HStack(spacing: 4) {
+                    Text("Threads:").font(.system(size: 11, weight: .bold)).foregroundColor(.secondary)
+                    Stepper("\(concurrency)", value: $concurrency, in: 1...200)
+                        .frame(width: 90)
+                }
             }
 
             Spacer()
 
-            // 3. Action Group
+            // 3. Action Group (Aligned Right)
             if !vm.results.isEmpty {
                 Menu {
-                    Button("Export as PDF Report...") {
-                        // Future implementation
-                    }
-                    Divider()
-                    Button("Export All (CSV)") {
+                    Button("Export as CSV") {
                         exportCSV(vm.results.sorted { $0.port < $1.port })
                     }
                 } label: {
