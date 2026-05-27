@@ -14,9 +14,9 @@ struct NetUtilApp: App {
         .windowToolbarStyle(.unified)
         .commands {
             CommandGroup(replacing: .newItem) {}
-            CommandGroup(replacing: .appInfo) {
-                Button("About NetUtil") {
-                    openWindow(id: "about")
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates...") {
+                    Updater.shared.checkForUpdates(interactive: true)
                 }
             }
             CommandGroup(replacing: .help) {

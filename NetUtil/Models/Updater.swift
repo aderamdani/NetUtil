@@ -4,14 +4,81 @@ import Combine
 
 @MainActor
 class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
+    static let shared = Updater()
+    
     @Published var downloadProgress: Double = 0
     @Published var isDownloading = false
     @Published var updateReady = false
     @Published var error: String?
+    @Published var isChecking = false
 
     private var downloadTask: URLSessionDownloadTask?
     private var latestVersionURL: URL?
     private var downloadedFileURL: URL?
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.3.0"
+
+    private override init() {
+        super.init()
+    }
+
+    func checkForUpdates(interactive: Bool = true) {
+        guard !isChecking else { return }
+        isChecking = true
+        
+        let url = URL(string: "https://api.github.com/repos/aderamdani/NetUtil/releases/latest")!
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+            guard let self = self else { return }
+            
+            let finishCheck = { (success: Bool, message: String?, latestVer: String?, dlURL: URL?) in
+                Task { @MainActor in
+                    self.isChecking = false
+                    if interactive {
+                        if !success {
+                            let alert = NSAlert()
+                            alert.messageText = "Update Check Failed"
+                            alert.informativeText = message ?? "Could not reach the update server."
+                            alert.runModal()
+                        } else if let latest = latestVer, let url = dlURL {
+                            let alert = NSAlert()
+                            alert.messageText = "Update Available"
+                            alert.informativeText = "NetUtil v\(latest) is ready. Upgrade now?"
+                            alert.addButton(withTitle: "Download Update")
+                            alert.addButton(withTitle: "Later")
+                            if alert.runModal() == .alertFirstButtonReturn {
+                                self.downloadAndInstall(from: url)
+                            }
+                        } else {
+                            let alert = NSAlert()
+                            alert.messageText = "Up to Date"
+                            alert.informativeText = "You are running the latest version of NetUtil (v\(self.currentVersion))."
+                            alert.runModal()
+                        }
+                    }
+                }
+            }
+
+            guard let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let tagName = json["tag_name"] as? String,
+                  let assets = json["assets"] as? [[String: Any]] else {
+                finishCheck(false, "Could not fetch release information.", nil, nil)
+                return
+            }
+            
+            let latestVersion = tagName.replacingOccurrences(of: "v", with: "")
+            if latestVersion.compare(self.currentVersion, options: .numeric) == .orderedDescending {
+                if let dmg = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".dmg") == true }),
+                   let dlURL = URL(string: dmg["browser_download_url"] as? String ?? "") {
+                    finishCheck(true, nil, latestVersion, dlURL)
+                } else {
+                    finishCheck(false, "No suitable DMG found in the latest release.", nil, nil)
+                }
+            } else {
+                finishCheck(true, nil, nil, nil)
+            }
+        }.resume()
+    }
 
     func downloadAndInstall(from url: URL) {
         self.latestVersionURL = url

@@ -11,6 +11,15 @@ struct MenuBarView: View {
             interfaceSection
             Divider()
             HStack {
+                Button("Check for Updates...") {
+                    Updater.shared.checkForUpdates(interactive: true)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+            Divider()
+            HStack {
                 Button("Open NetUtil") {
                     NSApp.activate(ignoringOtherApps: true)
                     NSApp.windows.first?.makeKeyAndOrderFront(nil)
