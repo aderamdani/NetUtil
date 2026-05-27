@@ -4,16 +4,16 @@ enum Tool: String, CaseIterable, Identifiable {
     case dashboard   = "Dashboard"
     case ping        = "Ping"
     case traceroute  = "Traceroute"
-    case dns         = "DNS Lookup"
-    case portScan    = "Port Scanner"
-    case interfaces  = "Interfaces"
-    case httpLatency  = "HTTP Latency"
     case multiPing   = "Multi-Ping"
+    case portScan    = "Port Scanner"
+    case httpLatency = "HTTP Latency"
+    case dns         = "DNS Lookup"
+    case ssl         = "SSL/TLS"
+    case bandwidth   = "Bandwidth"
+    case whois       = "WHOIS"
+    case interfaces  = "Interfaces"
     case wifi        = "Wi-Fi"
     case routes      = "Routes"
-    case ssl         = "SSL/TLS"
-    case whois       = "WHOIS"
-    case bandwidth   = "Bandwidth"
 
     var id: String { rawValue }
 
@@ -34,68 +34,214 @@ enum Tool: String, CaseIterable, Identifiable {
         case .bandwidth:   "chart.bar.xaxis"
         }
     }
+    
+    var shortcut: KeyEquivalent? {
+        switch self {
+        case .dashboard:   "1"
+        case .ping:        "2"
+        case .traceroute:  "3"
+        case .multiPing:   "4"
+        case .portScan:    "5"
+        case .httpLatency: "6"
+        case .dns:         "7"
+        case .ssl:         "8"
+        case .bandwidth:   "9"
+        default:           nil
+        }
+    }
 }
 
 struct ContentView: View {
-    @State private var selection: Tool? = nil
+    @State private var selection: Tool? = .dashboard
     @EnvironmentObject private var tools: ToolStore
+    @StateObject private var history = HostHistory.shared
+    
+    @State private var searchText = ""
+    @FocusState private var isSearchFocused: Bool
+
+    var filteredHistory: [String] {
+        guard !searchText.isEmpty else { return [] }
+        return history.hosts.filter { $0.lowercased().contains(searchText.lowercased()) }
+    }
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $selection) {
-                Section {
-                    Label(Tool.dashboard.rawValue, systemImage: Tool.dashboard.icon).tag(Tool.dashboard)
-                }
-                Section("Active Probing") {
-                    ForEach([Tool.ping, .traceroute, .multiPing, .portScan, .httpLatency]) {
-                        Label($0.rawValue, systemImage: $0.icon).tag($0)
+            VStack(spacing: 0) {
+                // Global Search Field
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 11, weight: .bold))
+                    TextField("Search history... (⌘F)", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 12))
+                        .focused($isSearchFocused)
+                    if !searchText.isEmpty {
+                        Button { searchText = "" } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-                Section("Lookup") {
-                    ForEach([Tool.dns, .whois, .ssl]) {
-                        Label($0.rawValue, systemImage: $0.icon).tag($0)
+                .padding(10)
+                .background(Color.secondary.opacity(0.08))
+                .cornerRadius(8)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                
+                Divider().opacity(0.1)
+
+                if !searchText.isEmpty {
+                    List {
+                        Section("History Results") {
+                            ForEach(filteredHistory, id: \.self) { host in
+                                Button {
+                                    copyToActiveTool(host)
+                                    searchText = ""
+                                    isSearchFocused = false
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "clock.arrow.circlepath")
+                                            .foregroundColor(.secondary)
+                                        Text(host)
+                                            .lineLimit(1)
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            if filteredHistory.isEmpty {
+                                Text("No matches found").font(.caption).foregroundColor(.secondary)
+                            }
+                        }
                     }
-                }
-                Section("Network Info") {
-                    ForEach([Tool.interfaces, .wifi, .routes, .bandwidth]) {
-                        Label($0.rawValue, systemImage: $0.icon).tag($0)
+                } else {
+                    List(selection: $selection) {
+                        Section {
+                            sidebarItem(.dashboard)
+                        }
+                        
+                        Section("Active Probing") {
+                            sidebarItem(.ping)
+                            sidebarItem(.traceroute)
+                            sidebarItem(.multiPing)
+                            sidebarItem(.portScan)
+                            sidebarItem(.httpLatency)
+                        }
+                        
+                        Section("Lookup & Security") {
+                            sidebarItem(.dns)
+                            sidebarItem(.ssl)
+                            sidebarItem(.whois)
+                        }
+                        
+                        Section("Network Status") {
+                            sidebarItem(.bandwidth)
+                            sidebarItem(.interfaces)
+                            sidebarItem(.wifi)
+                            sidebarItem(.routes)
+                        }
                     }
                 }
             }
             .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 160, ideal: 185, max: 220)
+            .navigationSplitViewColumnWidth(min: 175, ideal: 200, max: 240)
         } detail: {
-            switch selection {
-            case .dashboard:
-                DashboardView(selection: $selection)
-            case .ping:
-                PingView(vm: tools.ping)
-            case .traceroute:
-                TracerouteView(vm: tools.traceroute)
-            case .dns:
-                DNSView(vm: tools.dns)
-            case .portScan:
-                PortScanView(vm: tools.portScan)
-            case .interfaces:
-                NetworkInterfaceView(vm: tools.interfaces)
-            case .httpLatency:
-                HTTPLatencyView(vm: tools.httpLatency)
-            case .multiPing:
-                MultiPingView(vm: tools.multiPing)
-            case .wifi:
-                WiFiInspectorView(vm: tools.wifi)
-            case .routes:
-                RouteTableView()
-            case .ssl:
-                SSLInspectorView(vm: tools.ssl)
-            case .whois:
-                WhoisView(vm: tools.whois)
-            case .bandwidth:
-                BandwidthView()
-            case nil:
+            if let selection {
+                toolView(selection)
+                    .transition(.opacity)
+                    .id(selection)
+            } else {
                 AboutView()
             }
         }
-        .frame(minWidth: 900, minHeight: 580)
+        .frame(minWidth: 1000, minHeight: 650)
+        .background {
+            // Invisible buttons for keyboard shortcuts
+            ForEach(Tool.allCases) { tool in
+                if let key = tool.shortcut {
+                    Button("") { selection = tool }
+                        .keyboardShortcut(key, modifiers: .command)
+                        .opacity(0)
+                }
+            }
+            
+            // Cmd+F shortcut
+            Button("") { isSearchFocused = true }
+                .keyboardShortcut("f", modifiers: .command)
+                .opacity(0)
+        }
+    }
+    
+    @ViewBuilder
+    private func sidebarItem(_ tool: Tool) -> some View {
+        HStack(spacing: 8) {
+            Label(tool.rawValue, systemImage: tool.icon)
+            Spacer()
+            if isToolActive(tool) {
+                SidebarActivityIndicator()
+            }
+        }
+        .tag(tool)
+    }
+    
+    private func isToolActive(_ tool: Tool) -> Bool {
+        switch tool {
+        case .ping:        return tools.ping.isRunning
+        case .traceroute:  return tools.traceroute.isRunning
+        case .multiPing:   return tools.multiPing.slots.contains { $0.isRunning }
+        case .portScan:    return tools.portScan.isRunning
+        case .httpLatency: return tools.httpLatency.isRunning
+        default:           return false
+        }
+    }
+    
+    private func copyToActiveTool(_ host: String) {
+        // Implementation logic to set host in active tool's state would go here
+        // Since many views hold their own 'host' @State, we can't easily reach them.
+        // However, we can use NSPasteboard or a shared state in ToolStore if needed.
+        // For now, let's just copy to clipboard for convenience if a tool doesn't have shared state.
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(host, forType: .string)
+    }
+    
+    @ViewBuilder
+    private func toolView(_ tool: Tool) -> some View {
+        switch tool {
+        case .dashboard:   DashboardView(selection: $selection)
+        case .ping:        PingView(vm: tools.ping)
+        case .traceroute:  TracerouteView(vm: tools.traceroute)
+        case .dns:         DNSView(vm: tools.dns)
+        case .portScan:    PortScanView(vm: tools.portScan)
+        case .interfaces:  NetworkInterfaceView(vm: tools.interfaces)
+        case .httpLatency: HTTPLatencyView(vm: tools.httpLatency)
+        case .multiPing:   MultiPingView(vm: tools.multiPing)
+        case .wifi:        WiFiInspectorView(vm: tools.wifi)
+        case .routes:      RouteTableView()
+        case .ssl:         SSLInspectorView(vm: tools.ssl)
+        case .whois:       WhoisView(vm: tools.whois)
+        case .bandwidth:   BandwidthView()
+        }
+    }
+}
+
+struct SidebarActivityIndicator: View {
+    @State private var pulse = false
+    
+    var body: some View {
+        Circle()
+            .fill(Color.green)
+            .frame(width: 6, height: 6)
+            .overlay(
+                Circle()
+                    .stroke(Color.green.opacity(0.5), lineWidth: 2)
+                    .scaleEffect(pulse ? 2.5 : 1.0)
+                    .opacity(pulse ? 0 : 1)
+            )
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: false)) {
+                    pulse = true
+                }
+            }
     }
 }

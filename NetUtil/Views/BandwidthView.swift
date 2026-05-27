@@ -5,67 +5,182 @@ import Combine
 
 struct BandwidthView: View {
     @StateObject private var vm = BandwidthViewModel()
-    @State private var selectedIface: String?
+    @State private var showLearningGuide = false
 
     private var interfaceNames: [String] {
         vm.interfaces.filter { !$0.isLoopback }.map(\.name)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            toolbar
-            if vm.interfaces.isEmpty {
-                emptyState
-            } else {
-                ifaceGrid
+        VStack(alignment: .leading, spacing: 0) {
+            // 1. STANDARD HEADER (Fixed Top)
+            controlBar
+                .padding(.bottom, 24)
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    // 2. INTERPRETATION HEADER
+                    interpretationHeader
+                    
+                    // 3. STATS BAR
+                    statsBar
+                    
+                    // 4. BANDWIDTH GRID
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("TRAFFIC THROUGHPUT")
+                            .font(.system(size: 10, weight: .black))
+                            .foregroundColor(.secondary)
+                            .kerning(1)
+                        
+                        if vm.interfaces.isEmpty {
+                            emptyState
+                        } else {
+                            ifaceGrid
+                        }
+                    }
+                }
             }
         }
-        .padding()
+        .padding(32)
         .onAppear { vm.start() }
         .onDisappear { vm.stop() }
+        .sheet(isPresented: $showLearningGuide) {
+            bandwidthLearningGuideSheet
+        }
     }
 
-    private var toolbar: some View {
-        HStack {
-            Text("Updated \(vm.lastUpdated.formatted(date: .omitted, time: .standard))")
-                .font(.caption.monospacedDigit())
-                .foregroundColor(.secondary)
+    private var controlBar: some View {
+        HStack(spacing: 12) {
+            // 1. Static Info (Visual Anchor)
+            HStack(spacing: 10) {
+                Image(systemName: "chart.bar.xaxis")
+                    .foregroundColor(.accentColor)
+                Text("Bandwidth Monitor")
+                    .font(.system(size: 14, weight: .bold))
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 38)
+            .background(Color.accentColor.opacity(0.1))
+            .cornerRadius(8)
+            .frame(width: 250, alignment: .leading)
+
+            // 2. Variable Settings (Centered)
+            HStack(spacing: 12) {
+                Toggle("Active Only", isOn: $vm.showActiveOnly)
+                    .font(.system(size: 11, weight: .bold))
+                    .toggleStyle(.checkbox)
+                
+                Divider().frame(height: 20)
+                
+                Text("Updated \(vm.lastUpdated.formatted(date: .omitted, time: .standard))")
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .foregroundColor(.secondary)
+            }
+
             Spacer()
-            Toggle("Active only", isOn: $vm.showActiveOnly)
-                .toggleStyle(.checkbox)
-                .font(.caption)
+
+            // 3. Action Group
+            Button { showLearningGuide = true } label: {
+                Image(systemName: "book.fill").font(.system(size: 14))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .help("Bandwidth Monitoring Guide")
+        }
+    }
+    
+    private var interpretationHeader: some View {
+        HStack(alignment: .center, spacing: 12) {
+            let active = vm.interfaces.filter { vm.hasTraffic($0.name) }.count
+            Image(systemName: active > 0 ? "arrow.up.arrow.down.circle.fill" : "idle.fill")
+                .font(.title2)
+                .foregroundColor(active > 0 ? .accentColor : .secondary)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(active > 0 ? "Traffic Detected" : "Network Idle")
+                    .font(.headline)
+                Text("\(active) adapter\(active == 1 ? "" : "s") are currently transmitting or receiving data.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+        }
+        .padding(.bottom, 8)
+    }
+
+    private var statsBar: some View {
+        let totalRx = vm.history.values.compactMap { $0.last?.rxBps }.reduce(0, +)
+        let totalTx = vm.history.values.compactMap { $0.last?.txBps }.reduce(0, +)
+        
+        return HStack(spacing: 12) {
+            StatCard(title: "TOTAL DOWNLOAD", value: formatRate(totalRx), icon: "arrow.down.circle.fill", color: .blue)
+            StatCard(title: "TOTAL UPLOAD", value: formatRate(totalTx), icon: "arrow.up.circle.fill", color: .orange)
+            StatCard(title: "INTERFACES", value: "\(vm.interfaces.count)", icon: "network")
+            Spacer()
         }
     }
 
     private var ifaceGrid: some View {
         let filtered = vm.interfaces.filter { !$0.isLoopback && (!vm.showActiveOnly || vm.hasTraffic($0.name)) }
-        return ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                ForEach(filtered, id: \.name) { iface in
-                    BandwidthCard(vm: vm, ifaceName: iface.name, iface: iface)
-                }
+        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            ForEach(filtered, id: \.name) { iface in
+                BandwidthDetailCard(vm: vm, ifaceName: iface.name, iface: iface)
             }
         }
     }
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
-            Spacer()
-            Image(systemName: "network")
-                .font(.largeTitle)
+        VStack(spacing: 16) {
+            Image(systemName: "chart.bar.xaxis")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary.opacity(0.3))
+            Text("No network traffic detected.")
+                .font(.headline)
                 .foregroundColor(.secondary)
-            Text("No interfaces found")
-                .foregroundColor(.secondary)
-                .font(.callout)
-            Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.textBackgroundColor))
-        .cornerRadius(8)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 100)
+    }
+
+    private func formatRate(_ bps: Double) -> String {
+        if bps < 1024 { return String(format: "%.0f B/s", bps) }
+        if bps < 1_048_576 { return String(format: "%.1f KB/s", bps / 1024) }
+        return String(format: "%.2f MB/s", bps / 1_048_576)
+    }
+    
+    private var bandwidthLearningGuideSheet: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Bandwidth Monitoring Guide").font(.title2.bold())
+                    Text("Learn how to track network throughput.").font(.subheadline).foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent)
+            }
+            .padding(24)
+            
+            Divider()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    GuideSection(title: "Traffic RX/TX", icon: "arrow.up.arrow.down") {
+                        Text("RX (Download) is data coming into your computer. TX (Upload) is data being sent out. Rates are measured in bits or bytes per second.")
+                    }
+                    
+                    GuideSection(title: "Interface Throughput", icon: "chart.line.uptrend.xyaxis") {
+                        Text("Each network adapter has a maximum speed. Monitoring throughput helps identify if an application is saturating your connection.")
+                    }
+                }
+                .padding(24)
+            }
+        }
+        .frame(width: 500, height: 600)
     }
 }
 
-private struct BandwidthCard: View {
+private struct BandwidthDetailCard: View {
     @ObservedObject var vm: BandwidthViewModel
     let ifaceName: String
     let iface: NetworkInterface
@@ -78,110 +193,87 @@ private struct BandwidthCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: iface.typeIcon)
                     .foregroundColor(iface.isUp ? .accentColor : .secondary)
-                Text(ifaceName)
-                    .font(.system(.body, design: .monospaced).bold())
-                Text(iface.typeName)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 2)
-                    .background(Color(.quaternaryLabelColor))
-                    .cornerRadius(4)
+                    .frame(width: 32, height: 32)
+                    .background(iface.isUp ? Color.accentColor.opacity(0.1) : Color.secondary.opacity(0.1))
+                    .cornerRadius(8)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(ifaceName).font(.system(size: 13, weight: .bold, design: .monospaced))
+                    Text(iface.typeName).font(.system(size: 9, weight: .black)).foregroundColor(.secondary)
+                }
+                
                 Spacer()
-                Circle()
-                    .fill(iface.isUp ? Color.green : Color.secondary)
-                    .frame(width: 7, height: 7)
-            }
-
-            HStack(spacing: 16) {
-                rateLabel("↓", current?.rxBps, .blue)
-                rateLabel("↑", current?.txBps, .orange)
-                Spacer()
-                if let total = current {
-                    VStack(alignment: .trailing, spacing: 1) {
-                        Text("RX \(formatBytes(total.totalRx))")
-                        Text("TX \(formatBytes(total.totalTx))")
-                    }
-                    .font(.system(.caption2, design: .monospaced))
-                    .foregroundColor(.secondary)
+                
+                HStack(spacing: 8) {
+                    rateMiniLabel("↓", current?.rxBps, .blue)
+                    rateMiniLabel("↑", current?.txBps, .orange)
                 }
             }
 
             if history.count > 1 {
                 Chart {
                     ForEach(history) { s in
-                        AreaMark(
-                            x: .value("t", s.timestamp),
-                            y: .value("RX", s.rxBps),
-                            series: .value("dir", "RX")
-                        )
-                        .foregroundStyle(.blue.opacity(0.12))
-                        .interpolationMethod(.catmullRom)
+                        AreaMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps))
+                            .foregroundStyle(.blue.opacity(0.1))
+                            .interpolationMethod(.catmullRom)
+                        LineMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps))
+                            .foregroundStyle(.blue)
+                            .interpolationMethod(.catmullRom)
 
-                        LineMark(
-                            x: .value("t", s.timestamp),
-                            y: .value("RX", s.rxBps),
-                            series: .value("dir", "RX")
-                        )
-                        .foregroundStyle(.blue.opacity(0.85))
-                        .lineStyle(StrokeStyle(lineWidth: 1.5))
-                        .interpolationMethod(.catmullRom)
-
-                        AreaMark(
-                            x: .value("t", s.timestamp),
-                            y: .value("TX", s.txBps),
-                            series: .value("dir", "TX")
-                        )
-                        .foregroundStyle(.orange.opacity(0.1))
-                        .interpolationMethod(.catmullRom)
-
-                        LineMark(
-                            x: .value("t", s.timestamp),
-                            y: .value("TX", s.txBps),
-                            series: .value("dir", "TX")
-                        )
-                        .foregroundStyle(.orange.opacity(0.85))
-                        .lineStyle(StrokeStyle(lineWidth: 1.5))
-                        .interpolationMethod(.catmullRom)
+                        AreaMark(x: .value("t", s.timestamp), y: .value("TX", s.txBps))
+                            .foregroundStyle(.orange.opacity(0.1))
+                            .interpolationMethod(.catmullRom)
+                        LineMark(x: .value("t", s.timestamp), y: .value("TX", s.txBps))
+                            .foregroundStyle(.orange)
+                            .interpolationMethod(.catmullRom)
                     }
                 }
                 .chartXAxis(.hidden)
                 .chartYAxis {
-                    AxisMarks(values: .automatic(desiredCount: 3)) { val in
+                    AxisMarks(values: .automatic(desiredCount: 2)) { val in
                         AxisValueLabel {
                             if let v = val.as(Double.self) {
-                                Text(formatRate(v)).font(.system(.caption2, design: .monospaced))
+                                Text(formatRate(v)).font(.system(size: 8, design: .monospaced))
                             }
                         }
                     }
                 }
                 .chartYScale(domain: 0...maxVal * 1.2)
-                .frame(height: 80)
+                .frame(height: 60)
             }
+            
+            HStack {
+                if let total = current {
+                    Text("Total RX: \(formatBytes(total.totalRx))").font(.system(size: 9, design: .monospaced))
+                    Spacer()
+                    Text("Total TX: \(formatBytes(total.totalTx))").font(.system(size: 9, design: .monospaced))
+                }
+            }
+            .foregroundColor(.secondary)
         }
-        .padding(12)
-        .background(Color(.controlBackgroundColor))
-        .cornerRadius(10)
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor), lineWidth: 0.5))
+        .padding(18)
+        .background(Color(.controlBackgroundColor).opacity(0.5))
+        .cornerRadius(12)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
     }
 
-    private func rateLabel(_ dir: String, _ bps: Double?, _ color: Color) -> some View {
+    private func rateMiniLabel(_ dir: String, _ bps: Double?, _ color: Color) -> some View {
         HStack(spacing: 3) {
             Text(dir).font(.caption.bold()).foregroundColor(color)
             Text(formatRate(bps ?? 0))
-                .font(.system(.body, design: .monospaced).bold())
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
                 .foregroundColor(bps ?? 0 > 0 ? color : .secondary)
         }
     }
 
     private func formatRate(_ bps: Double) -> String {
         if bps < 1024 { return String(format: "%.0f B/s", bps) }
-        if bps < 1_048_576 { return String(format: "%.1f KB/s", bps / 1024) }
-        return String(format: "%.2f MB/s", bps / 1_048_576)
+        if bps < 1_048_576 { return String(format: "%.1f K", bps / 1024) }
+        return String(format: "%.2f M", bps / 1_048_576)
     }
 
     private func formatBytes(_ bytes: UInt64) -> String {

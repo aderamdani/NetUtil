@@ -4,6 +4,20 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.2.0] — 2026-05-27
+
+### Added
+- **Global Search (⌘F)**: Integrated a fast history search in the sidebar. Instantly find and reuse previous target hosts or domains across the entire toolkit.
+- **Keyboard Navigation Shortcuts**: Added `Cmd+1` through `Cmd+9` support for instant switching between primary diagnostic tools.
+- **Sidebar Activity Indicators**: Introduced pulsing green dots in the sidebar for tools actively running background tasks (Ping, Traceroute, etc.).
+- **Total Tool Standardization**: Completed the symmetrical UI overhaul for the remaining tools: Wi-Fi Inspector, Network Interfaces, Bandwidth Monitor, Routing Table, and WHOIS.
+
+### Improved
+- **Passive Tool Headers**: Added visual anchors and locked control bars to informational tools to maintain zero layout-shift during navigation.
+- **Enhanced WHOIS & Wi-Fi Views**: Redesigned output formatting and stats bars for better technical clarity and professional aesthetics.
+
+---
+
 ## [2.1.0] — 2026-05-27
 
 ### Added
