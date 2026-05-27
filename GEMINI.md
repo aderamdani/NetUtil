@@ -38,8 +38,8 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
     - **Patch (0.0.X)**: Perubahan minor banget, UI polish, atau bug fix.
     - Update `MARKETING_VERSION` (both Debug + Release configs) and `CURRENT_PROJECT_VERSION` (+1) in `project.pbxproj`.
 
-2.  **Documentation Sync (ALL files, no exceptions)**:
-    - `CHANGELOG.md` → new `[X.X.X] — YYYY-MM-DD` section at top describing all changes.
+2.  **Documentation Sync (MANDATORY for every release)**:
+    - `CHANGELOG.md` → **CRITICAL**: You MUST add a new `[X.X.X] — YYYY-MM-DD` section at the top describing all changes made during the session. If you skip this, the release is invalid.
     - `README.md` → reflect new/changed features in both **EN and ID** sections.
     - `DOCUMENTATION.md` → update version footer line, update toolset section if tools changed.
     - `AboutView.swift`:
