@@ -4,6 +4,17 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.4.1] — 2026-05-28
+
+### Changed
+- **Extreme Anti-Slop Audit**: Conducted a project-wide sweep to eliminate all remaining "AI Slop" elements.
+- **Refined Typography**: Removed all excessive `.black` weights and forced `.uppercased()` section headers. Every tool now uses elegant, system-standard `.headline` and `.bold` typography with natural Sentence Case.
+- **Vibrancy & Material Unification**: Replaced remaining fake-transparency backgrounds with native macOS `.regularMaterial`, ensuring a truly cohesive and reactive interface.
+- **Data-Dense Minimalist Aesthetics**: Unified all data containers and lists into a flat hierarchy with ultra-fine `0.5pt` dividers, matching the clinical precision of native system utilities.
+- **Clean Documentation**: Fully purged decorative emojis and generic AI-style formatting from `README.md`, `DOCUMENTATION.md`, and `CHANGELOG.md`.
+
+---
+
 ## [2.4.0] — 2026-05-28
 
 ### Changed

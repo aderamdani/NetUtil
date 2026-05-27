@@ -183,7 +183,7 @@ private struct MultiPingRow: View {
                     }
                 }
                 .chartYAxis { AxisMarks(values: .automatic(desiredCount: 2)) { val in AxisValueLabel { if let ms = val.as(Double.self) { Text("\(Int(ms))").font(.system(size: 8)) } } } }
-                .chartXAxis(.hidden).frame(height: 60).padding(.horizontal, 40).padding(.vertical, 12).background(Color.black.opacity(0.02))
+                .chartXAxis(.hidden).frame(height: 60).padding(.horizontal, 40).padding(.vertical, 12).background(.regularMaterial)
             }
         }
     }
