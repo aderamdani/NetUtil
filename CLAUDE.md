@@ -74,8 +74,8 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
    - Files to update:
      - `project.pbxproj` → `MARKETING_VERSION` (both Debug + Release configs) and `CURRENT_PROJECT_VERSION` (+1)
 
-2. **Sync ALL Documentation (no exceptions)**:
-   - `CHANGELOG.md` → add new `[X.X.X] — YYYY-MM-DD` section at the top
+2. **Sync Documentation (MANDATORY for every release)**:
+   - `CHANGELOG.md` → **CRITICAL**: You MUST add a new `[X.X.X] — YYYY-MM-DD` section at the top describing all changes made during the session. If you skip this, the release is invalid.
    - `README.md` → reflect any new/changed features (EN + ID sections)
    - `DOCUMENTATION.md` → update footer version, update toolset section if tools changed
    - `AboutView.swift` → update version fallback string AND verify `toolList` matches canonical list below
