@@ -14,9 +14,9 @@
 		<key>CFBundleIdentifier</key>
 		<string>Vertex-Data.NetUtil</string>
 		<key>CFBundleShortVersionString</key>
-		<string>1.8.2</string>
+		<string>2.1.0</string>
 		<key>CFBundleVersion</key>
-		<string>5</string>
+		<string>9</string>
 		<key>SigningIdentity</key>
 		<string></string>
 		<key>Team</key>
@@ -25,7 +25,7 @@
 	<key>ArchiveVersion</key>
 	<integer>2</integer>
 	<key>CreationDate</key>
-	<date>2026-05-27T04:51:01Z</date>
+	<date>2026-05-27T07:59:14Z</date>
 	<key>Name</key>
 	<string>NetUtil</string>
 	<key>SchemeName</key>
