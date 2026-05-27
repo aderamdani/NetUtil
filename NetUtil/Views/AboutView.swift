@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.0.0"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.0.1"
     private let build   = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     
     @StateObject private var updater = Updater()
@@ -117,7 +117,7 @@ struct AboutView: View {
                 .cornerRadius(8)
             
             if updater.updateReady {
-                Button("Install Update") { updater.installAndRelaunch() }
+                Button("Open & Install") { updater.installAndRelaunch() }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
                     .tint(.green)
