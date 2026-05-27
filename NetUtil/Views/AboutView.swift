@@ -141,15 +141,19 @@ struct AboutView: View {
     }
 
     private let toolList: [(String, String)] = [
-        ("square.grid.2x2", "Mission Dashboard"),
-        ("antenna.radiowaves.left.and.right", "Advanced Ping"),
-        ("point.3.connected.trianglepath.dotted", "Traceroute"),
-        ("dot.radiowaves.left.and.right", "Multi-Ping"),
-        ("checklist", "Port Scanner"),
-        ("stopwatch", "HTTP Latency"),
-        ("globe", "DNS Lookup"),
-        ("lock.shield", "SSL/TLS Inspector"),
-        ("wifi", "Wi-Fi Analytics")
+        ("square.grid.2x2",                       "Mission Dashboard"),
+        ("antenna.radiowaves.left.and.right",      "Advanced Ping"),
+        ("point.3.connected.trianglepath.dotted",  "Traceroute"),
+        ("dot.radiowaves.left.and.right",          "Multi-Ping"),
+        ("checklist",                              "Port Scanner"),
+        ("stopwatch",                              "HTTP Latency"),
+        ("globe",                                  "DNS Lookup"),
+        ("magnifyingglass.circle",                 "WHOIS"),
+        ("lock.shield",                            "SSL/TLS Inspector"),
+        ("network",                                "Network Interfaces"),
+        ("wifi",                                   "Wi-Fi Inspector"),
+        ("arrow.triangle.branch",                  "Route Table"),
+        ("chart.bar.xaxis",                        "Bandwidth Monitor"),
     ]
 
     private func checkForUpdates() {
