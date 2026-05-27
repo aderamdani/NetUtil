@@ -132,7 +132,7 @@ struct TracerouteView: View {
                         Exporter.save(string: Exporter.csvString(from: vm.hops), defaultName: "traceroute-\(host).csv", ext: "csv")
                     }
                 } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
+                    Label("Report", systemImage: "doc.text.fill")
                         .font(.system(size: 13, weight: .semibold))
                 }
                 .buttonStyle(.bordered)
@@ -159,6 +159,13 @@ struct TracerouteView: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(vm.isRunning ? .red : .accentColor)
+            
+            Button { showColumnHelp = true } label: {
+                Image(systemName: "book.fill")
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.bordered)
+            .help("Traceroute Learning Guide")
         }
     }
 
@@ -176,13 +183,6 @@ struct TracerouteView: View {
             .frame(width: 450)
             
             Spacer()
-            
-            Button { showColumnHelp = true } label: {
-                Label("Learning Guide", systemImage: "book.fill")
-                    .font(.system(size: 12, weight: .bold))
-            }
-            .buttonStyle(.borderless)
-            .foregroundColor(.accentColor)
         }
     }
 
@@ -357,7 +357,10 @@ struct TracerouteView: View {
     private var columnHelpSheet: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("Traceroute Learning Guide").font(.title2.bold())
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Traceroute Learning Guide").font(.title2.bold())
+                    Text("Understand how your data travels across the internet.").font(.subheadline).foregroundColor(.secondary)
+                }
                 Spacer()
                 Button("Done") { showColumnHelp = false }.buttonStyle(.borderedProminent)
             }
@@ -366,27 +369,31 @@ struct TracerouteView: View {
             Divider()
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("Understanding Hops").font(.headline)
-                    Text("Every time your data travels across the internet, it jumps through multiple routers called 'Hops'. NetUtil measures how long each jump takes.").font(.subheadline).foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 24) {
+                    GuideSection(title: "What is Traceroute?", icon: "point.3.connected.trianglepath.dotted") {
+                        Text("Traceroute reveals the full path your data takes to reach a destination. It shows every router (hop) along the way and measures the latency for each jump.")
+                    }
                     
-                    VStack(alignment: .leading, spacing: 12) {
-                        helpRow("Seq (#)", "The order of the router in the path.")
-                        helpRow("Bottleneck", "A red bolt indicates a hop where delay increases significantly.")
-                        helpRow("Loss %", "Packets that never came back. High loss at the last hop is a real issue.")
+                    GuideSection(title: "Reading the Path", icon: "map.fill") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            GuidePoint(title: "Hops (#)", desc: "The order of routers. Your local router is usually hop #1.")
+                            GuidePoint(title: "Bottlenecks", desc: "Marked with a red bolt. This indicates a point in the path where latency increases significantly compared to the previous hop.")
+                            GuidePoint(title: "Asterisks (* * *)", desc: "Occurs when a router doesn't respond to ICMP probes. This is often due to security settings and doesn't always mean the path is broken.")
+                        }
+                    }
+                    
+                    GuideSection(title: "Route Health", icon: "checkmark.shield.fill") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("• **Healthy**: Low RTT and 0% loss across the whole path.")
+                            Text("• **Degraded**: Occasional loss or high jitter at specific hops.")
+                            Text("• **Critical**: High packet loss (>50%) or extreme latency spikes.")
+                        }
                     }
                 }
                 .padding(24)
             }
         }
         .frame(width: 500, height: 600)
-    }
-    
-    private func helpRow(_ title: String, _ desc: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text(title).font(.system(size: 11, weight: .black)).frame(width: 80, alignment: .trailing)
-            Text(desc).font(.subheadline).foregroundColor(.secondary)
-        }
     }
 }
 

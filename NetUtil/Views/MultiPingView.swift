@@ -1,151 +1,239 @@
 import SwiftUI
+import Charts
 
 struct MultiPingView: View {
     @ObservedObject var vm: MultiPingViewModel
     @StateObject private var history = HostHistory.shared
     @State private var newHost = ""
+    @State private var expandedSlotID: UUID?
+    @State private var showLearningGuide = false
+    @AppStorage("rttWarnThreshold") private var rttWarn: Double = 20.0
+    @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 24) {
             addBar
+            
             if vm.slots.isEmpty {
                 emptyState
             } else {
                 summaryBar
-                slotsTable
+                
+                VStack(spacing: 0) {
+                    slotsTableHeader
+                    
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(vm.slots) { slot in
+                                MultiPingRow(
+                                    slot: slot,
+                                    isExpanded: expandedSlotID == slot.id,
+                                    rttWarn: rttWarn,
+                                    rttCrit: rttCrit,
+                                    onToggleExpand: {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                            expandedSlotID = expandedSlotID == slot.id ? nil : slot.id
+                                        }
+                                    },
+                                    onRemove: { vm.remove(slot) }
+                                )
+                                Divider().opacity(0.15)
+                            }
+                        }
+                    }
+                }
+                .background(Color(.controlBackgroundColor).opacity(0.5))
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 1))
             }
         }
-        .padding()
+        .padding(32)
+        .sheet(isPresented: $showLearningGuide) {
+            multiPingLearningGuideSheet
+        }
     }
 
     private var summaryBar: some View {
         let running = vm.slots.filter { $0.isRunning }.count
         let responding = vm.slots.filter { $0.loss < 100 && $0.sent > 0 }.count
-        let avgLoss = vm.slots.isEmpty ? 0.0
-            : vm.slots.map { $0.loss }.reduce(0, +) / Double(vm.slots.count)
+        let avgLoss = vm.slots.isEmpty ? 0.0 : vm.slots.map { $0.loss }.reduce(0, +) / Double(vm.slots.count)
+        
         return HStack(spacing: 12) {
-            StatCard(title: "Hosts", value: "\(vm.slots.count)", icon: "server.rack")
-                .help("Total number of host targets being monitored.")
-            StatCard(title: "Running", value: "\(running)", icon: "play.circle", color: running > 0 ? .accentColor : .secondary)
-                .help("Number of active ping sessions currently running.")
-            StatCard(title: "Responding", value: "\(responding)/\(vm.slots.count)", 
-                     icon: "checkmark.circle",
-                     color: responding == vm.slots.count ? .green : responding > 0 ? .orange : .red)
-                .help("Number of hosts that have replied to at least one packet.")
-            StatCard(title: "Avg Loss", value: String(format: "%.1f%%", avgLoss), 
-                     icon: "exclamationmark.triangle",
-                     color: avgLoss == 0 ? .secondary : avgLoss < 10 ? .orange : .red)
-                .help("Average packet loss across all monitored hosts.")
+            StatCard(title: "TOTAL HOSTS", value: "\(vm.slots.count)", icon: "server.rack")
+            StatCard(title: "ACTIVE", value: "\(running)", icon: "play.fill", color: running > 0 ? .green : .secondary)
+            StatCard(title: "RESPONDING", value: "\(responding)", icon: "checkmark.shield.fill", color: responding == vm.slots.count ? .blue : .orange)
+            StatCard(title: "AVG LOSS", value: String(format: "%.1f%%", avgLoss), icon: "exclamationmark.triangle.fill", color: avgLoss > 10 ? .red : .secondary)
+            
             Spacer()
+            
+            if !vm.slots.isEmpty {
+                Menu {
+                    Button("Export as PDF Report...") {
+                        Exporter.saveMultiPingPDF(slots: vm.slots)
+                    }
+                } label: {
+                    Label("Report", systemImage: "doc.text.fill")
+                        .font(.system(size: 12, weight: .bold))
+                }
+                .buttonStyle(.bordered)
+            }
         }
     }
 
-    private var addBar: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 0) {
-                TextField("Add host or IP", text: $newHost)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 220)
-                    .onSubmit { addHost() }
-                if !history.hosts.isEmpty {
-                    Menu {
-                        ForEach(history.hosts, id: \.self) { h in
-                            Button(h) { newHost = h; addHost() }
-                        }
-                    } label: {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .foregroundColor(.secondary)
-                    }
-                    .menuStyle(.borderlessButton)
-                    .frame(width: 28)
+    private var multiPingLearningGuideSheet: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Multi-Ping Learning Guide").font(.title2.bold())
+                    Text("Understand how to monitor infrastructure at scale.").font(.subheadline).foregroundColor(.secondary)
                 }
+                Spacer()
+                Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent)
             }
-
-            Button("Add") { addHost() }
-                .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
-                .keyboardShortcut(.return)
-
-            Divider().frame(height: 16)
+            .padding(24)
             
-            HStack(spacing: 6) {
-                Text("Sort:").font(.caption).foregroundColor(.secondary)
+            Divider()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    GuideSection(title: "Multi-Host Strategy", icon: "server.rack") {
+                        Text("Multi-Ping allows you to monitor the health of your entire infrastructure in one glance. Use it to compare performance between different server locations or gateways.")
+                    }
+                    
+                    GuideSection(title: "Health Strips", icon: "square.grid.3x1.below.line.grid.1x2") {
+                        Text("The 'Stability Bar' shows 60 individual packet results per host. A solid green bar means 100% uptime, while red segments reveal intermittent disconnects.")
+                    }
+                    
+                    GuideSection(title: "Interpreting Status", icon: "brain.head.profile") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            GuidePoint(title: "Healthy", desc: "Target is responding quickly with no packet loss.")
+                            GuidePoint(title: "Degraded", desc: "Target is reachable but experiencing minor packet loss or latency.")
+                            GuidePoint(title: "Critical", desc: "Major issues detected, such as >20% packet loss or very high latency.")
+                        }
+                    }
+                }
+                .padding(24)
+            }
+        }
+        .frame(width: 500, height: 600)
+    }
+
+    private var addBar: some View {
+        HStack(spacing: 12) {
+            TextField("Enter hostname or IP address", text: $newHost)
+                .textFieldStyle(.roundedBorder)
+                .controlSize(.large)
+                .frame(width: 300)
+                .onSubmit(addHost)
+                .overlay(alignment: .trailing) {
+                    if !history.hosts.isEmpty {
+                        Menu {
+                            ForEach(history.hosts, id: \.self) { h in
+                                Button(h) { newHost = h; addHost() }
+                            }
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundColor(.secondary)
+                        }
+                        .menuStyle(.borderlessButton)
+                        .frame(width: 28)
+                        .padding(.trailing, 4)
+                    }
+                }
+
+            Button(action: addHost) {
+                Label("Add Target", systemImage: "plus.circle.fill")
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
+
+            Button { showLearningGuide = true } label: {
+                Image(systemName: "book.fill")
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .help("Multi-Ping Learning Guide")
+
+            Divider().frame(height: 24).padding(.horizontal, 8)
+            
+            HStack(spacing: 8) {
+                Text("Sort:").font(.system(size: 12, weight: .bold)).foregroundColor(.secondary)
                 Picker("", selection: $vm.sortMode) {
                     ForEach(MultiPingSort.allCases) { mode in
                         Text(mode.rawValue).tag(mode)
                     }
                 }
                 .pickerStyle(.menu)
-                .frame(width: 100)
+                .frame(width: 120)
             }
 
             Spacer()
 
             if !vm.slots.isEmpty {
-                Button("Stop All") { vm.stopAll() }
-                    .buttonStyle(.borderless)
-                Button("Start All") { vm.startAll() }
-                    .buttonStyle(.borderless)
+                HStack(spacing: 8) {
+                    Button(action: { vm.stopAll() }) {
+                        Label("Stop All", systemImage: "stop.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    
+                    Button(action: { vm.startAll() }) {
+                        Label("Start All", systemImage: "play.fill")
+                    }
+                    .buttonStyle(.bordered)
+                }
             }
         }
     }
 
-    private var slotsTable: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                headerCell("Host", flexible: true)
-                headerCell("Snt", width: 50)
-                headerCell("Loss%", width: 65)
-                headerCell("Last (ms)", width: 80)
-                headerCell("Avg (ms)", width: 80)
-                headerCell("Graph", width: 140)
-                headerCell("", width: 30)
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Color(.windowBackgroundColor))
-
-            Divider()
-
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(vm.slots) { slot in
-                        SlotRow(slot: slot) {
-                            vm.remove(slot)
-                        }
-                        Divider().opacity(0.5)
-                    }
-                }
-            }
-            .background(Color(.textBackgroundColor))
+    private var slotsTableHeader: some View {
+        HStack(spacing: 0) {
+            headerCell("Host / Endpoint", flexible: true)
+            headerCell("Snt", width: 60)
+            headerCell("Loss%", width: 70)
+            headerCell("Last", width: 80)
+            headerCell("Avg RTT", width: 80)
+            headerCell("Stability Bar (Last 60)", width: 150)
+            headerCell("", width: 40)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(.separatorColor), lineWidth: 0.5)
-        )
+        .padding(.vertical, 12)
+        .padding(.horizontal, 20)
+        .background(Color(.windowBackgroundColor))
+        .overlay(VStack { Spacer(); Divider() })
     }
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 16) {
             Spacer()
-            Image(systemName: "antenna.radiowaves.left.and.right")
-                .font(.largeTitle)
-                .foregroundColor(.secondary)
-            Text("Add hosts to ping simultaneously")
-                .foregroundColor(.secondary)
-                .font(.callout)
-                .padding(.top, 8)
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.1))
+                    .frame(width: 100, height: 100)
+                Image(systemName: "dot.radiowaves.left.and.right")
+                    .font(.system(size: 40))
+                    .foregroundColor(.accentColor)
+            }
+            VStack(spacing: 4) {
+                Text("Multi-Host Monitoring")
+                    .font(.title2.bold())
+                Text("Enter a hostname above to start monitoring multiple endpoints simultaneously.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 400)
+            }
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.textBackgroundColor))
-        .cornerRadius(8)
     }
 
     private func headerCell(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.caption.bold())
+        Text(title.uppercased())
+            .font(.system(size: 10, weight: .black))
             .foregroundColor(.secondary)
+            .kerning(1)
             .frame(width: width, alignment: .leading)
             .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
     }
@@ -159,48 +247,155 @@ struct MultiPingView: View {
     }
 }
 
-private struct SlotRow: View {
+// MARK: - MultiPingRow
+
+private struct MultiPingRow: View {
     @ObservedObject var slot: PingSlot
+    let isExpanded: Bool
+    var rttWarn: Double
+    var rttCrit: Double
+    let onToggleExpand: () -> Void
     let onRemove: () -> Void
-    @AppStorage("rttWarnThreshold") private var rttWarn: Double = 20.0
-    @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
 
     var body: some View {
-        HStack(spacing: 0) {
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(statusColor)
-                    .frame(width: 7, height: 7)
-                Text(slot.host)
-                    .font(.system(.caption, design: .monospaced))
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                // Host & Status Interpretation
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(statusColor)
+                            .frame(width: 8, height: 8)
+                            .overlay(Circle().stroke(statusColor.opacity(0.3), lineWidth: 3).scaleEffect(slot.isRunning ? 1.5 : 1.0).opacity(slot.isRunning ? 0 : 1))
+                        Text(slot.host)
+                            .font(.system(size: 13, weight: .bold))
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .black))
+                            .foregroundColor(.secondary.opacity(0.5))
+                            .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                    }
+                    Text(interpretStatus().description)
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(.secondary)
+                        .padding(.leading, 16)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture { onToggleExpand() }
 
-            Text("\(slot.sent)")
-                .font(.system(.caption, design: .monospaced))
-                .frame(width: 50, alignment: .trailing)
-
-            lossCell
-
-            rttCell(slot.lastRtt, width: 80)
-            rttCell(slot.avgRtt, width: 80)
-
-            sparkline
-
-            Button {
-                onRemove()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.caption2)
+                Text("\(slot.sent)")
+                    .font(.system(size: 12, design: .monospaced))
+                    .frame(width: 60, alignment: .leading)
                     .foregroundColor(.secondary)
+
+                Text(String(format: "%.0f%%", slot.loss))
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundColor(slot.loss > 0 ? .red : .secondary)
+                    .frame(width: 70, alignment: .leading)
+
+                Text(slot.lastRtt.map { String(format: "%.1f", $0) } ?? "—")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(slot.lastRtt.map { rttColor($0) } ?? .secondary)
+                    .frame(width: 80, alignment: .leading)
+
+                Text(slot.avgRtt.map { String(format: "%.1f", $0) } ?? "—")
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundColor(slot.avgRtt.map { rttColor($0) } ?? .secondary)
+                    .frame(width: 80, alignment: .leading)
+
+                // Health Strip
+                healthStrip
+                    .frame(width: 150)
+                    .onTapGesture { onToggleExpand() }
+
+                HStack(spacing: 4) {
+                    Button(action: { if slot.isRunning { slot.stop() } else { slot.start() } }) {
+                        Image(systemName: slot.isRunning ? "pause.fill" : "play.fill")
+                            .font(.system(size: 10))
+                            .foregroundColor(slot.isRunning ? .orange : .green)
+                            .frame(width: 20, height: 20)
+                            .background(Color.secondary.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Button(action: onRemove) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 9, weight: .black))
+                            .foregroundColor(.red.opacity(0.7))
+                            .frame(width: 20, height: 20)
+                            .background(Color.red.opacity(0.05))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .frame(width: 40)
             }
-            .buttonStyle(.borderless)
-            .frame(width: 30)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .background(rowBackground)
+            
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("RTT HISTORY (ms)").font(.system(size: 9, weight: .black)).foregroundColor(.secondary)
+                        Spacer()
+                        if let avg = slot.avgRtt {
+                            Text("Avg: \(String(format: "%.2f", avg))").font(.system(size: 9, weight: .bold))
+                        }
+                    }
+                    
+                    Chart {
+                        ForEach(slot.samples) { s in
+                            if let rtt = s.rtt {
+                                AreaMark(x: .value("Time", s.timestamp), y: .value("RTT", rtt))
+                                    .foregroundStyle(LinearGradient(colors: [rttColor(rtt).opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                                LineMark(x: .value("Time", s.timestamp), y: .value("RTT", rtt))
+                                    .foregroundStyle(rttColor(rtt))
+                                    .lineStyle(StrokeStyle(lineWidth: 1.5))
+                            } else {
+                                RuleMark(x: .value("Time", s.timestamp))
+                                    .foregroundStyle(Color.red.opacity(0.2))
+                            }
+                        }
+                    }
+                    .chartYAxis {
+                        AxisMarks(values: .automatic(desiredCount: 3)) { val in
+                            AxisValueLabel { if let ms = val.as(Double.self) { Text("\(Int(ms))").font(.system(size: 8)) } }
+                        }
+                    }
+                    .chartXAxis(.hidden)
+                    .frame(height: 100)
+                    .padding(.bottom, 8)
+                }
+                .padding(.horizontal, 40)
+                .padding(.vertical, 16)
+                .background(Color.black.opacity(0.03))
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(rowBackground)
+    }
+
+    private var healthStrip: some View {
+        let history = Array(slot.samples.suffix(60))
+        return HStack(spacing: 1.5) {
+            ForEach(0..<60) { i in
+                let sample = i < history.count ? history[i] : nil
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(healthColor(sample))
+                    .frame(width: 2, height: 16)
+            }
+        }
+        .help("Stability over last 60 packets. Red = Timeout, Orange = High Latency, Green = Healthy.")
+    }
+
+    private func healthColor(_ sample: RTTSample?) -> Color {
+        guard let s = sample else { return Color.secondary.opacity(0.1) }
+        guard let rtt = s.rtt else { return .red }
+        if rtt > rttCrit { return .red }
+        if rtt > rttWarn { return .orange }
+        return .green
     }
 
     private var statusColor: Color {
@@ -211,59 +406,18 @@ private struct SlotRow: View {
     }
 
     private var rowBackground: Color {
-        if slot.loss >= 50 { return Color.red.opacity(0.06) }
-        if slot.loss > 0 { return Color.orange.opacity(0.04) }
+        if isExpanded { return Color.accentColor.opacity(0.03) }
+        if slot.loss >= 50 { return Color.red.opacity(0.05) }
+        if slot.loss > 0 { return Color.orange.opacity(0.03) }
         return Color.clear
     }
 
-    private var lossCell: some View {
-        let text = slot.sent == 0 ? "—" : String(format: "%.1f%%", slot.loss)
-        let color: Color = slot.loss == 0 ? .secondary : slot.loss < 10 ? .orange : .red
-        return Text(text)
-            .font(.system(.caption, design: .monospaced))
-            .foregroundColor(color)
-            .frame(width: 65, alignment: .trailing)
-    }
-
-    @ViewBuilder
-    private func rttCell(_ rtt: Double?, width: CGFloat) -> some View {
-        if let rtt {
-            Text(String(format: "%.1f", rtt))
-                .font(.system(.caption, design: .monospaced))
-                .foregroundColor(rttColor(rtt))
-                .frame(width: width, alignment: .trailing)
-        } else {
-            Text("—")
-                .font(.system(.caption, design: .monospaced))
-                .foregroundColor(.secondary)
-                .frame(width: width, alignment: .trailing)
-        }
-    }
-
-    private var sparkline: some View {
-        let history = Array(slot.samples.suffix(60))
-        let maxVal = history.compactMap { $0.rtt }.max() ?? 1
-
-        return Canvas { ctx, size in
-            let slotW = size.width / CGFloat(max(history.count, 30))
-            let barW = max(1, slotW - 1)
-            for (i, sample) in history.enumerated() {
-                let x = CGFloat(i) * slotW
-                if let v = sample.rtt {
-                    let ratio = CGFloat(v / maxVal)
-                    let h = max(3, ratio * (size.height - 4)) + 4
-                    let rect = CGRect(x: x, y: size.height - h, width: barW, height: h)
-                    ctx.fill(Path(rect), with: .color(rttColor(v).opacity(0.75)))
-                } else {
-                    let rect = CGRect(x: x, y: size.height - 5, width: barW, height: 5)
-                    ctx.fill(Path(rect), with: .color(Color.red.opacity(0.7)))
-                }
-            }
-        }
-        .frame(width: 132, height: 26)
-        .background(Color(.separatorColor).opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 3))
-        .padding(.leading, 8)
+    private func interpretStatus() -> (status: String, description: String) {
+        guard slot.sent > 0 else { return ("Idle", "Waiting to start") }
+        if slot.loss > 20 { return ("Critical", "Severe packet loss") }
+        if slot.loss > 0 { return ("Degraded", "Minor instability") }
+        if let avg = slot.avgRtt, avg > rttWarn { return ("Lagging", "Higher latency") }
+        return ("Healthy", "Stable connection")
     }
 
     private func rttColor(_ rtt: Double) -> Color {

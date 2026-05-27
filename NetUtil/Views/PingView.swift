@@ -18,6 +18,7 @@ struct PingView: View {
     @State private var showRaw = false
     @State private var showHistory = false
     @State private var tableScrollID: PingResult.ID?
+    @State private var showLearningGuide = false
     
     // Interactive chart state
     @State private var selectedPacket: Int?
@@ -129,6 +130,9 @@ struct PingView: View {
             }
         }
         .padding(24)
+        .sheet(isPresented: $showLearningGuide) {
+            learningGuideSheet
+        }
     }
 
     private var controlBar: some View {
@@ -209,7 +213,7 @@ struct PingView: View {
                         Exporter.save(string: Exporter.csvString(from: vm.results), defaultName: "NetUtil-Ping-\(host)-\(fileDate).csv", ext: "csv")
                     }
                 } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
+                    Label("Report", systemImage: "doc.text.fill")
                         .font(.system(size: 13, weight: .semibold))
                 }
                 .buttonStyle(.bordered)
@@ -232,9 +236,58 @@ struct PingView: View {
             .buttonStyle(.borderedProminent)
             .tint(vm.isRunning ? .red : .accentColor)
             .disabled(!vm.isRunning && host.isEmpty)
+            
+            Button { showLearningGuide = true } label: {
+                Image(systemName: "book.fill")
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.bordered)
+            .help("Ping Learning Guide")
         }
     }
     
+    private var learningGuideSheet: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Ping Learning Guide").font(.title2.bold())
+                    Text("Learn how to interpret network latency diagnostics.").font(.subheadline).foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent)
+            }
+            .padding(24)
+            
+            Divider()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    GuideSection(title: "What is Ping?", icon: "antenna.radiowaves.left.and.right") {
+                        Text("Ping is a basic diagnostic tool that sends a small packet of data (ICMP Echo Request) to a destination and waits for a reply. It measures how fast your connection is and if any data is being lost.")
+                    }
+                    
+                    GuideSection(title: "Understanding Metrics", icon: "gauge.medium") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            GuidePoint(title: "RTT (Round Trip Time)", desc: "The time (in milliseconds) it takes for a packet to go to the host and back. Lower is better (e.g., <20ms for gaming, <100ms for browsing).")
+                            GuidePoint(title: "Jitter", desc: "The variation in RTT between packets. High jitter (>20ms) causes stuttering in video calls and online gaming.")
+                            GuidePoint(title: "Packet Loss", desc: "The percentage of packets that failed to reach the destination. Even 1% loss can cause noticeable lag.")
+                        }
+                    }
+                    
+                    GuideSection(title: "Reading the Chart", icon: "chart.line.uptrend.xyaxis") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("• **Green Zone**: Stable connection with low latency.")
+                            Text("• **Orange/Red Peaks**: Sudden lag spikes, often caused by local network congestion or ISP routing issues.")
+                            Text("• **Red Bars**: Timeouts (100% loss) where the destination didn't respond.")
+                        }
+                    }
+                }
+                .padding(24)
+            }
+        }
+        .frame(width: 500, height: 600)
+    }
+
     private func startAction() {
         if vm.isRunning {
             vm.stop()
@@ -537,5 +590,40 @@ struct PingView: View {
         if rtt < rttCrit { return .orange }
         if rtt < 250 { return .red }
         return .purple
+    }
+}
+
+// MARK: - Educational Components
+
+struct GuideSection<Content: View>: View {
+    let title: String
+    let icon: String
+    let content: Content
+    
+    init(title: String, icon: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.icon = icon
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: icon).foregroundColor(.accentColor).font(.headline)
+                Text(title).font(.headline)
+            }
+            content.font(.subheadline).foregroundColor(.secondary)
+        }
+    }
+}
+
+struct GuidePoint: View {
+    let title: String
+    let desc: String
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title).font(.system(size: 11, weight: .black)).foregroundColor(.primary)
+            Text(desc).fixedSize(horizontal: false, vertical: true)
+        }
     }
 }

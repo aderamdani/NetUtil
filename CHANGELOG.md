@@ -4,6 +4,24 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [1.8.0] — 2026-05-27
+
+### Added
+- **Enterprise Multi-Ping**: Major upgrades for infrastructure-scale monitoring.
+    - **Drill-Down Detail Chart**: Expand any host row to view its full RTT history chart without leaving the screen.
+    - **Consolidated PDF Report**: Generate a professional, unified report for all monitored hosts in one document.
+- **Unified Learning System**: Standardized "Learning Guide" sheets across Ping, Multi-Ping, and Traceroute to help users understand network metrics.
+
+### Improved
+- **Premium Reporting Engine**: Standardized PDF designs across all tools with consistent headers, app branding, and timestamped filenames.
+- **Ping UX Refinement**: 
+    - Fixed auto-scroll to be 100% reliable using a robust ScrollViewReader engine.
+    - Improved Stop button visibility and icon contrast.
+    - Replaced timeout alert sound with a more modern and subtle "Tink" sound.
+- **Global Typography**: Standardized all UI elements to pure San Francisco (SF) Pro.
+
+---
+
 ## [1.7.2] — 2026-05-27
 
 ### Added
