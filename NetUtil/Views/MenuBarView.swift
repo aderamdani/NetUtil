@@ -288,36 +288,38 @@ struct MenuBarLabel: View {
         return .red
     }
 
-    private var combinedMode: Bool { displayMode == "rtt_traffic" }
-    private var alreadyHasTraffic: Bool { displayMode == "traffic" || combinedMode }
+    private var rttString: String {
+        hasResult ? String(format: "%dms", Int(currentRTT)) : "—ms"
+    }
+
+    private var trafficString: String {
+        "↓\(Self.formatRate(currentRx)) ↑\(Self.formatRate(currentTx))"
+    }
 
     var body: some View {
-        HStack(spacing: 6) {
-            primaryView
-            if (combinedMode || (showTraffic && !alreadyHasTraffic)) && displayMode != "traffic" {
-                trafficView
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var primaryView: some View {
         switch displayMode {
-        case "rtt", "rtt_traffic":
-            Text(hasResult ? String(format: "%d ms", Int(currentRTT)) : "— ms")
-                .font(.system(size: 12, weight: .semibold, design: .monospaced).monospacedDigit())
+        case "rtt":
+            Text(rttString)
+                .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
                 .foregroundColor(hasResult ? pingColor : .secondary)
         case "traffic":
-            trafficView
+            Text(trafficString)
+                .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
+        case "rtt_traffic":
+            Text("\(rttString)  \(trafficString)")
+                .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
+                .foregroundColor(hasResult ? pingColor : .secondary)
         default:
-            Image(systemName: "waveform.path.ecg")
-                .imageScale(.medium)
+            if showTraffic {
+                HStack(spacing: 4) {
+                    Image(systemName: "waveform.path.ecg").imageScale(.medium)
+                    Text(trafficString)
+                        .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
+                }
+            } else {
+                Image(systemName: "waveform.path.ecg").imageScale(.medium)
+            }
         }
-    }
-
-    private var trafficView: some View {
-        Text("↓\(Self.formatRate(currentRx)) ↑\(Self.formatRate(currentTx))")
-            .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
     }
 
     static func formatRate(_ bps: Double) -> String {
