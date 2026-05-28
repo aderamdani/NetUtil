@@ -154,6 +154,17 @@ struct HelpView: View {
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
             
+            if let code = topic.codeBlock {
+                Text(code)
+                    .font(.system(.footnote, design: .monospaced))
+                    .foregroundColor(.primary)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(.separatorColor).opacity(0.2), lineWidth: 0.5))
+            }
+
             if let tips = topic.tips, !tips.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(tips, id: \.self) { tip in
@@ -194,6 +205,7 @@ private struct HelpTopic: Identifiable {
     let id = UUID()
     let heading: String
     let body: String
+    var codeBlock: String? = nil
     var tips: [String]? = nil
 }
 
@@ -438,6 +450,224 @@ private let allSections: [HelpSection] = [
                 "Loss alert threshold: loss% above this turns red in the Ping stats bar."
             ]),
             HelpTopic(heading: "Privacy", body: "Host input history is stored in UserDefaults and shown in the history dropdown across all tools. Clear it here if needed. Geolocation setting is also here.", tips: nil)
+        ]
+    ),
+
+    // MARK: - Network Guide
+
+    HelpSection(
+        title: "OSI Model",
+        icon: "square.stack.3d.up",
+        subtitle: "7 layers with real protocols",
+        topics: [
+            HelpTopic(
+                heading: "Layer Overview",
+                body: "The OSI model standardises how systems communicate across seven layers. Each layer adds or removes a header as data moves between application and physical medium.",
+                codeBlock:
+                    "Layer  Name           Unit     Protocols               NetUtil Tool\n" +
+                    "───────────────────────────────────────────────────────────────────\n" +
+                    "  7    Application   Data     HTTP, DNS, SMTP, SSH    DNS, SSL, HTTP Lat.\n" +
+                    "  6    Presentation  Data     TLS, SSL, JPEG, GZIP    SSL/TLS Inspector\n" +
+                    "  5    Session       Data     NetBIOS, RPC, PPTP      HTTP Latency\n" +
+                    "  4    Transport     Segment  TCP, UDP, QUIC          Port Scanner\n" +
+                    "  3    Network       Packet   IP, ICMP, OSPF, BGP     Ping, Traceroute\n" +
+                    "  2    Data Link     Frame    Ethernet, 802.11, ARP   Interfaces\n" +
+                    "  1    Physical      Bit      Copper, Fiber, Radio    Wi-Fi Inspector"
+            ),
+            HelpTopic(
+                heading: "Layer 3 — Network (IP & ICMP)",
+                body: "Routers operate at Layer 3, forwarding packets based on IP addresses. Each router decrements the TTL field by 1. When TTL reaches 0, an ICMP Time Exceeded is returned — the mechanism that Traceroute exploits to discover hops.",
+                codeBlock:
+                    "IP Header (key fields):\n" +
+                    "  Version | IHL | DSCP | Total Length\n" +
+                    "  TTL (8 bits) | Protocol | Checksum\n" +
+                    "  Source IP (32 bits)\n" +
+                    "  Destination IP (32 bits)\n\n" +
+                    "Protocol field values:\n" +
+                    "  1 = ICMP   6 = TCP   17 = UDP   89 = OSPF"
+            ),
+            HelpTopic(
+                heading: "Layer 4 — Transport (TCP vs UDP)",
+                body: "TCP is connection-oriented with guaranteed delivery, ordering, and retransmission. UDP is connectionless — no handshake, no retransmit, minimal header overhead.",
+                codeBlock:
+                    "Feature        TCP                       UDP\n" +
+                    "─────────────────────────────────────────────\n" +
+                    "Connection     Handshake required        None\n" +
+                    "Reliability    Guaranteed, retransmit    Best-effort\n" +
+                    "Header size    20–60 bytes               8 bytes\n" +
+                    "Use case       HTTP, SSH, FTP, SMTP      DNS, VoIP, video",
+                tips: ["Port Scanner probes Layer 4: SYN → SYN-ACK = Open. SYN → RST = Closed. No reply = Filtered."]
+            ),
+        ]
+    ),
+
+    HelpSection(
+        title: "TCP/IP Stack",
+        icon: "arrow.left.arrow.right",
+        subtitle: "Addressing, handshake, flags, ICMP",
+        topics: [
+            HelpTopic(
+                heading: "IPv4 Private Ranges",
+                body: "Three RFC 1918 address blocks are reserved for private networks. Routers do not forward these on the public internet. NAT translates them to a public address at the network edge.",
+                codeBlock:
+                    "Range                          Mask   Typical use\n" +
+                    "────────────────────────────────────────────────────\n" +
+                    "10.0.0.0 – 10.255.255.255       /8     Large enterprise\n" +
+                    "172.16.0.0 – 172.31.255.255     /12    Medium networks\n" +
+                    "192.168.0.0 – 192.168.255.255   /16    Home / small office\n" +
+                    "169.254.0.0 – 169.254.255.255   /16    Link-local (APIPA)"
+            ),
+            HelpTopic(
+                heading: "TCP 3-Way Handshake",
+                body: "Before data is exchanged, TCP synchronises sequence numbers on both ends via a 3-step process. Understanding this is key to reading Port Scanner results and diagnosing connection failures.",
+                codeBlock:
+                    "Client                      Server\n" +
+                    "  │─── SYN (Seq=X) ────────→│\n" +
+                    "  │←── SYN-ACK (Seq=Y,Ack=X+1)─│\n" +
+                    "  │─── ACK (Ack=Y+1) ──────→│\n" +
+                    "  │══════ DATA TRANSFER ═════│\n" +
+                    "  │─── FIN ────────────────→│  (graceful close)\n\n" +
+                    "TCP Flags:  SYN=sync  ACK=ack  FIN=finish\n" +
+                    "            RST=reset  PSH=push  URG=urgent"
+            ),
+            HelpTopic(
+                heading: "ICMP — Ping & Traceroute",
+                body: "ICMP carries control messages at Layer 3. Ping uses Echo Request (type 8) / Echo Reply (type 0). Traceroute sends packets with incrementing TTL, triggering Time Exceeded (type 11) from each router.",
+                codeBlock:
+                    "Type  Code  Message            Tool use\n" +
+                    "────────────────────────────────────────────────\n" +
+                    "   0     0  Echo Reply         Ping: response received\n" +
+                    "   3     0  Net Unreachable    Destination not reachable\n" +
+                    "   3     3  Port Unreachable   UDP port closed\n" +
+                    "   8     0  Echo Request       Ping: packet sent\n" +
+                    "  11     0  Time Exceeded      Traceroute: TTL expired"
+            ),
+            HelpTopic(
+                heading: "IPv6 Basics",
+                body: "IPv6 uses 128-bit addresses in eight colon-separated hex groups. Consecutive zero groups collapse to '::'. Link-local addresses (fe80::) are always present on active interfaces.",
+                codeBlock:
+                    "Full:       2001:0db8:0000:0000:0000:0000:0000:0001\n" +
+                    "Compressed: 2001:db8::1\n\n" +
+                    "Link-local: fe80::1   (every active interface)\n" +
+                    "Loopback:   ::1       (equivalent to 127.0.0.1)",
+                tips: ["Check the Interfaces tool to see all IPv6 addresses assigned to each adapter, including link-local and any global unicast addresses."]
+            ),
+        ]
+    ),
+
+    HelpSection(
+        title: "Subnetting & CIDR",
+        icon: "number.square",
+        subtitle: "Mask calculation, host ranges, VLSM",
+        topics: [
+            HelpTopic(
+                heading: "CIDR Prefix Reference",
+                body: "CIDR (Classless Inter-Domain Routing) expresses the subnet mask as a bit count after the slash. The remaining bits identify hosts. Usable hosts = 2^(32-prefix) − 2 (subtract network and broadcast addresses).",
+                codeBlock:
+                    "CIDR  Subnet Mask         Hosts    Typical use\n" +
+                    "────────────────────────────────────────────────────\n" +
+                    "/8    255.0.0.0           16,777,214  ISP block\n" +
+                    "/16   255.255.0.0         65,534      Campus LAN\n" +
+                    "/24   255.255.255.0       254         Standard LAN\n" +
+                    "/25   255.255.255.128     126         Split /24\n" +
+                    "/28   255.255.255.240     14          Small VLAN\n" +
+                    "/30   255.255.255.252     2           Point-to-point\n" +
+                    "/32   255.255.255.255     1           Host route"
+            ),
+            HelpTopic(
+                heading: "Calculating a Subnet",
+                body: "Given an IP and prefix, zero the host bits to get the network address. Set all host bits to 1 for the broadcast. First host = network + 1. Last host = broadcast − 1.",
+                codeBlock:
+                    "IP:        192.168.10.45 / 26\n" +
+                    "Mask:      255.255.255.192  (11000000 in last octet)\n\n" +
+                    "Network:   192.168.10.0    (host bits zeroed)\n" +
+                    "Broadcast: 192.168.10.63   (host bits all 1s)\n" +
+                    "First:     192.168.10.1\n" +
+                    "Last:      192.168.10.62\n" +
+                    "Hosts:     62  (2^6 − 2)",
+                tips: ["Use the Subnet Calculator tool to compute all values instantly. It also shows the binary representation of the mask."]
+            ),
+            HelpTopic(
+                heading: "VLSM — Variable Length Subnet Masking",
+                body: "VLSM assigns different prefix lengths to different subnets within the same address space. Right-size each segment to avoid wasting addresses.",
+                codeBlock:
+                    "Allocate from 10.0.0.0/24:\n\n" +
+                    "  50 hosts → /26 (62 hosts)  10.0.0.0/26\n" +
+                    "  20 hosts → /27 (30 hosts)  10.0.0.64/27\n" +
+                    "   2 hosts → /30  (2 hosts)  10.0.0.96/30\n" +
+                    "  Remainder:                 10.0.0.100 onward"
+            ),
+        ]
+    ),
+
+    HelpSection(
+        title: "DNS, TLS & Routing",
+        icon: "lock.shield",
+        subtitle: "Resolution chain, handshake, routing table",
+        topics: [
+            HelpTopic(
+                heading: "DNS Resolution Chain",
+                body: "When you enter a hostname, your OS queries a recursive resolver which walks the DNS hierarchy from root to TLD to authoritative nameserver. Results are cached for the TTL duration.",
+                codeBlock:
+                    "Browser → Stub Resolver (OS cache)\n" +
+                    "              ↓ miss\n" +
+                    "          Recursive Resolver (1.1.1.1 / 8.8.8.8)\n" +
+                    "              ↓ miss\n" +
+                    "          Root Nameserver  (.)\n" +
+                    "              ↓ delegation\n" +
+                    "          TLD Nameserver   (.com)\n" +
+                    "              ↓ delegation\n" +
+                    "          Authoritative NS (example.com)\n" +
+                    "              ↓\n" +
+                    "          A record → 93.184.216.34  (cached for TTL s)",
+                tips: ["DNS Lookup lets you compare results between your ISP resolver and 1.1.1.1 or 8.8.8.8 to detect propagation delays or resolver differences."]
+            ),
+            HelpTopic(
+                heading: "DNS Record Types",
+                body: "Each record type serves a specific purpose. Understanding them is essential when diagnosing mail delivery, CDN routing, and certificate validation failures.",
+                codeBlock:
+                    "Record  Purpose                      Example\n" +
+                    "────────────────────────────────────────────────────────\n" +
+                    "A       IPv4 address                 93.184.216.34\n" +
+                    "AAAA    IPv6 address                 2606:2800::1\n" +
+                    "CNAME   Alias to another hostname    www → example.com\n" +
+                    "MX      Mail server + priority       mail.example.com 10\n" +
+                    "NS      Authoritative nameservers    ns1.example.com\n" +
+                    "TXT     Arbitrary text / SPF / DKIM  v=spf1 include:...\n" +
+                    "PTR     Reverse lookup (IP → name)   93.184.216.34 → ...\n" +
+                    "SOA     Zone authority + timers      primary NS + serial"
+            ),
+            HelpTopic(
+                heading: "TLS 1.3 Handshake",
+                body: "TLS 1.3 completes the handshake in 1 round-trip. The client sends its key share in ClientHello; the server replies with its key share and certificate in a single flight. Private keys never cross the wire.",
+                codeBlock:
+                    "Client                        Server\n" +
+                    "  │─── ClientHello ──────────→│  (cipher suites, key_share)\n" +
+                    "  │←── ServerHello ───────────│  (selected cipher, key_share)\n" +
+                    "  │←── {Certificate} ─────────│\n" +
+                    "  │←── {CertificateVerify} ───│\n" +
+                    "  │←── {Finished} ────────────│\n" +
+                    "  │─── {Finished} ────────────→│\n" +
+                    "  │════ [Application Data] ════│\n" +
+                    "  { } = encrypted   total: 1 RTT",
+                tips: [
+                    "SSL/TLS Inspector shows the full certificate chain, expiry date, SANs, key type, and SHA-256 fingerprint.",
+                    "A certificate chain is: Leaf → Intermediate CA → Root CA. The server must send the intermediate — browsers trust root CAs from the OS keychain."
+                ]
+            ),
+            HelpTopic(
+                heading: "Routing Table & Longest Prefix Match",
+                body: "Every router and your Mac maintain a routing table. When forwarding a packet, the longest (most specific) matching prefix wins. The default route 0.0.0.0/0 matches everything as a last resort.",
+                codeBlock:
+                    "Destination        Gateway        Flags  Interface\n" +
+                    "────────────────────────────────────────────────────\n" +
+                    "0.0.0.0/0          192.168.1.1    UG     en0      ← default\n" +
+                    "192.168.1.0/24     link#4         U      en0      ← local\n" +
+                    "10.0.0.0/8         10.8.0.1       UG     utun0    ← VPN\n" +
+                    "127.0.0.0/8        127.0.0.1      U      lo0      ← loopback\n\n" +
+                    "Flags: U=Up  G=Gateway  H=Host  S=Static",
+                tips: ["A VPN often injects 0.0.0.0/1 + 128.0.0.0/1 — two /1 routes more specific than the default /0 — to route all traffic through the tunnel without replacing the default route."]
+            ),
         ]
     ),
 ]
