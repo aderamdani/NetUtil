@@ -31,6 +31,7 @@ private struct GeneralPane: View {
     @AppStorage("menuBarDisplayMode")    private var menuBarMode    = "icon"
     @AppStorage("menuBarShowTraffic")    private var menuBarTraffic = false
     @AppStorage("menuBarPingInterval")   private var menuBarInterval = 2.0
+    @AppStorage("backgroundOnClose")     private var backgroundOnClose = false
 
     var body: some View {
         Form {
@@ -104,6 +105,9 @@ private struct GeneralPane: View {
                 Toggle("Show traffic next to icon", isOn: $menuBarTraffic)
                     .disabled(menuBarMode == "traffic" || menuBarMode == "rtt_traffic" || menuBarMode == "rtt")
                     .help("Append live download (↓) and upload (↑) rates to the right of the icon. Disabled when the primary mode already shows traffic or uses the Ping + Traffic preset.")
+
+                Toggle("Keep running in menu bar when window closed", isOn: $backgroundOnClose)
+                    .help("When enabled, closing the main window hides NetUtil from the Dock but keeps the menu bar item active. Click the menu bar icon and the window button to bring NetUtil back to the Dock. When disabled, closing the window quits the app.")
 
                 LabeledContent("Ping Interval") {
                     CompactSlider(value: $menuBarInterval, range: 1...10, step: 1, format: "%.0f s")
