@@ -135,6 +135,7 @@ struct AboutView: View {
         ("wifi",                                   "Wi-Fi Inspector"),
         ("arrow.triangle.branch",                  "Route Table"),
         ("chart.bar.xaxis",                        "Bandwidth Monitor"),
+        ("books.vertical",                         "Network Guide"),
     ]
 
     private func showAck() {
