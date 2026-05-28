@@ -15,7 +15,6 @@ enum Tool: String, CaseIterable, Identifiable {
     case interfaces  = "Interfaces"
     case wifi        = "Wi-Fi"
     case routes        = "Routes"
-    case networkGuide  = "Network Guide"
 
     var id: String { rawValue }
 
@@ -35,7 +34,6 @@ enum Tool: String, CaseIterable, Identifiable {
         case .whois:        "magnifyingglass.circle"
         case .bandwidth:    "chart.bar.xaxis"
         case .subnet:       "number.square"
-        case .networkGuide: "books.vertical"
         }
     }
     
@@ -150,9 +148,6 @@ struct ContentView: View {
                             sidebarItem(.routes)
                         }
 
-                        Section("Reference") {
-                            sidebarItem(.networkGuide)
-                        }
                     }
                 }
             }
@@ -232,7 +227,6 @@ struct ContentView: View {
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
         case .subnet:       SubnetCalculatorView(vm: tools.subnet)
-        case .networkGuide: NetworkGuideView()
         }
     }
 }
