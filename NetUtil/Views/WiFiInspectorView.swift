@@ -43,11 +43,11 @@ struct WiFiInspectorView: View {
 
     private var controlBar: some View {
         HStack(spacing: 12) {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: "wifi").foregroundColor(.accentColor)
                 Text(vm.info?.ssid ?? "Searching...").font(.headline)
             }
-            .padding(.horizontal, 16).frame(height: 38).background(Color.accentColor.opacity(0.1)).cornerRadius(8).frame(width: 250, alignment: .leading)
+            .frame(width: 250, alignment: .leading)
 
             HStack(spacing: 8) {
                 Text("Updated").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
@@ -190,8 +190,8 @@ struct WiFiDetailCard: View {
     let icon: String
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(label).font(.system(size: 10, weight: .medium)).foregroundColor(.secondary)
-            Text(value).font(.system(size: 12, design: .monospaced)).lineLimit(1).textSelection(.enabled)
+            Text(label).font(.caption.weight(.medium)).foregroundColor(.secondary)
+            Text(value).font(.system(.callout, design: .monospaced)).lineLimit(1).textSelection(.enabled)
         }
         .padding(14).frame(maxWidth: .infinity, alignment: .leading).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
     }

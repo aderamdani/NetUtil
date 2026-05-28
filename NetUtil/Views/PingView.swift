@@ -168,7 +168,7 @@ struct PingView: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
                 AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
-                AxisValueLabel { if let v = value.as(Double.self) { Text("\(Int(v))").font(.system(size: 9)) } }
+                AxisValueLabel { if let v = value.as(Double.self) { Text("\(Int(v))").font(.system(size: 10)) } }
             }
         }
         .chartXAxis(.hidden)

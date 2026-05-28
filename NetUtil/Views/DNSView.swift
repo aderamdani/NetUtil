@@ -95,7 +95,7 @@ struct DNSView: View {
                             HStack(spacing: 0) {
                                 Text(r.name).font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary).frame(maxWidth: .infinity, alignment: .leading)
                                 Text("\(r.ttl)").font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary).frame(width: 70, alignment: .leading)
-                                Text(r.type).font(.system(size: 9, weight: .bold)).foregroundColor(typeColor(r.type)).padding(.horizontal, 6).padding(.vertical, 2).background(typeColor(r.type).opacity(0.1)).cornerRadius(4).frame(width: 70, alignment: .leading)
+                                Text(r.type).font(.system(size: 10, weight: .semibold)).foregroundColor(typeColor(r.type)).padding(.horizontal, 6).padding(.vertical, 2).background(typeColor(r.type).opacity(0.1)).cornerRadius(4).frame(width: 70, alignment: .leading)
                                 Text(r.value).font(.system(size: 11, design: .monospaced)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .padding(.vertical, 6).padding(.horizontal, 12)

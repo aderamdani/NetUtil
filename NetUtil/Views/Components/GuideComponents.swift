@@ -14,8 +14,8 @@ struct GuideSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: icon).foregroundColor(.accentColor).font(.system(size: 14, weight: .bold))
-                Text(title).font(.system(.headline, design: .default).bold())
+                Image(systemName: icon).foregroundColor(.accentColor).font(.headline)
+                Text(title).font(.headline)
             }
             content.font(.subheadline).foregroundColor(.secondary)
         }
@@ -27,8 +27,8 @@ struct GuidePoint: View {
     let desc: String
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.system(size: 12, weight: .bold)).foregroundColor(.primary)
-            Text(desc).font(.system(size: 12)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            Text(title).font(.callout.weight(.semibold)).foregroundColor(.primary)
+            Text(desc).font(.callout).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }
 }

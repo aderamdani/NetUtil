@@ -103,8 +103,8 @@ struct WhoisView: View {
             .tint(vm.isRunning ? .red : .accentColor)
             .disabled(!vm.isRunning && query.isEmpty)
             
-            Button { showLearningGuide = true } label: { Image(systemName: "book.fill").font(.system(size: 14)) }
-            .buttonStyle(.bordered)
+            Button { showLearningGuide = true } label: { Image(systemName: "questionmark.circle") }
+            .buttonStyle(.borderless)
         }
     }
     
@@ -124,9 +124,9 @@ struct WhoisView: View {
 
     private var statsBar: some View {
         HStack(spacing: 12) {
-            StatCard(title: "TOTAL LINES", value: "\(vm.lines.count)", icon: "text.alignleft")
+            StatCard(title: "Total Lines", value: "\(vm.lines.count)", icon: "text.alignleft")
             if let registry = vm.lines.first(where: { $0.label?.lowercased().contains("registry") == true })?.value {
-                StatCard(title: "REGISTRY", value: registry, icon: "building.2.fill", color: .blue)
+                StatCard(title: "Registry", value: registry, icon: "building.2.fill", color: .blue)
             }
             Spacer()
         }
@@ -154,8 +154,8 @@ struct WhoisView: View {
 
     private func sectionHeader(_ title: String, systemImage: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: systemImage).foregroundColor(.accentColor).font(.system(size: 11, weight: .bold))
-            Text(title).font(.system(.subheadline, design: .default).bold()).foregroundColor(.primary.opacity(0.8))
+            Image(systemName: systemImage).foregroundColor(.accentColor).font(.headline)
+            Text(title).font(.headline)
         }
     }
     
@@ -166,10 +166,9 @@ struct WhoisView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack {
             Spacer()
-            Image(systemName: "magnifyingglass.circle").font(.system(size: 40)).foregroundColor(.accentColor.opacity(0.3))
-            Text("Enter a domain for WHOIS lookup").font(.headline).foregroundColor(.secondary)
+            Text("No Target Selected").font(.headline).foregroundColor(.secondary)
             Spacer()
         }.frame(maxWidth: .infinity, minHeight: 300)
     }

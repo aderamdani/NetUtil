@@ -6,49 +6,45 @@ struct DashboardView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 44) {
-                // 1. REFINED HEADER
+            VStack(alignment: .leading, spacing: 32) {
                 headerSection
-                
-                // 2. DIAGNOSTICS BENTO
-                VStack(alignment: .leading, spacing: 20) {
+
+                VStack(alignment: .leading, spacing: 16) {
                     sectionHeader("Diagnostics", icon: "bolt.shield.fill")
-                    
-                    HStack(spacing: 20) {
+
+                    HStack(spacing: 12) {
                         pingCard
                             .frame(maxWidth: .infinity)
-                        
-                        VStack(spacing: 20) {
+
+                        VStack(spacing: 12) {
                             multiPingCard
                             portScanCard
                         }
-                        .frame(width: 300)
+                        .frame(width: 280)
                     }
                 }
-                
-                // 3. CONNECTIVITY GRID
-                VStack(alignment: .leading, spacing: 20) {
+
+                VStack(alignment: .leading, spacing: 16) {
                     sectionHeader("Connectivity", icon: "wifi.router.fill")
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         wifiCard
                         interfacesCard
                         bandwidthCard
                     }
                 }
-                
-                // 4. SECURITY & LOOKUP
-                VStack(alignment: .leading, spacing: 20) {
+
+                VStack(alignment: .leading, spacing: 16) {
                     sectionHeader("Security & Lookup", icon: "lock.shield.fill")
-                    
-                    HStack(spacing: 20) {
+
+                    HStack(spacing: 12) {
                         sslCard
                         dnsCard
                         whoisCard
                     }
                 }
             }
-            .padding(48)
+            .padding(24)
         }
         .background(Color(.windowBackgroundColor).ignoresSafeArea())
         .onAppear {
@@ -71,8 +67,8 @@ struct DashboardView: View {
                     gatewayChip(label: "LOCAL IP", value: tools.interfaces.interfaces.first(where: { $0.isUp && !$0.isLoopback })?.ipv4.first ?? "127.0.0.1")
                     gatewayChip(label: "PUBLIC IP", value: tools.externalIP)
                     if tools.isVPNActive {
-                        Label("VPN ACTIVE", systemImage: "lock.shield.fill")
-                            .font(.system(size: 9, weight: .bold))
+                        Label("VPN Active", systemImage: "lock.shield.fill")
+                            .font(.caption2.weight(.semibold))
                             .foregroundColor(.green)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
@@ -87,23 +83,23 @@ struct DashboardView: View {
             
             HStack(spacing: 16) {
                 healthGauge(label: "CPU", value: String(format: "%.0f%%", tools.system.cpuUsage), color: tools.system.cpuUsage > 70 ? .red : .primary)
-                healthGauge(label: "RAM", value: tools.system.memoryPressure.uppercased(), color: tools.system.memoryColor == "red" ? .red : .primary)
+                healthGauge(label: "RAM", value: tools.system.memoryPressure.capitalized, color: tools.system.memoryColor == "red" ? .red : .primary)
             }
         }
     }
     
     private func gatewayChip(label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 1) {
-            Text(label).font(.system(size: 9, weight: .semibold)).foregroundColor(.secondary)
-            Text(value).font(.system(size: 11, weight: .semibold, design: .monospaced))
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label).font(.caption2.weight(.medium)).foregroundColor(.secondary)
+            Text(value).font(.system(.caption, design: .monospaced).weight(.semibold))
         }
         .padding(.trailing, 12)
     }
-    
+
     private func healthGauge(label: String, value: String, color: Color) -> some View {
         VStack(alignment: .trailing, spacing: 2) {
-            Text(label).font(.system(size: 9, weight: .semibold)).foregroundColor(.secondary)
-            Text(value).font(.system(size: 14, weight: .bold, design: .monospaced)).foregroundColor(color)
+            Text(label).font(.caption2.weight(.medium)).foregroundColor(.secondary)
+            Text(value).font(.system(.title3, design: .monospaced).weight(.bold)).foregroundColor(color)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -112,10 +108,8 @@ struct DashboardView: View {
 
     private func sectionHeader(_ title: String, icon: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(size: 12, weight: .semibold))
-            Text(title)
-                .font(.system(.headline, design: .default).bold())
-                .foregroundColor(.primary.opacity(0.8))
+            Image(systemName: icon).foregroundColor(.accentColor).font(.headline)
+            Text(title).font(.headline)
         }
     }
 
@@ -142,7 +136,7 @@ struct DashboardView: View {
                     HStack(alignment: .bottom) {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(String(format: "%.1f", tools.ping.stats.avgRtt)).font(.system(size: 28, weight: .bold, design: .monospaced))
-                            Text("ms avg").font(.system(size: 9, weight: .black)).foregroundColor(.secondary)
+                            Text("ms avg").font(.caption2.weight(.semibold)).foregroundColor(.secondary)
                         }
                         Spacer()
                         DashboardSparkline(data: tools.ping.results.suffix(40).map { $0.rtt }, color: isRunning ? .green : .blue)
@@ -244,21 +238,20 @@ struct BentoCard<Content: View>: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 10) {
-                    Image(systemName: icon).font(.system(size: 13, weight: .bold)).foregroundColor(color)
-                    Text(title).font(.system(size: 13, weight: .bold)).foregroundColor(.primary.opacity(0.8))
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: icon).font(.subheadline.weight(.semibold)).foregroundColor(color)
+                    Text(title).font(.subheadline.weight(.semibold)).foregroundColor(.primary)
                 }
-                
+
                 content
             }
-            .padding(20)
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.controlBackgroundColor).opacity(0.6))
-            .cornerRadius(20)
-            .shadow(color: Color.black.opacity(isHovered ? 0.08 : 0.03), radius: isHovered ? 12 : 6, y: isHovered ? 6 : 3)
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(isHovered ? color.opacity(0.3) : Color(.separatorColor).opacity(0.05), lineWidth: isHovered ? 1.5 : 0.5))
-            .scaleEffect(isHovered ? 1.01 : 1.0)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .shadow(color: Color.black.opacity(isHovered ? 0.06 : 0.02), radius: isHovered ? 8 : 4, y: isHovered ? 4 : 2)
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(isHovered ? color.opacity(0.25) : Color(.separatorColor).opacity(0.12), lineWidth: 1))
+            .scaleEffect(isHovered ? 1.005 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isHovered)
         }
         .buttonStyle(.plain)

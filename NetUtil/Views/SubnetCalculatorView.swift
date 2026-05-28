@@ -106,11 +106,11 @@ struct SubnetCalculatorView: View {
     private func binaryView(_ r: SubnetResult) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Subnet Mask BITS").font(.system(size: 11, weight: .medium, design: .monospaced)).foregroundColor(.secondary)
+                Text("Subnet Mask Bits").font(.system(.subheadline, design: .monospaced).weight(.medium)).foregroundColor(.secondary)
                 Spacer()
-                Text("\(r.prefix) ones, \(32 - r.prefix) zeros").font(.system(size: 10, weight: .medium)).foregroundColor(.secondary)
+                Text("\(r.prefix) ones, \(32 - r.prefix) zeros").font(.caption.weight(.medium)).foregroundColor(.secondary)
             }
-            Text(r.binaryMask).font(.system(size: 16, weight: .medium, design: .monospaced)).foregroundColor(.primary).padding(16).frame(maxWidth: .infinity, alignment: .center).background(Color.accentColor.opacity(0.05)).cornerRadius(10)
+            Text(r.binaryMask).font(.system(.title3, design: .monospaced).weight(.medium)).foregroundColor(.primary).padding(16).frame(maxWidth: .infinity, alignment: .center).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
         }
         .padding(16).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
     }
@@ -132,8 +132,8 @@ struct SubnetDetailCard: View {
     let label: String; let value: String; let icon: String
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(label).font(.system(size: 10, weight: .medium)).foregroundColor(.secondary)
-            Text(value).font(.system(size: 13, design: .monospaced)).lineLimit(1).textSelection(.enabled)
+            Text(label).font(.caption.weight(.medium)).foregroundColor(.secondary)
+            Text(value).font(.system(.body, design: .monospaced)).lineLimit(1).textSelection(.enabled)
         }.padding(14).frame(maxWidth: .infinity, alignment: .leading).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
     }
 }

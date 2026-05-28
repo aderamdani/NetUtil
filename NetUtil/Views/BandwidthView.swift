@@ -37,10 +37,10 @@ struct BandwidthView: View {
 
     private var controlBar: some View {
         HStack(spacing: 12) {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: "chart.bar.xaxis").foregroundColor(.accentColor)
                 Text("Bandwidth Monitor").font(.headline)
-            }.padding(.horizontal, 16).frame(height: 38).background(Color.accentColor.opacity(0.1)).cornerRadius(8).frame(width: 250, alignment: .leading)
+            }.frame(width: 250, alignment: .leading)
 
             HStack(spacing: 12) {
                 Toggle("Active Only", isOn: $vm.showActiveOnly).font(.system(size: 11, weight: .medium)).toggleStyle(.checkbox)
@@ -122,8 +122,8 @@ private struct BandwidthDetailCard: View {
             HStack(spacing: 12) {
                 Image(systemName: iface.typeIcon).foregroundColor(iface.isUp ? .primary : .secondary).frame(width: 24, height: 24)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(ifaceName).font(.system(size: 13, weight: .bold, design: .monospaced))
-                    Text(iface.typeName).font(.system(size: 10, weight: .medium)).foregroundColor(.secondary)
+                    Text(ifaceName).font(.system(.headline, design: .monospaced))
+                    Text(iface.typeName).font(.caption.weight(.medium)).foregroundColor(.secondary)
                 }
                 Spacer()
                 HStack(spacing: 8) {
@@ -142,15 +142,15 @@ private struct BandwidthDetailCard: View {
                     }
                 }
                 .chartXAxis(.hidden)
-                .chartYAxis { AxisMarks(values: .automatic(desiredCount: 2)) { val in AxisValueLabel { if let v = val.as(Double.self) { Text(formatRate(v)).font(.system(size: 8, design: .monospaced)) } } } }
+                .chartYAxis { AxisMarks(values: .automatic(desiredCount: 2)) { val in AxisValueLabel { if let v = val.as(Double.self) { Text(formatRate(v)).font(.system(size: 10, design: .monospaced)) } } } }
                 .chartYScale(domain: 0...maxVal * 1.2).frame(height: 50)
             }
             
             HStack {
                 if let total = current {
-                    Text("Total RX: \(formatBytes(total.totalRx))").font(.system(size: 9, design: .monospaced))
+                    Text("Total RX: \(formatBytes(total.totalRx))").font(.system(.caption, design: .monospaced))
                     Spacer()
-                    Text("Total TX: \(formatBytes(total.totalTx))").font(.system(size: 9, design: .monospaced))
+                    Text("Total TX: \(formatBytes(total.totalTx))").font(.system(.caption, design: .monospaced))
                 }
             }.foregroundColor(.secondary)
         }

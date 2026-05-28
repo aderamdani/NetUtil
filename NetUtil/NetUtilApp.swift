@@ -4,6 +4,7 @@ import SwiftUI
 struct NetUtilApp: App {
     @Environment(\.openWindow) private var openWindow
     @StateObject private var tools = ToolStore()
+    @StateObject private var menuBarVM = MenuBarViewModel()
 
     var body: some Scene {
         WindowGroup {
@@ -46,8 +47,11 @@ struct NetUtilApp: App {
 
         MenuBarExtra {
             MenuBarView()
+                .environmentObject(tools)
+                .environmentObject(tools.interfaces)
+                .environmentObject(menuBarVM)
         } label: {
-            Image(systemName: "network")
+            MenuBarLabel()
         }
         .menuBarExtraStyle(.window)
     }

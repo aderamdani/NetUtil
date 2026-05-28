@@ -64,16 +64,25 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
     ```
     If a new tool is added to ContentView Tool enum, add it here too (same SF symbol, same display name).
 
-4.  **Clean Up**: `rm -rf dist/NetUtil.xcarchive`
+4.  **HIG & Anti-Slop Audit** — for every new or modified view, verify:
+    - No font below 10pt (labels, icons, chart axes, badges).
+    - No `Color(...).opacity(x)` backgrounds on cards or containers.
+    - No forced ALL CAPS on labels or dynamic values.
+    - No 40pt+ icons in empty states.
+    - Card `cornerRadius` is 8-12pt, never 20pt+.
+    - Control bar titles have no colored background.
+    - Learning guide button: `questionmark.circle` + `.borderless` only.
 
-5.  **Build & Package**:
+5.  **Clean Up**: `rm -rf dist/NetUtil.xcarchive`
+
+6.  **Build & Package**:
     ```bash
     xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release \
       -destination 'platform=macOS' ARCHS='arm64 x86_64'
     bash scripts/build_dmg.sh
     ```
 
-6.  **Version Control & GitHub**:
+7.  **Version Control & GitHub**:
     ```bash
     git commit -m "docs: release vX.X.X - <key features>"
     git push origin main
@@ -82,6 +91,47 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
     gh release create vX.X.X dist/NetUtil-X.X.X.dmg \
       --title "vX.X.X — <short title>" --notes "..."
     ```
+
+---
+
+## Apple Human Interface Guidelines (Mandatory)
+
+Every new view, feature, or UI change MUST comply with Apple's macOS HIG. Non-compliance blocks release. Reference: https://developer.apple.com/design/human-interface-guidelines/
+
+### Typography
+- **Minimum font size: 10pt.** `.caption` / `.caption2` is the floor. Nothing smaller — not even for icons, chart axis labels, or chips.
+- **Use semantic text styles** over hardcoded sizes: `.largeTitle`, `.title`, `.title2`, `.title3`, `.headline`, `.body`, `.callout`, `.subheadline`, `.footnote`, `.caption`, `.caption2`.
+- **Monospaced only for technical data**: IPs, RTTs, ports, binary masks, timestamps. Use `.system(.caption, design: .monospaced)` pattern.
+- **Never `.primary.opacity(x)`** as a proxy for `.secondary`. Use `.secondary` directly.
+- **No forced ALL CAPS** on any label, StatCard title, or dynamic data value. Title Case or Sentence Case only.
+
+### Layout & Spacing
+- **8pt grid**: all spacing values must be multiples of 4 or 8 (4, 8, 12, 16, 20, 24, 32).
+- **Main content padding**: 20-24pt. 32pt maximum for spacious views.
+- **Card corner radius**: 8-12pt for macOS panels/cards. 20pt+ is iOS/visionOS — never on macOS.
+- **Section spacing**: 16-24pt between sections. 32pt between major layout blocks.
+
+### Materials & Backgrounds
+- **Cards and containers**: always `.background(.regularMaterial, in: RoundedRectangle(cornerRadius: N))`.
+- **Never** `Color(.anything).opacity(x)` for card/container backgrounds.
+- **Control bar title HStack**: plain icon + text, no colored opacity background behind it.
+- **Status badges/chips only** (VPN active, error banner, DNS type labels): colored opacity acceptable.
+
+### Components & Consistency
+- **Learning guide button**: always `Image(systemName: "questionmark.circle")` + `.buttonStyle(.borderless)`.
+- **Empty states**: silent text only — `Text("No Target Selected").font(.headline).foregroundColor(.secondary)`. No large icons.
+- **BentoCard/dashboard cards**: `cornerRadius: 10`, `.regularMaterial` background, shadow opacity max 0.06.
+- **Section headers**: `.headline` font, `.accentColor` icon, no `.foregroundColor(.primary.opacity(...))`.
+
+### Pre-Release HIG Checklist (run for every new/modified view)
+- [ ] No font below 10pt anywhere (labels, icons, chart axes, badges).
+- [ ] No hardcoded sizes where semantic text styles apply.
+- [ ] No `Color(...).opacity(x)` on card/container backgrounds.
+- [ ] No forced ALL CAPS on labels or dynamic data.
+- [ ] No 40pt+ icon in empty states.
+- [ ] Card `cornerRadius` is 8-12pt, never 20pt+.
+- [ ] Control bar title has no colored background.
+- [ ] Learning guide button is `questionmark.circle` + `.borderless`.
 
 ---
 
@@ -104,7 +154,7 @@ To maintain a professional, "Apple Artisan" aesthetic, NEVER use AI-generated we
 ### 4. Silent Empty States & Data-Dense Headers
 - **NEVER** use massive 40pt+ icons with chatty instructions (e.g., "Ready to analyze! Enter a URL...") for empty states. Use silent, `.secondary` text: `Text("No Target Selected")`.
 - **NEVER** use conversational text in status headers (e.g., "All Systems Go! 2 out of 2 endpoints...").
-- **ALWAYS** use data-dense, clinical terminology (e.g., "Active: 2", "Status: Secure"). 
+- **ALWAYS** use data-dense, clinical terminology (e.g., "Active: 2", "Status: Secure").
 
 ### 5. Unified Control Bar (Fixed Top)
 - **Position**: Always locked at the top (`VStack` with 0 spacing, followed by `ScrollView`).

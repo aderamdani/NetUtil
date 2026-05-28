@@ -99,20 +99,59 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
    ```
    If a new tool is added to `ContentView.swift` Tool enum, add it here too (same SF symbol, same display name).
 
-4. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive`
+4. **HIG & Anti-Slop Audit** — for every new or modified view:
+   - No font below 10pt. No hardcoded sizes where semantic styles apply.
+   - No `Color(...).opacity(x)` backgrounds on cards/containers.
+   - No forced ALL CAPS on labels or dynamic values.
+   - No 40pt+ empty state icons.
+   - Card `cornerRadius` is 8-12pt, never 20pt+.
+   - Control bar titles have no colored background.
+   - Learning guide button: `questionmark.circle` + `.borderless` only.
 
-5. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`
+5. **Clean artifacts**: `rm -rf dist/NetUtil.xcarchive`
 
-6. **Package**: `bash scripts/build_dmg.sh`
+6. **Build**: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release -destination 'platform=macOS' ARCHS='arm64 x86_64'`
 
-7. **Commit & Push**:
+7. **Package**: `bash scripts/build_dmg.sh`
+
+8. **Commit & Push**:
    - `git commit -m "docs: release vX.X.X - <summary>"`
    - `git push origin main`
    - `git tag vX.X.X`
    - `git push origin --tags`
 
-8. **GitHub Release**:
+9. **GitHub Release**:
    `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X — <short title>" --notes "..."`
+
+---
+
+## Apple Human Interface Guidelines (Mandatory)
+
+Every new view, feature, or UI change MUST comply with Apple's macOS HIG. Non-compliance blocks release. Reference: https://developer.apple.com/design/human-interface-guidelines/
+
+### Typography
+- **Minimum font size: 10pt.** `.caption` / `.caption2` is the floor. Nothing smaller.
+- **Use semantic text styles** over hardcoded sizes: `.largeTitle`, `.title`, `.title2`, `.title3`, `.headline`, `.body`, `.callout`, `.subheadline`, `.footnote`, `.caption`, `.caption2`.
+- **Monospaced only for data**: IPs, RTTs, ports, binary masks — use `.system(.caption, design: .monospaced)` etc.
+- **Never `.primary.opacity(x)`** as a proxy for `.secondary`. Use semantic colors directly.
+- **No forced ALL CAPS** on labels or dynamic data. Title Case or Sentence Case only.
+
+### Layout & Spacing
+- **8pt grid**: spacing values must be multiples of 4 or 8 (4, 8, 12, 16, 20, 24, 32).
+- **Content padding**: 20-24pt for main view content. 32pt is the maximum for spacious layouts.
+- **Card corner radius**: 8-12pt for macOS panels/cards. 20pt+ is iOS/visionOS — never use on macOS.
+- **Section spacing**: 16-24pt between sections. 32pt between major layout blocks.
+
+### Materials & Backgrounds
+- **Cards and containers**: always `.background(.regularMaterial, in: RoundedRectangle(cornerRadius: N))`.
+- **Never** `Color(.anything).opacity(x)` for card/container backgrounds (fake vibrancy).
+- **Control bar titles**: plain `HStack` with icon + text. No colored opacity backgrounds behind them.
+- **Status badges/chips** (VPN, errors, type labels): colored opacity is acceptable for these only.
+
+### Components
+- **Learning guide button**: always `Image(systemName: "questionmark.circle")` + `.buttonStyle(.borderless)`. No other icon or style.
+- **Empty states**: silent secondary text only — `Text("No Target Selected").font(.headline).foregroundColor(.secondary)`. No large icons.
+- **BentoCard/dashboard cards**: `cornerRadius: 10`, `.regularMaterial` background, shadow `opacity` max 0.06.
 
 ---
 

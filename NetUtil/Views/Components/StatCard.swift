@@ -10,7 +10,7 @@ struct StatCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.system(size: 10, weight: .semibold))
+                .font(.caption.weight(.medium))
                 .foregroundColor(.secondary)
             
             HStack(alignment: .lastTextBaseline, spacing: 2) {
