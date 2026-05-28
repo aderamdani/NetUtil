@@ -4,6 +4,20 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.6.0] — 2026-05-28
+
+### Added
+
+- **Network Guide in Help**: Four new reference sections added to the Help window (⌘?) covering the core networking concepts every network engineer needs:
+  - **OSI Model** — 7-layer table with real protocols and corresponding NetUtil tools per layer, deep-dive on Layer 3 IP header and Layer 4 TCP vs UDP.
+  - **TCP/IP Stack** — IPv4 private ranges, IPv6 notation, TCP 3-way handshake diagram, TCP flags, ICMP types table.
+  - **Subnetting & CIDR** — Prefix reference table (/8–/32), step-by-step subnet calculation example, VLSM allocation walkthrough.
+  - **DNS, TLS & Routing** — DNS resolution chain diagram, all 8 record types, TLS 1.3 handshake flow, routing table with longest-prefix-match explanation.
+- Each guide section includes monospaced code blocks for diagrams/tables and lightbulb tips pointing to the relevant NetUtil tool.
+- **`HelpTopic` enhanced** with optional `codeBlock` field — renders monospaced code/diagram panels with a `.regularMaterial` background, available for future help content.
+
+---
+
 ## [2.5.2] — 2026-05-28
 
 ### Fixed
