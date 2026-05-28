@@ -15,6 +15,9 @@ enum Tool: String, CaseIterable, Identifiable {
     case interfaces  = "Interfaces"
     case wifi        = "Wi-Fi"
     case routes        = "Routes"
+    case statistics    = "Statistics"
+    case speedTest     = "Speed Test"
+    case topApps       = "Top Processes"
 
     var id: String { rawValue }
 
@@ -34,6 +37,9 @@ enum Tool: String, CaseIterable, Identifiable {
         case .whois:        "magnifyingglass.circle"
         case .bandwidth:    "chart.bar.xaxis"
         case .subnet:       "number.square"
+        case .statistics:   "chart.line.uptrend.xyaxis"
+        case .speedTest:    "speedometer"
+        case .topApps:      "list.bullet.rectangle"
         }
     }
     
@@ -141,8 +147,14 @@ struct ContentView: View {
                             sidebarItem(.whois)
                         }
                         
-                        Section("Network Status") {
+                        Section("Bandwidth") {
                             sidebarItem(.bandwidth)
+                            sidebarItem(.statistics)
+                            sidebarItem(.speedTest)
+                            sidebarItem(.topApps)
+                        }
+
+                        Section("Network Status") {
                             sidebarItem(.interfaces)
                             sidebarItem(.wifi)
                             sidebarItem(.routes)
@@ -227,6 +239,9 @@ struct ContentView: View {
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
         case .subnet:       SubnetCalculatorView(vm: tools.subnet)
+        case .statistics:   StatisticsView()
+        case .speedTest:    SpeedTestView(vm: tools.speedTest)
+        case .topApps:      TopProcessesView(vm: tools.topApps)
         }
     }
 }
