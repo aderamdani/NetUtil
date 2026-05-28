@@ -4,6 +4,39 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.7.0] — 2026-05-28
+
+### Added
+
+- **Speed Test** (`Speed Test` sidebar tool) — four test kinds matching nperf-style coverage:
+  - **Speed**: sustained download (4 parallel connections, 10 s) + upload + median ping + jitter via Cloudflare endpoints.
+  - **Browsing**: sequential GET to 8 popular sites (Google, Cloudflare, Wikipedia, GitHub, Apple, DuckDuckGo, Bing, Reddit). Reports average load time, median TTFB, Fast/OK/Slow verdict.
+  - **Gaming**: 50 HEAD probes to 1.1.1.1 at 50 ms cadence. Reports median, P99, jitter, packet loss. Color-coded latency verdict.
+  - **Streaming**: 15 s sustained download with 1 s window sampling. Reports min/avg throughput and sustainable streaming tier (240p — 8K UHD).
+- **Top Processes** (`Top Processes` sidebar tool) — per-application real-time download and upload rates via `/usr/bin/nettop`. Activity bars normalised across processes. Hooks into existing `/usr/bin/script` PTY wrapper.
+- **Traffic Statistics** (`Statistics` sidebar tool) — daily download and upload totals persisted in UserDefaults for 90 days. Live 10-minute aggregate throughput chart. 30-day daily bar chart with download/upload split.
+- **`BandwidthMonitor` lifted to `ToolStore`** — shared, always-running aggregate sampler. `totalHistory` for 10 minutes of throughput, `onAggregateDelta` callback feeds the new `TrafficStatistics` daily accumulator.
+
+### Menu Bar
+
+- **Traffic display mode** — new `Shows` option in Settings: `↓1M ↑200K` live aggregate rates updated every second from all non-loopback adapters.
+- **Ping + Traffic combined mode** — fourth picker preset `16ms ↓1M ↑200K` shows both side by side as a single status item.
+- **Show traffic next to icon** toggle — appends live rates to the right of the waveform icon. Auto-disabled when primary mode already includes traffic.
+- **Background mode** — new `Keep running in menu bar when window closed` toggle. When enabled, closing the main window switches NSApp activation policy to `.accessory` (Dock icon disappears) and prevents quit. Reopening from the menu bar restores `.regular` policy.
+
+### Changed
+
+- Sidebar restructured into a `Bandwidth` group containing Bandwidth Monitor, Statistics, Speed Test, and Top Processes.
+- `BandwidthSample` and the old private `BandwidthViewModel` consolidated into `BandwidthMonitor` (`Models/`).
+- `AboutView` tool list expanded with Statistics, Speed Test, Top Processes.
+
+### Fixed
+
+- Speed test download previously reported ~0 Mbps because the original implementation iterated `URLSession.AsyncBytes` one byte at a time across a 100 MB stream — pure await overhead, no real measurement. Replaced with sequential `URLSession.data(for:)` chunk loop for single-connection mode and parallel chunk downloads with a `ByteCounter` actor for the saturated test.
+- `MenuBarLabel` `Ping + Traffic` mode now uses single `Text` concatenation. `HStack` of two Text children was being clipped to the first child inside the `NSStatusItem` rasterisation context.
+
+---
+
 ## [2.6.0] — 2026-05-28
 
 ### Added
