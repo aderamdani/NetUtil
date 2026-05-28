@@ -20,23 +20,24 @@ echo "▸ Building ${DMG_NAME}..."
 echo "▸ Generating DMG background..."
 swift "$REPO_ROOT/scripts/generate_background.swift" "$BACKGROUND"
 
-# ── 2. Ensure app exists in dist/ ────────────────────────────────────────────
+# ── 2. Always build fresh from archive ────────────────────────────────────────
 ARCHIVE_PATH="$REPO_ROOT/build/${APP_NAME}.xcarchive"
 ARCHIVE_APP="$ARCHIVE_PATH/Products/Applications/${APP_NAME}.app"
 
-if [ ! -d "$APP_PATH" ]; then
-    echo "▸ App not found at $APP_PATH — building..."
+echo "▸ Archiving release build..."
+rm -rf "$APP_PATH" "$ARCHIVE_PATH"
+mkdir -p "$DIST_DIR"
 
-    xcodebuild \
-        -scheme "$APP_NAME" \
-        -configuration Release \
-        -archivePath "$ARCHIVE_PATH" \
-        archive -quiet
+xcodebuild \
+    -project "${APP_NAME}.xcodeproj" \
+    -scheme "$APP_NAME" \
+    -configuration Release \
+    -archivePath "$ARCHIVE_PATH" \
+    ARCHS="arm64 x86_64" \
+    archive -quiet
 
-    mkdir -p "$DIST_DIR"
-    cp -R "$ARCHIVE_APP" "$APP_PATH"
-    echo "▸ App copied from archive"
-fi
+cp -R "$ARCHIVE_APP" "$APP_PATH"
+echo "▸ App copied from archive ($(defaults read "$APP_PATH/Contents/Info" CFBundleShortVersionString))"
 
 # ── 3. Remove old DMG ─────────────────────────────────────────────────────────
 rm -f "$DIST_DIR/${APP_NAME}-"*.dmg
