@@ -4,6 +4,20 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.5.1] — 2026-05-28
+
+### Fixed
+
+- **Updater silent failure**: `checkForUpdates` now shows an explicit error dialog on network failure instead of silently doing nothing.
+- **Progress panel invisible**: Added `NSApp.activate()` before showing the download progress panel and all update dialogs — fixes the panel not appearing when triggered from the menu bar popup.
+- **`isChecking` stuck**: Added 15-second request timeout; all error paths now reset `isChecking` to prevent the update button from doing nothing on subsequent taps.
+- **Main thread block**: `xattr` quarantine removal moved to `Task.detached` — no longer blocks the main thread during installation.
+- **Ghost progress panel**: Panel is now set to `nil` after closing, so a second update attempt creates a fresh panel instead of resurfacing a closed one.
+- **Missing `!isDownloading` guard**: Prevented overlap between an active download and a new check.
+- **Version fallback**: Updated hardcoded fallback from `"2.4.1"` to `"2.5.1"`.
+
+---
+
 ## [2.5.0] — 2026-05-28
 
 ### Changed
