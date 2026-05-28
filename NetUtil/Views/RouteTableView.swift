@@ -36,10 +36,10 @@ struct RouteTableView: View {
 
     private var controlBar: some View {
         HStack(spacing: 12) {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: "arrow.triangle.branch").foregroundColor(.accentColor)
                 Text("Routing Table").font(.headline)
-            }.padding(.horizontal, 16).frame(height: 38).background(Color.accentColor.opacity(0.1)).cornerRadius(8).frame(width: 250, alignment: .leading)
+            }.frame(width: 250, alignment: .leading)
 
             HStack(spacing: 12) {
                 Picker("", selection: $showIPv6) { Text("IPv4").tag(false); Text("IPv6").tag(true) }.pickerStyle(.segmented).frame(width: 120)

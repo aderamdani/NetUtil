@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.4.2"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.5.0"
     @ObservedObject private var updater = Updater.shared
 
     var body: some View {
@@ -37,7 +37,7 @@ struct AboutView: View {
                 // CORE VALUE PROPOSITION
                 Text("A native toolkit built for system administrators and network enthusiasts. Monitor, analyze, and secure your infrastructure with precision.")
                     .font(.body)
-                    .foregroundColor(.primary.opacity(0.8))
+                    .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 500)
                     .lineSpacing(4)
@@ -105,8 +105,7 @@ struct AboutView: View {
                 .font(.system(.subheadline, design: .monospaced).bold())
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
-                .background(Color.secondary.opacity(0.1))
-                .cornerRadius(6)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
             
             if updater.updateReady {
                 Button("Install Update") { updater.installAndRelaunch() }

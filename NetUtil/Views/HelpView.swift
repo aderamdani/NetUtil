@@ -64,11 +64,10 @@ struct HelpView: View {
                     // Section Header
                     HStack(spacing: 16) {
                         Image(systemName: section.icon)
-                            .font(.system(size: 28))
+                            .font(.system(size: 24))
                             .foregroundColor(.accentColor)
-                            .frame(width: 48, height: 48)
-                            .background(Color.accentColor.opacity(0.1))
-                            .cornerRadius(12)
+                            .frame(width: 44, height: 44)
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text(section.title)
@@ -151,7 +150,7 @@ struct HelpView: View {
             
             Text(topic.body)
                 .font(.subheadline)
-                .foregroundColor(.primary.opacity(0.8))
+                .foregroundColor(.secondary)
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
             
@@ -178,12 +177,9 @@ struct HelpView: View {
     }
     
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack {
             Spacer()
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 40))
-                .foregroundColor(.secondary.opacity(0.3))
-            Text("No help topics found for '\(search)'")
+            Text("No results for \"\(search)\"")
                 .font(.headline)
                 .foregroundColor(.secondary)
             Spacer()

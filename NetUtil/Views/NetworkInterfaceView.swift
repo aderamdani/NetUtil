@@ -33,10 +33,10 @@ struct NetworkInterfaceView: View {
 
     private var controlBar: some View {
         HStack(spacing: 12) {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: "network").foregroundColor(.accentColor)
                 Text("System Interfaces").font(.headline)
-            }.padding(.horizontal, 16).frame(height: 38).background(Color.accentColor.opacity(0.1)).cornerRadius(8).frame(width: 250, alignment: .leading)
+            }.frame(width: 250, alignment: .leading)
 
             HStack(spacing: 12) {
                 Toggle("Show Inactive", isOn: $showAll).font(.system(size: 11, weight: .medium)).toggleStyle(.checkbox)
@@ -100,8 +100,8 @@ private struct InterfaceDetailCard: View {
             HStack(spacing: 12) {
                 Image(systemName: iface.typeIcon).foregroundColor(iface.isUp ? (iface.isVLAN ? .purple : .primary) : .secondary).frame(width: 24, height: 24)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(iface.name).font(.system(size: 13, weight: .bold, design: .monospaced))
-                    Text(iface.typeName).font(.system(size: 10, weight: .medium)).foregroundColor(.secondary)
+                    Text(iface.name).font(.system(.headline, design: .monospaced))
+                    Text(iface.typeName).font(.caption.weight(.medium)).foregroundColor(.secondary)
                 }
                 Spacer()
                 statusBadge
@@ -122,12 +122,12 @@ private struct InterfaceDetailCard: View {
 
     private var statusBadge: some View {
         let (bg, fg, label): (Color, Color, String) = iface.isUp ? (.green.opacity(0.12), .green, "Connected") : (.red.opacity(0.08), .red, "Disconnected")
-        return Text(label).font(.system(size: 10, weight: .medium)).foregroundColor(fg).padding(.horizontal, 6).padding(.vertical, 2).background(bg).cornerRadius(4)
+        return Text(label).font(.caption.weight(.medium)).foregroundColor(fg).padding(.horizontal, 6).padding(.vertical, 2).background(bg).cornerRadius(4)
     }
     
     private func ifaceRow(label: String, value: String) -> some View {
         HStack(spacing: 12) {
-            Text(label).font(.system(size: 10, weight: .medium)).foregroundColor(.secondary).frame(width: 60, alignment: .leading)
+            Text(label).font(.caption.weight(.medium)).foregroundColor(.secondary).frame(width: 60, alignment: .leading)
             Text(value).font(.system(size: 11, design: .monospaced)).foregroundColor(.primary).textSelection(.enabled)
             Spacer()
             Button { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(value, forType: .string) } label: { Image(systemName: "doc.on.clipboard").font(.system(size: 10)) }.buttonStyle(.plain).foregroundColor(.secondary.opacity(0.5))

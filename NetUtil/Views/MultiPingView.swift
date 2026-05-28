@@ -154,7 +154,7 @@ private struct MultiPingRow: View {
                 HStack(spacing: 8) {
                     Circle().fill(statusColor).frame(width: 6, height: 6).opacity(slot.isRunning ? 1 : 0.3)
                     Text(slot.host).font(.system(size: 12)).foregroundColor(.secondary).lineLimit(1)
-                    Image(systemName: "chevron.right").font(.system(size: 9)).foregroundColor(.secondary).rotationEffect(.degrees(isExpanded ? 90 : 0))
+                    Image(systemName: "chevron.right").font(.system(size: 10)).foregroundColor(.secondary).rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle()).onTapGesture { onToggleExpand() }
 
@@ -182,7 +182,7 @@ private struct MultiPingRow: View {
                         } else { RuleMark(x: .value("T", s.timestamp)).foregroundStyle(Color.red.opacity(0.2)) }
                     }
                 }
-                .chartYAxis { AxisMarks(values: .automatic(desiredCount: 2)) { val in AxisValueLabel { if let ms = val.as(Double.self) { Text("\(Int(ms))").font(.system(size: 8)) } } } }
+                .chartYAxis { AxisMarks(values: .automatic(desiredCount: 2)) { val in AxisValueLabel { if let ms = val.as(Double.self) { Text("\(Int(ms))").font(.system(size: 10)) } } } }
                 .chartXAxis(.hidden).frame(height: 60).padding(.horizontal, 40).padding(.vertical, 12).background(.regularMaterial)
             }
         }

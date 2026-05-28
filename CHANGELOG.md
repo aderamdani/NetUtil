@@ -4,6 +4,39 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.5.0] — 2026-05-28
+
+### Changed
+
+- **Apple HIG Compliance Audit**: Conducted a full project-wide audit against Apple's Human Interface Guidelines. Every view now uses semantic text styles (`.headline`, `.body`, `.caption`), a minimum 10pt font floor, and an 8pt spacing grid.
+- **Material Rule Enforcement**: Eliminated all remaining fake-opacity backgrounds (`Color(...).opacity(x)`) from cards and containers across every view. All surfaces now use `.regularMaterial` for native vibrancy.
+- **Typography Overhaul**: Removed hardcoded font sizes in favour of SwiftUI semantic styles throughout. Eliminated `.weight(.black)` at small sizes, forced ALL CAPS on dynamic data, and `.primary.opacity(x)` proxies.
+- **BentoCard Redesign**: Corner radius reduced from 20pt (iOS/visionOS) to 10pt (macOS standard). Background migrated to `.regularMaterial`. Shadow softened to max 0.06 opacity.
+- **Dashboard Layout**: Padding reduced from 48pt to 24pt. Section spacing normalised to 8pt grid.
+- **Empty States**: All 40pt+ decorative icons in empty states replaced with silent `.secondary` text per HIG guidelines.
+- **Section Headers**: Unified to `.headline` font with `.accentColor` icon across all views. Removed `.foregroundColor(.primary.opacity(0.8))` pattern.
+
+### Added
+
+- **Settings Redesign**: Replaced custom sidebar with standard macOS `TabView` + `Form { Section { LabeledContent } }` pattern using `.formStyle(.grouped)`. Every control now has a `.help()` tooltip explaining its function.
+- **Menu Bar RTT Display**: New configurable menu bar icon mode. Choose between the waveform icon or a live ping RTT readout (`16 ms`) coloured by threshold. Configurable in Settings > General > Menu Bar.
+- **Menu Bar Auto-Start Ping**: Background ping now starts automatically at app launch rather than requiring the popup to be opened first.
+- **Menu Bar Ping Interval**: Configurable background ping interval (1–10s) added to Settings > General > Menu Bar.
+- **Menu Bar Status Header**: Menu bar popup now shows External IP, Local IP, connection type, and VPN status.
+- **Ping Sparkline in Menu Bar**: Real-time RTT sparkline visible in the menu bar popup.
+- **Beep on Loss in Settings**: The ping beep-on-loss toggle is now accessible in Settings > General > Ping.
+- **Threshold Clamping**: Good/Warning/Critical RTT sliders in Settings now clamp automatically to prevent invalid configurations (warn >= crit).
+
+### Fixed
+
+- `NSApp.activate(ignoringOtherApps:)` replaced with `NSApp.activate()` to fix deprecation on macOS 14+.
+- Menu bar ping colour now respects user-configured RTT thresholds instead of hardcoded 20/100ms values.
+- External IP no longer re-fetched on every menu bar popup open; fetches only when stale.
+- Sub-10pt font sizes eliminated from chart axis labels, chevron icons, and status badges.
+- "ms" unit no longer clipped in menu bar RTT display (unified to single `Text` view).
+
+---
+
 ## [2.4.2] — 2026-05-28
 
 ### Improved
