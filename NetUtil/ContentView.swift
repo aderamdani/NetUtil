@@ -155,10 +155,12 @@ struct ContentView: View {
         } detail: {
             if let selection {
                 toolView(selection)
+                    .navigationTitle(selection == .dashboard ? "NetUtil" : "NetUtil — \(selection.rawValue)")
                     .transition(.opacity)
                     .id(selection)
             } else {
                 AboutView()
+                    .navigationTitle("NetUtil")
             }
         }
         .frame(minWidth: 1000, minHeight: 650)
