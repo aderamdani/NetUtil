@@ -18,7 +18,7 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
     private var downloadedFileURL: URL?
     private var progressPanel: NSPanel?
 
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.5.2"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.6.0"
 
     private override init() { super.init() }
 
