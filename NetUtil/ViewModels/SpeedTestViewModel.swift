@@ -32,20 +32,12 @@ class SpeedTestViewModel: NSObject, ObservableObject {
     @Published var history: [SpeedTestResult] = []
     @Published var error: String?
 
-    private var session: URLSession?
-    private var activeTasks: [URLSessionTask] = []
     private var isRunning = false
+    private var cancelTransfer = false
 
     // Cloudflare speed test endpoints (open, no auth)
-    private let downloadURL = URL(string: "https://speed.cloudflare.com/__down?bytes=104857600")! // 100 MB
     private let uploadURL = URL(string: "https://speed.cloudflare.com/__up")!
     private let latencyURL = URL(string: "https://speed.cloudflare.com/__down?bytes=0")!
-
-    // Live-updated counters during transfer phases.
-    private var transferBytes: Int64 = 0
-    private var transferStart: Date?
-    private var transferDuration: TimeInterval = 10
-    private var cancelTransfer = false
 
     var isTesting: Bool { isRunning }
 
@@ -69,10 +61,6 @@ class SpeedTestViewModel: NSObject, ObservableObject {
 
     func cancel() {
         cancelTransfer = true
-        for t in activeTasks { t.cancel() }
-        activeTasks.removeAll()
-        session?.invalidateAndCancel()
-        session = nil
         isRunning = false
         phase = .idle
     }
@@ -123,48 +111,42 @@ class SpeedTestViewModel: NSObject, ObservableObject {
         isRunning = false
     }
 
-    // MARK: - Download (delegate-based, chunk-counted)
+    // MARK: - Download (sequential 25 MB chunks, ~10s window)
 
     private func measureDownload() async throws -> Double {
+        let chunkURL = URL(string: "https://speed.cloudflare.com/__down?bytes=26214400")! // 25 MB
         let config = URLSessionConfiguration.ephemeral
-        config.timeoutIntervalForRequest = 60
+        config.timeoutIntervalForRequest = 30
         config.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
-        config.httpMaximumConnectionsPerHost = 4
-
-        transferBytes = 0
-        transferStart = Date()
-        transferDuration = 10
+        let session = URLSession(configuration: config)
         cancelTransfer = false
 
-        let session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
-        self.session = session
+        let t0 = Date()
+        var totalBytes: Int64 = 0
+        let testDuration: TimeInterval = 10
+        let deadline = t0.addingTimeInterval(testDuration)
 
-        // Launch 4 parallel downloads to saturate the link.
-        var tasks: [URLSessionDataTask] = []
-        for _ in 0..<4 {
-            let task = session.dataTask(with: downloadURL)
-            tasks.append(task)
-            activeTasks.append(task)
-            task.resume()
-        }
-
-        // Sleep in small increments so cancel() can interrupt fast.
-        let deadline = Date().addingTimeInterval(transferDuration)
         while Date() < deadline && !cancelTransfer {
-            try await Task.sleep(nanoseconds: 100_000_000) // 100 ms
+            var req = URLRequest(url: chunkURL)
+            req.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+            req.timeoutInterval = 30
+            do {
+                let (data, _) = try await session.data(for: req)
+                totalBytes &+= Int64(data.count)
+            } catch {
+                if cancelTransfer { break }
+                // Network error mid-test — bail with whatever we have
+                break
+            }
+            let elapsed = Date().timeIntervalSince(t0)
+            progress = min(elapsed / testDuration / 2, 0.5)
+            downloadMbps = Double(totalBytes) * 8 / 1_000_000 / max(elapsed, 0.1)
         }
 
-        // Stop the downloads
-        let taskIDs = Set(tasks.map(\.taskIdentifier))
-        for t in tasks { t.cancel() }
-        activeTasks.removeAll { taskIDs.contains($0.taskIdentifier) }
         session.invalidateAndCancel()
-        self.session = nil
-
-        let elapsed = Date().timeIntervalSince(transferStart ?? Date())
-        let total = transferBytes
-        guard elapsed > 0, total > 0 else { return 0 }
-        return Double(total) * 8 / 1_000_000 / elapsed
+        let elapsed = Date().timeIntervalSince(t0)
+        guard elapsed > 0, totalBytes > 0 else { return 0 }
+        return Double(totalBytes) * 8 / 1_000_000 / elapsed
     }
 
     // MARK: - Upload
@@ -205,19 +187,3 @@ class SpeedTestViewModel: NSObject, ObservableObject {
     }
 }
 
-// MARK: - URLSessionDataDelegate (download chunk counting)
-
-extension SpeedTestViewModel: URLSessionDataDelegate {
-    nonisolated func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        let n = Int64(data.count)
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            self.transferBytes &+= n
-            if let start = self.transferStart {
-                let elapsed = Date().timeIntervalSince(start)
-                self.progress = min(elapsed / self.transferDuration / 2, 0.5)
-                self.downloadMbps = Double(self.transferBytes) * 8 / 1_000_000 / max(elapsed, 0.1)
-            }
-        }
-    }
-}
