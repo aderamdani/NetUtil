@@ -94,15 +94,16 @@ private struct GeneralPane: View {
                         Label("Icon", systemImage: "waveform.path.ecg").tag("icon")
                         Text("16 ms").font(.system(size: 12, design: .monospaced)).tag("rtt")
                         Text("↓1M ↑200K").font(.system(size: 11, design: .monospaced)).tag("traffic")
+                        Text("16ms ↓1M ↑200K").font(.system(size: 10, design: .monospaced)).tag("rtt_traffic")
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 240)
+                    .frame(width: 360)
                 }
-                .help("Icon shows the waveform symbol. RTT displays the live ping result. Traffic shows current download (↓) and upload (↑) rates updated every second from all active interfaces.")
+                .help("Icon: waveform symbol only. Ping: live RTT in ms. Traffic: live download (↓) and upload (↑) rates. Ping + Traffic: both side by side, updated every second.")
 
-                Toggle("Show traffic next to ping", isOn: $menuBarTraffic)
-                    .disabled(menuBarMode == "traffic")
-                    .help("Append live download (↓) and upload (↑) rates to the right of the icon or ping value. Disabled when the primary mode is already Traffic.")
+                Toggle("Show traffic next to icon", isOn: $menuBarTraffic)
+                    .disabled(menuBarMode == "traffic" || menuBarMode == "rtt_traffic" || menuBarMode == "rtt")
+                    .help("Append live download (↓) and upload (↑) rates to the right of the icon. Disabled when the primary mode already shows traffic or uses the Ping + Traffic preset.")
 
                 LabeledContent("Ping Interval") {
                     CompactSlider(value: $menuBarInterval, range: 1...10, step: 1, format: "%.0f s")
