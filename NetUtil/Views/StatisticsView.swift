@@ -105,7 +105,7 @@ struct StatisticsView: View {
                         .foregroundColor(.secondary)
                 }
             } else {
-                Text("Collecting samples...").font(.subheadline).foregroundColor(.secondary)
+                Text("No Samples").font(.headline).foregroundColor(.secondary)
             }
         }
     }
@@ -115,8 +115,8 @@ struct StatisticsView: View {
             Text("Daily Totals (last 30 days)").font(.headline)
             let recent = Array(stats.dailyTotals.suffix(30))
             if recent.isEmpty {
-                Text("No data yet. Statistics accumulate as you use the network.")
-                    .font(.subheadline).foregroundColor(.secondary)
+                Text("No Data")
+                    .font(.headline).foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, minHeight: 120)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
             } else {
@@ -132,7 +132,7 @@ struct StatisticsView: View {
                 }
                 .chartXAxis {
                     AxisMarks(values: .automatic(desiredCount: 6)) { val in
-                        AxisValueLabel { if let s = val.as(String.self) { Text(shortDate(s)).font(.system(size: 9)) } }
+                        AxisValueLabel { if let s = val.as(String.self) { Text(shortDate(s)).font(.system(size: 10)) } }
                     }
                 }
                 .chartYAxis {
@@ -140,7 +140,7 @@ struct StatisticsView: View {
                         AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
                         AxisValueLabel {
                             if let v = val.as(Double.self) {
-                                Text(formatBytes(UInt64(v))).font(.system(size: 9, design: .monospaced))
+                                Text(formatBytes(UInt64(v))).font(.system(size: 10, design: .monospaced))
                             }
                         }
                     }

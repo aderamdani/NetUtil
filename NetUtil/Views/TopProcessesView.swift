@@ -119,7 +119,7 @@ struct TopProcessesView: View {
     private func sectionHeader(_ title: String) -> some View { Text(title).font(.headline).foregroundColor(.primary) }
 
     private var emptyState: some View {
-        VStack { Spacer(); Text(vm.isRunning ? "Waiting for traffic..." : "Press Start to begin").font(.headline).foregroundColor(.secondary); Spacer() }
+        VStack { Spacer(); Text(vm.isRunning ? "No Active Traffic" : "Idle").font(.headline).foregroundColor(.secondary); Spacer() }
             .frame(maxWidth: .infinity, minHeight: 200)
     }
 
