@@ -4,6 +4,17 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.5.2] — 2026-05-28
+
+### Fixed
+
+- **VPN false positive**: `isVPNActive` no longer triggers on iCloud Private Relay and Apple's internal `utun` interfaces. Detection now requires the `utun`/`ipsec` interface to have an IPv4 address assigned, which is only true for real user VPN connections.
+- **Wrong local IP**: Dashboard and menu bar no longer show the IP of AirDrop (`awdl0`), Low Latency WLAN (`llw0`), hotspot bridge (`bridge100`), or tunnel interfaces as the primary local IP. Selection now prefers physical Ethernet/Wi-Fi interfaces only.
+- **Window title**: Title bar now shows `NetUtil — Tool Name` when a tool is selected (e.g., `NetUtil — Ping`). Dashboard shows just `NetUtil`.
+- **DMG build script**: `build_dmg.sh` now always rebuilds from a fresh archive. Previously, a cached `dist/NetUtil.app` could be repackaged under a new version number without updating its contents.
+
+---
+
 ## [2.5.1] — 2026-05-28
 
 ### Fixed

@@ -64,7 +64,7 @@ struct DashboardView: View {
                     .tracking(-0.2)
                 
                 HStack(spacing: 12) {
-                    gatewayChip(label: "LOCAL IP", value: tools.interfaces.interfaces.first(where: { $0.isUp && !$0.isLoopback })?.ipv4.first ?? "127.0.0.1")
+                    gatewayChip(label: "LOCAL IP", value: tools.primaryLocalIP)
                     gatewayChip(label: "PUBLIC IP", value: tools.externalIP)
                     if tools.isVPNActive {
                         Label("VPN Active", systemImage: "lock.shield.fill")
