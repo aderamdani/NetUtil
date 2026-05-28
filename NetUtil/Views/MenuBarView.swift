@@ -128,8 +128,7 @@ struct MenuBarView: View {
     private var footerSection: some View {
         HStack(spacing: 0) {
             Button {
-                NSApp.activate()
-                NSApp.windows.first(where: { $0.canBecomeMain })?.makeKeyAndOrderFront(nil)
+                NSApplication.showMainWindow()
             } label: {
                 Image(systemName: "macwindow")
                     .font(.system(size: 13))
