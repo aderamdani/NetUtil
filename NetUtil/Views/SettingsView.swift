@@ -29,6 +29,7 @@ private struct GeneralPane: View {
     @AppStorage("defaultTraceInterval")  private var traceInterval  = 5.0
     @AppStorage("maxRawLines")           private var maxRawLines    = 500
     @AppStorage("menuBarDisplayMode")    private var menuBarMode    = "icon"
+    @AppStorage("menuBarShowTraffic")    private var menuBarTraffic = false
     @AppStorage("menuBarPingInterval")   private var menuBarInterval = 2.0
 
     var body: some View {
@@ -98,6 +99,10 @@ private struct GeneralPane: View {
                     .frame(width: 240)
                 }
                 .help("Icon shows the waveform symbol. RTT displays the live ping result. Traffic shows current download (↓) and upload (↑) rates updated every second from all active interfaces.")
+
+                Toggle("Show traffic next to ping", isOn: $menuBarTraffic)
+                    .disabled(menuBarMode == "traffic")
+                    .help("Append live download (↓) and upload (↑) rates to the right of the icon or ping value. Disabled when the primary mode is already Traffic.")
 
                 LabeledContent("Ping Interval") {
                     CompactSlider(value: $menuBarInterval, range: 1...10, step: 1, format: "%.0f s")

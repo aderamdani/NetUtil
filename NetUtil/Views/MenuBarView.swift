@@ -272,6 +272,7 @@ class MenuBarViewModel: ObservableObject {
 
 struct MenuBarLabel: View {
     @AppStorage("menuBarDisplayMode") private var displayMode = "icon"
+    @AppStorage("menuBarShowTraffic") private var showTraffic = false
     @AppStorage("menuBarCurrentRTT")  private var currentRTT  = -1.0
     @AppStorage("menuBarCurrentRxBps") private var currentRx  = 0.0
     @AppStorage("menuBarCurrentTxBps") private var currentTx  = 0.0
@@ -288,18 +289,32 @@ struct MenuBarLabel: View {
     }
 
     var body: some View {
+        HStack(spacing: 6) {
+            primaryView
+            if showTraffic && displayMode != "traffic" {
+                trafficView
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var primaryView: some View {
         switch displayMode {
         case "rtt":
             Text(hasResult ? String(format: "%d ms", Int(currentRTT)) : "— ms")
                 .font(.system(size: 12, weight: .semibold, design: .monospaced).monospacedDigit())
                 .foregroundColor(hasResult ? pingColor : .secondary)
         case "traffic":
-            Text("↓\(Self.formatRate(currentRx)) ↑\(Self.formatRate(currentTx))")
-                .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
+            trafficView
         default:
             Image(systemName: "waveform.path.ecg")
                 .imageScale(.medium)
         }
+    }
+
+    private var trafficView: some View {
+        Text("↓\(Self.formatRate(currentRx)) ↑\(Self.formatRate(currentTx))")
+            .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
     }
 
     static func formatRate(_ bps: Double) -> String {
