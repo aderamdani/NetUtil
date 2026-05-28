@@ -128,8 +128,7 @@ struct MenuBarView: View {
     private var footerSection: some View {
         HStack(spacing: 0) {
             Button {
-                NSApp.activate()
-                NSApp.windows.first(where: { $0.canBecomeMain })?.makeKeyAndOrderFront(nil)
+                NSApplication.showMainWindow()
             } label: {
                 Image(systemName: "macwindow")
                     .font(.system(size: 13))
@@ -272,7 +271,10 @@ class MenuBarViewModel: ObservableObject {
 
 struct MenuBarLabel: View {
     @AppStorage("menuBarDisplayMode") private var displayMode = "icon"
+    @AppStorage("menuBarShowTraffic") private var showTraffic = false
     @AppStorage("menuBarCurrentRTT")  private var currentRTT  = -1.0
+    @AppStorage("menuBarCurrentRxBps") private var currentRx  = 0.0
+    @AppStorage("menuBarCurrentTxBps") private var currentTx  = 0.0
     @AppStorage("rttWarnThreshold")   private var rttWarn     = 20.0
     @AppStorage("rttCritThreshold")   private var rttCrit     = 100.0
 
@@ -285,14 +287,43 @@ struct MenuBarLabel: View {
         return .red
     }
 
+    private var rttString: String {
+        hasResult ? String(format: "%dms", Int(currentRTT)) : "—ms"
+    }
+
+    private var trafficString: String {
+        "↓\(Self.formatRate(currentRx)) ↑\(Self.formatRate(currentTx))"
+    }
+
     var body: some View {
-        if displayMode == "rtt" {
-            Text(hasResult ? String(format: "%d ms", Int(currentRTT)) : "— ms")
-                .font(.system(size: 12, weight: .semibold, design: .monospaced).monospacedDigit())
+        switch displayMode {
+        case "rtt":
+            Text(rttString)
+                .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
                 .foregroundColor(hasResult ? pingColor : .secondary)
-        } else {
-            Image(systemName: "waveform.path.ecg")
-                .imageScale(.medium)
+        case "traffic":
+            Text(trafficString)
+                .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
+        case "rtt_traffic":
+            Text("\(rttString)  \(trafficString)")
+                .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
+                .foregroundColor(hasResult ? pingColor : .secondary)
+        default:
+            if showTraffic {
+                HStack(spacing: 4) {
+                    Image(systemName: "waveform.path.ecg").imageScale(.medium)
+                    Text(trafficString)
+                        .font(.system(size: 11, weight: .semibold, design: .monospaced).monospacedDigit())
+                }
+            } else {
+                Image(systemName: "waveform.path.ecg").imageScale(.medium)
+            }
         }
+    }
+
+    static func formatRate(_ bps: Double) -> String {
+        if bps < 1024 { return String(format: "%.0fB", bps) }
+        if bps < 1_048_576 { return String(format: "%.0fK", bps / 1024) }
+        return String(format: "%.1fM", bps / 1_048_576)
     }
 }

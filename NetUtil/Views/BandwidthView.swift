@@ -4,7 +4,8 @@ import Darwin
 import Combine
 
 struct BandwidthView: View {
-    @StateObject private var vm = BandwidthViewModel()
+    @EnvironmentObject private var tools: ToolStore
+    private var vm: BandwidthMonitor { tools.bandwidth }
     @State private var showLearningGuide = false
 
     private var interfaceNames: [String] { vm.interfaces.filter { !$0.isLoopback }.map(\.name) }
@@ -30,8 +31,6 @@ struct BandwidthView: View {
             }
         }
         .padding(32)
-        .onAppear { vm.start() }
-        .onDisappear { vm.stop() }
         .sheet(isPresented: $showLearningGuide) { bandwidthLearningGuideSheet }
     }
 
@@ -43,7 +42,7 @@ struct BandwidthView: View {
             }.frame(width: 250, alignment: .leading)
 
             HStack(spacing: 12) {
-                Toggle("Active Only", isOn: $vm.showActiveOnly).font(.system(size: 11, weight: .medium)).toggleStyle(.checkbox)
+                Toggle("Active Only", isOn: Binding(get: { vm.showActiveOnly }, set: { vm.showActiveOnly = $0 })).font(.system(size: 11, weight: .medium)).toggleStyle(.checkbox)
                 Divider().frame(height: 20)
                 HStack(spacing: 4) {
                     Text("Updated").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
@@ -109,7 +108,7 @@ struct BandwidthView: View {
 }
 
 private struct BandwidthDetailCard: View {
-    @ObservedObject var vm: BandwidthViewModel
+    @ObservedObject var vm: BandwidthMonitor
     let ifaceName: String
     let iface: NetworkInterface
 
@@ -178,84 +177,3 @@ private struct BandwidthDetailCard: View {
     }
 }
 
-struct BandwidthSample: Identifiable {
-    let id = UUID()
-    let timestamp: Date
-    let rxBps: Double
-    let txBps: Double
-    let totalRx: UInt64
-    let totalTx: UInt64
-}
-
-@MainActor
-class BandwidthViewModel: ObservableObject {
-    @Published var interfaces: [NetworkInterface] = []
-    @Published var history: [String: [BandwidthSample]] = [:]
-    @Published var lastUpdated: Date = Date()
-    @Published var showActiveOnly = true
-
-    private var timer: Timer?
-    private var prevBytes: [String: (rx: UInt64, tx: UInt64)] = [:]
-    private var prevTime: Date = Date()
-    private static let historyLimit = 60
-
-    func start() {
-        interfaces = NetworkInterfaceFetcher.fetch()
-        tick()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor [weak self] in self?.tick() }
-        }
-    }
-
-    func stop() {
-        timer?.invalidate()
-        timer = nil
-    }
-
-    func hasTraffic(_ name: String) -> Bool {
-        guard let samples = history[name] else { return false }
-        return samples.suffix(5).contains { $0.rxBps > 0 || $0.txBps > 0 }
-    }
-
-    private func tick() {
-        let now = Date()
-        let dt = now.timeIntervalSince(prevTime)
-        guard dt > 0 else { return }
-
-        let current = fetchRawBytes()
-        lastUpdated = now
-
-        for (name, cur) in current {
-            let prev = prevBytes[name] ?? cur
-            let rxDelta = cur.rx >= prev.rx ? Double(cur.rx - prev.rx) / dt : 0
-            let txDelta = cur.tx >= prev.tx ? Double(cur.tx - prev.tx) / dt : 0
-
-            let sample = BandwidthSample(timestamp: now, rxBps: rxDelta, txBps: txDelta, totalRx: cur.rx, totalTx: cur.tx)
-            history[name, default: []].append(sample)
-            if history[name]!.count > Self.historyLimit { history[name]!.removeFirst() }
-        }
-
-        prevBytes = current
-        prevTime = now
-
-        let fresh = NetworkInterfaceFetcher.fetch()
-        if fresh.map(\.name) != interfaces.map(\.name) { interfaces = fresh }
-    }
-
-    private func fetchRawBytes() -> [String: (rx: UInt64, tx: UInt64)] {
-        var result: [String: (rx: UInt64, tx: UInt64)] = [:]
-        var ifaddr: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&ifaddr) == 0 else { return result }
-        defer { freeifaddrs(ifaddr) }
-
-        var ptr = ifaddr
-        while let ifa = ptr {
-            defer { ptr = ifa.pointee.ifa_next }
-            guard Int32(ifa.pointee.ifa_addr.pointee.sa_family) == AF_LINK, let data = ifa.pointee.ifa_data else { continue }
-            let ifdata = data.assumingMemoryBound(to: if_data.self).pointee
-            let name = String(cString: ifa.pointee.ifa_name)
-            result[name] = (rx: UInt64(ifdata.ifi_ibytes), tx: UInt64(ifdata.ifi_obytes))
-        }
-        return result
-    }
-}

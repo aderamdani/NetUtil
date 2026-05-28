@@ -29,7 +29,9 @@ private struct GeneralPane: View {
     @AppStorage("defaultTraceInterval")  private var traceInterval  = 5.0
     @AppStorage("maxRawLines")           private var maxRawLines    = 500
     @AppStorage("menuBarDisplayMode")    private var menuBarMode    = "icon"
+    @AppStorage("menuBarShowTraffic")    private var menuBarTraffic = false
     @AppStorage("menuBarPingInterval")   private var menuBarInterval = 2.0
+    @AppStorage("backgroundOnClose")     private var backgroundOnClose = false
 
     var body: some View {
         Form {
@@ -92,11 +94,20 @@ private struct GeneralPane: View {
                     Picker("", selection: $menuBarMode) {
                         Label("Icon", systemImage: "waveform.path.ecg").tag("icon")
                         Text("16 ms").font(.system(size: 12, design: .monospaced)).tag("rtt")
+                        Text("↓1M ↑200K").font(.system(size: 11, design: .monospaced)).tag("traffic")
+                        Text("16ms ↓1M ↑200K").font(.system(size: 10, design: .monospaced)).tag("rtt_traffic")
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 180)
+                    .frame(width: 360)
                 }
-                .help("Icon shows the waveform symbol. RTT displays the live ping result in milliseconds, colored green/orange/red by your threshold settings.")
+                .help("Icon: waveform symbol only. Ping: live RTT in ms. Traffic: live download (↓) and upload (↑) rates. Ping + Traffic: both side by side, updated every second.")
+
+                Toggle("Show traffic next to icon", isOn: $menuBarTraffic)
+                    .disabled(menuBarMode == "traffic" || menuBarMode == "rtt_traffic" || menuBarMode == "rtt")
+                    .help("Append live download (↓) and upload (↑) rates to the right of the icon. Disabled when the primary mode already shows traffic or uses the Ping + Traffic preset.")
+
+                Toggle("Keep running in menu bar when window closed", isOn: $backgroundOnClose)
+                    .help("When enabled, closing the main window hides NetUtil from the Dock but keeps the menu bar item active. Click the menu bar icon and the window button to bring NetUtil back to the Dock. When disabled, closing the window quits the app.")
 
                 LabeledContent("Ping Interval") {
                     CompactSlider(value: $menuBarInterval, range: 1...10, step: 1, format: "%.0f s")

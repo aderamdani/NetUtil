@@ -15,9 +15,20 @@ class ToolStore: ObservableObject {
     let interfaces  = NetworkInterfaceViewModel()
     let subnet      = SubnetViewModel()
     let system      = SystemMonitor()
+    let bandwidth   = BandwidthMonitor()
+    let topApps     = TopProcessesViewModel()
+    let speedTest   = SpeedTestViewModel()
+    let statistics  = TrafficStatistics()
     
     @Published var externalIP: String = "Checking..."
     @Published var isVPNActive: Bool = false
+
+    init() {
+        bandwidth.onAggregateDelta = { [weak self] rx, tx in
+            self?.statistics.record(rxDelta: rx, txDelta: tx)
+        }
+        bandwidth.start()
+    }
 
     /// Primary LAN/Wi-Fi interface — excludes tunnels, AirDrop, tethering.
     var primaryInterface: NetworkInterface? {
