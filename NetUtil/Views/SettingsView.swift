@@ -92,11 +92,12 @@ private struct GeneralPane: View {
                     Picker("", selection: $menuBarMode) {
                         Label("Icon", systemImage: "waveform.path.ecg").tag("icon")
                         Text("16 ms").font(.system(size: 12, design: .monospaced)).tag("rtt")
+                        Text("↓1M ↑200K").font(.system(size: 11, design: .monospaced)).tag("traffic")
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 180)
+                    .frame(width: 240)
                 }
-                .help("Icon shows the waveform symbol. RTT displays the live ping result in milliseconds, colored green/orange/red by your threshold settings.")
+                .help("Icon shows the waveform symbol. RTT displays the live ping result. Traffic shows current download (↓) and upload (↑) rates updated every second from all active interfaces.")
 
                 LabeledContent("Ping Interval") {
                     CompactSlider(value: $menuBarInterval, range: 1...10, step: 1, format: "%.0f s")
