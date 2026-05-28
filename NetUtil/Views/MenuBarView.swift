@@ -288,10 +288,13 @@ struct MenuBarLabel: View {
         return .red
     }
 
+    private var combinedMode: Bool { displayMode == "rtt_traffic" }
+    private var alreadyHasTraffic: Bool { displayMode == "traffic" || combinedMode }
+
     var body: some View {
         HStack(spacing: 6) {
             primaryView
-            if showTraffic && displayMode != "traffic" {
+            if (combinedMode || (showTraffic && !alreadyHasTraffic)) && displayMode != "traffic" {
                 trafficView
             }
         }
@@ -300,7 +303,7 @@ struct MenuBarLabel: View {
     @ViewBuilder
     private var primaryView: some View {
         switch displayMode {
-        case "rtt":
+        case "rtt", "rtt_traffic":
             Text(hasResult ? String(format: "%d ms", Int(currentRTT)) : "— ms")
                 .font(.system(size: 12, weight: .semibold, design: .monospaced).monospacedDigit())
                 .foregroundColor(hasResult ? pingColor : .secondary)
