@@ -14,26 +14,26 @@ enum Tool: String, CaseIterable, Identifiable {
     case bandwidth   = "Bandwidth"
     case interfaces  = "Interfaces"
     case wifi        = "Wi-Fi"
-    case routes      = "Routes"
+    case routes        = "Routes"
 
     var id: String { rawValue }
 
     var icon: String {
         switch self {
-        case .dashboard:   "square.grid.2x2"
-        case .ping:        "antenna.radiowaves.left.and.right"
-        case .traceroute:  "point.3.connected.trianglepath.dotted"
-        case .dns:         "globe"
-        case .portScan:    "checklist"
-        case .interfaces:  "network"
-        case .httpLatency: "stopwatch"
-        case .multiPing:   "dot.radiowaves.left.and.right"
-        case .wifi:        "wifi"
-        case .routes:      "arrow.triangle.branch"
-        case .ssl:         "lock.shield"
-        case .whois:       "magnifyingglass.circle"
-        case .bandwidth:   "chart.bar.xaxis"
-        case .subnet:      "number.square"
+        case .dashboard:    "square.grid.2x2"
+        case .ping:         "antenna.radiowaves.left.and.right"
+        case .traceroute:   "point.3.connected.trianglepath.dotted"
+        case .dns:          "globe"
+        case .portScan:     "checklist"
+        case .interfaces:   "network"
+        case .httpLatency:  "stopwatch"
+        case .multiPing:    "dot.radiowaves.left.and.right"
+        case .wifi:         "wifi"
+        case .routes:       "arrow.triangle.branch"
+        case .ssl:          "lock.shield"
+        case .whois:        "magnifyingglass.circle"
+        case .bandwidth:    "chart.bar.xaxis"
+        case .subnet:       "number.square"
         }
     }
     
@@ -147,6 +147,7 @@ struct ContentView: View {
                             sidebarItem(.wifi)
                             sidebarItem(.routes)
                         }
+
                     }
                 }
             }
@@ -225,7 +226,7 @@ struct ContentView: View {
         case .ssl:         SSLInspectorView(vm: tools.ssl)
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
-        case .subnet:      SubnetCalculatorView(vm: tools.subnet)
+        case .subnet:       SubnetCalculatorView(vm: tools.subnet)
         }
     }
 }
