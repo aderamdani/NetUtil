@@ -1,8 +1,8 @@
 # NetUtil — Roadmap & Development Plan
 
 > Last updated: 2026-05-29  
-> Current version: 2.9.0  
-> Based on full codebase audit and recent monitoring upgrades.
+> Current version: 3.0.0  
+> Based on full project-wide "Apple Artisan" overhaul.
 
 ---
 
@@ -10,30 +10,30 @@
 
 | Tool | Core Capability | Status |
 |------|----------------|--------|
-| Mission Dashboard | Live aggregate "Mission Control" overview | ✅ Overhauled (v2.9.0) |
-| Advanced Ping | RTT chart, stats, jitter, export | ✅ Shipped |
-| Traceroute | Hops / Timeline / Map / Geo / bottleneck | ✅ Shipped |
-| Multi-Ping | Concurrent ping sessions with sparklines | ✅ Shipped |
-| Port Scanner | Preset/custom ranges, concurrency, ETA | ✅ Shipped |
-| HTTP Latency | Waterfall chart (DNS/TCP/TLS/TTFB) | ✅ Shipped |
-| DNS Lookup | dig-based, 8 record types, 4 server presets | ✅ Shipped |
-| WHOIS | Parsed key/value display with filter | ✅ Shipped |
-| SSL/TLS Inspector | Full chain, expiry countdown, TLS version | ✅ Shipped |
-| Network Interfaces | getifaddrs, IPv4/IPv6/MAC/MTU/status | ✅ Shipped |
-| Wi-Fi Inspector | RSSI/SNR/channel/band/security, sparkline | ✅ Shipped |
-| Route Table | netstat -rn, flag tooltips, live filter | ✅ Shipped |
-| Bandwidth Monitor | Aggregate 10min history, peak rates, card grid | ✅ Overhauled (v2.9.0) |
-| Traffic Statistics | 30d history, interactive tooltips, CSV export | ✅ Overhauled (v2.9.0) |
-| Speed Test | Nperf-style 4-tier test, history, verdicts | ✅ Shipped (v2.8.0) |
-| Top Processes | Real-time per-process traffic (nettop) | ✅ Shipped |
+| Mission Dashboard | Live aggregate "Mission Control" overview | ✅ Overhauled (v3.0.0) |
+| Advanced Ping | RTT chart, stats, jitter, distribution | ✅ Overhauled (v3.0.0) |
+| Traceroute | Hops / Timeline / Map / Geo / bottleneck | ✅ Refactored (v3.0.0) |
+| Multi-Ping | Concurrent ping sessions with sparklines | ✅ Overhauled (v3.0.0) |
+| Port Scanner | Preset/custom ranges, concurrency, ETA | ✅ Overhauled (v3.0.0) |
+| HTTP Latency | Waterfall chart (DNS/TCP/TLS/TTFB) | ✅ Overhauled (v3.0.0) |
+| DNS Lookup | dig-based, 8 record types, resolver presets | ✅ Overhauled (v3.0.0) |
+| WHOIS | Parsed key/value display with filters | ✅ Overhauled (v3.0.0) |
+| SSL/TLS Inspector | Full chain, expiry tracking, security audit | ✅ Overhauled (v3.0.0) |
+| Network Interfaces | getifaddrs, IPv4/IPv6/MAC/VLAN detection | ✅ Overhauled (v3.0.0) |
+| Wi-Fi Inspector | RSSI stability chart, SNR, radio band | ✅ Overhauled (v3.0.0) |
+| Route Table | netstat -rn, protocol matrix, tooltips | ✅ Overhauled (v3.0.0) |
+| Bandwidth Monitor | Aggregate 10min history, peak rates | ✅ Overhauled (v3.0.0) |
+| Traffic Statistics | 30d history, interactive tooltips, CSV export | ✅ Overhauled (v3.0.0) |
+| Speed Test | Nperf-style 4-tier test, history, verdicts | ✅ Overhauled (v3.0.0) |
+| Top Processes | Real-time intensity bars (nettop) | ✅ Overhauled (v3.0.0) |
 
 ---
 
-## Recent Milestone: Monitoring & Visual Excellence (v2.9.0)
-- **Interactive Dashboard**: High-fidelity aggregate traffic chart, system health gauges, and data-dense status cards.
-- **Bandwidth Pro**: Session peak tracking, pause/resume, and clinical interface cards with IP details.
-- **Statistics Pro**: Time-range filtering (7D/14D/30D), interactive tooltips, and detailed history activity bars.
-- **Release Automation**: Standardized DMG building, version bumping, and automated documentation sync.
+## Recent Milestone: Version 3.0.0 "Artisan"
+- **Project-Wide Consistency**: Standardized UI across all tools using native materials and semantic typography.
+- **Data-Dense Engineering**: Integrated clinical, monospaced data visualization everywhere.
+- **Architectural Cleanup**: Traceroute refactored into modular components.
+- **Professional Reports**: Synchronized CSV/PDF reporting capabilities.
 
 ---
 

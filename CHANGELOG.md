@@ -4,6 +4,28 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [3.0.0] — 2026-05-29
+
+### Overhaul: Project-Wide UI/UX (Apple Artisan)
+- **Unified Standard**: Applied a professional, handcrafted macOS aesthetic across all 17 integrated tools.
+- **Vibrant Materials**: Transitioned all containers and cards to native SwiftUI `.regularMaterial` for true wallpaper-reactive translucency.
+- **Clinical Typography**: Enforced a 10pt minimum font floor and monospaced technical data (IPs, Ports, Timestamps, Rates) for maximum precision.
+- **Unified Control Bars**: Standardized headers across all tools with fixed action groups, integrated history access, and data-dense statuses.
+
+### Tool-Specific Enhancements
+- **Traceroute Refactor**: Decoupled the 1200-line monolithic view into modular components: `TracerouteHopsTable`, `TracerouteMapView`, and `TracerouteTimelineView`. Added path polyline support to the map.
+- **Advanced Ping**: New RTT distribution bar, interactive charts with vibrancy gradients, and clinical status badges.
+- **Multi-Ping**: Professional row-based monitoring with expandable RTT charts and inline renaming.
+- **Port Scanner**: Redesigned grid with high-fidelity service cards and thread concurrency control.
+- **HTTP Latency**: Precision waterfall chart with millisecond-accurate phase timing and payload analysis.
+- **DNS Lookup**: Structured record table with type-specific badges (A/MX/TXT/etc.) and resolver presets.
+- **WHOIS**: Structured summary header with registrar/expiration tracking and filterable Registry datasets.
+- **Network & Wi-Fi**: Vibrant signal strength gauges, RSSI stability charts, and detailed interface topology cards including VLAN detection.
+- **Subnet Calculator**: Interactive CIDR topology with bitwise representation visualization.
+- **Top Processes**: Real-time per-app network intensity monitor with normalized activity bars.
+
+---
+
 ## [2.9.1] — 2026-05-29
 
 ### Added

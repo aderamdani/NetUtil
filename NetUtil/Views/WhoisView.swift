@@ -15,166 +15,233 @@ struct WhoisView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // 1. STANDARD HEADER (Fixed Top)
+        VStack(spacing: 0) {
             controlBar
-                .padding(.bottom, 24)
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 32) {
+                VStack(spacing: 24) {
                     if let err = vm.error {
                         errorBanner(err)
                     }
                     
                     if !vm.lines.isEmpty {
-                        // 2. INTERPRETATION HEADER
-                        interpretationHeader
+                        interpretationSection
                         
-                        // 3. STATS BAR
-                        statsBar
+                        statsBarSection
                         
-                        // 4. WHOIS OUTPUT
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
-                                sectionHeader("Registration Data", systemImage: "text.justify.left")
+                                sectionHeader("Registry Dataset", systemImage: "text.justify.left")
                                 Spacer()
                                 HStack(spacing: 8) {
-                                    Image(systemName: "line.3.horizontal.decrease.circle").foregroundColor(.secondary)
-                                    TextField("Filter...", text: $filterText).textFieldStyle(.plain).font(.system(size: 12, weight: .medium)).frame(width: 150)
+                                    Image(systemName: "line.3.horizontal.decrease.circle")
+                                        .foregroundColor(.secondary)
+                                    TextField("Filter results...", text: $filterText)
+                                        .textFieldStyle(.plain)
+                                        .font(.subheadline)
+                                        .frame(width: 180)
                                 }
-                                .padding(.horizontal, 10).padding(.vertical, 4).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                             }
                             
                             outputView
-                                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                         }
-                    } else if !vm.isRunning {
+                    } else if vm.isRunning {
+                        loadingState
+                    } else {
                         emptyState
                     }
-                    
-                    if vm.isRunning {
-                        loadingState
-                    }
                 }
+                .padding(24)
             }
         }
-        .padding(32)
-        .sheet(isPresented: $showLearningGuide) { whoisLearningGuideSheet }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "WHOIS") }
     }
 
+    // MARK: - Components
+
     private var controlBar: some View {
-        HStack(spacing: 12) {
-            TextField("Domain or IP address", text: $query)
-                .textFieldStyle(.roundedBorder)
-                .controlSize(.large)
-                .frame(width: 250)
-                .onSubmit(lookup)
-                .overlay(alignment: .trailing) {
-                    if !history.hosts.isEmpty {
-                        Menu {
-                            ForEach(history.hosts, id: \.self) { h in
-                                Button(h) { query = h; lookup() }
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass.circle.fill")
+                        .foregroundColor(.accentColor)
+                        .imageScale(.large)
+                    Text("WHOIS")
+                        .font(.headline)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    TextField("Domain or IP address", text: $query)
+                        .textFieldStyle(.roundedBorder)
+                        .controlSize(.large)
+                        .frame(width: 250)
+                        .onSubmit(lookup)
+                        .overlay(alignment: .trailing) {
+                            if !history.hosts.isEmpty {
+                                Menu {
+                                    ForEach(history.hosts, id: \.self) { h in
+                                        Button(h) { query = h; lookup() }
+                                    }
+                                    Divider()
+                                    Button("Clear History", role: .destructive) { history.clear() }
+                                } label: {
+                                    Image(systemName: "clock.arrow.circlepath")
+                                        .foregroundColor(.secondary)
+                                }
+                                .menuStyle(.borderlessButton)
+                                .frame(width: 28)
+                                .padding(.trailing, 4)
                             }
-                            Divider()
-                            Button("Clear History", role: .destructive) { history.clear() }
-                        } label: { Image(systemName: "clock.arrow.circlepath").foregroundColor(.secondary) }
-                        .menuStyle(.borderlessButton).frame(width: 28).padding(.trailing, 4)
+                        }
+
+                    if !vm.lines.isEmpty {
+                        Button { Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"), defaultName: "whois-\(query).txt", ext: "txt") } label: {
+                            Label("Report", systemImage: "doc.text.fill")
+                        }
+                        .buttonStyle(.bordered)
                     }
-                }
 
-            Spacer()
-
-            if !vm.lines.isEmpty {
-                Button { Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"), defaultName: "whois-\(query).txt", ext: "txt") } label: {
-                    Label("Report", systemImage: "doc.text.fill").font(.system(size: 13, weight: .semibold))
+                    Button(action: lookup) {
+                        Label(vm.isRunning ? "Stop" : "Lookup", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
+                            .frame(minWidth: 80)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(vm.isRunning ? .red : .accentColor)
+                    .disabled(!vm.isRunning && query.isEmpty)
+                    
+                    Button { showLearningGuide = true } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .buttonStyle(.borderless)
                 }
-                .buttonStyle(.bordered)
             }
-
-            Button(action: lookup) {
-                HStack(spacing: 6) {
-                    Image(systemName: vm.isRunning ? "stop.fill" : "play.fill")
-                    Text(vm.isRunning ? "Stop" : "Lookup")
-                }
-                .font(.system(size: 13, weight: .semibold))
-                .frame(minWidth: 80)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(vm.isRunning ? .red : .accentColor)
-            .disabled(!vm.isRunning && query.isEmpty)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
             
-            Button { showLearningGuide = true } label: { Image(systemName: "questionmark.circle") }
-            .buttonStyle(.borderless)
+            Divider()
         }
     }
     
-    private var interpretationHeader: some View {
-        HStack(alignment: .center, spacing: 12) {
-            let hasData = !vm.lines.isEmpty
-            Image(systemName: hasData ? "person.text.rectangle.fill" : "questionmark.circle.fill")
-                .font(.title2).foregroundColor(hasData ? .green : .secondary)
+    private var interpretationSection: some View {
+        HStack(alignment: .center, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color.green.opacity(0.1))
+                    .frame(width: 40, height: 40)
+                Image(systemName: "person.text.rectangle.fill")
+                    .foregroundColor(.green)
+                    .font(.title3)
+            }
+            
             VStack(alignment: .leading, spacing: 2) {
-                Text(hasData ? "Registry Data Found" : "No Data").font(.headline)
-                Text(hasData ? "Owner and registration details retrieved." : "Waiting for query...").font(.subheadline).foregroundColor(.secondary)
+                Text("Registry Record Identified")
+                    .font(.headline)
+                Text("Ownership and administrative metadata successfully retrieved.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
             Spacer()
         }
-        .padding(.bottom, 8)
     }
 
-    private var statsBar: some View {
+    private var statsBarSection: some View {
         HStack(spacing: 12) {
-            StatCard(title: "Total Lines", value: "\(vm.lines.count)", icon: "text.alignleft")
-            if let registry = vm.lines.first(where: { $0.label?.lowercased().contains("registry") == true })?.value {
-                StatCard(title: "Registry", value: registry, icon: "building.2.fill", color: .blue)
+            StatCard(title: "Record Lines", value: "\(vm.lines.count)", icon: "text.alignleft")
+            
+            if let registrar = findValue(for: "Registrar") {
+                StatCard(title: "Registrar", value: registrar, icon: "building.2.fill", color: .blue)
             }
-            Spacer()
+            
+            if let expires = findValue(for: "Expiry") ?? findValue(for: "Expiration") {
+                StatCard(title: "Expiration", value: parseDate(expires), icon: "calendar.badge.clock", color: .orange)
+            }
         }
     }
 
     private var outputView: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 2) {
+            LazyVStack(alignment: .leading, spacing: 4) {
                 ForEach(displayedLines) { line in
-                    HStack(spacing: 0) {
+                    HStack(alignment: .top, spacing: 0) {
                         if let label = line.label {
-                            Text(label + ":").font(.system(size: 11, weight: .bold, design: .monospaced)).foregroundColor(.accentColor).frame(width: 180, alignment: .leading)
-                            Text(line.value ?? "").font(.system(size: 11, design: .monospaced)).textSelection(.enabled).foregroundColor(.primary)
+                            Text(label)
+                                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                .foregroundColor(.accentColor)
+                                .frame(width: 180, alignment: .leading)
+                            
+                            Text(line.value ?? "")
+                                .font(.system(size: 11, design: .monospaced))
+                                .textSelection(.enabled)
+                                .foregroundColor(.primary)
                         } else {
-                            Text(line.raw).font(.system(size: 11, design: .monospaced)).foregroundColor(line.raw.hasPrefix("%") || line.raw.hasPrefix("#") ? .secondary : .primary).textSelection(.enabled)
+                            Text(line.raw)
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundColor(line.raw.hasPrefix("%") || line.raw.hasPrefix("#") ? .secondary : .primary)
+                                .textSelection(.enabled)
                         }
                     }
-                    .padding(.horizontal, 16).padding(.vertical, 1)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 1)
                 }
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 16)
         }
         .frame(minHeight: 400)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private func sectionHeader(_ title: String, systemImage: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: systemImage).foregroundColor(.accentColor).font(.headline)
-            Text(title).font(.headline)
+            Image(systemName: systemImage).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
+            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
     }
     
     private func errorBanner(_ msg: String) -> some View {
-        HStack { Image(systemName: "exclamationmark.octagon.fill"); Text(msg) }
-            .foregroundColor(.red).font(.system(size: 13, weight: .semibold))
-            .padding(10).background(Color.red.opacity(0.08)).cornerRadius(8)
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.red)
+            Text(msg)
+                .font(.subheadline.weight(.medium))
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.red.opacity(0.1))
+        .cornerRadius(8)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
     }
 
     private var emptyState: some View {
-        VStack {
-            Spacer()
-            Text("No Target Selected").font(.headline).foregroundColor(.secondary)
-            Spacer()
-        }.frame(maxWidth: .infinity, minHeight: 300)
+        VStack(spacing: 12) {
+            Image(systemName: "magnifyingglass.circle")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary.opacity(0.5))
+            Text("No Query Executed")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Text("Enter a domain or IP to query its registration database.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
     }
 
     private var loadingState: some View {
-        HStack(spacing: 12) { ProgressView().controlSize(.small); Text("Querying WHOIS database...").font(.subheadline).foregroundColor(.secondary) }.padding(.top, 8)
+        VStack(spacing: 16) {
+            ProgressView()
+                .controlSize(.large)
+            Text("Querying WHOIS Database...")
+                .font(.headline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
     }
 
     private func lookup() {
@@ -182,47 +249,60 @@ struct WhoisView: View {
         guard !q.isEmpty else { return }; history.record(q); vm.lookup(q)
     }
     
-    private var whoisLearningGuideSheet: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack { Text("WHOIS Guide").font(.title2.bold()); Spacer(); Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent) }.padding(24)
-            Divider()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    GuideSection(title: "What is WHOIS?", icon: "person.text.rectangle") { Text("WHOIS is a protocol for querying databases that store domain registration info.") }
-                }.padding(24)
-            }
-        }.frame(width: 500, height: 600)
+    // MARK: - Helpers
+    
+    private func findValue(for keyword: String) -> String? {
+        vm.lines.first(where: { $0.label?.lowercased().contains(keyword.lowercased()) == true })?.value
+    }
+    
+    private func parseDate(_ raw: String) -> String {
+        // Simple heuristic for date extraction (YYYY-MM-DD)
+        let pattern = #"\d{4}-\d{2}-\d{2}"#
+        if let range = raw.range(of: pattern, options: .regularExpression) {
+            return String(raw[range])
+        }
+        return raw.components(separatedBy: " ").first ?? raw
     }
 }
 
 struct WhoisLine: Identifiable {
-    let id = UUID(); let raw: String
-    var label: String? {
-        guard raw.contains(":"), !raw.hasPrefix("%"), !raw.hasPrefix("#"), !raw.hasPrefix(">>>") else { return nil }
-        return raw.components(separatedBy: ":").first?.trimmingCharacters(in: .whitespaces)
-    }
-    var value: String? {
-        guard label != nil else { return nil }
-        return raw.components(separatedBy: ":").dropFirst().joined(separator: ":").trimmingCharacters(in: .whitespaces)
-    }
+    let id = UUID()
+    let raw: String
+    var label: String?
+    var value: String?
 }
 
 @MainActor
 class WhoisViewModel: ObservableObject {
-    @Published var lines: [WhoisLine] = []; @Published var isRunning = false; @Published var error: String?
-    private var process: Process?; deinit { process?.terminate() }
+    @Published var lines: [WhoisLine] = []
+    @Published var isRunning = false
+    @Published var error: String?
+    private var process: Process?
+
     func lookup(_ query: String) {
-        cancel(); lines = []; error = nil; isRunning = true
-        let p = Process(); let pipe = Pipe()
-        p.executableURL = URL(fileURLWithPath: "/usr/bin/whois"); p.arguments = [query]
-        p.standardOutput = pipe; p.standardError = Pipe()
-        p.terminationHandler = { [weak self] _ in
+        isRunning = true; error = nil; lines = []
+        let p = Process(); p.executableURL = URL(fileURLWithPath: "/usr/bin/whois"); p.arguments = [query]
+        let pipe = Pipe(); p.standardOutput = pipe; p.standardError = Pipe()
+        p.terminationHandler = { _ in
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            let text = String(data: data, encoding: .utf8) ?? ""
-            let parsed = text.components(separatedBy: "\n").map { WhoisLine(raw: $0) }
-            Task { @MainActor [weak self] in guard let self else { return }; self.lines = parsed; self.isRunning = false }
+            let output = String(data: data, encoding: .utf8) ?? ""
+            Task { @MainActor in
+                var parsed: [WhoisLine] = []
+                for l in output.components(separatedBy: "\n") {
+                    if l.contains(": "), let idx = l.firstIndex(of: ":") {
+                        let key = String(l[..<idx]).trimmingCharacters(in: .whitespaces)
+                        let val = String(l[l.index(after: idx)...]).trimmingCharacters(in: .whitespaces)
+                        if key.count < 30 { parsed.append(WhoisLine(raw: l, label: key, value: val)); continue }
+                    }
+                    parsed.append(WhoisLine(raw: l))
+                }
+                self.lines = parsed; self.isRunning = false
+            }
         }
-        process = p; do { try p.run() } catch { self.error = error.localizedDescription; isRunning = false }
+        process = p
+        do { try p.run() } catch { self.error = error.localizedDescription; isRunning = false }
     }
+    
     func cancel() { process?.terminate(); process = nil; isRunning = false }
 }
+

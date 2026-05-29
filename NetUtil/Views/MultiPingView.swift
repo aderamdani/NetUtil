@@ -11,82 +11,144 @@ struct MultiPingView: View {
     @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 0) {
             controlBar
-                .padding(.bottom, 24)
             
-            if vm.slots.isEmpty {
-                emptyState
-            } else {
-                statsBar.padding(.bottom, 24)
-                
-                VStack(spacing: 0) {
-                    slotsTableHeader
-                    Divider()
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(vm.slots) { slot in
-                                MultiPingRow(slot: slot, isExpanded: expandedSlotID == slot.id, rttWarn: rttWarn, rttCrit: rttCrit, onToggleExpand: {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { expandedSlotID = expandedSlotID == slot.id ? nil : slot.id }
-                                }, onRemove: { vm.remove(slot) }, onCommitRename: { vm.sortSlots() })
-                                Divider().opacity(0.5)
+            ScrollView {
+                VStack(spacing: 24) {
+                    if vm.slots.isEmpty {
+                        emptyState
+                    } else {
+                        statsBarSection
+                        
+                        VStack(spacing: 0) {
+                            slotsTableHeader
+                            Divider()
+                            LazyVStack(spacing: 0) {
+                                ForEach(vm.slots) { slot in
+                                    MultiPingRow(slot: slot, isExpanded: expandedSlotID == slot.id, rttWarn: rttWarn, rttCrit: rttCrit, onToggleExpand: {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                            expandedSlotID = expandedSlotID == slot.id ? nil : slot.id
+                                        }
+                                    }, onRemove: { vm.remove(slot) }, onCommitRename: { vm.sortSlots() })
+                                    
+                                    if slot.id != vm.slots.last?.id {
+                                        Divider().padding(.horizontal, 16).opacity(0.5)
+                                    }
+                                }
                             }
                         }
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                     }
                 }
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                .padding(24)
             }
         }
-        .padding(32)
-        .sheet(isPresented: $showLearningGuide) { multiPingLearningGuideSheet }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Multi-Ping") }
     }
 
     private var controlBar: some View {
-        HStack(spacing: 12) {
-            TextField("Hostname or IP address", text: $newHost)
-                .textFieldStyle(.roundedBorder).controlSize(.large).frame(width: 250).onSubmit(addHost)
-                .overlay(alignment: .trailing) {
-                    if !history.hosts.isEmpty {
-                        Menu {
-                            ForEach(history.hosts, id: \.self) { h in Button(h) { newHost = h; addHost() } }
-                            Divider()
-                            Button("Clear History", role: .destructive) { history.clear() }
-                        } label: { Image(systemName: "clock.arrow.circlepath").foregroundColor(.secondary) }.menuStyle(.borderlessButton).frame(width: 28).padding(.trailing, 4)
-                    }
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "dot.radiowaves.left.and.right")
+                        .foregroundColor(.accentColor)
+                        .imageScale(.large)
+                    Text("Multi-Ping")
+                        .font(.headline)
                 }
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    TextField("Hostname or IP address", text: $newHost)
+                        .textFieldStyle(.roundedBorder)
+                        .controlSize(.large)
+                        .frame(width: 250)
+                        .onSubmit(addHost)
+                        .overlay(alignment: .trailing) {
+                            if !history.hosts.isEmpty {
+                                Menu {
+                                    ForEach(history.hosts, id: \.self) { h in
+                                        Button(h) { newHost = h; addHost() }
+                                    }
+                                    Divider()
+                                    Button("Clear History", role: .destructive) { history.clear() }
+                                } label: {
+                                    Image(systemName: "clock.arrow.circlepath")
+                                        .foregroundColor(.secondary)
+                                }
+                                .menuStyle(.borderlessButton)
+                                .frame(width: 28)
+                                .padding(.trailing, 4)
+                            }
+                        }
 
-            HStack(spacing: 8) {
-                Text("Sort:").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
-                Picker("", selection: $vm.sortMode) { ForEach(MultiPingSort.allCases) { mode in Text(mode.rawValue).tag(mode) } }
-                .pickerStyle(.menu).frame(width: 110)
+                    HStack(spacing: 8) {
+                        Text("Sort")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(.secondary)
+                        Picker("", selection: $vm.sortMode) {
+                            ForEach(MultiPingSort.allCases) { mode in
+                                Text(mode.rawValue).tag(mode)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(width: 120)
+                    }
+
+                    if !vm.slots.isEmpty {
+                        Menu {
+                            Button("Export PDF Report") { Exporter.saveMultiPingPDF(slots: vm.slots) }
+                            Divider()
+                            Button("Stop All Sessions") { vm.stopAll() }
+                            Button("Start All Sessions") { vm.startAll() }
+                        } label: {
+                            Label("Actions", systemImage: "ellipsis.circle")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+
+                    Button(action: addHost) {
+                        Label("Add Host", systemImage: "plus")
+                            .frame(minWidth: 80)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                    Button { showLearningGuide = true } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .buttonStyle(.borderless)
+                }
             }
-
-            Spacer()
-
-            if !vm.slots.isEmpty {
-                Button { Exporter.saveMultiPingPDF(slots: vm.slots) } label: { Label("Report", systemImage: "doc.text.fill").font(.system(size: 13, weight: .medium)) }.buttonStyle(.bordered)
-                Button(action: { vm.stopAll() }) { Text("Stop All").font(.system(size: 13, weight: .medium)) }.buttonStyle(.bordered)
-                Button(action: { vm.startAll() }) { Text("Start All").font(.system(size: 13, weight: .medium)) }.buttonStyle(.bordered)
-            }
-
-            Button(action: addHost) {
-                HStack(spacing: 6) { Image(systemName: "plus"); Text("Add") }.font(.system(size: 13, weight: .medium))
-            }.buttonStyle(.borderedProminent).disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
-
-            Button { showLearningGuide = true } label: { Image(systemName: "questionmark.circle") }.buttonStyle(.borderless)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            
+            Divider()
         }
     }
 
-    private var statsBar: some View {
+    private var statsBarSection: some View {
         let running = vm.slots.filter { $0.isRunning }.count
         let avgLoss = vm.slots.isEmpty ? 0.0 : vm.slots.map { $0.loss }.reduce(0, +) / Double(vm.slots.count)
         return HStack(spacing: 12) {
-            StatCard(title: "Hosts", value: "\(vm.slots.count)", icon: "server.rack")
-            StatCard(title: "Active", value: "\(running)", icon: "play.fill", color: running > 0 ? .green : .primary)
-            StatCard(title: "Avg Loss", value: String(format: "%.1f%%", avgLoss), icon: "exclamationmark.triangle", color: avgLoss > 10 ? .red : .primary)
+            StatCard(title: "Active Hosts", value: "\(vm.slots.count)", icon: "server.rack")
+            StatCard(title: "Monitoring", value: "\(running)", icon: "play.fill", color: running > 0 ? .green : .primary)
+            StatCard(title: "Average Loss", value: String(format: "%.1f%%", avgLoss), icon: "exclamationmark.triangle", color: avgLoss > 10 ? .red : .primary)
             Spacer()
             if !vm.slots.isEmpty {
-                Button(role: .destructive) { withAnimation { vm.slots.forEach { $0.stop() }; vm.slots.removeAll() } } label: { Image(systemName: "trash").foregroundColor(.secondary) }.buttonStyle(.borderless)
+                Button(role: .destructive) {
+                    withAnimation {
+                        vm.slots.forEach { $0.stop() }
+                        vm.slots.removeAll()
+                    }
+                } label: {
+                    Label("Clear All", systemImage: "trash")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.borderless)
             }
         }
     }
@@ -95,41 +157,44 @@ struct MultiPingView: View {
         HStack(spacing: 0) {
             tHeader("Alias", width: 140)
             tHeader("Endpoint", flexible: true)
-            tHeader("Snt", width: 50)
-            tHeader("Loss%", width: 60)
-            tHeader("Last", width: 70)
-            tHeader("Avg RTT", width: 70)
-            tHeader("Health", width: 130)
-            tHeader("", width: 40)
+            tHeader("Sent", width: 60)
+            tHeader("Loss", width: 70)
+            tHeader("Last", width: 80)
+            tHeader("Average", width: 80)
+            tHeader("Health (60s)", width: 140)
+            tHeader("", width: 60)
         }
-        .padding(.vertical, 8).padding(.horizontal, 12)
+        .padding(.vertical, 10).padding(.horizontal, 16)
+        .background(Color.secondary.opacity(0.05))
     }
 
     private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title).font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading).frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
+        Text(title)
+            .font(.system(.caption2, design: .default).weight(.bold))
+            .foregroundColor(.secondary)
+            .frame(width: width, alignment: .leading)
+            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
     }
 
     private var emptyState: some View {
-        VStack {
-            Spacer()
-            Text("No Targets Selected").font(.headline).foregroundColor(.secondary)
-            Spacer()
-        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+        VStack(spacing: 12) {
+            Image(systemName: "dot.radiowaves.left.and.right")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary.opacity(0.5))
+            Text("No Monitoring Targets")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Text("Add multiple hosts to monitor global latency performance.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
     }
 
     private func addHost() {
         let h = newHost.trimmingCharacters(in: .whitespaces)
         guard !h.isEmpty else { return }
         history.record(h); vm.add(host: h); newHost = ""
-    }
-
-    private var multiPingLearningGuideSheet: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack { Text("Multi-Ping Guide").font(.title2.bold()); Spacer(); Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent) }.padding(24)
-            Divider()
-            ScrollView { VStack(alignment: .leading, spacing: 24) { GuideSection(title: "Multi-Host Audit", icon: "server.rack") { Text("Monitor multiple endpoints simultaneously.") } }.padding(24) }
-        }.frame(width: 500, height: 600)
     }
 }
 
@@ -147,43 +212,108 @@ private struct MultiPingRow: View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 TextField("Alias", text: $slot.customName)
-                    .textFieldStyle(.plain).font(.system(size: 12, weight: .medium))
-                    .frame(width: 140, alignment: .leading).focused($isNameFocused)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 12, weight: .semibold))
+                    .frame(width: 140, alignment: .leading)
+                    .focused($isNameFocused)
                     .onSubmit { isNameFocused = false; onCommitRename() }
                 
                 HStack(spacing: 8) {
-                    Circle().fill(statusColor).frame(width: 6, height: 6).opacity(slot.isRunning ? 1 : 0.3)
-                    Text(slot.host).font(.system(size: 12)).foregroundColor(.secondary).lineLimit(1)
-                    Image(systemName: "chevron.right").font(.system(size: 10)).foregroundColor(.secondary).rotationEffect(.degrees(isExpanded ? 90 : 0))
+                    Circle()
+                        .fill(statusColor)
+                        .frame(width: 6, height: 6)
+                        .opacity(slot.isRunning ? 1 : 0.3)
+                    
+                    Text(slot.host)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(.secondary.opacity(0.5))
+                        .rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
-                .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle()).onTapGesture { onToggleExpand() }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture { onToggleExpand() }
 
-                Text("\(slot.sent)").font(.system(size: 11, design: .monospaced)).frame(width: 50, alignment: .leading).foregroundColor(.secondary)
-                Text(String(format: "%.0f%%", slot.loss)).font(.system(size: 11, design: .monospaced)).foregroundColor(slot.loss > 0 ? .red : .primary).frame(width: 60, alignment: .leading)
-                Text(slot.lastRtt.map { String(format: "%.1f", $0) } ?? "—").font(.system(size: 11, design: .monospaced)).foregroundColor(slot.lastRtt.map { rttColor($0) } ?? .secondary).frame(width: 70, alignment: .leading)
-                Text(slot.avgRtt.map { String(format: "%.1f", $0) } ?? "—").font(.system(size: 11, weight: .medium, design: .monospaced)).foregroundColor(slot.avgRtt.map { rttColor($0) } ?? .secondary).frame(width: 70, alignment: .leading)
+                Text("\(slot.sent)")
+                    .font(.system(size: 11, design: .monospaced))
+                    .frame(width: 60, alignment: .leading)
+                    .foregroundColor(.secondary)
+                
+                Text(String(format: "%.0f%%", slot.loss))
+                    .font(.system(size: 11, design: .monospaced).weight(.bold))
+                    .foregroundColor(slot.loss > 0 ? .red : .primary)
+                    .frame(width: 70, alignment: .leading)
+                
+                Text(slot.lastRtt.map { String(format: "%.1f", $0) } ?? "—")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(slot.lastRtt.map { rttColor($0) } ?? .secondary)
+                    .frame(width: 80, alignment: .leading)
+                
+                Text(slot.avgRtt.map { String(format: "%.1f", $0) } ?? "—")
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .foregroundColor(slot.avgRtt.map { rttColor($0) } ?? .secondary)
+                    .frame(width: 80, alignment: .leading)
 
-                healthStrip.frame(width: 130).onTapGesture { onToggleExpand() }
+                healthStrip.frame(width: 140).onTapGesture { onToggleExpand() }
 
-                HStack(spacing: 8) {
+                HStack(spacing: 12) {
                     Button(action: { if slot.isRunning { slot.stop() } else { slot.start() } }) {
-                        Image(systemName: slot.isRunning ? "pause.fill" : "play.fill").foregroundColor(slot.isRunning ? .secondary : .primary)
-                    }.buttonStyle(.borderless)
-                    Button(action: onRemove) { Image(systemName: "xmark").foregroundColor(.secondary) }.buttonStyle(.borderless)
-                }.frame(width: 40)
+                        Image(systemName: slot.isRunning ? "pause.fill" : "play.fill")
+                            .foregroundColor(slot.isRunning ? .secondary : .accentColor)
+                    }
+                    .buttonStyle(.borderless)
+                    
+                    Button(action: onRemove) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary.opacity(0.5))
+                    }
+                    .buttonStyle(.borderless)
+                }
+                .frame(width: 60)
             }
-            .padding(.vertical, 8).padding(.horizontal, 12).background(isExpanded ? Color.secondary.opacity(0.05) : Color.clear)
+            .padding(.vertical, 10).padding(.horizontal, 16)
+            .background(isExpanded ? Color.accentColor.opacity(0.05) : Color.clear)
             
             if isExpanded {
-                Chart {
-                    ForEach(slot.samples) { s in
-                        if let rtt = s.rtt {
-                            LineMark(x: .value("T", s.timestamp), y: .value("R", rtt)).foregroundStyle(rttColor(rtt)).lineStyle(StrokeStyle(lineWidth: 1))
-                        } else { RuleMark(x: .value("T", s.timestamp)).foregroundStyle(Color.red.opacity(0.2)) }
+                VStack(spacing: 0) {
+                    Chart {
+                        ForEach(slot.samples) { s in
+                            if let rtt = s.rtt {
+                                AreaMark(x: .value("T", s.timestamp), y: .value("R", rtt))
+                                    .foregroundStyle(LinearGradient(colors: [rttColor(rtt).opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                                    .interpolationMethod(.monotone)
+                                
+                                LineMark(x: .value("T", s.timestamp), y: .value("R", rtt))
+                                    .foregroundStyle(rttColor(rtt))
+                                    .lineStyle(StrokeStyle(lineWidth: 1.5))
+                                    .interpolationMethod(.monotone)
+                            } else {
+                                RuleMark(x: .value("T", s.timestamp))
+                                    .foregroundStyle(Color.red.opacity(0.2))
+                            }
+                        }
                     }
+                    .chartYAxis {
+                        AxisMarks(position: .leading, values: .automatic(desiredCount: 2)) { val in
+                            AxisValueLabel {
+                                if let ms = val.as(Double.self) {
+                                    Text("\(Int(ms)) ms").font(.system(size: 9, design: .monospaced))
+                                }
+                            }
+                        }
+                    }
+                    .chartXAxis(.hidden)
+                    .frame(height: 80)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 16)
+                    
+                    Divider().padding(.horizontal, 16).opacity(0.3)
                 }
-                .chartYAxis { AxisMarks(values: .automatic(desiredCount: 2)) { val in AxisValueLabel { if let ms = val.as(Double.self) { Text("\(Int(ms))").font(.system(size: 10)) } } } }
-                .chartXAxis(.hidden).frame(height: 60).padding(.horizontal, 40).padding(.vertical, 12).background(.regularMaterial)
+                .background(.regularMaterial)
             }
         }
     }
@@ -192,7 +322,9 @@ private struct MultiPingRow: View {
         let history = Array(slot.samples.suffix(40))
         return HStack(spacing: 1.5) {
             ForEach(0..<40) { i in
-                RoundedRectangle(cornerRadius: 1).fill(i < history.count ? hColor(history[i]) : Color.secondary.opacity(0.1)).frame(width: 2, height: 12)
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(i < history.count ? hColor(history[i]) : Color.secondary.opacity(0.1))
+                    .frame(width: 2.5, height: 14)
             }
         }
     }
@@ -204,6 +336,12 @@ private struct MultiPingRow: View {
         return .green
     }
 
-    private var statusColor: Color { slot.loss > 0 ? .orange : .green }
-    private func rttColor(_ rtt: Double) -> Color { rtt < rttWarn ? .primary : rtt < rttCrit ? .orange : .red }
+    private var statusColor: Color {
+        if !slot.isRunning { return .secondary }
+        return slot.loss > 10 ? .red : (slot.loss > 0 ? .orange : .green)
+    }
+    
+    private func rttColor(_ rtt: Double) -> Color {
+        rtt < rttWarn ? .primary : (rtt < rttCrit ? .orange : .red)
+    }
 }
