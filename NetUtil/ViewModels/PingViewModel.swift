@@ -17,6 +17,7 @@ class PingViewModel: ObservableObject {
     private var outputPipe: Pipe?
 
     private static let rawLinesLimit = 500
+    private static let resultsLimit  = 1000
 
     // Pre-compiled — avoids re-compiling regex per packet
     private nonisolated static let pingPatterns: [NSRegularExpression] = [
@@ -79,10 +80,11 @@ class PingViewModel: ObservableObject {
 
             let parsed = lines.compactMap { Self.parseLine($0, ip: foundIP) }
             let timeouts = lines.compactMap { Self.parseTimeout($0) }
+            let resolved = foundIP
 
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                if let foundIP { self.resolvedIP = foundIP }
+                if let resolved { self.resolvedIP = resolved }
                 
                 self.rawLines.append(contentsOf: lines)
                 if self.rawLines.count > Self.rawLinesLimit {
@@ -108,6 +110,11 @@ class PingViewModel: ObservableObject {
                         rtt: 0,
                         status: .timeout
                     ))
+                }
+                
+                // Enforce limit
+                if self.results.count > Self.resultsLimit {
+                    self.results.removeFirst(self.results.count - Self.resultsLimit)
                 }
             }
         }

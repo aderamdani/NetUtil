@@ -81,32 +81,34 @@ struct PingView: View {
                         .font(.headline)
                 }
                 
+                Divider().frame(height: 16).padding(.horizontal, 4)
+                
+                TextField("Hostname or IP address", text: $host)
+                    .textFieldStyle(.roundedBorder)
+                    .controlSize(.large)
+                    .frame(width: 250)
+                    .onSubmit(startAction)
+                    .overlay(alignment: .trailing) {
+                        if !history.hosts.isEmpty {
+                            Menu {
+                                ForEach(history.hosts, id: \.self) { h in
+                                    Button(h) { host = h; startAction() }
+                                }
+                                Divider()
+                                Button("Clear History", role: .destructive) { history.clear() }
+                            } label: {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .foregroundColor(.secondary)
+                            }
+                            .menuStyle(.borderlessButton)
+                            .frame(width: 28)
+                            .padding(.trailing, 4)
+                        }
+                    }
+
                 Spacer()
                 
                 HStack(spacing: 12) {
-                    TextField("Hostname or IP address", text: $host)
-                        .textFieldStyle(.roundedBorder)
-                        .controlSize(.large)
-                        .frame(width: 250)
-                        .onSubmit(startAction)
-                        .overlay(alignment: .trailing) {
-                            if !history.hosts.isEmpty {
-                                Menu {
-                                    ForEach(history.hosts, id: \.self) { h in
-                                        Button(h) { host = h; startAction() }
-                                    }
-                                    Divider()
-                                    Button("Clear History", role: .destructive) { history.clear() }
-                                } label: {
-                                    Image(systemName: "clock.arrow.circlepath")
-                                        .foregroundColor(.secondary)
-                                }
-                                .menuStyle(.borderlessButton)
-                                .frame(width: 28)
-                                .padding(.trailing, 4)
-                            }
-                        }
-
                     HStack(spacing: 8) {
                         Toggle(isOn: $infinite) {
                             Image(systemName: "infinity")
@@ -133,6 +135,11 @@ struct PingView: View {
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 50)
                             .help("Wait Interval (s)")
+                        
+                        TextField("Size", text: $packetSizeText)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 50)
+                            .help("Payload Size (Bytes)")
                     }
 
                     if !vm.results.isEmpty {
@@ -264,6 +271,7 @@ struct PingView: View {
 
     private var resultsTable: some View {
         VStack(spacing: 0) {
+            // STICKY HEADER
             HStack(spacing: 0) {
                 tHeader("Sequence", width: 80)
                 tHeader("Status", width: 100)
@@ -314,7 +322,13 @@ struct PingView: View {
                         }
                     }
                 }
-                .onChange(of: vm.results.count) { if let last = vm.results.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } } }
+                .frame(minHeight: 300)
+                .onChange(of: vm.results.count) { 
+                    if let last = vm.results.last {
+                        // Use non-animated jump for better performance during high-frequency pings
+                        proxy.scrollTo(last.id, anchor: .bottom)
+                    }
+                }
             }
         }
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
@@ -370,10 +384,10 @@ struct PingView: View {
     private var distributionBar: some View {
         GeometryReader { geo in
             HStack(spacing: 0) {
-                distSegment(count: vm.stats.bucketLow, color: .primary.opacity(0.5), total: geo.size.width)
-                distSegment(count: vm.stats.bucketMedium, color: .orange, total: geo.size.width)
-                distSegment(count: vm.stats.bucketHigh, color: .red, total: geo.size.width)
-                distSegment(count: vm.stats.bucketCritical, color: .purple, total: geo.size.width)
+                distSegment(count: vm.stats.bucketLow, color: .green.opacity(0.6), total: geo.size.width)
+                distSegment(count: vm.stats.bucketMedium, color: .orange.opacity(0.8), total: geo.size.width)
+                distSegment(count: vm.stats.bucketHigh, color: .red.opacity(0.8), total: geo.size.width)
+                distSegment(count: vm.stats.bucketCritical, color: .purple.opacity(0.8), total: geo.size.width)
             }
         }.frame(height: 6).clipShape(Capsule())
     }
@@ -385,7 +399,7 @@ struct PingView: View {
 
     private var rttLegend: some View {
         HStack(spacing: 16) {
-            ForEach([("Normal", Color.primary.opacity(0.5)), ("High", Color.orange), ("Critical", Color.red)], id: \.0) { item in
+            ForEach([("Normal", Color.green), ("High", Color.orange), ("Critical", Color.red), ("Loss", Color.purple)], id: \.0) { item in
                 HStack(spacing: 6) {
                     Circle().fill(item.1).frame(width: 6, height: 6)
                     Text(item.0).font(.caption2.weight(.bold)).foregroundColor(.secondary)

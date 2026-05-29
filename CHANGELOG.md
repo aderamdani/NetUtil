@@ -4,6 +4,20 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [3.1.0] — 2026-05-29
+
+### Added
+- **Fixed Headers (Project-Wide)**: Implemented standardized, locked top-level headers across all 16 tools for better accessibility and "Anti-Slop" compliance.
+- **Advanced Ping - Packet Size**: Added payload size control to the Ping tool for MTU and fragmentation testing.
+
+### Optimized
+- **Ping Performance**: Implemented a 1,000-entry result cap and optimized auto-scrolling to ensure smooth operation during high-frequency monitoring.
+- **Sticky Table Headers**: Refactored data tables (Ping, DNS, HTTP, WHOIS) to keep headers permanently visible while scrolling content.
+- **Traceroute Engine**: Improved regex parsing for complex multi-IP hops and resolved Swift 6 concurrency warnings.
+- **Standardized Visuals**: Synchronized RTT quality colors (Normal = Green) across all tools and legends.
+
+---
+
 ## [3.0.0] — 2026-05-29
 
 ### Overhaul: Project-Wide UI/UX (Apple Artisan)
