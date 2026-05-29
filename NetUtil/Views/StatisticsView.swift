@@ -122,14 +122,16 @@ struct StatisticsView: View {
             } else {
                 Chart {
                     ForEach(recent) { day in
-                        BarMark(x: .value("Day", day.dateKey), y: .value("Down", Double(day.rxBytes)))
-                            .foregroundStyle(.blue)
-                            .position(by: .value("Direction", "Down"))
-                        BarMark(x: .value("Day", day.dateKey), y: .value("Up", Double(day.txBytes)))
-                            .foregroundStyle(.orange)
-                            .position(by: .value("Direction", "Up"))
+                        BarMark(x: .value("Day", day.dateKey), y: .value("Bytes", Double(day.rxBytes)))
+                            .foregroundStyle(by: .value("Direction", "Download"))
+                            .position(by: .value("Direction", "Download"))
+                        BarMark(x: .value("Day", day.dateKey), y: .value("Bytes", Double(day.txBytes)))
+                            .foregroundStyle(by: .value("Direction", "Upload"))
+                            .position(by: .value("Direction", "Upload"))
                     }
                 }
+                .chartForegroundStyleScale(["Download": .blue, "Upload": .orange])
+                .chartLegend(position: .top, alignment: .leading, spacing: 12)
                 .chartXAxis {
                     AxisMarks(values: .automatic(desiredCount: 6)) { val in
                         AxisValueLabel { if let s = val.as(String.self) { Text(shortDate(s)).font(.system(size: 10)) } }

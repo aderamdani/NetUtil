@@ -93,8 +93,7 @@ struct ContentView: View {
                     }
                 }
                 .padding(10)
-                .background(Color.secondary.opacity(0.08))
-                .cornerRadius(8)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 
