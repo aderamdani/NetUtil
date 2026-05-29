@@ -29,6 +29,7 @@ NetUtil provides 14 integrated tools designed for precision monitoring, infrastr
 *   **Security Audit**: Deep inspection of SSL/TLS certificate chains, SANs, and SHA-256 fingerprints.
 *   **DNS & WHOIS**: Direct access to `dig` and `whois` queries with elegantly parsed, copy-ready outputs.
 *   **Traffic & Interfaces**: Live bandwidth throughput monitors (RX/TX), Wi-Fi signal/SNR analytics, and automatic VLAN (802.1Q) detection.
+*   **Speed Test & Statistics**: Nperf-style four-tier speed tests (Speed, Browsing, Gaming, Streaming), real-time per-process network traffic (`nettop`), and historical data usage.
 
 ---
 
@@ -73,6 +74,7 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 *   **HTTP Latency**: Analisis presisi setiap fase akses *web* (DNS, TCP, TLS, TTFB).
 *   **IP Toolbox & DNS/WHOIS**: Kalkulator *Subnet* (CIDR), resolusi DNS komprehensif, dan data kepemilikan domain.
 *   **Traffic & Interface**: Monitor *Bandwidth* (RX/TX) *real-time*, analisis sinyal Wi-Fi, dan deteksi otomatis untuk *Virtual LAN* (VLAN).
+*   **Speed Test & Statistik**: Uji kecepatan jaringan komprehensif, pemantauan trafik *real-time* per aplikasi, dan riwayat penggunaan data.
 
 ### Keunggulan Teknis
 Didesain 100% menggunakan **Swift 6 & SwiftUI** tanpa *framework* pihak ketiga mana pun (*Zero Dependencies*). Mendukung penuh arsitektur Apple Silicon dan fitur *Keyboard Shortcuts* (`⌘1` - `⌘9`, `⌘F`) untuk navigasi super cepat.
