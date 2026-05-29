@@ -4,6 +4,13 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.8.1] — 2026-05-29
+
+### Fixed
+- **Updater**: Resolved an issue where the app would not prompt to install or open the DMG after completing an update download.
+
+---
+
 ## [2.8.0] — 2026-05-29
 
 ### Added
