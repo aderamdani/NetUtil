@@ -256,10 +256,11 @@ struct SpeedTestView: View {
             }
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    tHeader("Date / Time", width: 150)
-                    tHeader("Kind",        width: 80)
+                    tHeader("Date / Time", width: 140)
+                    tHeader("Kind",        width: 70)
                     tHeader("Name / Detail", flexible: true)
-                    tHeader("Primary",     width: 110)
+                    tHeader("Primary",     width: 95)
+                    tHeader("Verdict",     width: 85)
                 }.padding(.vertical, 8).padding(.horizontal, 12)
                 Divider()
                 ScrollView {
@@ -277,16 +278,17 @@ struct SpeedTestView: View {
     }
 
     private func historyRow(_ r: SpeedTestResult) -> some View {
-        HStack(spacing: 0) {
+        let verdict = verdictFor(r)
+        return HStack(spacing: 0) {
             Text(historyDateString(r.timestamp))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.secondary)
-                .frame(width: 150, alignment: .leading)
+                .frame(width: 140, alignment: .leading)
 
             Text(r.kind.rawValue)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.primary)
-                .frame(width: 80, alignment: .leading)
+                .frame(width: 70, alignment: .leading)
 
             nameDetailCell(r)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -294,7 +296,16 @@ struct SpeedTestView: View {
             Text(primaryString(r))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.primary)
-                .frame(width: 110, alignment: .leading)
+                .frame(width: 95, alignment: .leading)
+
+            HStack(spacing: 4) {
+                Circle().fill(verdict.color).frame(width: 6, height: 6)
+                Text(verdict.label)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(verdict.color)
+                    .lineLimit(1)
+            }
+            .frame(width: 85, alignment: .leading)
         }
         .padding(.vertical, 6).padding(.horizontal, 12)
         .contentShape(Rectangle())
@@ -302,6 +313,42 @@ struct SpeedTestView: View {
             Button("Rename...") { beginRename(r) }
             Button("Copy Summary") { copySummary(r) }
             Button("Delete", role: .destructive) { vm.deleteResult(r.id) }
+        }
+    }
+
+    // MARK: - Verdict
+
+    private func verdictFor(_ r: SpeedTestResult) -> (label: String, color: Color) {
+        switch r.kind {
+        case .speed:
+            let dl = r.downloadMbps
+            if dl >= 100 { return ("Excellent", .green) }
+            if dl >= 25  { return ("Good", .green) }
+            if dl >= 5   { return ("OK", .orange) }
+            if dl > 0    { return ("Slow", .red) }
+            return ("—", .secondary)
+
+        case .browsing:
+            let avg = r.browsingAvgMs
+            if avg <= 0 { return ("—", .secondary) }
+            if avg < 500  { return ("Fast", .green) }
+            if avg < 1500 { return ("OK", .orange) }
+            return ("Slow", .red)
+
+        case .gaming:
+            let p = r.gameMedianMs
+            if p <= 0 { return ("—", .secondary) }
+            if r.gameLossPct > 2 { return ("Lossy", .red) }
+            if p < 30  { return ("Excellent", .green) }
+            if p < 80  { return ("OK", .orange) }
+            return ("Poor", .red)
+
+        case .streaming:
+            let mn = r.streamMinMbps
+            if mn <= 0 { return ("—", .secondary) }
+            if mn >= 25 { return ("Excellent", .green) }
+            if mn >= 5  { return ("OK", .orange) }
+            return ("Poor", .red)
         }
     }
 
@@ -347,7 +394,8 @@ struct SpeedTestView: View {
     }
 
     private func copySummary(_ r: SpeedTestResult) {
-        let summary = "\(historyDateString(r.timestamp))  \(r.kind.rawValue)  \(primaryString(r))  \(detailString(r))"
+        let v = verdictFor(r).label
+        let summary = "\(historyDateString(r.timestamp))  \(r.kind.rawValue)  \(primaryString(r))  \(detailString(r))  [\(v)]"
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(summary, forType: .string)
     }
