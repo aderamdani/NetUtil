@@ -3,6 +3,8 @@ import SwiftUI
 struct SpeedTestView: View {
     @ObservedObject var vm: SpeedTestViewModel
     @State private var showLearningGuide = false
+    @State private var renamingId: UUID?
+    @State private var renameDraft: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -241,37 +243,113 @@ struct SpeedTestView: View {
 
     private var historySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("History").font(.headline)
+            HStack {
+                Text("History").font(.headline)
+                Spacer()
+                Text("\(vm.history.count) saved")
+                    .font(.caption).foregroundColor(.secondary)
+                Button(role: .destructive) {
+                    vm.clearHistory()
+                } label: { Image(systemName: "trash") }
+                    .buttonStyle(.borderless)
+                    .help("Clear all history")
+            }
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    tHeader("Time",    width: 90)
-                    tHeader("Kind",    width: 90)
-                    tHeader("Primary", width: 120)
-                    tHeader("Detail",  flexible: true)
+                    tHeader("Date / Time", width: 150)
+                    tHeader("Kind",        width: 80)
+                    tHeader("Name / Detail", flexible: true)
+                    tHeader("Primary",     width: 110)
                 }.padding(.vertical, 8).padding(.horizontal, 12)
                 Divider()
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(vm.history) { r in
-                            HStack(spacing: 0) {
-                                Text(r.timestamp.formatted(date: .omitted, time: .standard))
-                                    .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary).frame(width: 90, alignment: .leading)
-                                Text(r.kind.rawValue)
-                                    .font(.system(size: 11, weight: .medium)).foregroundColor(.primary).frame(width: 90, alignment: .leading)
-                                Text(primaryString(r))
-                                    .font(.system(size: 11, design: .monospaced)).foregroundColor(.primary).frame(width: 120, alignment: .leading)
-                                Text(detailString(r))
-                                    .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary).frame(maxWidth: .infinity, alignment: .leading).lineLimit(1)
-                            }
-                            .padding(.vertical, 6).padding(.horizontal, 12)
+                            historyRow(r)
                             Divider().opacity(0.5)
                         }
                     }
                 }
             }
-            .frame(maxHeight: 200)
+            .frame(maxHeight: 240)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
         }
+    }
+
+    private func historyRow(_ r: SpeedTestResult) -> some View {
+        HStack(spacing: 0) {
+            Text(historyDateString(r.timestamp))
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundColor(.secondary)
+                .frame(width: 150, alignment: .leading)
+
+            Text(r.kind.rawValue)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.primary)
+                .frame(width: 80, alignment: .leading)
+
+            nameDetailCell(r)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(primaryString(r))
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundColor(.primary)
+                .frame(width: 110, alignment: .leading)
+        }
+        .padding(.vertical, 6).padding(.horizontal, 12)
+        .contentShape(Rectangle())
+        .contextMenu {
+            Button("Rename...") { beginRename(r) }
+            Button("Copy Summary") { copySummary(r) }
+            Button("Delete", role: .destructive) { vm.deleteResult(r.id) }
+        }
+    }
+
+    @ViewBuilder
+    private func nameDetailCell(_ r: SpeedTestResult) -> some View {
+        if renamingId == r.id {
+            TextField("Label this result", text: $renameDraft)
+                .textFieldStyle(.roundedBorder)
+                .font(.system(size: 11))
+                .onSubmit { commitRename(r) }
+                .onExitCommand { renamingId = nil }
+        } else {
+            VStack(alignment: .leading, spacing: 1) {
+                if let name = r.name, !name.isEmpty {
+                    Text(name).font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.primary).lineLimit(1)
+                    Text(detailString(r))
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundColor(.secondary).lineLimit(1)
+                } else {
+                    Text(detailString(r))
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.secondary).lineLimit(1)
+                }
+            }
+        }
+    }
+
+    private func historyDateString(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd HH:mm"
+        return f.string(from: date)
+    }
+
+    private func beginRename(_ r: SpeedTestResult) {
+        renamingId = r.id
+        renameDraft = r.name ?? ""
+    }
+
+    private func commitRename(_ r: SpeedTestResult) {
+        vm.renameResult(r.id, to: renameDraft)
+        renamingId = nil
+    }
+
+    private func copySummary(_ r: SpeedTestResult) {
+        let summary = "\(historyDateString(r.timestamp))  \(r.kind.rawValue)  \(primaryString(r))  \(detailString(r))"
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(summary, forType: .string)
     }
 
     private func primaryString(_ r: SpeedTestResult) -> String {
