@@ -8,66 +8,113 @@ struct SpeedTestView: View {
     @State private var renameDraft: String = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            controlBar.padding(.bottom, 24)
+        VStack(spacing: 0) {
+            controlBar
 
-            if let err = vm.error {
-                Text(err).foregroundColor(.red).font(.system(size: 12, weight: .medium)).padding(.bottom, 16)
-            }
+            ScrollView {
+                VStack(spacing: 24) {
+                    if let err = vm.error {
+                        errorBanner(err)
+                    }
 
-            kindPicker.padding(.bottom, 20)
-
-            VStack(alignment: .leading, spacing: 24) {
-                metricRow
-                progressSection
-                if !vm.history.isEmpty {
-                    historySection
+                    interpretationSection
+                    
+                    kindPickerSection
+                    
+                    metricRowSection
+                    
+                    progressSection
+                    
+                    if !vm.history.isEmpty {
+                        historySection
+                    }
                 }
+                .padding(24)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
         }
-        .padding(32)
-        .sheet(isPresented: $showLearningGuide) { learningGuideSheet }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Speed Test") }
     }
 
-    // MARK: - Control Bar
+    // MARK: - Components
+
+    private func sectionHeader(_ title: String, icon: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
+            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
+        }
+    }
 
     private var controlBar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "speedometer").foregroundColor(.accentColor)
-                Text("Speed Test").font(.headline)
-            }.frame(width: 250, alignment: .leading)
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "speedometer")
+                        .foregroundColor(.accentColor)
+                        .imageScale(.large)
+                    Text("Speed Test")
+                        .font(.headline)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 16) {
+                    if vm.isTesting {
+                        HStack(spacing: 8) {
+                            ProgressView().controlSize(.small)
+                            Text("Testing...").font(.system(size: 11, weight: .bold)).foregroundColor(.accentColor)
+                        }
+                    }
+                    
+                    Divider().frame(height: 16)
+                    
+                    Button(action: { if vm.isTesting { vm.cancel() } else { vm.start(connectionName: tools.currentConnectionName) } }) {
+                        Label(vm.isTesting ? "Cancel" : "Start Test", systemImage: vm.isTesting ? "stop.fill" : "play.fill")
+                            .frame(minWidth: 90)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(vm.isTesting ? .red : .accentColor)
 
-            Spacer()
-
-            Button(action: { if vm.isTesting { vm.cancel() } else { vm.start(connectionName: tools.currentConnectionName) } }) {
-                HStack(spacing: 6) {
-                    Image(systemName: vm.isTesting ? "stop.fill" : "play.fill")
-                    Text(vm.isTesting ? "Cancel" : "Start Test")
-                }.font(.system(size: 13, weight: .medium)).frame(minWidth: 90)
+                    Button { showLearningGuide = true } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .buttonStyle(.borderless)
+                }
             }
-            .buttonStyle(.borderedProminent)
-            .tint(vm.isTesting ? .red : .accentColor)
-            .disabled(false)
-
-            Button { showLearningGuide = true } label: { Image(systemName: "questionmark.circle") }
-                .buttonStyle(.borderless)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            
+            Divider()
         }
     }
 
-    // MARK: - Kind Picker
-
-    private var kindPicker: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                ForEach(SpeedTestKind.allCases) { kind in
-                    kindButton(kind)
-                }
+    private var interpretationSection: some View {
+        HStack(alignment: .center, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.1))
+                    .frame(width: 40, height: 40)
+                Image(systemName: vm.kind.icon)
+                    .foregroundColor(.accentColor)
+                    .font(.title3)
             }
-            Text(vm.kind.subtitle)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(vm.kind.rawValue)
+                    .font(.headline)
+                Text(vm.kind.subtitle)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+        }
+    }
+
+    private var kindPickerSection: some View {
+        HStack(spacing: 12) {
+            ForEach(SpeedTestKind.allCases) { kind in
+                kindButton(kind)
+            }
+            Spacer()
         }
     }
 
@@ -75,397 +122,265 @@ struct SpeedTestView: View {
         let selected = vm.kind == kind
         return Button {
             guard !vm.isTesting else { return }
-            vm.kind = kind
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { vm.kind = kind }
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: kind.icon).font(.system(size: 12, weight: .medium))
-                Text(kind.rawValue).font(.system(size: 12, weight: .medium))
+            HStack(spacing: 8) {
+                Image(systemName: kind.icon)
+                    .font(.system(size: 11, weight: .bold))
+                Text(kind.rawValue)
+                    .font(.system(size: 12, weight: .semibold))
             }
-            .padding(.horizontal, 12).padding(.vertical, 7)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .foregroundColor(selected ? .white : .primary)
-            .background(selected ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.regularMaterial),
-                        in: RoundedRectangle(cornerRadius: 7))
+            .background(selected ? Color.accentColor : Color.secondary.opacity(0.1))
+            .cornerRadius(8)
         }
         .buttonStyle(.plain)
         .disabled(vm.isTesting)
-        .opacity(vm.isTesting && !selected ? 0.45 : 1.0)
+        .opacity(vm.isTesting && !selected ? 0.4 : 1.0)
     }
-
-    // MARK: - Metric Rows (per kind)
 
     @ViewBuilder
-    private var metricRow: some View {
-        switch vm.kind {
-        case .speed:     speedMetrics
-        case .browsing:  browsingMetrics
-        case .gaming:    gamingMetrics
-        case .streaming: streamingMetrics
-        }
-    }
-
-    private var speedMetrics: some View {
-        HStack(spacing: 16) {
-            metricCard(title: "Download", value: String(format: "%.1f", vm.downloadMbps), unit: "Mbps", icon: "arrow.down", color: .blue, highlight: vm.phase == .download)
-            metricCard(title: "Upload",   value: String(format: "%.1f", vm.uploadMbps),   unit: "Mbps", icon: "arrow.up",   color: .orange, highlight: vm.phase == .upload)
-            metricCard(title: "Latency",  value: String(format: "%.0f", vm.pingMs),       unit: "ms",   icon: "timer",      color: .green,  highlight: vm.phase == .latency)
-            metricCard(title: "Jitter",   value: String(format: "%.1f", vm.jitterMs),     unit: "ms",   icon: "waveform.path.ecg", color: .purple, highlight: false)
-        }
-    }
-
-    private var browsingMetrics: some View {
-        HStack(spacing: 16) {
-            metricCard(title: "Avg Load",   value: String(format: "%.0f", vm.browsingAvgMs),       unit: "ms",     icon: "globe",       color: .blue,   highlight: vm.phase == .browsing)
-            metricCard(title: "Median TTFB",value: String(format: "%.0f", vm.browsingMedianTtfb),  unit: "ms",     icon: "timer",       color: .orange, highlight: false)
-            metricCard(title: "Sites",      value: "\(vm.browsingProcessed)",                       unit: "loaded", icon: "checkmark.circle", color: .green,  highlight: false)
-            metricCard(title: "Verdict",    value: browsingVerdict,                                  unit: "",       icon: "checkmark.seal.fill",color: browsingVerdictColor, highlight: false)
-        }
-    }
-
-    private var gamingMetrics: some View {
-        HStack(spacing: 16) {
-            metricCard(title: "Median Latency", value: String(format: "%.0f", vm.gameMedianMs), unit: "ms", icon: "timer",            color: gameLatencyColor, highlight: vm.phase == .gaming)
-            metricCard(title: "P99 Latency",    value: String(format: "%.0f", vm.gameP99Ms),    unit: "ms", icon: "exclamationmark.triangle", color: .orange, highlight: false)
-            metricCard(title: "Jitter",         value: String(format: "%.1f", vm.gameJitterMs), unit: "ms", icon: "waveform.path.ecg", color: .purple, highlight: false)
-            metricCard(title: "Loss",           value: String(format: "%.1f", vm.gameLossPct),  unit: "%",  icon: "network.slash", color: vm.gameLossPct > 1 ? .red : .green, highlight: false)
-        }
-    }
-
-    private var streamingMetrics: some View {
-        HStack(spacing: 16) {
-            metricCard(title: "Avg Throughput", value: String(format: "%.1f", vm.streamAvgMbps),  unit: "Mbps", icon: "arrow.down",         color: .blue,   highlight: vm.phase == .streaming)
-            metricCard(title: "Min Throughput", value: String(format: "%.1f", vm.streamMinMbps),  unit: "Mbps", icon: "arrow.down.to.line", color: .orange, highlight: false)
-            metricCard(title: "Stable Tier",    value: vm.streamTier,                              unit: "",     icon: "play.tv",            color: .accentColor, highlight: false)
-            metricCard(title: "Verdict",        value: streamingVerdict,                           unit: "",     icon: "checkmark.seal.fill",      color: streamingVerdictColor, highlight: false)
-        }
-    }
-
-    // MARK: - Verdict helpers
-
-    private var browsingVerdict: String {
-        let avg = vm.browsingAvgMs
-        guard avg > 0 else { return "—" }
-        if avg < 500  { return "Fast" }
-        if avg < 1500 { return "OK" }
-        return "Slow"
-    }
-
-    private var browsingVerdictColor: Color {
-        switch browsingVerdict {
-        case "Fast": return .green
-        case "OK":   return .orange
-        case "Slow": return .red
-        default:     return .secondary
-        }
-    }
-
-    private var gameLatencyColor: Color {
-        if vm.gameMedianMs == 0 { return .secondary }
-        if vm.gameMedianMs < 30  { return .green }
-        if vm.gameMedianMs < 80  { return .orange }
-        return .red
-    }
-
-    private var streamingVerdict: String {
-        let min = vm.streamMinMbps
-        guard min > 0 else { return "—" }
-        if min >= 25 { return "Excellent" }
-        if min >= 5  { return "OK" }
-        return "Poor"
-    }
-
-    private var streamingVerdictColor: Color {
-        switch streamingVerdict {
-        case "Excellent": return .green
-        case "OK":        return .orange
-        case "Poor":      return .red
-        default:          return .secondary
-        }
-    }
-
-    // MARK: - Metric Card
-
-    private func metricCard(title: String, value: String, unit: String, icon: String, color: Color, highlight: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
-                Image(systemName: icon).font(.subheadline).foregroundColor(color)
-                Text(title).font(.subheadline.weight(.semibold)).foregroundColor(.primary)
-                if highlight { PulsingIndicator(color: color).scaleEffect(0.7) }
-                Spacer()
+    private var metricRowSection: some View {
+        HStack(spacing: 12) {
+            switch vm.kind {
+            case .speed:
+                metricCard(title: "Download", value: String(format: "%.1f", vm.downloadMbps), unit: "Mbps", icon: "arrow.down", color: .blue, active: vm.phase == .download)
+                metricCard(title: "Upload", value: String(format: "%.1f", vm.uploadMbps), unit: "Mbps", icon: "arrow.up", color: .orange, active: vm.phase == .upload)
+                metricCard(title: "Latency", value: String(format: "%.0f", vm.pingMs), unit: "ms", icon: "timer", color: .green, active: vm.phase == .latency)
+                metricCard(title: "Jitter", value: String(format: "%.1f", vm.jitterMs), unit: "ms", icon: "waveform.path.ecg", color: .purple, active: false)
+                
+            case .browsing:
+                metricCard(title: "Avg Load", value: String(format: "%.0f", vm.browsingAvgMs), unit: "ms", icon: "globe", color: .blue, active: vm.phase == .browsing)
+                metricCard(title: "Median TTFB", value: String(format: "%.0f", vm.browsingMedianTtfb), unit: "ms", icon: "timer", color: .orange, active: false)
+                metricCard(title: "Success", value: "\(vm.browsingProcessed)", unit: "sites", icon: "checkmark.circle", color: .green, active: false)
+                metricCard(title: "Verdict", value: browsingVerdict, unit: "", icon: "checkmark.seal.fill", color: browsingVerdictColor, active: false)
+                
+            case .gaming:
+                metricCard(title: "Median RTT", value: String(format: "%.0f", vm.gameMedianMs), unit: "ms", icon: "timer", color: gameLatencyColor, active: vm.phase == .gaming)
+                metricCard(title: "P99 RTT", value: String(format: "%.0f", vm.gameP99Ms), unit: "ms", icon: "exclamationmark.triangle", color: .orange, active: false)
+                metricCard(title: "Jitter", value: String(format: "%.1f", vm.gameJitterMs), unit: "ms", icon: "waveform.path.ecg", color: .purple, active: false)
+                metricCard(title: "Loss", value: String(format: "%.1f", vm.gameLossPct), unit: "%", icon: "network.slash", color: vm.gameLossPct > 1 ? .red : .green, active: false)
+                
+            case .streaming:
+                metricCard(title: "Avg Rate", value: String(format: "%.1f", vm.streamAvgMbps), unit: "Mbps", icon: "arrow.down", color: .blue, active: vm.phase == .streaming)
+                metricCard(title: "Min Rate", value: String(format: "%.1f", vm.streamMinMbps), unit: "Mbps", icon: "arrow.down.to.line", color: .orange, active: false)
+                metricCard(title: "Stable Tier", value: vm.streamTier, unit: "", icon: "play.tv", color: .accentColor, active: false)
+                metricCard(title: "Verdict", value: streamingVerdict, unit: "", icon: "checkmark.seal.fill", color: streamingVerdictColor, active: false)
             }
-            HStack(alignment: .lastTextBaseline, spacing: 4) {
-                Text(value)
-                    .font(.system(size: 26, weight: .bold, design: .monospaced))
+        }
+    }
+
+    private func metricCard(title: String, value: String, unit: String, icon: String, color: Color, active: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundColor(color)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                Text(title)
+                    .font(.system(.caption2, design: .default).weight(.bold))
+                    .foregroundColor(.secondary)
+                Spacer()
+                if active { PulsingIndicator(color: color).scaleEffect(0.6) }
+            }
+            
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(value)
+                    .font(.system(size: 24, weight: .bold, design: .monospaced))
+                    .foregroundColor(color)
                 if !unit.isEmpty {
-                    Text(unit).font(.caption.weight(.medium)).foregroundColor(.secondary)
+                    Text(unit)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.secondary)
                 }
             }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(highlight ? color.opacity(0.5) : Color(.separatorColor).opacity(0.1), lineWidth: highlight ? 1.5 : 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(active ? color.opacity(0.3) : Color(.separatorColor).opacity(0.1), lineWidth: active ? 1.5 : 0.5))
     }
-
-    // MARK: - Progress
 
     private var progressSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Status").font(.caption.weight(.medium)).foregroundColor(.secondary)
-                Spacer()
-                Text(vm.phase.rawValue).font(.caption.weight(.semibold))
-                    .foregroundColor(phaseColor)
-            }
-            ProgressView(value: vm.progress).progressViewStyle(.linear).tint(phaseColor)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
-    }
-
-    private var phaseColor: Color {
-        switch vm.phase {
-        case .idle:      return .secondary
-        case .latency:   return .green
-        case .download:  return .blue
-        case .upload:    return .orange
-        case .browsing:  return .blue
-        case .gaming:    return .purple
-        case .streaming: return .pink
-        case .done:      return .green
-        case .failed:    return .red
-        }
-    }
-
-    // MARK: - History
-
-    private var historySection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("History").font(.headline)
+                Text("Operational Status")
+                    .font(.system(.caption2, design: .default).weight(.bold))
+                    .foregroundColor(.secondary)
                 Spacer()
-                Text("\(vm.history.count) saved")
-                    .font(.caption).foregroundColor(.secondary)
-                Button(role: .destructive) {
-                    vm.clearHistory()
-                } label: { Image(systemName: "trash") }
-                    .buttonStyle(.borderless)
-                    .help("Clear all history")
+                Text(vm.phase.rawValue.uppercased())
+                    .font(.system(size: 10, weight: .black, design: .monospaced))
+                    .foregroundColor(phaseColor)
             }
+            
+            ProgressView(value: vm.progress)
+                .progressViewStyle(.linear)
+                .tint(phaseColor)
+        }
+        .padding(16)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+    }
+
+    private var historySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                sectionHeader("Historical Benchmarks", icon: "clock.arrow.circlepath")
+                Spacer()
+                Button(role: .destructive) { vm.clearHistory() } label: {
+                    Label("Clear All", systemImage: "trash")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.borderless)
+            }
+            
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    tHeader("Date / Time", width: 130)
-                    tHeader("Kind",        width: 70)
-                    tHeader("Name",        width: 140)
-                    tHeader("Detail",      flexible: true)
-                    tHeader("Primary",     width: 95)
-                    tHeader("Verdict",     width: 85)
-                }.padding(.vertical, 8).padding(.horizontal, 12)
+                    tHeader("Timestamp", width: 120)
+                    tHeader("Category", width: 80)
+                    tHeader("Connection", width: 140)
+                    tHeader("Primary Metric", width: 120)
+                    tHeader("Verdict", flexible: true)
+                }
+                .padding(.vertical, 10).padding(.horizontal, 16)
+                .background(Color.secondary.opacity(0.05))
+                
                 Divider()
+                
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(vm.history) { r in
                             historyRow(r)
-                            Divider().opacity(0.5)
+                            if r.id != vm.history.last?.id {
+                                Divider().padding(.horizontal, 16).opacity(0.5)
+                            }
                         }
                     }
                 }
             }
-            .frame(maxHeight: 240)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+            .frame(maxHeight: 300)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 
     private func historyRow(_ r: SpeedTestResult) -> some View {
         let verdict = verdictFor(r)
         return HStack(spacing: 0) {
-            Text(historyDateString(r.timestamp))
+            Text(r.timestamp.formatted(date: .numeric, time: .shortened))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.secondary)
-                .frame(width: 130, alignment: .leading)
-
+                .frame(width: 120, alignment: .leading)
+            
             Text(r.kind.rawValue)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.primary)
-                .frame(width: 70, alignment: .leading)
-
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(.secondary)
+                .frame(width: 80, alignment: .leading)
+            
             nameCell(r)
                 .frame(width: 140, alignment: .leading)
-
-            Text(detailString(r))
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
+            
             Text(primaryString(r))
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundColor(.primary)
-                .frame(width: 95, alignment: .leading)
-
-            HStack(spacing: 4) {
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .frame(width: 120, alignment: .leading)
+            
+            HStack(spacing: 8) {
                 Image(systemName: "circle.fill")
-                    .font(.system(size: 7))
+                    .font(.system(size: 6))
                     .foregroundColor(verdict.color)
                 Text(verdict.label)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(verdict.color)
-                    .lineLimit(1)
+                Spacer()
             }
-            .frame(width: 85, alignment: .leading)
+            .frame(maxWidth: .infinity)
         }
-        .padding(.vertical, 6).padding(.horizontal, 12)
-        .contentShape(Rectangle())
+        .padding(.vertical, 10).padding(.horizontal, 16)
         .contextMenu {
-            Button("Rename...") { beginRename(r) }
+            Button("Rename Label...") { renamingId = r.id; renameDraft = r.name ?? "" }
             Button("Copy Summary") { copySummary(r) }
-            Button("Delete", role: .destructive) { vm.deleteResult(r.id) }
+            Divider()
+            Button("Delete Result", role: .destructive) { vm.deleteResult(r.id) }
         }
     }
 
-    // MARK: - Verdict
+    // MARK: - Verdict Helpers
+
+    private var browsingVerdict: String { let avg = vm.browsingAvgMs; guard avg > 0 else { return "—" }; return avg < 500 ? "Fast" : (avg < 1500 ? "Stable" : "Slow") }
+    private var browsingVerdictColor: Color { switch browsingVerdict { case "Fast": .green; case "Stable": .orange; case "Slow": .red; default: .secondary } }
+    private var gameLatencyColor: Color { if vm.gameMedianMs == 0 { return .secondary }; return vm.gameMedianMs < 30 ? .green : (vm.gameMedianMs < 80 ? .orange : .red) }
+    private var streamingVerdict: String { let min = vm.streamMinMbps; guard min > 0 else { return "—" }; return min >= 25 ? "Excellent" : (min >= 5 ? "Good" : "Poor") }
+    private var streamingVerdictColor: Color { switch streamingVerdict { case "Excellent": .green; case "Good": .orange; case "Poor": .red; default: .secondary } }
 
     private func verdictFor(_ r: SpeedTestResult) -> (label: String, color: Color) {
         switch r.kind {
-        case .speed:
-            let dl = r.downloadMbps
-            if dl >= 100 { return ("Excellent", .green) }
-            if dl >= 25  { return ("Good", .green) }
-            if dl >= 5   { return ("OK", .orange) }
-            if dl > 0    { return ("Slow", .red) }
-            return ("—", .secondary)
+        case .speed:     let d = r.downloadMbps; return d >= 100 ? ("Excellent", .green) : (d >= 25 ? ("Good", .green) : (d >= 5 ? ("Stable", .orange) : ("Slow", .red)))
+        case .browsing:  let a = r.browsingAvgMs; return a <= 0 ? ("—", .secondary) : (a < 500 ? ("Fast", .green) : (a < 1500 ? ("Stable", .orange) : ("Slow", .red)))
+        case .gaming:    let p = r.gameMedianMs; if r.gameLossPct > 2 { return ("Lossy", .red) }; return p <= 0 ? ("—", .secondary) : (p < 30 ? ("Excellent", .green) : (p < 80 ? ("Stable", .orange) : ("Unstable", .red)))
+        case .streaming: let m = r.streamMinMbps; return m <= 0 ? ("—", .secondary) : (m >= 25 ? ("4K HDR", .green) : (m >= 5 ? ("HD 1080p", .orange) : ("SD 480p", .red)))
+        }
+    }
 
-        case .browsing:
-            let avg = r.browsingAvgMs
-            if avg <= 0 { return ("—", .secondary) }
-            if avg < 500  { return ("Fast", .green) }
-            if avg < 1500 { return ("OK", .orange) }
-            return ("Slow", .red)
-
-        case .gaming:
-            let p = r.gameMedianMs
-            if p <= 0 { return ("—", .secondary) }
-            if r.gameLossPct > 2 { return ("Lossy", .red) }
-            if p < 30  { return ("Excellent", .green) }
-            if p < 80  { return ("OK", .orange) }
-            return ("Poor", .red)
-
-        case .streaming:
-            let mn = r.streamMinMbps
-            if mn <= 0 { return ("—", .secondary) }
-            if mn >= 25 { return ("Excellent", .green) }
-            if mn >= 5  { return ("OK", .orange) }
-            return ("Poor", .red)
+    private func primaryString(_ r: SpeedTestResult) -> String {
+        switch r.kind {
+        case .speed: return String(format: "%.1f Mbps", r.downloadMbps)
+        case .browsing: return String(format: "%.0f ms", r.browsingAvgMs)
+        case .gaming: return String(format: "%.0f ms", r.gameMedianMs)
+        case .streaming: return r.streamTier
         }
     }
 
     @ViewBuilder
     private func nameCell(_ r: SpeedTestResult) -> some View {
         if renamingId == r.id {
-            TextField("Connection label", text: $renameDraft)
+            TextField("", text: $renameDraft)
                 .textFieldStyle(.roundedBorder)
                 .font(.system(size: 11))
-                .onSubmit { commitRename(r) }
-                .onExitCommand { renamingId = nil }
+                .onSubmit { vm.renameResult(r.id, to: renameDraft); renamingId = nil }
         } else {
-            HStack(spacing: 4) {
+            HStack(spacing: 6) {
                 Image(systemName: connectionIcon(r.name))
                     .font(.system(size: 10))
                     .foregroundColor(.secondary)
-                Text(r.name?.isEmpty == false ? r.name! : "—")
+                Text(r.name?.isEmpty == false ? r.name! : "Unnamed Link")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(r.name?.isEmpty == false ? .primary : .secondary)
                     .lineLimit(1)
-                    .truncationMode(.tail)
             }
         }
     }
 
     private func connectionIcon(_ name: String?) -> String {
-        guard let n = name?.lowercased() else { return "questionmark.circle" }
+        guard let n = name?.lowercased() else { return "network" }
         if n.contains("wi-fi") || n.contains("wifi") { return "wifi" }
-        if n.contains("ethernet") || n.contains("lan") || n.contains("usb") { return "cable.connector" }
-        if n.contains("vpn") || n.contains("tunnel") { return "lock.shield" }
-        // Wi-Fi SSID with no explicit keyword — default to wifi if primary interface is wifi
-        // Otherwise the row is from a real SSID.
-        return "wifi"
-    }
-
-    private func historyDateString(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd HH:mm"
-        return f.string(from: date)
-    }
-
-    private func beginRename(_ r: SpeedTestResult) {
-        renamingId = r.id
-        renameDraft = r.name ?? ""
-    }
-
-    private func commitRename(_ r: SpeedTestResult) {
-        vm.renameResult(r.id, to: renameDraft)
-        renamingId = nil
+        if n.contains("ethernet") || n.contains("lan") { return "cable.connector" }
+        if n.contains("vpn") { return "lock.shield" }
+        return "network"
     }
 
     private func copySummary(_ r: SpeedTestResult) {
         let v = verdictFor(r).label
-        let summary = "\(historyDateString(r.timestamp))  \(r.kind.rawValue)  \(primaryString(r))  \(detailString(r))  [\(v)]"
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(summary, forType: .string)
+        let summary = "\(r.timestamp.formatted())  \(r.kind.rawValue)  \(primaryString(r))  [\(v)]"
+        NSPasteboard.general.clearContents(); NSPasteboard.general.setString(summary, forType: .string)
     }
 
-    private func primaryString(_ r: SpeedTestResult) -> String {
-        switch r.kind {
-        case .speed:     return String(format: "%.1f Mbps", r.downloadMbps)
-        case .browsing:  return String(format: "%.0f ms",   r.browsingAvgMs)
-        case .gaming:    return String(format: "%.0f ms",   r.gameMedianMs)
-        case .streaming: return r.streamTier
-        }
-    }
-
-    private func detailString(_ r: SpeedTestResult) -> String {
-        switch r.kind {
-        case .speed:
-            return String(format: "Up %.1f Mbps · ping %.0f ms · jitter %.1f ms", r.uploadMbps, r.pingMs, r.jitterMs)
-        case .browsing:
-            return String(format: "TTFB %.0f ms · %d sites", r.browsingMedianTtfb, r.browsingSites)
-        case .gaming:
-            return String(format: "P99 %.0f ms · jitter %.1f ms · loss %.1f%%", r.gameP99Ms, r.gameJitterMs, r.gameLossPct)
-        case .streaming:
-            return String(format: "Avg %.1f Mbps · Min %.1f Mbps", r.streamAvgMbps, r.streamMinMbps)
+    private var phaseColor: Color {
+        switch vm.phase {
+        case .idle: .secondary; case .latency: .green; case .download: .blue; case .upload: .orange; case .browsing: .blue; case .gaming: .purple; case .streaming: .pink; case .done: .green; case .failed: .red
         }
     }
 
     private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title).font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
+        Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
             .frame(width: width, alignment: .leading).frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
     }
 
-    // MARK: - Guide
-
-    private var learningGuideSheet: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack { Text("Speed Test Guide").font(.title2.bold()); Spacer(); Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent) }.padding(24)
-            Divider()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    GuideSection(title: "Speed", icon: "speedometer") {
-                        Text("Sustained download (4 parallel connections, 10 s) and upload (single connection, 10 s) against speed.cloudflare.com. Latency is the median of 8 small HTTP round-trips. Jitter is the standard deviation of those samples.")
-                    }
-                    GuideSection(title: "Browsing", icon: "safari") {
-                        Text("Fetches 8 popular sites sequentially. Reports average full-page load time and median Time-To-First-Byte. Use this to gauge real-world web responsiveness independent of raw Mbps.")
-                    }
-                    GuideSection(title: "Gaming", icon: "gamecontroller.fill") {
-                        Text("Sends 50 HEAD requests to 1.1.1.1 with 50 ms inter-probe spacing — a burst pattern similar to in-game packets. Reports median, P99, jitter, and loss percentage. Under 30 ms median is excellent, over 80 ms is unplayable for competitive games.")
-                    }
-                    GuideSection(title: "Streaming", icon: "play.tv.fill") {
-                        Text("Sustained 15 s download with 1 s window sampling. The MIN throughput across all 1 s windows determines the streaming tier you can sustain without buffering. 25 Mbps min = 4K UHD, 5 Mbps min = 720p HD.")
-                    }
-                }.padding(24)
-            }
-        }.frame(width: 540, height: 560)
+    private func errorBanner(_ msg: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.red)
+            Text(msg).font(.subheadline.weight(.medium))
+            Spacer()
+        }.padding(12).background(Color.red.opacity(0.1)).cornerRadius(8).overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
     }
 }

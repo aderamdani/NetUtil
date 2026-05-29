@@ -5,91 +5,158 @@ struct NetworkInterfaceView: View {
     @State private var showAll = false
     @State private var showLearningGuide = false
 
-    private var displayed: [NetworkInterface] { showAll ? vm.interfaces : vm.interfaces.filter { $0.isUp } }
+    private var active: [NetworkInterface] { vm.interfaces.filter { $0.isUp } }
+    private var inactive: [NetworkInterface] { vm.interfaces.filter { !$0.isUp } }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            controlBar.padding(.bottom, 24)
+        VStack(spacing: 0) {
+            controlBar
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 32) {
-                    interpretationHeader
-                    statsBar.padding(.bottom, 8)
+                VStack(spacing: 24) {
+                    interpretationSection
+                    
+                    statsBarSection
                     
                     VStack(alignment: .leading, spacing: 16) {
-                        sectionHeader("Active Adapters")
-                        LazyVStack(spacing: 12) {
-                            ForEach(displayed) { iface in InterfaceDetailCard(iface: iface) }
-                            if displayed.isEmpty { emptyState }
+                        sectionHeader("Active Adapters", icon: "arrow.up.circle.fill")
+                        
+                        if active.isEmpty {
+                            emptyState(msg: "No Active Interfaces Found")
+                        } else {
+                            LazyVStack(spacing: 12) {
+                                ForEach(active) { iface in
+                                    InterfaceDetailCard(iface: iface)
+                                }
+                            }
+                        }
+                    }
+                    
+                    if showAll && !inactive.isEmpty {
+                        VStack(alignment: .leading, spacing: 16) {
+                            sectionHeader("Inactive Adapters", icon: "arrow.down.circle.fill")
+                            
+                            LazyVStack(spacing: 12) {
+                                ForEach(inactive) { iface in
+                                    InterfaceDetailCard(iface: iface)
+                                }
+                            }
                         }
                     }
                 }
+                .padding(24)
             }
         }
-        .padding(32)
         .onAppear { vm.refresh() }
-        .sheet(isPresented: $showLearningGuide) { interfaceLearningGuideSheet }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Network Interfaces") }
     }
+
+    // MARK: - Components
 
     private var controlBar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "network").foregroundColor(.accentColor)
-                Text("System Interfaces").font(.headline)
-            }.frame(width: 250, alignment: .leading)
-
+        VStack(spacing: 0) {
             HStack(spacing: 12) {
-                Toggle("Show Inactive", isOn: $showAll).font(.system(size: 11, weight: .medium)).toggleStyle(.checkbox)
-                Divider().frame(height: 20)
-                HStack(spacing: 4) {
-                    Text("Updated").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
-                    Text(vm.lastUpdated.formatted(date: .omitted, time: .standard)).font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                HStack(spacing: 8) {
+                    Image(systemName: "network")
+                        .foregroundColor(.accentColor)
+                        .imageScale(.large)
+                    Text("Network Interfaces")
+                        .font(.headline)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 16) {
+                    Toggle("Show Inactive", isOn: $showAll)
+                        .font(.subheadline)
+                        .toggleStyle(.checkbox)
+                    
+                    Divider().frame(height: 16)
+                    
+                    Button { vm.refresh() } label: {
+                        Label("Refresh", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button { showLearningGuide = true } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .buttonStyle(.borderless)
                 }
             }
-
-            Spacer()
-
-            Button(action: { vm.refresh() }) {
-                HStack(spacing: 6) { Image(systemName: "arrow.clockwise"); Text("Refresh") }.font(.system(size: 13, weight: .medium))
-            }.buttonStyle(.bordered)
-
-            Button { showLearningGuide = true } label: { Image(systemName: "questionmark.circle") }.buttonStyle(.borderless)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            
+            Divider()
         }
     }
     
-    private func sectionHeader(_ title: String) -> some View { Text(title).font(.headline).foregroundColor(.primary) }
-
-    private var interpretationHeader: some View {
-        HStack(alignment: .center, spacing: 12) {
-            let active = vm.interfaces.filter { $0.isUp }.count
-            Image(systemName: active > 0 ? "antenna.radiowaves.left.and.right" : "network.slash").font(.title2).foregroundColor(active > 0 ? .green : .red)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(active > 0 ? "Network Online" : "Disconnected").font(.headline)
-                Text("System has \(active) active network interfaces.").font(.subheadline).foregroundColor(.secondary)
-            }
-            Spacer()
-        }.padding(.bottom, 8)
+    private func sectionHeader(_ title: String, icon: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
+            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
+        }
     }
 
-    private var statsBar: some View {
+    private var interpretationSection: some View {
+        HStack(alignment: .center, spacing: 16) {
+            let count = active.count
+            ZStack {
+                Circle()
+                    .fill((count > 0 ? Color.green : Color.red).opacity(0.1))
+                    .frame(width: 40, height: 40)
+                Image(systemName: count > 0 ? "antenna.radiowaves.left.and.right" : "network.slash")
+                    .foregroundColor(count > 0 ? .green : .red)
+                    .font(.title3)
+            }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(count > 0 ? "Network Online" : "System Disconnected")
+                    .font(.headline)
+                Text("Detected \(count) active and \(inactive.count) standby interfaces.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("Last Updated").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
+                    .font(.system(.subheadline, design: .monospaced).weight(.bold))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        }
+    }
+
+    private var statsBarSection: some View {
         HStack(spacing: 12) {
             StatCard(title: "Total Adapters", value: "\(vm.interfaces.count)", icon: "laptopcomputer")
-            StatCard(title: "Active Up", value: "\(vm.interfaces.filter(\.isUp).count)", icon: "arrow.up.circle.fill", color: .green)
-            if let vlan = vm.interfaces.first(where: { $0.isVLAN }) { StatCard(title: "VLAN Active", value: vlan.name, icon: "tag.fill", color: .purple) }
-            Spacer()
+            StatCard(title: "Active Link", value: "\(active.count)", icon: "arrow.up.circle.fill", color: .green)
+            if let vlan = vm.interfaces.first(where: { $0.isVLAN }) {
+                StatCard(title: "VLAN Active", value: vlan.name, icon: "tag.fill", color: .purple)
+            }
+            if let mac = active.first?.mac {
+                StatCard(title: "Primary MAC", value: String(mac.prefix(8)) + "...", icon: "barcode")
+            }
         }
     }
 
-    private var emptyState: some View {
-        VStack { Spacer(); Text("No active interfaces found.").font(.headline).foregroundColor(.secondary); Spacer() }.frame(maxWidth: .infinity, minHeight: 150)
-    }
-    
-    private var interfaceLearningGuideSheet: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack { Text("Interface Guide").font(.title2.bold()); Spacer(); Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent) }.padding(24)
-            Divider()
-            ScrollView { VStack(alignment: .leading, spacing: 24) { GuideSection(title: "What is an Interface?", icon: "network") { Text("A connection point between your computer and a network.") } }.padding(24) }
-        }.frame(width: 500, height: 600)
+    private func emptyState(msg: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: "network.slash")
+                .font(.system(size: 32))
+                .foregroundColor(.secondary.opacity(0.5))
+            Text(msg)
+                .font(.headline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 150)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 }
 
@@ -98,39 +165,97 @@ private struct InterfaceDetailCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
-                Image(systemName: iface.typeIcon).foregroundColor(iface.isUp ? (iface.isVLAN ? .purple : .primary) : .secondary).frame(width: 24, height: 24)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(iface.name).font(.system(.headline, design: .monospaced))
-                    Text(iface.typeName).font(.caption.weight(.medium)).foregroundColor(.secondary)
+                ZStack {
+                    Circle()
+                        .fill(iface.isUp ? (iface.isVLAN ? Color.purple.opacity(0.1) : Color.accentColor.opacity(0.1)) : Color.secondary.opacity(0.1))
+                        .frame(width: 32, height: 32)
+                    Image(systemName: iface.typeIcon)
+                        .foregroundColor(iface.isUp ? (iface.isVLAN ? .purple : .accentColor) : .secondary)
                 }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(iface.name)
+                        .font(.system(.headline, design: .monospaced))
+                    Text(iface.typeName)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
                 Spacer()
-                statusBadge
+                
+                StatusBadge(isConnected: iface.isUp)
             }
+            
             Divider().opacity(0.5)
-            VStack(alignment: .leading, spacing: 8) {
+            
+            VStack(alignment: .leading, spacing: 10) {
                 if iface.isVLAN {
                     if let tag = iface.vlanTag { ifaceRow(label: "VLAN ID", value: "\(tag)") }
                     if let parent = iface.parentInterface { ifaceRow(label: "Parent", value: parent) }
                 }
-                if !iface.ipv4.isEmpty { ForEach(iface.ipv4, id: \.self) { ip in ifaceRow(label: "IPv4", value: ip) } }
-                if let mac = iface.mac { ifaceRow(label: "MAC", value: mac) }
-                if let mtu = iface.mtu { ifaceRow(label: "MTU", value: "\(mtu)") }
+                
+                if !iface.ipv4.isEmpty {
+                    ForEach(iface.ipv4, id: \.self) { ip in
+                        ifaceRow(label: "IPv4 Addr", value: ip)
+                    }
+                }
+                
+                if !iface.ipv6.isEmpty {
+                    ForEach(iface.ipv6, id: \.self) { ip in
+                        ifaceRow(label: "IPv6 Addr", value: ip)
+                    }
+                }
+                
+                if let mac = iface.mac {
+                    ifaceRow(label: "MAC Addr", value: mac)
+                }
+                
+                if let mtu = iface.mtu {
+                    ifaceRow(label: "MTU Size", value: "\(mtu)")
+                }
             }
         }
-        .padding(16).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+        .padding(16)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
-    private var statusBadge: some View {
-        let (bg, fg, label): (Color, Color, String) = iface.isUp ? (.green.opacity(0.12), .green, "Connected") : (.red.opacity(0.08), .red, "Disconnected")
-        return Text(label).font(.caption.weight(.medium)).foregroundColor(fg).padding(.horizontal, 6).padding(.vertical, 2).background(bg).cornerRadius(4)
-    }
-    
     private func ifaceRow(label: String, value: String) -> some View {
         HStack(spacing: 12) {
-            Text(label).font(.caption.weight(.medium)).foregroundColor(.secondary).frame(width: 60, alignment: .leading)
-            Text(value).font(.system(size: 11, design: .monospaced)).foregroundColor(.primary).textSelection(.enabled)
+            Text(label)
+                .font(.system(size: 9, weight: .bold))
+                .foregroundColor(.secondary)
+                .frame(width: 70, alignment: .leading)
+            
+            Text(value)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundColor(.primary)
+                .textSelection(.enabled)
+            
             Spacer()
-            Button { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(value, forType: .string) } label: { Image(systemName: "doc.on.clipboard").font(.system(size: 10)) }.buttonStyle(.plain).foregroundColor(.secondary.opacity(0.5))
+            
+            Button {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(value, forType: .string)
+            } label: {
+                Image(systemName: "doc.on.clipboard")
+                    .font(.system(size: 10))
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(.secondary.opacity(0.5))
         }
+    }
+}
+
+private struct StatusBadge: View {
+    let isConnected: Bool
+    var body: some View {
+        Text(isConnected ? "Connected" : "Disconnected")
+            .font(.system(size: 8, weight: .bold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(isConnected ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
+            .foregroundColor(isConnected ? .green : .red)
+            .cornerRadius(4)
     }
 }

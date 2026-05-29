@@ -89,12 +89,12 @@ struct DashboardView: View {
                     
                     Divider().frame(height: 12)
                     
-                    gatewayChip(label: "LOCAL", value: tools.primaryLocalIP)
-                    gatewayChip(label: "PUBLIC", value: tools.externalIP)
+                    gatewayChip(label: "Local", value: tools.primaryLocalIP)
+                    gatewayChip(label: "Public", value: tools.externalIP)
                     
                     if tools.isVPNActive {
                         Text("VPN")
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.system(.caption2, design: .default).weight(.bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.green.opacity(0.15))
@@ -108,7 +108,7 @@ struct DashboardView: View {
             
             HStack(spacing: 12) {
                 healthGauge(label: "CPU", value: String(format: "%.0f%%", tools.system.cpuUsage), progress: tools.system.cpuUsage / 100, color: tools.system.cpuUsage > 75 ? .red : .accentColor)
-                healthGauge(label: "MEM", value: tools.system.memoryPressure.capitalized, progress: tools.system.memoryColor == "red" ? 0.9 : (tools.system.memoryColor == "orange" ? 0.6 : 0.3), color: tools.system.memoryColor == "red" ? .red : (tools.system.memoryColor == "orange" ? .orange : .accentColor))
+                healthGauge(label: "RAM", value: tools.system.memoryPressure.capitalized, progress: tools.system.memoryColor == "red" ? 0.9 : (tools.system.memoryColor == "orange" ? 0.6 : 0.3), color: tools.system.memoryColor == "red" ? .red : (tools.system.memoryColor == "orange" ? .orange : .accentColor))
             }
         }
         .padding(.bottom, 8)
@@ -116,14 +116,14 @@ struct DashboardView: View {
     
     private func gatewayChip(label: String, value: String) -> some View {
         HStack(spacing: 4) {
-            Text(label).font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
-            Text(value).font(.system(size: 11, design: .monospaced).weight(.medium))
+            Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
+            Text(value).font(.system(.caption2, design: .monospaced).weight(.medium))
         }
     }
 
     private func healthGauge(label: String, value: String, progress: Double, color: Color) -> some View {
         VStack(alignment: .trailing, spacing: 4) {
-            Text(label).font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+            Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
             HStack(spacing: 8) {
                 Text(value)
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
@@ -143,8 +143,8 @@ struct DashboardView: View {
 
     private func sectionHeader(_ title: String, icon: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(size: 12, weight: .bold))
-            Text(title).font(.system(size: 12, weight: .bold)).foregroundColor(.secondary)
+            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
+            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
     }
 
@@ -163,8 +163,8 @@ struct DashboardView: View {
                     }
                     Spacer()
                     HStack(spacing: 16) {
-                        heroRateMetric(label: "DOWNLOAD", value: tools.bandwidth.totalRxBps, color: .blue)
-                        heroRateMetric(label: "UPLOAD", value: tools.bandwidth.totalTxBps, color: .orange)
+                        heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
+                        heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
                     }
                 }
                 
@@ -198,7 +198,7 @@ struct DashboardView: View {
 
     private func heroRateMetric(label: String, value: Double, color: Color) -> some View {
         VStack(alignment: .trailing, spacing: 0) {
-            Text(label).font(.system(size: 9, weight: .black)).foregroundColor(.secondary)
+            Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
             Text(NetworkMath.formatRate(value))
                 .font(.system(.title3, design: .monospaced).weight(.bold))
                 .foregroundColor(color)
@@ -403,14 +403,14 @@ struct BentoCard<Content: View>: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: 6).fill(color.opacity(0.1))
                             .frame(width: 24, height: 24)
-                        Image(systemName: icon).font(.system(size: 11, weight: .bold)).foregroundColor(color)
+                        Image(systemName: icon).font(.system(.caption, design: .default).weight(.bold)).foregroundColor(color)
                     }
-                    Text(title).font(.system(size: 11, weight: .bold)).foregroundColor(.secondary)
+                    Text(title).font(.system(.caption, design: .default).weight(.bold)).foregroundColor(.secondary)
                 }
 
                 content
             }
-            .padding(16)
+            .padding(14)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(isHovered ? color.opacity(0.3) : Color(.separatorColor).opacity(0.1), lineWidth: 1))

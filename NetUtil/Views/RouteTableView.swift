@@ -16,88 +16,177 @@ struct RouteTableView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            controlBar.padding(.bottom, 24)
+        VStack(spacing: 0) {
+            controlBar
             
-            VStack(alignment: .leading, spacing: 32) {
-                interpretationHeader
-                statsBar.padding(.bottom, 8)
-                
-                VStack(alignment: .leading, spacing: 16) {
-                    sectionHeader("Routing Entries")
-                    routeTable.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+            ScrollView {
+                VStack(spacing: 24) {
+                    interpretationSection
+                    
+                    statsBarSection
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        sectionHeader("Routing Entries", icon: "list.bullet.rectangle")
+                        
+                        routeTable
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                    }
                 }
+                .padding(24)
             }
         }
-        .padding(32)
         .onAppear { load() }
-        .sheet(isPresented: $showLearningGuide) { routesLearningGuideSheet }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Route Table") }
     }
 
+    // MARK: - Components
+
     private var controlBar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "arrow.triangle.branch").foregroundColor(.accentColor)
-                Text("Routing Table").font(.headline)
-            }.frame(width: 250, alignment: .leading)
-
+        VStack(spacing: 0) {
             HStack(spacing: 12) {
-                Picker("", selection: $showIPv6) { Text("IPv4").tag(false); Text("IPv6").tag(true) }.pickerStyle(.segmented).frame(width: 120)
-                TextField("Filter...", text: $filterText).textFieldStyle(.roundedBorder).frame(width: 150)
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.triangle.branch")
+                        .foregroundColor(.accentColor)
+                        .imageScale(.large)
+                    Text("Routing Table")
+                        .font(.headline)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 16) {
+                    Picker("", selection: $showIPv6) {
+                        Text("IPv4").tag(false)
+                        Text("IPv6").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 120)
+                    
+                    HStack(spacing: 8) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .foregroundColor(.secondary)
+                        TextField("Filter destination...", text: $filterText)
+                            .textFieldStyle(.plain)
+                            .font(.subheadline)
+                            .frame(width: 150)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                    
+                    Divider().frame(height: 16)
+                    
+                    Button { load() } label: {
+                        Label("Refresh", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button { showLearningGuide = true } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .buttonStyle(.borderless)
+                }
             }
-
-            Spacer()
-
-            Button(action: load) {
-                HStack(spacing: 6) { Image(systemName: "arrow.clockwise"); Text("Refresh") }.font(.system(size: 13, weight: .medium))
-            }.buttonStyle(.bordered)
-
-            Button { showLearningGuide = true } label: { Image(systemName: "questionmark.circle") }.buttonStyle(.borderless)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            
+            Divider()
         }
     }
     
-    private func sectionHeader(_ title: String) -> some View { Text(title).font(.headline).foregroundColor(.primary) }
-
-    private var interpretationHeader: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Image(systemName: "map.fill").font(.title2).foregroundColor(.accentColor)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("System Routing Policy").font(.headline)
-                Text("Currently displaying \(entries.filter { $0.isIPv6 == showIPv6 }.count) active routes for \(showIPv6 ? "IPv6" : "IPv4").").font(.subheadline).foregroundColor(.secondary)
-            }
-            Spacer()
-            if isLoading {
-                ProgressView().controlSize(.small)
-            } else {
-                HStack(spacing: 4) {
-                    Text("Updated").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
-                    Text(lastUpdated.formatted(date: .omitted, time: .standard)).font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
-                }
-            }
-        }.padding(.bottom, 8)
+    private func sectionHeader(_ title: String, icon: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
+            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
+        }
     }
 
-    private var statsBar: some View {
+    private var interpretationSection: some View {
+        HStack(alignment: .center, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.1))
+                    .frame(width: 40, height: 40)
+                Image(systemName: "map.fill")
+                    .foregroundColor(.accentColor)
+                    .font(.title3)
+            }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text("System Routing Policy")
+                    .font(.headline)
+                Text("Managing \(entries.filter { $0.isIPv6 == showIPv6 }.count) active \(showIPv6 ? "IPv6" : "IPv4") path definitions.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            if isLoading {
+                ProgressView().controlSize(.small).padding(.trailing, 8)
+            }
+            
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("Last Synced").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                Text(lastUpdated.formatted(date: .omitted, time: .standard))
+                    .font(.system(.subheadline, design: .monospaced).weight(.bold))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        }
+    }
+
+    private var statsBarSection: some View {
         HStack(spacing: 12) {
             StatCard(title: "Total Routes", value: "\(entries.count)", icon: "list.bullet.rectangle")
-            if let def = entries.first(where: { $0.isDefault && $0.isIPv6 == showIPv6 }) { StatCard(title: "Default Gateway", value: def.gateway, icon: "house.fill", color: .blue) }
+            if let def = entries.first(where: { $0.isDefault && $0.isIPv6 == showIPv6 }) {
+                StatCard(title: "Default Gateway", value: def.gateway, icon: "house.fill", color: .blue)
+            }
             StatCard(title: "Interfaces", value: "\(Set(entries.map(\.netif)).count)", icon: "network")
-            Spacer()
         }
     }
 
     private var routeTable: some View {
         Table(displayed) {
-            TableColumn("Destination") { r in Text(r.destination).font(.system(size: 11, design: .monospaced)).foregroundColor(r.isDefault ? .primary : .secondary).bold(r.isDefault) }
-            TableColumn("Gateway") { r in Text(r.gateway).font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary) }
-            TableColumn("Flags") { r in Text(r.flags).font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary).help(flagDescription(r.flags)) }
-            TableColumn("Iface") { r in Text(r.netif).font(.system(size: 11, weight: .medium)).foregroundColor(.secondary) }
+            TableColumn("Destination") { r in
+                HStack(spacing: 8) {
+                    if r.isDefault { Image(systemName: "star.fill").foregroundColor(.orange).font(.system(size: 9)) }
+                    Text(r.destination)
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(r.isDefault ? .primary : .secondary)
+                        .bold(r.isDefault)
+                }
+            }
+            TableColumn("Gateway") { r in
+                Text(r.gateway)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+            }
+            TableColumn("Flags") { r in
+                Text(r.flags)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .help(flagDescription(r.flags))
+            }
+            TableColumn("Interface") { r in
+                Text(r.netif)
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .foregroundColor(.accentColor)
+            }
         }
-        .frame(minHeight: 400)
+        .frame(minHeight: 450)
     }
 
     private func flagDescription(_ flags: String) -> String {
-        let map: [(Character, String)] = [("U", "Up"), ("G", "Gateway"), ("H", "Host"), ("S", "Static"), ("D", "Dynamic"), ("M", "Modified"), ("C", "Cloning"), ("W", "WasCloned"), ("L", "Link"), ("R", "Reject"), ("B", "Blackhole"), ("I", "Interface")]
+        let map: [(Character, String)] = [
+            ("U", "Up"), ("G", "Gateway"), ("H", "Host"), ("S", "Static"),
+            ("D", "Dynamic"), ("M", "Modified"), ("C", "Cloning"), ("W", "WasCloned"),
+            ("L", "Link"), ("R", "Reject"), ("B", "Blackhole"), ("I", "Interface")
+        ]
         let matched = flags.compactMap { ch in map.first { $0.0 == ch }.map { "\($0.0): \($0.1)" } }
         return matched.isEmpty ? flags : matched.joined(separator: "\n")
     }
@@ -128,13 +217,5 @@ struct RouteTableView: View {
             results.append(RouteEntry(destination: cols[0], gateway: cols[1], flags: cols[2], netif: cols.count > 5 ? cols[5] : cols[3], isIPv6: isIPv6))
         }
         return results
-    }
-    
-    private var routesLearningGuideSheet: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack { Text("Routes Guide").font(.title2.bold()); Spacer(); Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent) }.padding(24)
-            Divider()
-            ScrollView { VStack(alignment: .leading, spacing: 24) { GuideSection(title: "The Routing Table", icon: "map") { Text("Rules for where data packets go.") } }.padding(24) }
-        }.frame(width: 500, height: 600)
     }
 }

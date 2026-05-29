@@ -13,7 +13,6 @@ struct PortScanView: View {
     @State private var timeout = 1.5
     @State private var showOnlyOpen = false
     @State private var showLearningGuide = false
-    @State private var tick = 0
 
     private var portsToScan: [Int] {
         if let p = preset.ports { return p }
@@ -26,129 +25,219 @@ struct PortScanView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 0) {
             controlBar
-                .padding(.bottom, 24)
             
-            if let err = vm.error {
-                errorBanner(err).padding(.bottom, 16)
-            }
-            
-            if vm.total > 0 || !vm.results.isEmpty {
-                statsBar.padding(.bottom, 24)
-                
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack(alignment: .bottom) {
-                        sectionHeader("Audit Results")
-                        Spacer()
-                        if vm.total > 0 {
-                            let progress = Double(vm.scanned) / Double(max(vm.total, 1))
-                            HStack(spacing: 8) {
-                                Text("\(Int(progress * 100))%").font(.system(size: 10, weight: .semibold, design: .monospaced)).foregroundColor(.secondary)
-                                ProgressView(value: progress).progressViewStyle(.linear).frame(width: 80)
+            ScrollView {
+                VStack(spacing: 24) {
+                    if let err = vm.error {
+                        errorBanner(err)
+                    }
+                    
+                    if vm.total > 0 || !vm.results.isEmpty {
+                        statsBarSection
+                        
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack(alignment: .firstTextBaseline) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Audit Results")
+                                        .font(.headline)
+                                    Text("Status of targeted network ports")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                if vm.total > 0 {
+                                    scanProgressView
+                                }
                             }
+                            
+                            HStack {
+                                Toggle("Open Only", isOn: $showOnlyOpen)
+                                    .font(.subheadline)
+                                    .toggleStyle(.checkbox)
+                                Spacer()
+                                Text("\(displayResults.count) Ports Displayed")
+                                    .font(.caption2.bold())
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            resultsGrid
                         }
+                    } else if vm.isRunning {
+                        loadingState
+                    } else {
+                        emptyState
                     }
-                    
-                    HStack {
-                        Toggle("Open Only", isOn: $showOnlyOpen)
-                            .font(.system(size: 11, weight: .medium))
-                            .toggleStyle(.checkbox)
-                        Spacer()
-                    }
-                    .padding(.bottom, 8)
-                    
-                    resultsGrid
                 }
-                .frame(maxHeight: .infinity)
-            } else {
-                emptyState
+                .padding(24)
             }
         }
-        .padding(32)
         .onAppear {
             concurrency = defaultConcurrency
             timeout = defaultTimeout
         }
-        .sheet(isPresented: $showLearningGuide) { learningGuideSheet }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Port Scanner") }
     }
 
+    // MARK: - Components
+
     private var controlBar: some View {
-        HStack(spacing: 12) {
-            TextField("Hostname or IP address", text: $host)
-                .textFieldStyle(.roundedBorder)
-                .controlSize(.large)
-                .frame(width: 250)
-                .onSubmit(startAction)
-                .overlay(alignment: .trailing) {
-                    if !history.hosts.isEmpty {
-                        Menu {
-                            ForEach(history.hosts, id: \.self) { h in Button(h) { host = h; startAction() } }
-                            Divider()
-                            Button("Clear History", role: .destructive) { history.clear() }
-                        } label: { Image(systemName: "clock.arrow.circlepath").foregroundColor(.secondary) }
-                        .menuStyle(.borderlessButton).frame(width: 28).padding(.trailing, 4)
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "checklist")
+                        .foregroundColor(.accentColor)
+                        .imageScale(.large)
+                    Text("Port Scanner")
+                        .font(.headline)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    TextField("Hostname or IP address", text: $host)
+                        .textFieldStyle(.roundedBorder)
+                        .controlSize(.large)
+                        .frame(width: 250)
+                        .onSubmit(startAction)
+                        .overlay(alignment: .trailing) {
+                            if !history.hosts.isEmpty {
+                                Menu {
+                                    ForEach(history.hosts, id: \.self) { h in
+                                        Button(h) { host = h; startAction() }
+                                    }
+                                    Divider()
+                                    Button("Clear History", role: .destructive) { history.clear() }
+                                } label: {
+                                    Image(systemName: "clock.arrow.circlepath")
+                                        .foregroundColor(.secondary)
+                                }
+                                .menuStyle(.borderlessButton)
+                                .frame(width: 28)
+                                .padding(.trailing, 4)
+                            }
+                        }
+
+                    HStack(spacing: 8) {
+                        Picker("", selection: $preset) {
+                            ForEach(PortPreset.allCases) { p in
+                                Text(p.rawValue).tag(p)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(width: 120)
+
+                        if preset == .custom {
+                            TextField("Range...", text: $customRange)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 100)
+                        }
+
+                        HStack(spacing: 4) {
+                            Text("Threads")
+                                .font(.caption2.weight(.bold))
+                                .foregroundColor(.secondary)
+                            Stepper("\(concurrency)", value: $concurrency, in: 1...200)
+                                .frame(width: 80)
+                        }
                     }
-                }
 
-            HStack(spacing: 8) {
-                Picker("", selection: $preset) { ForEach(PortPreset.allCases) { p in Text(p.rawValue).tag(p) } }
-                .pickerStyle(.menu).frame(width: 110)
+                    if !vm.results.isEmpty {
+                        Button { exportCSV(vm.results.sorted { $0.port < $1.port }) } label: {
+                            Label("Report", systemImage: "doc.text.fill")
+                        }
+                        .buttonStyle(.bordered)
+                    }
 
-                if preset == .custom {
-                    TextField("Range...", text: $customRange).textFieldStyle(.roundedBorder).frame(width: 100)
-                }
-
-                HStack(spacing: 4) {
-                    Text("Threads:").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary)
-                    Stepper("\(concurrency)", value: $concurrency, in: 1...200).frame(width: 80)
+                    Button(action: startAction) {
+                        Label(vm.isRunning ? "Stop" : "Scan", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
+                            .frame(minWidth: 80)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(vm.isRunning ? .red : .accentColor)
+                    .disabled(!vm.isRunning && (host.isEmpty || portsToScan.isEmpty))
+                    
+                    Button { showLearningGuide = true } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .buttonStyle(.borderless)
                 }
             }
-
-            Spacer()
-
-            if !vm.results.isEmpty {
-                Menu {
-                    Button("Export CSV") { exportCSV(vm.results.sorted { $0.port < $1.port }) }
-                } label: { Label("Report", systemImage: "doc.text.fill").font(.system(size: 13, weight: .medium)) }.buttonStyle(.bordered)
-            }
-
-            Button(action: startAction) {
-                HStack(spacing: 6) {
-                    Image(systemName: vm.isRunning ? "stop.fill" : "play.fill")
-                    Text(vm.isRunning ? "Stop" : "Scan")
-                }
-                .font(.system(size: 13, weight: .medium)).frame(minWidth: 70)
-            }.buttonStyle(.borderedProminent).tint(vm.isRunning ? .red : .accentColor).disabled(!vm.isRunning && (host.isEmpty || portsToScan.isEmpty))
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
             
-            Button { showLearningGuide = true } label: { Image(systemName: "questionmark.circle") }.buttonStyle(.borderless)
+            Divider()
         }
     }
 
-    private var statsBar: some View {
+    private var statsBarSection: some View {
         HStack(spacing: 12) {
-            StatCard(title: "Scanned", value: "\(vm.scanned)", icon: "checklist")
+            StatCard(title: "Ports Scanned", value: "\(vm.scanned)", icon: "checklist")
             StatCard(title: "Open Ports", value: "\(vm.openCount)", icon: "lock.open.fill", color: vm.openCount > 0 ? .green : .primary)
             StatCard(title: "Filtered", value: "\(vm.scanned - vm.openCount)", icon: "lock.shield.fill", color: .secondary)
-            Spacer()
+        }
+    }
+
+    private var scanProgressView: some View {
+        let progress = Double(vm.scanned) / Double(max(vm.total, 1))
+        return HStack(spacing: 12) {
+            Text("\(Int(progress * 100))%")
+                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .foregroundColor(.secondary)
+            
+            ProgressView(value: progress)
+                .progressViewStyle(.linear)
+                .frame(width: 100)
         }
     }
 
     private var resultsGrid: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 140))], spacing: 12) {
-                ForEach(displayResults) { r in PortResultCard(result: r) }
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 12)], spacing: 12) {
+            ForEach(displayResults) { r in
+                PortResultCard(result: r)
             }
-            .padding(.bottom, 20)
         }
     }
 
-    private func sectionHeader(_ title: String) -> some View { Text(title).font(.headline).foregroundColor(.primary) }
-
-    private func errorBanner(_ msg: String) -> some View { Text(msg).foregroundColor(.red).font(.system(size: 12, weight: .medium)) }
+    private func errorBanner(_ msg: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.red)
+            Text(msg)
+                .font(.subheadline.weight(.medium))
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.red.opacity(0.1))
+        .cornerRadius(8)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
+    }
 
     private var emptyState: some View {
-        VStack { Spacer(); Text("No Target Selected").font(.headline).foregroundColor(.secondary); Spacer() }.frame(maxWidth: .infinity, maxHeight: .infinity)
+        VStack(spacing: 12) {
+            Image(systemName: "checklist")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary.opacity(0.5))
+            Text("No Target Audited")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Text("Enter a host and select a port range to begin discovery.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
+    }
+
+    private var loadingState: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .controlSize(.large)
+            Text("Scanning Network Ports...")
+                .font(.headline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
     }
 
     private func startAction() {
@@ -161,14 +250,6 @@ struct PortScanView: View {
         for r in rows { lines.append("\(r.port),\(r.service ?? ""),\(r.status.label),\(r.responseMs.map { String(format: "%.1f", $0) } ?? "")") }
         let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd_HH.mm.ss"
         Exporter.save(string: lines.joined(separator: "\n"), defaultName: "portscan-\(host)-\(f.string(from: Date())).csv", ext: "csv")
-    }
-
-    private var learningGuideSheet: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack { Text("Scanner Guide").font(.title2.bold()); Spacer(); Button("Done") { showLearningGuide = false }.buttonStyle(.borderedProminent) }.padding(24)
-            Divider()
-            ScrollView { VStack(alignment: .leading, spacing: 24) { GuideSection(title: "What is a Port?", icon: "door.right.hand.open") { Text("Virtual doors used by services.") } }.padding(24) }
-        }.frame(width: 500, height: 600)
     }
     
     private func parseRange(_ input: String) -> [Int] {
@@ -188,16 +269,50 @@ struct PortScanView: View {
 struct PortResultCard: View {
     let result: PortResult
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top) {
-                Text("\(result.port)").font(.system(size: 14, weight: .semibold, design: .monospaced))
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center) {
+                Text("\(result.port)")
+                    .font(.system(.headline, design: .monospaced))
                 Spacer()
-                Circle().fill(statusColor).frame(width: 6, height: 6)
+                PortStatusBadge(status: result.status)
             }
-            Text(result.service ?? "Unknown").font(.system(size: 11, weight: .medium)).foregroundColor(.secondary).lineLimit(1)
-            if let ms = result.responseMs { Text(String(format: "%.1f ms", ms)).font(.system(size: 10, design: .monospaced)).foregroundColor(.secondary) }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(result.service ?? "Unknown Service")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                
+                if let ms = result.responseMs {
+                    Text(String(format: "%.1f ms", ms))
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
+            }
         }
-        .padding(12).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+        .padding(14)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
-    private var statusColor: Color { switch result.status { case .open: .green; case .closed: .secondary; case .filtered: .orange } }
+}
+
+private struct PortStatusBadge: View {
+    let status: PortStatus
+    var body: some View {
+        Text(status.label.uppercased())
+            .font(.system(size: 7, weight: .black))
+            .padding(.horizontal, 5)
+            .padding(.vertical, 2)
+            .background(color.opacity(0.15))
+            .foregroundColor(color)
+            .cornerRadius(4)
+    }
+    
+    private var color: Color {
+        switch status {
+        case .open: .green
+        case .closed: .secondary
+        case .filtered: .orange
+        }
+    }
 }

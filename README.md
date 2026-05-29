@@ -17,7 +17,7 @@
 
 ### Core Diagnostics
 
-NetUtil provides 14 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
+NetUtil provides 16 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
 
 *   **Bento Dashboard**: A dynamic mission control featuring live sparklines, pulsing activity indicators, and real-time CPU/RAM gauges.
 *   **Advanced Ping**: Beyond ICMP. Visualizes latency history, analyzes jitter, and provides GitHub-style health strips.
