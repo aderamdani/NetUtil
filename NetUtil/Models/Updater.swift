@@ -130,6 +130,7 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
             }
             try FileManager.default.moveItem(at: location, to: tempURL)
             Task { @MainActor in
+                self.downloadedFileURL = tempURL
                 self.isDownloading = false
                 self.downloadProgress = 1.0
                 self.updateReady = true
