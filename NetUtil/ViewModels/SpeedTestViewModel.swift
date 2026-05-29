@@ -105,6 +105,7 @@ class SpeedTestViewModel: NSObject, ObservableObject {
 
     private var isRunning = false
     private var cancelTransfer = false
+    private var pendingConnectionName: String?
 
     // Cloudflare speed test endpoints (open, no auth)
     private let uploadURL = URL(string: "https://speed.cloudflare.com/__up")!
@@ -153,11 +154,12 @@ class SpeedTestViewModel: NSObject, ObservableObject {
 
     // MARK: - Lifecycle
 
-    func start() {
+    func start(connectionName: String? = nil) {
         guard !isRunning else { return }
         isRunning = true
         error = nil
         progress = 0
+        pendingConnectionName = connectionName
         resetLive()
         Task { await runTest() }
     }
@@ -497,10 +499,15 @@ class SpeedTestViewModel: NSObject, ObservableObject {
     // MARK: - Helpers
 
     private func recordResult(_ result: SpeedTestResult) {
-        lastResult = result
-        history.insert(result, at: 0)
+        var stamped = result
+        if stamped.name == nil || stamped.name?.isEmpty == true {
+            stamped.name = pendingConnectionName
+        }
+        lastResult = stamped
+        history.insert(stamped, at: 0)
         if history.count > Self.historyLimit { history.removeLast() }
         saveHistory()
+        pendingConnectionName = nil
     }
 
     private func median(_ samples: [Double]) -> Double {

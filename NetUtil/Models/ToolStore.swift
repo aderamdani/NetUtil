@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SystemConfiguration
 
 @MainActor
 class ToolStore: ObservableObject {
@@ -42,6 +43,34 @@ class ToolStore: ObservableObject {
     }
 
     var primaryLocalIP: String { primaryInterface?.ipv4.first ?? "—" }
+
+    /// User-facing connection label.
+    /// - Wi-Fi: returns SSID if connected, falls back to "Wi-Fi".
+    /// - Ethernet / others: returns localized System Settings display name
+    ///   (e.g. "USB 10/100/1000 LAN") via SystemConfiguration.
+    var currentConnectionName: String {
+        if let iface = primaryInterface {
+            if iface.ifType == 161 {
+                if let ssid = wifi.info?.ssid, !ssid.isEmpty { return ssid }
+                return "Wi-Fi"
+            }
+            if let localized = Self.localizedInterfaceName(for: iface.name) {
+                return localized
+            }
+            return iface.typeName
+        }
+        return "Unknown"
+    }
+
+    private static func localizedInterfaceName(for bsdName: String) -> String? {
+        guard let interfaces = SCNetworkInterfaceCopyAll() as? [SCNetworkInterface] else { return nil }
+        for iface in interfaces {
+            if let name = SCNetworkInterfaceGetBSDName(iface) as String?, name == bsdName {
+                return SCNetworkInterfaceGetLocalizedDisplayName(iface) as String?
+            }
+        }
+        return nil
+    }
 
     func refreshGlobalStatus() {
         checkVPN()

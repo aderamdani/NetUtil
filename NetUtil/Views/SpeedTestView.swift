@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SpeedTestView: View {
     @ObservedObject var vm: SpeedTestViewModel
+    @EnvironmentObject private var tools: ToolStore
     @State private var showLearningGuide = false
     @State private var renamingId: UUID?
     @State private var renameDraft: String = ""
@@ -40,7 +41,7 @@ struct SpeedTestView: View {
 
             Spacer()
 
-            Button(action: { if vm.isTesting { vm.cancel() } else { vm.start() } }) {
+            Button(action: { if vm.isTesting { vm.cancel() } else { vm.start(connectionName: tools.currentConnectionName) } }) {
                 HStack(spacing: 6) {
                     Image(systemName: vm.isTesting ? "stop.fill" : "play.fill")
                     Text(vm.isTesting ? "Cancel" : "Start Test")
@@ -256,9 +257,10 @@ struct SpeedTestView: View {
             }
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    tHeader("Date / Time", width: 140)
+                    tHeader("Date / Time", width: 130)
                     tHeader("Kind",        width: 70)
-                    tHeader("Name / Detail", flexible: true)
+                    tHeader("Name",        width: 140)
+                    tHeader("Detail",      flexible: true)
                     tHeader("Primary",     width: 95)
                     tHeader("Verdict",     width: 85)
                 }.padding(.vertical, 8).padding(.horizontal, 12)
@@ -283,14 +285,20 @@ struct SpeedTestView: View {
             Text(historyDateString(r.timestamp))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.secondary)
-                .frame(width: 140, alignment: .leading)
+                .frame(width: 130, alignment: .leading)
 
             Text(r.kind.rawValue)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.primary)
                 .frame(width: 70, alignment: .leading)
 
-            nameDetailCell(r)
+            nameCell(r)
+                .frame(width: 140, alignment: .leading)
+
+            Text(detailString(r))
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundColor(.secondary)
+                .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(primaryString(r))
@@ -353,28 +361,35 @@ struct SpeedTestView: View {
     }
 
     @ViewBuilder
-    private func nameDetailCell(_ r: SpeedTestResult) -> some View {
+    private func nameCell(_ r: SpeedTestResult) -> some View {
         if renamingId == r.id {
-            TextField("Label this result", text: $renameDraft)
+            TextField("Connection label", text: $renameDraft)
                 .textFieldStyle(.roundedBorder)
                 .font(.system(size: 11))
                 .onSubmit { commitRename(r) }
                 .onExitCommand { renamingId = nil }
         } else {
-            VStack(alignment: .leading, spacing: 1) {
-                if let name = r.name, !name.isEmpty {
-                    Text(name).font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.primary).lineLimit(1)
-                    Text(detailString(r))
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundColor(.secondary).lineLimit(1)
-                } else {
-                    Text(detailString(r))
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(.secondary).lineLimit(1)
-                }
+            HStack(spacing: 4) {
+                Image(systemName: connectionIcon(r.name))
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                Text(r.name?.isEmpty == false ? r.name! : "—")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(r.name?.isEmpty == false ? .primary : .secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
         }
+    }
+
+    private func connectionIcon(_ name: String?) -> String {
+        guard let n = name?.lowercased() else { return "questionmark.circle" }
+        if n.contains("wi-fi") || n.contains("wifi") { return "wifi" }
+        if n.contains("ethernet") || n.contains("lan") || n.contains("usb") { return "cable.connector" }
+        if n.contains("vpn") || n.contains("tunnel") { return "lock.shield" }
+        // Wi-Fi SSID with no explicit keyword — default to wifi if primary interface is wifi
+        // Otherwise the row is from a real SSID.
+        return "wifi"
     }
 
     private func historyDateString(_ date: Date) -> String {
