@@ -4,6 +4,20 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.8.0] — 2026-05-29
+
+### Added
+- **Speed Test History**: Results are now persisted across app restarts (up to 50 entries).
+- **Speed Test Verdicts**: New color-coded metric verdicts for Speed, Browsing, Gaming, and Streaming results.
+- **Speed Test Auto-Labels**: Automatically uses Wi-Fi SSID or localized network interface names (e.g., "USB 10/100/1000 LAN") for test connections.
+- **Speed Test Renaming**: History entries can be renamed inline via right-click and deleted.
+
+### Changed
+- Refined Speed Test UI strictly following HIG: replaced generic emojis with proper SF Symbols, improved typographic separators (· instead of /), and removed forced ALL CAPS.
+- `ToolStore` now exposes `currentConnectionName` to safely report network connection names.
+
+---
+
 ## [2.7.0] — 2026-05-28
 
 ### Added
