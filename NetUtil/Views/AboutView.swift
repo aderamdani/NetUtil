@@ -1,95 +1,88 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.9.0"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.9.1"
     @ObservedObject private var updater = Updater.shared
 
     var body: some View {
         ScrollView {
             VStack(spacing: 48) {
-                // HERO SECTION
-                VStack(spacing: 20) {
-                    ZStack {
-                        Circle()
-                            .fill(LinearGradient(colors: [.accentColor.opacity(0.1), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(width: 160, height: 160)
-                        
-                        Image(nsImage: NSApp.applicationIconImage ?? NSImage())
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 110, height: 110)
-                    }
+                // App Logo and Name
+                VStack(spacing: 16) {
+                    Image("AppIcon-Internal") // Placeholder logic or actual asset
+                        .resizable()
+                        .frame(width: 80, height: 80)
+                        .cornerRadius(18)
+                        .shadow(radius: 4)
+                        .overlay(
+                            Image(systemName: "network")
+                                .font(.system(size: 40))
+                                .foregroundColor(.white)
+                        )
                     
-                    VStack(spacing: 6) {
+                    VStack(spacing: 4) {
                         Text("NetUtil")
-                            .font(.system(size: 40, weight: .bold))
-                            .tracking(-1)
-                        
-                        Text("Professional Network Diagnostics")
-                            .font(.headline)
+                            .font(.system(size: 24, weight: .bold))
+                        Text("Version \(currentVersion)")
+                            .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
-                    
-                    versionBadge
                 }
                 .padding(.top, 40)
                 
-                // CORE VALUE PROPOSITION
-                Text("A native toolkit built for system administrators and network enthusiasts. Monitor, analyze, and secure your infrastructure with precision.")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 500)
-                    .lineSpacing(4)
-                
-                // TOOLKIT LIST (Flat Hierarchy)
-                VStack(alignment: .leading, spacing: 16) {
+                // Tool Grid
+                VStack(alignment: .leading, spacing: 20) {
                     Text("Included Diagnostics")
                         .font(.headline)
-                        .foregroundColor(.secondary)
-                        .padding(.leading, 8)
+                        .padding(.leading, 4)
                     
-                    VStack(spacing: 0) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(Array(toolList.enumerated()), id: \.element.1) { index, tool in
-                            HStack(spacing: 16) {
+                            HStack(spacing: 12) {
                                 Image(systemName: tool.0)
+                                    .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(.accentColor)
-                                    .frame(width: 24, alignment: .center)
+                                    .frame(width: 24)
+                                
                                 Text(tool.1)
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.subheadline)
+                                
                                 Spacer()
                             }
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
+                            .padding(10)
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
                             
                             if index < toolList.count - 1 {
-                                Divider().opacity(0.5)
+                                // Grid fills horizontally
                             }
                         }
                     }
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
-                .frame(maxWidth: 500)
                 
-                Divider()
-                    .padding(.horizontal, 100)
-                    .opacity(0.5)
-                
-                // FOOTER / CREDITS
+                // Footer
                 VStack(spacing: 24) {
-                    HStack(spacing: 24) {
-                        LinkButton(title: "GitHub Repository", icon: "code.branch", url: "https://github.com/aderamdani/NetUtil")
-                        LinkButton(title: "Acknowledgements", icon: "heart.fill", action: showAck)
+                    Divider()
+                    
+                    HStack(spacing: 40) {
+                        Button("Check for Updates") {
+                            updater.checkForUpdates()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(updater.isChecking)
+                        
+                        Button("Acknowledgements") {
+                            showAck()
+                        }
+                        .buttonStyle(.bordered)
                     }
                     
-                    VStack(spacing: 4) {
-                        Text("Crafted by Ade Ramdani")
-                            .font(.subheadline)
-                        Text("SwiftUI · Native Swift 6 · Zero Dependencies")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    VStack(spacing: 8) {
+                        Text("© 2026 Ade Ramdani. All rights reserved.")
+                        Text("Handcrafted for macOS with SwiftUI & Zero Dependencies.")
                     }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
                 }
                 .padding(.bottom, 60)
             }
@@ -97,27 +90,6 @@ struct AboutView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.windowBackgroundColor))
-    }
-    
-    private var versionBadge: some View {
-        HStack(spacing: 12) {
-            Text("v\(currentVersion)")
-                .font(.system(.subheadline, design: .monospaced).bold())
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
-            
-            if updater.updateReady {
-                Button("Install Update") { updater.installAndRelaunch() }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .tint(.green)
-            } else if updater.isDownloading {
-                ProgressView(value: updater.downloadProgress)
-                    .frame(width: 80)
-                    .controlSize(.small)
-            }
-        }
     }
 
     private let toolList: [(String, String)] = [
@@ -127,7 +99,6 @@ struct AboutView: View {
         ("dot.radiowaves.left.and.right",          "Multi-Ping"),
         ("checklist",                              "Port Scanner"),
         ("stopwatch",                              "HTTP Latency"),
-        ("number.square",                          "Subnet Calculator"),
         ("globe",                                  "DNS Lookup"),
         ("magnifyingglass.circle",                 "WHOIS"),
         ("lock.shield",                            "SSL/TLS Inspector"),
@@ -137,7 +108,7 @@ struct AboutView: View {
         ("chart.bar.xaxis",                        "Bandwidth Monitor"),
         ("chart.line.uptrend.xyaxis",              "Traffic Statistics"),
         ("speedometer",                            "Speed Test"),
-        ("list.bullet.rectangle",                  "Top Processes"),
+        ("list.bullet.rectangle",                  "Top Processes")
     ]
 
     private func showAck() {
@@ -146,26 +117,5 @@ struct AboutView: View {
         alert.informativeText = "System tools: ping, traceroute, whois, dig, netstat.\nFrameworks: SwiftUI, Charts, Network, CoreWLAN, MapKit, CryptoKit.\nData: ipinfo.io"
         alert.addButton(withTitle: "Close")
         alert.runModal()
-    }
-}
-
-struct LinkButton: View {
-    let title: String
-    let icon: String
-    var url: String? = nil
-    var action: (() -> Void)? = nil
-    
-    var body: some View {
-        Button {
-            if let urlStr = url, let urlObj = URL(string: urlStr) {
-                NSWorkspace.shared.open(urlObj)
-            } else {
-                action?()
-            }
-        } label: {
-            Label(title, systemImage: icon)
-                .font(.subheadline)
-        }
-        .buttonStyle(.bordered)
     }
 }

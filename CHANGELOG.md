@@ -4,6 +4,17 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.9.1] — 2026-05-29
+
+### Added
+- **Mission Dashboard Overhaul**:
+  - New "Network Activity" hero section with real-time aggregate throughput charts.
+  - Redesigned system health gauges for CPU and Memory with integrated progress bars.
+  - Comprehensive 16-tool Bento grid with pulsing activity indicators.
+  - Improved connection labeling (SSID/localized name) and IP visibility.
+
+---
+
 ## [2.9.0] — 2026-05-29
 
 ### Added
