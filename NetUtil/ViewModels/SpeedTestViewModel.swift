@@ -42,11 +42,12 @@ enum SpeedTestPhase: String {
 
 // MARK: - Results
 
-struct SpeedTestResult: Identifiable {
-    let id = UUID()
+struct SpeedTestResult: Identifiable, Codable {
+    var id = UUID()
     let timestamp: Date
-    let kind: SpeedTestKind
+    let kindRaw: String   // SpeedTestKind.rawValue (Codable-friendly)
     let provider: String
+    var name: String?     // user-editable label
     // Speed
     var downloadMbps: Double = 0
     var uploadMbps: Double = 0
@@ -65,6 +66,8 @@ struct SpeedTestResult: Identifiable {
     var streamAvgMbps: Double = 0
     var streamMinMbps: Double = 0
     var streamTier: String = "—"
+
+    var kind: SpeedTestKind { SpeedTestKind(rawValue: kindRaw) ?? .speed }
 }
 
 // MARK: - ViewModel
@@ -108,7 +111,45 @@ class SpeedTestViewModel: NSObject, ObservableObject {
     private let latencyURL = URL(string: "https://speed.cloudflare.com/__down?bytes=0")!
     private let downloadChunkURL = URL(string: "https://speed.cloudflare.com/__down?bytes=26214400")! // 25 MB
 
+    private static let historyDefaultsKey = "speedTestHistory"
+    private static let historyLimit = 50
+
     var isTesting: Bool { isRunning }
+
+    override init() {
+        super.init()
+        loadHistory()
+    }
+
+    // MARK: - History persistence + rename
+
+    func renameResult(_ id: UUID, to newName: String) {
+        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let idx = history.firstIndex(where: { $0.id == id }) else { return }
+        history[idx].name = trimmed.isEmpty ? nil : trimmed
+        saveHistory()
+    }
+
+    func deleteResult(_ id: UUID) {
+        history.removeAll { $0.id == id }
+        saveHistory()
+    }
+
+    func clearHistory() {
+        history.removeAll()
+        saveHistory()
+    }
+
+    private func loadHistory() {
+        guard let data = UserDefaults.standard.data(forKey: Self.historyDefaultsKey),
+              let decoded = try? JSONDecoder().decode([SpeedTestResult].self, from: data) else { return }
+        history = decoded
+    }
+
+    private func saveHistory() {
+        guard let data = try? JSONEncoder().encode(history) else { return }
+        UserDefaults.standard.set(data, forKey: Self.historyDefaultsKey)
+    }
 
     // MARK: - Lifecycle
 
@@ -172,7 +213,7 @@ class SpeedTestViewModel: NSObject, ObservableObject {
         let ul = try await measureUpload(duration: 10, progressStart: 0.55, progressEnd: 1.0)
         uploadMbps = ul
 
-        var result = SpeedTestResult(timestamp: Date(), kind: .speed, provider: "Cloudflare")
+        var result = SpeedTestResult(timestamp: Date(), kindRaw: SpeedTestKind.speed.rawValue, provider: "Cloudflare")
         result.downloadMbps = dl
         result.uploadMbps = ul
         result.pingMs = ping
@@ -228,7 +269,7 @@ class SpeedTestViewModel: NSObject, ObservableObject {
         }
         session.invalidateAndCancel()
 
-        var result = SpeedTestResult(timestamp: Date(), kind: .browsing, provider: "Mixed sites")
+        var result = SpeedTestResult(timestamp: Date(), kindRaw: SpeedTestKind.browsing.rawValue, provider: "Mixed sites")
         result.browsingAvgMs = browsingAvgMs
         result.browsingMedianTtfb = browsingMedianTtfb
         result.browsingSites = browsingProcessed
@@ -276,7 +317,7 @@ class SpeedTestViewModel: NSObject, ObservableObject {
         }
         session.invalidateAndCancel()
 
-        var result = SpeedTestResult(timestamp: Date(), kind: .gaming, provider: "1.1.1.1 HTTP probe")
+        var result = SpeedTestResult(timestamp: Date(), kindRaw: SpeedTestKind.gaming.rawValue, provider: "1.1.1.1 HTTP probe")
         result.gameMedianMs = gameMedianMs
         result.gameP99Ms = gameP99Ms
         result.gameJitterMs = gameJitterMs
@@ -329,7 +370,7 @@ class SpeedTestViewModel: NSObject, ObservableObject {
         }
         session.invalidateAndCancel()
 
-        var result = SpeedTestResult(timestamp: Date(), kind: .streaming, provider: "Cloudflare")
+        var result = SpeedTestResult(timestamp: Date(), kindRaw: SpeedTestKind.streaming.rawValue, provider: "Cloudflare")
         result.streamAvgMbps = streamAvgMbps
         result.streamMinMbps = streamMinMbps
         result.streamTier = streamTier
@@ -458,7 +499,8 @@ class SpeedTestViewModel: NSObject, ObservableObject {
     private func recordResult(_ result: SpeedTestResult) {
         lastResult = result
         history.insert(result, at: 0)
-        if history.count > 20 { history.removeLast() }
+        if history.count > Self.historyLimit { history.removeLast() }
+        saveHistory()
     }
 
     private func median(_ samples: [Double]) -> Double {
