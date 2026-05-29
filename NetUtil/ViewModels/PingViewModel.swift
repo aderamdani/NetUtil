@@ -19,6 +19,9 @@ class PingViewModel: ObservableObject {
     private static let rawLinesLimit = 500
     private static let resultsLimit  = 1000
 
+    private var resultsBuffer: [PingResult] = []
+    private var batchTimer: AnyCancellable?
+
     // Pre-compiled — avoids re-compiling regex per packet
     private nonisolated static let pingPatterns: [NSRegularExpression] = [
         try! NSRegularExpression(
@@ -43,11 +46,19 @@ class PingViewModel: ObservableObject {
         stop()
         results.removeAll()
         rawLines.removeAll()
+        resultsBuffer.removeAll()
         stats = PingStats()
         error = nil
         resolvedIP = nil
         currentHost = host
         isRunning = true
+        
+        // Batch timer: update UI every 100ms instead of per packet
+        batchTimer = Timer.publish(every: 0.1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.flushBuffer()
+            }
 
         let p = Process()
         let pipe = Pipe()
@@ -90,18 +101,17 @@ class PingViewModel: ObservableObject {
                 if self.rawLines.count > Self.rawLinesLimit {
                     self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
                 }
+
+                // Buffer the results instead of direct append
                 for result in parsed {
-                    self.results.append(result)
-                    self.stats.record(rtt: result.rtt)
+                    self.resultsBuffer.append(result)
                 }
                 for timeoutSeq in timeouts {
-                    self.stats.recordTimeout()
-                    
                     if self.beepOnLoss {
                         NSSound(named: "Tink")?.play()
                     }
                     
-                    self.results.append(PingResult(
+                    self.resultsBuffer.append(PingResult(
                         sequence: timeoutSeq,
                         bytes: 0,
                         host: host,
@@ -111,16 +121,13 @@ class PingViewModel: ObservableObject {
                         status: .timeout
                     ))
                 }
-                
-                // Enforce limit
-                if self.results.count > Self.resultsLimit {
-                    self.results.removeFirst(self.results.count - Self.resultsLimit)
-                }
             }
         }
 
         p.terminationHandler = { [weak self] _ in
             Task { @MainActor [weak self] in
+                self?.flushBuffer() // Final flush
+                self?.batchTimer = nil
                 self?.outputPipe?.fileHandleForReading.readabilityHandler = nil
                 self?.isRunning = false
             }
@@ -133,11 +140,33 @@ class PingViewModel: ObservableObject {
             try p.run()
         } catch {
             self.error = error.localizedDescription
+            self.batchTimer = nil
             isRunning = false
         }
     }
 
+    private func flushBuffer() {
+        guard !resultsBuffer.isEmpty else { return }
+        
+        // Record stats for all buffered items
+        for r in resultsBuffer {
+            if r.status == .success {
+                stats.record(rtt: r.rtt)
+            } else {
+                stats.recordTimeout()
+            }
+        }
+        
+        results.append(contentsOf: resultsBuffer)
+        resultsBuffer.removeAll()
+        
+        if results.count > Self.resultsLimit {
+            results.removeFirst(results.count - Self.resultsLimit)
+        }
+    }
+
     func stop() {
+        batchTimer = nil
         outputPipe?.fileHandleForReading.readabilityHandler = nil
         process?.terminate()
         process = nil

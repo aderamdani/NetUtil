@@ -203,8 +203,6 @@ struct PingView: View {
             VStack(spacing: 0) {
                 rttChart
                     .frame(height: 160)
-                    .chartScrollableAxes(.horizontal)
-                    .chartXVisibleDomain(length: 60)
                 
                 Divider().padding(.vertical, 12).opacity(0.5)
                 
@@ -222,8 +220,11 @@ struct PingView: View {
     }
 
     private var rttChart: some View {
-        Chart {
-            ForEach(vm.results) { r in
+        let results = Array(vm.results.suffix(100))
+        let maxRtt = results.compactMap { $0.status == .success ? $0.rtt : nil }.max() ?? 50.0
+        
+        return Chart {
+            ForEach(results) { r in
                 if r.status == .success {
                     AreaMark(x: .value("P", r.sequence), y: .value("R", r.rtt))
                         .foregroundStyle(LinearGradient(colors: [rttColor(r.rtt).opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
@@ -238,7 +239,7 @@ struct PingView: View {
                         .foregroundStyle(Color.red.opacity(0.3))
                 }
             }
-            if let selected = selectedPacket, let res = vm.results.first(where: { $0.sequence == selected }) {
+            if let selected = selectedPacket, let res = results.first(where: { $0.sequence == selected }) {
                 RuleMark(x: .value("S", selected))
                     .foregroundStyle(Color.secondary.opacity(0.3))
                     .annotation(position: .top, alignment: .center) {
@@ -255,6 +256,7 @@ struct PingView: View {
             }
         }
         .chartXSelection(value: $selectedPacket)
+        .chartYScale(domain: 0...max(50, maxRtt * 1.2))
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
                 AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
@@ -284,52 +286,42 @@ struct PingView: View {
             
             Divider()
             
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(vm.results) { r in
-                            HStack(spacing: 0) {
-                                Text("\(r.sequence)")
-                                    .font(.system(size: 11, design: .monospaced))
-                                    .frame(width: 80, alignment: .leading)
-                                    .foregroundColor(.secondary)
-                                
-                                StatusBadge(isSuccess: r.status == .success)
-                                    .frame(width: 100, alignment: .leading)
-                                
-                                let rttString = r.status == .success ? String(format: "%.2f ms", r.rtt) : "—"
-                                Text(rttString)
-                                    .font(.system(size: 11, design: .monospaced).weight(.bold))
-                                    .frame(width: 120, alignment: .leading)
-                                    .foregroundColor(rttColor(r.rtt))
-                                
-                                let ipString = r.ipAddress ?? vm.resolvedIP ?? "—"
-                                Text(ipString)
-                                    .font(.system(size: 11, design: .monospaced))
-                                    .foregroundColor(.secondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                
-                                Text(r.timestamp, format: .dateTime.hour().minute().second())
-                                    .font(.system(size: 11, design: .monospaced))
-                                    .foregroundColor(.secondary)
-                                    .frame(width: 120, alignment: .trailing)
-                            }
-                            .padding(.vertical, 8).padding(.horizontal, 16).id(r.id)
-                            
-                            if r.id != vm.results.last?.id {
-                                Divider().padding(.horizontal, 16).opacity(0.5)
-                            }
-                        }
+            List {
+                ForEach(vm.results) { r in
+                    HStack(spacing: 0) {
+                        Text("\(r.sequence)")
+                            .font(.system(size: 11, design: .monospaced))
+                            .frame(width: 80, alignment: .leading)
+                            .foregroundColor(.secondary)
+                        
+                        StatusBadge(isSuccess: r.status == .success)
+                            .frame(width: 100, alignment: .leading)
+                        
+                        let rttString = r.status == .success ? String(format: "%.2f ms", r.rtt) : "—"
+                        Text(rttString)
+                            .font(.system(size: 11, design: .monospaced).weight(.bold))
+                            .frame(width: 120, alignment: .leading)
+                            .foregroundColor(rttColor(r.rtt))
+                        
+                        let ipString = r.ipAddress ?? vm.resolvedIP ?? "—"
+                        Text(ipString)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Text(r.timestamp, format: .dateTime.hour().minute().second())
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.secondary)
+                            .frame(width: 120, alignment: .trailing)
                     }
-                }
-                .frame(minHeight: 300)
-                .onChange(of: vm.results.count) { 
-                    if let last = vm.results.last {
-                        // Use non-animated jump for better performance during high-frequency pings
-                        proxy.scrollTo(last.id, anchor: .bottom)
-                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowSeparator(.visible, edges: .bottom)
                 }
             }
+            .listStyle(.plain)
+            .frame(minHeight: 400)
+            .scrollContentBackground(.hidden)
+            .scrollPosition(id: .constant(vm.results.last?.id))
         }
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
@@ -435,23 +427,20 @@ struct PingView: View {
     }
 
     private var rawOutput: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 4) {
-                    ForEach(Array(vm.rawLines.enumerated()), id: \.offset) { i, line in
-                        Text(line)
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundColor(.secondary)
-                            .id(i)
-                    }
-                }
-                .padding(16)
+        List {
+            ForEach(Array(vm.rawLines.enumerated()), id: \.offset) { i, line in
+                Text(line)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .id(i)
             }
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-            .onChange(of: vm.rawLines.count) { if let last = vm.rawLines.indices.last { proxy.scrollTo(last, anchor: .bottom) } }
         }
-        .frame(minHeight: 300)
+        .listStyle(.plain)
+        .frame(minHeight: 400)
+        .scrollContentBackground(.hidden)
+        .scrollPosition(id: .constant(vm.rawLines.isEmpty ? nil : vm.rawLines.count - 1))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private func startAction() {
