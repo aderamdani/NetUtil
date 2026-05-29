@@ -70,32 +70,34 @@ struct DNSView: View {
                         .font(.headline)
                 }
                 
+                Divider().frame(height: 16).padding(.horizontal, 4)
+                
+                TextField("Domain name or IP", text: $host)
+                    .textFieldStyle(.roundedBorder)
+                    .controlSize(.large)
+                    .frame(width: 250)
+                    .onSubmit(startLookup)
+                    .overlay(alignment: .trailing) {
+                        if !history.hosts.isEmpty {
+                            Menu {
+                                ForEach(history.hosts, id: \.self) { h in
+                                    Button(h) { host = h; startLookup() }
+                                }
+                                Divider()
+                                Button("Clear History", role: .destructive) { history.clear() }
+                            } label: {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .foregroundColor(.secondary)
+                            }
+                            .menuStyle(.borderlessButton)
+                            .frame(width: 28)
+                            .padding(.trailing, 4)
+                        }
+                    }
+
                 Spacer()
                 
                 HStack(spacing: 12) {
-                    TextField("Domain name or IP", text: $host)
-                        .textFieldStyle(.roundedBorder)
-                        .controlSize(.large)
-                        .frame(width: 250)
-                        .onSubmit(startLookup)
-                        .overlay(alignment: .trailing) {
-                            if !history.hosts.isEmpty {
-                                Menu {
-                                    ForEach(history.hosts, id: \.self) { h in
-                                        Button(h) { host = h; startLookup() }
-                                    }
-                                    Divider()
-                                    Button("Clear History", role: .destructive) { history.clear() }
-                                } label: {
-                                    Image(systemName: "clock.arrow.circlepath")
-                                        .foregroundColor(.secondary)
-                                }
-                                .menuStyle(.borderlessButton)
-                                .frame(width: 28)
-                                .padding(.trailing, 4)
-                            }
-                        }
-
                     HStack(spacing: 8) {
                         Picker("", selection: $recordType) {
                             ForEach(DNSRecordType.allCases, id: \.self) { Text($0.rawValue).tag($0) }

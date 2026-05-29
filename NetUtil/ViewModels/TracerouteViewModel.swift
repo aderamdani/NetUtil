@@ -2,16 +2,6 @@ import Foundation
 import Combine
 import CoreLocation
 
-private struct IPInfoResponse: Decodable {
-    let city: String?
-    let country: String?
-    let org: String?
-    let hostname: String?
-    let loc: String?
-    let postal: String?
-    let timezone: String?
-}
-
 @MainActor
 class TracerouteViewModel: ObservableObject {
     @Published var hops: [TracerouteHop] = []
@@ -193,46 +183,78 @@ class TracerouteViewModel: ObservableObject {
     }
 
     private nonisolated static func fetchGeo(ip: String) async -> GeoInfo? {
+        struct GeoResponse: Decodable {
+            let city, country, org, hostname, loc, postal, timezone: String?
+        }
+        
         guard let url = URL(string: "https://ipinfo.io/\(ip)/json") else { return nil }
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
-            let json = try JSONDecoder().decode(IPInfoResponse.self, from: data)
+            let response = try JSONDecoder().decode(GeoResponse.self, from: data)
+            
             var coord: CLLocationCoordinate2D?
-        if let loc = json.loc {
-            let parts = loc.split(separator: ",").compactMap { Double($0) }
-            if parts.count == 2 { coord = CLLocationCoordinate2D(latitude: parts[0], longitude: parts[1]) }
-        }
-        return GeoInfo(country: json.country ?? "", city: json.city ?? "", org: json.org ?? "",
-                       hostname: json.hostname, postal: json.postal, timezone: json.timezone,
-                       coordinate: coord)
+            if let loc = response.loc {
+                let parts = loc.split(separator: ",").compactMap { Double($0) }
+                if parts.count == 2 { coord = CLLocationCoordinate2D(latitude: parts[0], longitude: parts[1]) }
+            }
+            return GeoInfo(country: response.country ?? "", city: response.city ?? "", org: response.org ?? "",
+                           hostname: response.hostname, postal: response.postal, timezone: response.timezone,
+                           coordinate: coord)
         } catch { return nil }
     }
 
     private nonisolated static func parseLine(_ line: String) -> TracerouteHop? {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
+        // Standard traceroute line: 1  192.168.1.1 (192.168.1.1)  0.345 ms  0.211 ms  0.198 ms
+        // Or multi-IP: 2  * * *
+        // Or mixed: 3  as-5.example.net (1.2.3.4)  10.5 ms * 11.2 ms
         let tokens = trimmed.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         guard tokens.count >= 2, let hopNum = Int(tokens[0]) else { return nil }
 
         var host: String?
         var ip: String?
         var rtts: [Double?] = []
+        
+        // Use a more robust token iterator
         var i = 1
-
         while i < tokens.count {
-            let token = tokens[i]
-            if token == "*" {
-                rtts.append(nil); i += 1
-            } else if token == "ms" {
+            let t = tokens[i]
+            
+            // Check for timeout
+            if t == "*" {
+                rtts.append(nil)
                 i += 1
-            } else if let rtt = Double(token), i + 1 < tokens.count, tokens[i + 1] == "ms" {
-                rtts.append(rtt); i += 2
-            } else if token.hasPrefix("(") && token.hasSuffix(")") {
-                ip = String(token.dropFirst().dropLast()); i += 1
-            } else if host == nil {
-                host = token; i += 1
-            } else {
-                i += 1
+                continue
             }
+            
+            // Check for IP in parentheses (most common format)
+            if t.hasPrefix("(") && t.hasSuffix(")") {
+                ip = String(t.dropFirst().dropLast())
+                i += 1
+                continue
+            }
+            
+            // Check for RTT values
+            if let val = Double(t) {
+                // Peek at next token to see if it's "ms"
+                if i + 1 < tokens.count && tokens[i+1].lowercased() == "ms" {
+                    rtts.append(val)
+                    i += 2
+                    continue
+                }
+            }
+            
+            // If we don't have a host yet and it's not "ms", assume this is the hostname
+            if host == nil && t.lowercased() != "ms" {
+                host = t
+            }
+            
+            i += 1
+        }
+
+        // If ip is missing but host looks like an IP, swap them
+        if ip == nil, let h = host, h.range(of: #"^\d+\.\d+\.\d+\.\d+$"#, options: .regularExpression) != nil {
+            ip = h
         }
 
         return TracerouteHop(hop: hopNum, host: host, ip: ip, rtts: rtts, samples: [])

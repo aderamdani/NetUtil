@@ -6,61 +6,63 @@ struct DashboardView: View {
     @Binding var selection: Tool?
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                headerSection
+        VStack(spacing: 0) {
+            headerBar
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    // HERO SECTION: Network Activity
+                    networkHeroSection
 
-                // HERO SECTION: Network Activity
-                networkHeroSection
+                    VStack(alignment: .leading, spacing: 16) {
+                        sectionHeader("Core Diagnostics", icon: "bolt.shield.fill")
 
-                VStack(alignment: .leading, spacing: 16) {
-                    sectionHeader("Core Diagnostics", icon: "bolt.shield.fill")
+                        HStack(spacing: 12) {
+                            pingCard
+                                .frame(maxWidth: .infinity)
 
-                    HStack(spacing: 12) {
-                        pingCard
-                            .frame(maxWidth: .infinity)
-
-                        VStack(spacing: 12) {
-                            multiPingCard
-                            portScanCard
+                            VStack(spacing: 12) {
+                                multiPingCard
+                                portScanCard
+                            }
+                            .frame(width: 280)
                         }
-                        .frame(width: 280)
+                    }
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        sectionHeader("Network & Traffic", icon: "wifi.router.fill")
+
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                            bandwidthCard
+                            statisticsCard
+                            interfacesCard
+                        }
+                        
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                            wifiCard
+                            tracerouteCard
+                            routeTableCard
+                        }
+                        
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                            sslCard
+                            httpCard
+                            dnsCard
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        sectionHeader("Infrastructure Lookup", icon: "magnifyingglass.circle.fill")
+
+                        HStack(spacing: 12) {
+                            whoisCard
+                            subnetCard
+                            topProcessesCard
+                        }
                     }
                 }
-
-                VStack(alignment: .leading, spacing: 16) {
-                    sectionHeader("Network & Traffic", icon: "wifi.router.fill")
-
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        bandwidthCard
-                        statisticsCard
-                        interfacesCard
-                    }
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        wifiCard
-                        tracerouteCard
-                        routeTableCard
-                    }
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        sslCard
-                        httpCard
-                        dnsCard
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 16) {
-                    sectionHeader("Infrastructure Lookup", icon: "magnifyingglass.circle.fill")
-
-                    HStack(spacing: 12) {
-                        whoisCard
-                        subnetCard
-                        topProcessesCard
-                    }
-                }
+                .padding(24)
             }
-            .padding(24)
         }
         .background(Color(.windowBackgroundColor).ignoresSafeArea())
         .onAppear {
@@ -72,46 +74,53 @@ struct DashboardView: View {
     
     // MARK: - Header Components
     
-    private var headerSection: some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(Host.current().localizedName ?? "Local Mac")
-                    .font(.system(.title, design: .default).bold())
-                    .tracking(-0.2)
-                
-                HStack(spacing: 12) {
-                    HStack(spacing: 4) {
-                        Image(systemName: tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps > 0 ? "antenna.radiowaves.left.and.right" : "antenna.radiowaves.left.and.right.slash")
-                            .foregroundColor(tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps > 0 ? .green : .secondary)
-                        Text(tools.currentConnectionName)
-                            .font(.subheadline.weight(.semibold))
-                    }
+    private var headerBar: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(Host.current().localizedName ?? "Local Mac")
+                        .font(.system(.title3, design: .default).bold())
+                        .tracking(-0.2)
                     
-                    Divider().frame(height: 12)
-                    
-                    gatewayChip(label: "Local", value: tools.primaryLocalIP)
-                    gatewayChip(label: "Public", value: tools.externalIP)
-                    
-                    if tools.isVPNActive {
-                        Text("VPN")
-                            .font(.system(.caption2, design: .default).weight(.bold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.green.opacity(0.15))
-                            .foregroundColor(.green)
-                            .cornerRadius(4)
+                    HStack(spacing: 12) {
+                        HStack(spacing: 4) {
+                            Image(systemName: tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps > 0 ? "antenna.radiowaves.left.and.right" : "antenna.radiowaves.left.and.right.slash")
+                                .foregroundColor(tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps > 0 ? .green : .secondary)
+                                .font(.system(size: 10))
+                            Text(tools.currentConnectionName)
+                                .font(.system(.caption, design: .default).weight(.semibold))
+                        }
+                        
+                        Divider().frame(height: 10)
+                        
+                        gatewayChip(label: "Local", value: tools.primaryLocalIP)
+                        gatewayChip(label: "Public", value: tools.externalIP)
+                        
+                        if tools.isVPNActive {
+                            Text("VPN")
+                                .font(.system(.caption2, design: .default).weight(.bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.green.opacity(0.15))
+                                .foregroundColor(.green)
+                                .cornerRadius(4)
+                        }
                     }
                 }
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    healthGauge(label: "CPU", value: String(format: "%.0f%%", tools.system.cpuUsage), progress: tools.system.cpuUsage / 100, color: tools.system.cpuUsage > 75 ? .red : .accentColor)
+                    healthGauge(label: "RAM", value: tools.system.memoryPressure.capitalized, progress: tools.system.memoryColor == "red" ? 0.9 : (tools.system.memoryColor == "orange" ? 0.6 : 0.3), color: tools.system.memoryColor == "red" ? .red : (tools.system.memoryColor == "orange" ? .orange : .accentColor))
+                }
             }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
             
-            Spacer()
-            
-            HStack(spacing: 12) {
-                healthGauge(label: "CPU", value: String(format: "%.0f%%", tools.system.cpuUsage), progress: tools.system.cpuUsage / 100, color: tools.system.cpuUsage > 75 ? .red : .accentColor)
-                healthGauge(label: "RAM", value: tools.system.memoryPressure.capitalized, progress: tools.system.memoryColor == "red" ? 0.9 : (tools.system.memoryColor == "orange" ? 0.6 : 0.3), color: tools.system.memoryColor == "red" ? .red : (tools.system.memoryColor == "orange" ? .orange : .accentColor))
-            }
+            Divider()
         }
-        .padding(.bottom, 8)
+        .background(.regularMaterial)
     }
     
     private func gatewayChip(label: String, value: String) -> some View {

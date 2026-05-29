@@ -53,32 +53,34 @@ struct SSLInspectorView: View {
                         .font(.headline)
                 }
                 
+                Divider().frame(height: 16).padding(.horizontal, 4)
+                
+                TextField("hostname or URL", text: $host)
+                    .textFieldStyle(.roundedBorder)
+                    .controlSize(.large)
+                    .frame(width: 280)
+                    .onSubmit(startInspection)
+                    .overlay(alignment: .trailing) {
+                        if !history.hosts.isEmpty {
+                            Menu {
+                                ForEach(history.hosts, id: \.self) { h in
+                                    Button(h) { host = h; startInspection() }
+                                }
+                                Divider()
+                                Button("Clear History", role: .destructive) { history.clear() }
+                            } label: {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .foregroundColor(.secondary)
+                            }
+                            .menuStyle(.borderlessButton)
+                            .frame(width: 28)
+                            .padding(.trailing, 4)
+                        }
+                    }
+
                 Spacer()
                 
                 HStack(spacing: 12) {
-                    TextField("hostname or URL", text: $host)
-                        .textFieldStyle(.roundedBorder)
-                        .controlSize(.large)
-                        .frame(width: 280)
-                        .onSubmit(startInspection)
-                        .overlay(alignment: .trailing) {
-                            if !history.hosts.isEmpty {
-                                Menu {
-                                    ForEach(history.hosts, id: \.self) { h in
-                                        Button(h) { host = h; startInspection() }
-                                    }
-                                    Divider()
-                                    Button("Clear History", role: .destructive) { history.clear() }
-                                } label: {
-                                    Image(systemName: "clock.arrow.circlepath")
-                                        .foregroundColor(.secondary)
-                                }
-                                .menuStyle(.borderlessButton)
-                                .frame(width: 28)
-                                .padding(.trailing, 4)
-                            }
-                        }
-
                     HStack(spacing: 4) {
                         Text("Port")
                             .font(.caption2.weight(.bold))

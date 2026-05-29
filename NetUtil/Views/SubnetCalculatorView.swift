@@ -48,32 +48,34 @@ struct SubnetCalculatorView: View {
                         .font(.headline)
                 }
                 
+                Divider().frame(height: 16).padding(.horizontal, 4)
+                
+                TextField("IP Address", text: $vm.ipAddress)
+                    .textFieldStyle(.roundedBorder)
+                    .controlSize(.large)
+                    .frame(width: 250)
+                    .onSubmit { vm.calculate() }
+                    .overlay(alignment: .trailing) {
+                        if !history.hosts.isEmpty {
+                            Menu {
+                                ForEach(history.hosts, id: \.self) { h in
+                                    Button(h) { vm.updateIP(h) }
+                                }
+                                Divider()
+                                Button("Clear History", role: .destructive) { history.clear() }
+                            } label: {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .foregroundColor(.secondary)
+                            }
+                            .menuStyle(.borderlessButton)
+                            .frame(width: 28)
+                            .padding(.trailing, 4)
+                        }
+                    }
+
                 Spacer()
                 
                 HStack(spacing: 12) {
-                    TextField("IP Address", text: $vm.ipAddress)
-                        .textFieldStyle(.roundedBorder)
-                        .controlSize(.large)
-                        .frame(width: 250)
-                        .onSubmit { vm.calculate() }
-                        .overlay(alignment: .trailing) {
-                            if !history.hosts.isEmpty {
-                                Menu {
-                                    ForEach(history.hosts, id: \.self) { h in
-                                        Button(h) { vm.updateIP(h) }
-                                    }
-                                    Divider()
-                                    Button("Clear History", role: .destructive) { history.clear() }
-                                } label: {
-                                    Image(systemName: "clock.arrow.circlepath")
-                                        .foregroundColor(.secondary)
-                                }
-                                .menuStyle(.borderlessButton)
-                                .frame(width: 28)
-                                .padding(.trailing, 4)
-                            }
-                        }
-
                     HStack(spacing: 12) {
                         HStack(spacing: 4) {
                             Text("Prefix")
