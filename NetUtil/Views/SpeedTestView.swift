@@ -117,7 +117,7 @@ struct SpeedTestView: View {
             metricCard(title: "Avg Load",   value: String(format: "%.0f", vm.browsingAvgMs),       unit: "ms",     icon: "globe",       color: .blue,   highlight: vm.phase == .browsing)
             metricCard(title: "Median TTFB",value: String(format: "%.0f", vm.browsingMedianTtfb),  unit: "ms",     icon: "timer",       color: .orange, highlight: false)
             metricCard(title: "Sites",      value: "\(vm.browsingProcessed)",                       unit: "loaded", icon: "checkmark.circle", color: .green,  highlight: false)
-            metricCard(title: "Verdict",    value: browsingVerdict,                                  unit: "",       icon: "hand.thumbsup",color: browsingVerdictColor, highlight: false)
+            metricCard(title: "Verdict",    value: browsingVerdict,                                  unit: "",       icon: "checkmark.seal.fill",color: browsingVerdictColor, highlight: false)
         }
     }
 
@@ -126,7 +126,7 @@ struct SpeedTestView: View {
             metricCard(title: "Median Latency", value: String(format: "%.0f", vm.gameMedianMs), unit: "ms", icon: "timer",            color: gameLatencyColor, highlight: vm.phase == .gaming)
             metricCard(title: "P99 Latency",    value: String(format: "%.0f", vm.gameP99Ms),    unit: "ms", icon: "exclamationmark.triangle", color: .orange, highlight: false)
             metricCard(title: "Jitter",         value: String(format: "%.1f", vm.gameJitterMs), unit: "ms", icon: "waveform.path.ecg", color: .purple, highlight: false)
-            metricCard(title: "Loss",           value: String(format: "%.1f", vm.gameLossPct),  unit: "%",  icon: "questionmark.circle", color: vm.gameLossPct > 1 ? .red : .green, highlight: false)
+            metricCard(title: "Loss",           value: String(format: "%.1f", vm.gameLossPct),  unit: "%",  icon: "network.slash", color: vm.gameLossPct > 1 ? .red : .green, highlight: false)
         }
     }
 
@@ -135,7 +135,7 @@ struct SpeedTestView: View {
             metricCard(title: "Avg Throughput", value: String(format: "%.1f", vm.streamAvgMbps),  unit: "Mbps", icon: "arrow.down",         color: .blue,   highlight: vm.phase == .streaming)
             metricCard(title: "Min Throughput", value: String(format: "%.1f", vm.streamMinMbps),  unit: "Mbps", icon: "arrow.down.to.line", color: .orange, highlight: false)
             metricCard(title: "Stable Tier",    value: vm.streamTier,                              unit: "",     icon: "play.tv",            color: .accentColor, highlight: false)
-            metricCard(title: "Verdict",        value: streamingVerdict,                           unit: "",     icon: "hand.thumbsup",      color: streamingVerdictColor, highlight: false)
+            metricCard(title: "Verdict",        value: streamingVerdict,                           unit: "",     icon: "checkmark.seal.fill",      color: streamingVerdictColor, highlight: false)
         }
     }
 
@@ -307,7 +307,9 @@ struct SpeedTestView: View {
                 .frame(width: 95, alignment: .leading)
 
             HStack(spacing: 4) {
-                Circle().fill(verdict.color).frame(width: 6, height: 6)
+                Image(systemName: "circle.fill")
+                    .font(.system(size: 7))
+                    .foregroundColor(verdict.color)
                 Text(verdict.label)
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(verdict.color)
@@ -427,13 +429,13 @@ struct SpeedTestView: View {
     private func detailString(_ r: SpeedTestResult) -> String {
         switch r.kind {
         case .speed:
-            return String(format: "↑ %.1f / ping %.0f ms / jitter %.1f", r.uploadMbps, r.pingMs, r.jitterMs)
+            return String(format: "Up %.1f Mbps · ping %.0f ms · jitter %.1f ms", r.uploadMbps, r.pingMs, r.jitterMs)
         case .browsing:
-            return String(format: "TTFB %.0f ms / %d sites", r.browsingMedianTtfb, r.browsingSites)
+            return String(format: "TTFB %.0f ms · %d sites", r.browsingMedianTtfb, r.browsingSites)
         case .gaming:
-            return String(format: "P99 %.0f / jitter %.1f / loss %.1f%%", r.gameP99Ms, r.gameJitterMs, r.gameLossPct)
+            return String(format: "P99 %.0f ms · jitter %.1f ms · loss %.1f%%", r.gameP99Ms, r.gameJitterMs, r.gameLossPct)
         case .streaming:
-            return String(format: "avg %.1f / min %.1f Mbps", r.streamAvgMbps, r.streamMinMbps)
+            return String(format: "Avg %.1f Mbps · Min %.1f Mbps", r.streamAvgMbps, r.streamMinMbps)
         }
     }
 
