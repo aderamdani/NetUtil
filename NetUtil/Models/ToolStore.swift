@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import SystemConfiguration
+import CoreWLAN
 
 @MainActor
 class ToolStore: ObservableObject {
@@ -45,13 +46,14 @@ class ToolStore: ObservableObject {
     var primaryLocalIP: String { primaryInterface?.ipv4.first ?? "—" }
 
     /// User-facing connection label.
-    /// - Wi-Fi: returns SSID if connected, falls back to "Wi-Fi".
+    /// - Wi-Fi: returns SSID via CoreWLAN (independent of Wi-Fi tool lifecycle),
+    ///   falls back to "Wi-Fi" if not associated.
     /// - Ethernet / others: returns localized System Settings display name
     ///   (e.g. "USB 10/100/1000 LAN") via SystemConfiguration.
     var currentConnectionName: String {
         if let iface = primaryInterface {
             if iface.ifType == 161 {
-                if let ssid = wifi.info?.ssid, !ssid.isEmpty { return ssid }
+                if let ssid = Self.currentSSID(), !ssid.isEmpty { return ssid }
                 return "Wi-Fi"
             }
             if let localized = Self.localizedInterfaceName(for: iface.name) {
@@ -60,6 +62,12 @@ class ToolStore: ObservableObject {
             return iface.typeName
         }
         return "Unknown"
+    }
+
+    private static func currentSSID() -> String? {
+        // Direct CoreWLAN query — does not depend on WiFiInspectorViewModel
+        // having been started by the user.
+        CWWiFiClient.shared().interface()?.ssid()
     }
 
     private static func localizedInterfaceName(for bsdName: String) -> String? {
