@@ -9,6 +9,15 @@ class TrafficStatistics: ObservableObject {
     @Published var sessionRxBytes: UInt64 = 0
     @Published var sessionTxBytes: UInt64 = 0
 
+    var todayRx: UInt64 { dailyTotals.last?.rxBytes ?? 0 }
+    var todayTx: UInt64 { dailyTotals.last?.txBytes ?? 0 }
+    
+    var totalRx: UInt64 { dailyTotals.map(\.rxBytes).reduce(0, &+) }
+    var totalTx: UInt64 { dailyTotals.map(\.txBytes).reduce(0, &+) }
+    
+    var averageDailyRx: UInt64 { dailyTotals.isEmpty ? 0 : totalRx / UInt64(dailyTotals.count) }
+    var averageDailyTx: UInt64 { dailyTotals.isEmpty ? 0 : totalTx / UInt64(dailyTotals.count) }
+
     struct DayTotal: Identifiable, Codable {
         var id: String { dateKey }
         let dateKey: String  // "yyyy-MM-dd"

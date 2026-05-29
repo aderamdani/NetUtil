@@ -20,6 +20,9 @@ class BandwidthMonitor: ObservableObject {
 
     /// Aggregate samples across all non-loopback adapters — one per second.
     @Published var totalHistory: [BandwidthSample] = []
+    @Published var peakRx: Double = 0
+    @Published var peakTx: Double = 0
+    @Published var isPaused = false
 
     private var timer: Timer?
     private var prevBytes: [String: (rx: UInt64, tx: UInt64)] = [:]
@@ -53,7 +56,17 @@ class BandwidthMonitor: ObservableObject {
         return samples.suffix(5).contains { $0.rxBps > 0 || $0.txBps > 0 }
     }
 
+    func resetPeaks() {
+        peakRx = 0
+        peakTx = 0
+    }
+
     private func tick() {
+        guard !isPaused else {
+            prevTime = Date() // Reset baseline
+            return
+        }
+        
         let now = Date()
         let dt = now.timeIntervalSince(prevTime)
         guard dt > 0 else { return }
@@ -100,6 +113,11 @@ class BandwidthMonitor: ObservableObject {
                                       totalRx: totalRxBytes, totalTx: totalTxBytes)
             totalHistory.append(agg)
             if totalHistory.count > Self.totalHistoryLimit { totalHistory.removeFirst() }
+            
+            // Update peaks
+            if aggRx > peakRx { peakRx = aggRx }
+            if aggTx > peakTx { peakTx = aggTx }
+            
             UserDefaults.standard.set(aggRx, forKey: "menuBarCurrentRxBps")
             UserDefaults.standard.set(aggTx, forKey: "menuBarCurrentTxBps")
         }
