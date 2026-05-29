@@ -27,6 +27,25 @@ class SystemMonitor: ObservableObject {
     func stop() {
         timer?.invalidate()
         timer = nil
+        freeLastCpuInfo()
+    }
+
+    deinit {
+        timer?.invalidate()
+        if let info = lastCpuInfo {
+            vm_deallocate(mach_task_self_,
+                          vm_address_t(bitPattern: info),
+                          vm_size_t(lastCpuInfoCount) * vm_size_t(MemoryLayout<integer_t>.stride))
+        }
+    }
+
+    private func freeLastCpuInfo() {
+        guard let info = lastCpuInfo else { return }
+        vm_deallocate(mach_task_self_,
+                      vm_address_t(bitPattern: info),
+                      vm_size_t(lastCpuInfoCount) * vm_size_t(MemoryLayout<integer_t>.stride))
+        lastCpuInfo = nil
+        lastCpuInfoCount = 0
     }
     
     private func updateStats() {

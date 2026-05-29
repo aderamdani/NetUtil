@@ -72,6 +72,9 @@ class TopProcessesViewModel: ObservableObject {
         pendingRows = []
     }
 
+    private static let maxBufferBytes = 1 << 20   // 1 MB safety cap
+    private static let maxPendingRows = 5000
+
     private func consume(_ data: Data) {
         buffer.append(data)
         while let idx = buffer.firstRange(of: Data([0x0A])) {
@@ -81,6 +84,9 @@ class TopProcessesViewModel: ObservableObject {
             if line.hasSuffix("\r") { line.removeLast() }
             processLine(line.trimmingCharacters(in: .whitespacesAndNewlines))
         }
+        // Safety: if no newline found and buffer is huge, malformed stream — drop it.
+        if buffer.count > Self.maxBufferBytes { buffer.removeAll(keepingCapacity: false) }
+        if pendingRows.count > Self.maxPendingRows { pendingRows.removeAll(keepingCapacity: false) }
     }
 
     private func processLine(_ line: String) {
