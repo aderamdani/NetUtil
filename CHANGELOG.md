@@ -4,6 +4,21 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [3.2.0] — 2026-05-29
+
+### Performance Overhaul: High-Frequency Monitoring
+- **Ping Batching Engine**: Implemented a double-buffered batching system in the Ping tool. Results are now collected in the background and flushed to the UI every 100ms, eliminating UI lag during fast monitoring (up to 5 packets/sec).
+- **Virtualized Data Tables**: Transitioned Ping Analysis and Console Log to native macOS `List` views, providing superior cell recycling and responsiveness for datasets up to 1,000 entries.
+- **Optimized Auto-Scroll**: Refactored auto-scroll logic to use direct scroll position bindings, significantly reducing MainActor workload and layout thrashing.
+
+### UX & "Anti-Slop" Finalization
+- **Fixed Tool Headers (Complete)**: Finalized the migration to the "Anti-Slop" header pattern across all 16 tools. Headers are now locked at the top, ensuring controls are always accessible.
+- **Fixed Dashboard Navigation**: Moved connection metadata and system health gauges to a fixed top bar on the Dashboard.
+- **Intelligent Chart Scaling**: Added a minimum 50ms Y-axis scale to the Ping chart to ensure visual stability when monitoring ultra-fast hosts like `1.1.1.1`.
+- **Synchronized Console Log**: The raw Console Log now features the same high-performance auto-scrolling as the structured Analysis table.
+
+---
+
 ## [3.1.0] — 2026-05-29
 
 ### Added
