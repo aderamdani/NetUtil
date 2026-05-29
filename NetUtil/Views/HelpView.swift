@@ -2,7 +2,11 @@ import SwiftUI
 
 struct HelpView: View {
     @State private var search = ""
-    @State private var selectedTitle: String? = "Dashboard"
+    @State private var selectedTitle: String?
+
+    init(topic: String? = "Dashboard") {
+        _selectedTitle = State(initialValue: topic)
+    }
 
     var body: some View {
         HSplitView {

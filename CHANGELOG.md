@@ -4,6 +4,27 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [2.9.0] — 2026-05-29
+
+### Added
+- **Bandwidth Monitor Overhaul**: 
+  - New aggregate throughput chart showing 10-minute history with hover interactivity.
+  - Session Peak tracking (Max Download/Upload).
+  - Enhanced interface cards with IP addresses and status badges.
+  - Pause/Resume and Peak Reset capabilities.
+- **Traffic Statistics Overhaul**:
+  - Time-range filtering for daily totals (7D, 14D, 30D, All).
+  - Interactive bar charts with floating tooltips for exact daily values.
+  - New "Detailed History" table with activity ratio bars.
+  - Professional CSV Export for historical traffic data.
+- **Help System**: Support for deep linking directly to specific tool documentation.
+
+### Changed
+- Unified UI/UX for all monitoring tools following professional macOS standards: materials, monospaced technical data, and data-dense headers.
+- Consolidated rate and byte formatting logic into `NetworkMath`.
+
+---
+
 ## [2.8.1] — 2026-05-29
 
 ### Fixed

@@ -69,6 +69,21 @@ struct NetworkMath {
         if firstOctet <= 239 { return "D (Multicast)" }
         return "E (Experimental)"
     }
+    
+    static func formatRate(_ bps: Double) -> String {
+        if bps < 1024 { return String(format: "%.0f B/s", bps) }
+        if bps < 1_048_576 { return String(format: "%.1f K", bps / 1024) }
+        if bps < 1_073_741_824 { return String(format: "%.2f M", bps / 1_048_576) }
+        return String(format: "%.2f G", bps / 1_073_741_824)
+    }
+
+    static func formatBytes(_ bytes: UInt64) -> String {
+        if bytes < 1024 { return "\(bytes) B" }
+        if bytes < 1_048_576 { return String(format: "%.1f KB", Double(bytes) / 1024) }
+        if bytes < 1_073_741_824 { return String(format: "%.1f MB", Double(bytes) / 1_048_576) }
+        if bytes < 1_099_511_627_776 { return String(format: "%.2f GB", Double(bytes) / 1_073_741_824) }
+        return String(format: "%.2f TB", Double(bytes) / 1_099_511_627_776)
+    }
 }
 
 struct IPv4Address {

@@ -13,6 +13,8 @@ struct NetworkInterface: Identifiable {
     let isLoopback: Bool
     let ifType: UInt8
     
+    var ipAddress: String? { ipv4.first }
+
     // VLAN Details
     var isVLAN: Bool { name.hasPrefix("vlan") }
     var vlanTag: Int?
