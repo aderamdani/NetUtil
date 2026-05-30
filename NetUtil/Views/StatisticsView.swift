@@ -297,7 +297,7 @@ struct StatisticsView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-                .background(Color.secondary.opacity(0.05))
+                .background(.regularMaterial)
                 
                 Divider()
                 
@@ -358,9 +358,6 @@ struct StatisticsView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 32))
-                .foregroundColor(.secondary)
             Text("No Historical Data")
                 .font(.headline)
             Text("Statistics are collected automatically while the app is running.")

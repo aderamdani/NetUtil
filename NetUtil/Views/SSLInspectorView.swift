@@ -253,7 +253,7 @@ struct SSLInspectorView: View {
     private func kv(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.system(size: 9, weight: .bold))
+                .font(.system(size: 10, weight: .bold))
                 .foregroundColor(.secondary)
             Text(value)
                 .font(.system(.subheadline, design: .monospaced))
@@ -278,9 +278,6 @@ struct SSLInspectorView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "lock.shield")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Target Inspected")
                 .font(.headline)
                 .foregroundColor(.secondary)

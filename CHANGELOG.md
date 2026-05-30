@@ -4,6 +4,15 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [3.3.0] — 2026-05-30
+
+### Changed
+- **Comprehensive UI/UX Refinement**: Sweeping updates across all views to enforce strict adherence to Apple's Human Interface Guidelines (HIG) and "Native Mac Anti-Slop" principles. Eliminated all remaining `Color.opacity` instances in favor of native `.regularMaterial` for true vibrancy.
+- **Network Models & Logic**: Adjusted `NetworkMath` and `HTTPLatencyViewModel` to improve reliability and correctness (e.g., proper handling of HTTP redirects).
+- **Testing Infrastructure**: Added initial Swift Package Manager (SPM) testing suite (`tests-spm`) and clinical QA documentation (`QA-CLINICAL-TEST.md`) to establish a foundation for automated verification.
+
+---
+
 ## [3.2.0] — 2026-05-29
 
 ### Performance Overhaul: High-Frequency Monitoring

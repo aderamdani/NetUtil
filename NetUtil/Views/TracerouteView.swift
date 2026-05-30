@@ -264,9 +264,6 @@ struct TracerouteView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "point.3.connected.trianglepath.dotted")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Active Trace")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -299,7 +296,7 @@ private struct StatCardMini: View {
     let value: String
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.system(size: 8, weight: .bold)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
             Text(value).font(.system(size: 11, weight: .bold, design: .monospaced))
         }
         .padding(.horizontal, 10).padding(.vertical, 6)

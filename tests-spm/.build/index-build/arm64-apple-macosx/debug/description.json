@@ -1,0 +1,781 @@
+{
+  "builtTestProducts" : [
+    {
+      "binaryPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.xctest/Contents/MacOS/NetUtilCorePackageTests",
+      "packagePath" : "/Users/aderamdani/Developer/NetUtil/tests-spm",
+      "productName" : "NetUtilCorePackageTests"
+    }
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.NetUtilCore-arm64-apple-macosx-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/sources",
+      "importPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/CertInfo.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSRecord.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/HTTPLatencyResult.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/IPAddressDetails.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/MultiPingViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/NetworkMath.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingResult.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PortResult.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/RouteEntry.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteHop.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "NetUtilCore",
+      "moduleOutputPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules/NetUtilCore.swiftmodule",
+      "objects" : [
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/CertInfo.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSRecord.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSViewModel.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/HTTPLatencyResult.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/IPAddressDetails.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/MultiPingViewModel.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/NetworkMath.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingResult.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingViewModel.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PortResult.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/RouteEntry.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteHop.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteViewModel.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx15.0",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-Onone",
+        "-enable-testing",
+        "-j8",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/include/NetUtilCore-Swift.h",
+        "-swift-version",
+        "5",
+        "-Xfrontend",
+        "-experimental-lazy-typecheck",
+        "-Xfrontend",
+        "-experimental-skip-all-function-bodies",
+        "-Xfrontend",
+        "-experimental-allow-module-with-compiler-errors",
+        "-Xfrontend",
+        "-empty-abi-descriptor",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "tests_spm"
+      ],
+      "outputFileMapPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules/NetUtilCore.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : true,
+      "sources" : [
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/CertInfo.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSRecord.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSViewModel.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/HTTPLatencyResult.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/IPAddressDetails.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/MultiPingViewModel.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/NetworkMath.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingResult.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingViewModel.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PortResult.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/RouteEntry.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteHop.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteViewModel.swift"
+      ],
+      "tempsPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.NetUtilCorePackageTests-arm64-apple-macosx-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/sources",
+      "importPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.derived/runner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules/NetUtilCoreTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "NetUtilCorePackageTests",
+      "moduleOutputPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules/NetUtilCorePackageTests.swiftmodule",
+      "objects" : [
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/runner.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx15.0",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j8",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/include/NetUtilCorePackageTests-Swift.h",
+        "-Xfrontend",
+        "-experimental-lazy-typecheck",
+        "-Xfrontend",
+        "-experimental-skip-all-function-bodies",
+        "-Xfrontend",
+        "-experimental-allow-module-with-compiler-errors",
+        "-Xfrontend",
+        "-empty-abi-descriptor",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "tests_spm"
+      ],
+      "outputFileMapPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules/NetUtilCorePackageTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : true,
+      "sources" : [
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.derived/runner.swift"
+      ],
+      "tempsPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.NetUtilCoreTests-arm64-apple-macosx-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/sources",
+      "importPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/DNSTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/IPAddressDetailsTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetModelsTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetworkMathTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/PingTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/TracerouteTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules/NetUtilCore.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "NetUtilCoreTests",
+      "moduleOutputPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules/NetUtilCoreTests.swiftmodule",
+      "objects" : [
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/DNSTests.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/IPAddressDetailsTests.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetModelsTests.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetworkMathTests.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/PingTests.swift.o",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/TracerouteTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx15.0",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j8",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-swift-version",
+        "5",
+        "-Xfrontend",
+        "-experimental-lazy-typecheck",
+        "-Xfrontend",
+        "-experimental-skip-all-function-bodies",
+        "-Xfrontend",
+        "-experimental-allow-module-with-compiler-errors",
+        "-Xfrontend",
+        "-empty-abi-descriptor",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "tests_spm"
+      ],
+      "outputFileMapPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules/NetUtilCoreTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : true,
+      "sources" : [
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/DNSTests.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/IPAddressDetailsTests.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetModelsTests.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetworkMathTests.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/PingTests.swift",
+        "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/TracerouteTests.swift"
+      ],
+      "tempsPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build",
+      "wholeModuleOptimization" : false
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "NetUtilCore" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "NetUtilCore",
+      "-package-name",
+      "tests_spm",
+      "-c",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/CertInfo.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSRecord.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSViewModel.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/HTTPLatencyResult.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/IPAddressDetails.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/MultiPingViewModel.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/NetworkMath.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingResult.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingViewModel.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PortResult.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/RouteEntry.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteHop.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteViewModel.swift",
+      "-I",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx15.0",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-Onone",
+      "-enable-testing",
+      "-j8",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/include/NetUtilCore-Swift.h",
+      "-swift-version",
+      "5",
+      "-Xfrontend",
+      "-experimental-lazy-typecheck",
+      "-Xfrontend",
+      "-experimental-skip-all-function-bodies",
+      "-Xfrontend",
+      "-experimental-allow-module-with-compiler-errors",
+      "-Xfrontend",
+      "-empty-abi-descriptor",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "tests_spm",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "NetUtilCorePackageTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "NetUtilCorePackageTests",
+      "-package-name",
+      "tests_spm",
+      "-c",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.derived/runner.swift",
+      "-I",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx15.0",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j8",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/include/NetUtilCorePackageTests-Swift.h",
+      "-Xfrontend",
+      "-experimental-lazy-typecheck",
+      "-Xfrontend",
+      "-experimental-skip-all-function-bodies",
+      "-Xfrontend",
+      "-experimental-allow-module-with-compiler-errors",
+      "-Xfrontend",
+      "-empty-abi-descriptor",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "tests_spm",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "NetUtilCoreTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "NetUtilCoreTests",
+      "-package-name",
+      "tests_spm",
+      "-c",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/DNSTests.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/IPAddressDetailsTests.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetModelsTests.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetworkMathTests.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/PingTests.swift",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/TracerouteTests.swift",
+      "-I",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx15.0",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j8",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-swift-version",
+      "5",
+      "-Xfrontend",
+      "-experimental-lazy-typecheck",
+      "-Xfrontend",
+      "-experimental-skip-all-function-bodies",
+      "-Xfrontend",
+      "-experimental-allow-module-with-compiler-errors",
+      "-Xfrontend",
+      "-empty-abi-descriptor",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "tests_spm",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "NetUtilCore" : [
+
+    ],
+    "NetUtilCorePackageTests" : [
+      "NetUtilCoreTests",
+      "NetUtilCore"
+    ],
+    "NetUtilCoreTests" : [
+      "NetUtilCore"
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "traitConfiguration" : {
+    "default" : {
+
+    }
+  },
+  "writeCommands" : {
+    "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/CertInfo.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSRecord.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/HTTPLatencyResult.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/IPAddressDetails.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/MultiPingViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/NetworkMath.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingResult.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingViewModel.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PortResult.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/RouteEntry.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteHop.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteViewModel.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/sources"
+    },
+    "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.derived/runner.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/sources"
+    },
+    "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/DNSTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/IPAddressDetailsTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetModelsTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetworkMathTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/PingTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/TracerouteTests.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCoreTests.build/sources"
+    },
+    "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+    }
+  }
+}

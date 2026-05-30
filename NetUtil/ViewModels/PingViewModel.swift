@@ -174,7 +174,7 @@ class PingViewModel: ObservableObject {
         isRunning = false
     }
 
-    private nonisolated static func parseHeader(_ line: String) -> String? {
+    nonisolated static func parseHeader(_ line: String) -> String? {
         guard let m = headerPattern.firstMatch(
             in: line, range: NSRange(line.startIndex..., in: line)
         ) else { return nil }
@@ -184,7 +184,7 @@ class PingViewModel: ObservableObject {
         return String(line[range])
     }
 
-    private nonisolated static func parseTimeout(_ line: String) -> Int? {
+    nonisolated static func parseTimeout(_ line: String) -> Int? {
         guard let m = timeoutPattern.firstMatch(
             in: line, range: NSRange(line.startIndex..., in: line)
         ) else { return nil }
@@ -194,7 +194,7 @@ class PingViewModel: ObservableObject {
         return Int(line[range])
     }
 
-    private nonisolated static func parseLine(_ line: String, ip: String?) -> PingResult? {
+    nonisolated static func parseLine(_ line: String, ip: String?) -> PingResult? {
         for regex in pingPatterns {
             guard let m = regex.firstMatch(
                 in: line, range: NSRange(line.startIndex..., in: line)

@@ -121,7 +121,7 @@ struct NetworkInterfaceView: View {
             Spacer()
             
             VStack(alignment: .trailing, spacing: 4) {
-                Text("Last Updated").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                Text("Last Updated").font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
                 Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
             }
@@ -147,9 +147,6 @@ struct NetworkInterfaceView: View {
 
     private func emptyState(msg: String) -> some View {
         VStack(spacing: 12) {
-            Image(systemName: "network.slash")
-                .font(.system(size: 32))
-                .foregroundColor(.secondary.opacity(0.5))
             Text(msg)
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -223,7 +220,7 @@ private struct InterfaceDetailCard: View {
     private func ifaceRow(label: String, value: String) -> some View {
         HStack(spacing: 12) {
             Text(label)
-                .font(.system(size: 9, weight: .bold))
+                .font(.system(size: 10, weight: .bold))
                 .foregroundColor(.secondary)
                 .frame(width: 70, alignment: .leading)
             
@@ -251,7 +248,7 @@ private struct StatusBadge: View {
     let isConnected: Bool
     var body: some View {
         Text(isConnected ? "Connected" : "Disconnected")
-            .font(.system(size: 8, weight: .bold))
+            .font(.system(size: 10, weight: .bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(isConnected ? Color.green.opacity(0.15) : Color.red.opacity(0.15))

@@ -1,0 +1,96 @@
+{
+  "": {
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/primary.swiftdeps"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/CertInfo.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/CertInfo.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/CertInfo.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/CertInfo~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/CertInfo.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/CertInfo.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSRecord.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSRecord.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSRecord.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSRecord~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSRecord.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSRecord.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSViewModel.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSViewModel.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSViewModel.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSViewModel.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/DNSViewModel.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/HTTPLatencyResult.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/HTTPLatencyResult.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/HTTPLatencyResult.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/HTTPLatencyResult~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/HTTPLatencyResult.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/HTTPLatencyResult.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/IPAddressDetails.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/IPAddressDetails.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/IPAddressDetails.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/IPAddressDetails~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/IPAddressDetails.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/IPAddressDetails.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/MultiPingViewModel.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/MultiPingViewModel.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/MultiPingViewModel.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/MultiPingViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/MultiPingViewModel.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/MultiPingViewModel.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/NetworkMath.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/NetworkMath.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/NetworkMath.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/NetworkMath~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/NetworkMath.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/NetworkMath.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingResult.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingResult.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingResult.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingResult~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingResult.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingResult.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingViewModel.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingViewModel.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingViewModel.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingViewModel.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PingViewModel.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PortResult.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PortResult.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PortResult.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PortResult~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PortResult.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/PortResult.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/RouteEntry.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/RouteEntry.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/RouteEntry.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/RouteEntry~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/RouteEntry.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/RouteEntry.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteHop.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteHop.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteHop.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteHop~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteHop.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteHop.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteViewModel.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteViewModel.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteViewModel.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteViewModel.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/TracerouteViewModel.dia"
+  }
+}

@@ -222,9 +222,6 @@ struct WhoisView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "magnifyingglass.circle")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Query Executed")
                 .font(.headline)
                 .foregroundColor(.secondary)

@@ -1,0 +1,47 @@
+{
+  "": {
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/primary.swiftdeps"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/DNSTests.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/DNSTests.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/DNSTests.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/DNSTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/DNSTests.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/DNSTests.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/IPAddressDetailsTests.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/IPAddressDetailsTests.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/IPAddressDetailsTests.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/IPAddressDetailsTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/IPAddressDetailsTests.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/IPAddressDetailsTests.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetModelsTests.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetModelsTests.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetModelsTests.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetModelsTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetModelsTests.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetModelsTests.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/NetworkMathTests.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetworkMathTests.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetworkMathTests.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetworkMathTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetworkMathTests.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/NetworkMathTests.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/PingTests.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/PingTests.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/PingTests.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/PingTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/PingTests.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/PingTests.dia"
+  },
+  "/Users/aderamdani/Developer/NetUtil/tests-spm/Tests/NetUtilCoreTests/TracerouteTests.swift": {
+    "dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/TracerouteTests.d",
+    "object": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/TracerouteTests.swift.o",
+    "swiftmodule": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/TracerouteTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/TracerouteTests.swiftdeps",
+    "diagnostics": "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/TracerouteTests.dia"
+  }
+}

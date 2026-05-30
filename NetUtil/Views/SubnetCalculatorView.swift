@@ -197,9 +197,6 @@ struct SubnetCalculatorView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "number.square")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No IP Address Provided")
                 .font(.headline)
                 .foregroundColor(.secondary)

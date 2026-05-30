@@ -203,7 +203,7 @@ class TracerouteViewModel: ObservableObject {
         } catch { return nil }
     }
 
-    private nonisolated static func parseLine(_ line: String) -> TracerouteHop? {
+    nonisolated static func parseLine(_ line: String) -> TracerouteHop? {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
         // Standard traceroute line: 1  192.168.1.1 (192.168.1.1)  0.345 ms  0.211 ms  0.198 ms
         // Or multi-IP: 2  * * *
