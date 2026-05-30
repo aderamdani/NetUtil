@@ -344,7 +344,7 @@ struct SpeedTestView: View {
                 Image(systemName: connectionIcon(r.name))
                     .font(.system(size: 10))
                     .foregroundColor(.secondary)
-                Text(r.name?.isEmpty == false ? r.name! : "Unnamed Link")
+                Text(r.name ?? "Unnamed Link")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(r.name?.isEmpty == false ? .primary : .secondary)
                     .lineLimit(1)
