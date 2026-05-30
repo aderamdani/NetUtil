@@ -7,7 +7,7 @@ import Observation
 final class SubnetViewModel {
     var ipAddress: String = "192.168.1.1"
     var prefix: Int = 24
-    var result: SubnetResult?
+    private(set) var result: SubnetResult?
     
     init() {
         calculate()

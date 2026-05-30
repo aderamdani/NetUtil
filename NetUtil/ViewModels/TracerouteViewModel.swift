@@ -6,13 +6,13 @@ import Observation
 @Observable
 @MainActor
 final class TracerouteViewModel {
-    var hops: [TracerouteHop] = []
-    var isRunning = false
-    var rawLines: [String] = []
-    var error: String?
-    var round = 0
-    var currentHost: String = ""
-    var startTime: Date?
+    private(set) var hops: [TracerouteHop] = []
+    private(set) var isRunning = false
+    private(set) var rawLines: [String] = []
+    private(set) var error: String?
+    private(set) var round = 0
+    private(set) var currentHost: String = ""
+    private(set) var startTime: Date?
 
     var pathAvgRtt: Double? {
         let avgs = hops.compactMap(\.avgRtt)

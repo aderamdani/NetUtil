@@ -12,9 +12,9 @@ struct AppTrafficItem: Identifiable, Equatable {
 @Observable
 @MainActor
 final class TopProcessesViewModel {
-    var apps: [AppTrafficItem] = []
-    var isRunning = false
-    var error: String?
+    private(set) var apps: [AppTrafficItem] = []
+    private(set) var isRunning = false
+    private(set) var error: String?
 
     private var process: Process?
     private var pipe: Pipe?

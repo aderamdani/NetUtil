@@ -6,14 +6,14 @@ import Observation
 @Observable
 @MainActor
 final class PortScanViewModel {
-    var results: [PortResult] = []
-    var isRunning = false
-    var scanned = 0
-    var total = 0
-    var openCount = 0
-    var error: String?
+    private(set) var results: [PortResult] = []
+    private(set) var isRunning = false
+    private(set) var scanned = 0
+    private(set) var total = 0
+    private(set) var openCount = 0
+    private(set) var error: String?
 
-    var startTime: Date?
+    private(set) var startTime: Date?
     var elapsed: TimeInterval { startTime.map { Date().timeIntervalSince($0) } ?? 0 }
     var eta: TimeInterval? {
         guard scanned > 0, total > scanned else { return nil }

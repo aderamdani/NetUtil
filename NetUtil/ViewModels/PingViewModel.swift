@@ -10,9 +10,9 @@ final class PingViewModel {
     private(set) var stats = PingStats()
     private(set) var isRunning = false
     private(set) var rawLines: [String] = []
-    var error: String?
-    var resolvedIP: String?
-    var beepOnLoss: Bool = false
+    private(set) var error: String?
+    private(set) var resolvedIP: String?
+    private(set) var beepOnLoss: Bool = false
     private(set) var currentHost: String = ""
 
     nonisolated(unsafe) private var process: Process?

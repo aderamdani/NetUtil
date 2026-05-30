@@ -26,10 +26,10 @@ private final class MetricsDelegate: NSObject, URLSessionTaskDelegate {
 @Observable
 @MainActor
 final class HTTPLatencyViewModel {
-    var result: HTTPLatencyResult?
+    private(set) var result: HTTPLatencyResult?
     var history: [HTTPLatencyResult] = []
-    var isRunning = false
-    var error: String?
+    private(set) var isRunning = false
+    private(set) var error: String?
 
     private var currentTask: Task<Void, Never>?
 
