@@ -2,9 +2,10 @@ import SwiftUI
 import CoreWLAN
 import Combine
 import Charts
+import Observation
 
 struct WiFiInspectorView: View {
-    @ObservedObject var vm: WiFiInspectorViewModel
+    var vm: WiFiInspectorViewModel
     @State private var showLearningGuide = false
 
     var body: some View {
@@ -232,10 +233,11 @@ struct WiFiInfo {
 }
 
 @MainActor
-class WiFiInspectorViewModel: ObservableObject {
-    @Published var info: WiFiInfo?
-    @Published var rssiHistory: [Int] = []
-    @Published var lastUpdated = Date()
+@Observable
+class WiFiInspectorViewModel {
+    var info: WiFiInfo?
+    var rssiHistory: [Int] = []
+    var lastUpdated = Date()
     
     private var timer: Timer?
     private let client = CWWiFiClient.shared()

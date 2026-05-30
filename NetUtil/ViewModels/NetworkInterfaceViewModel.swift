@@ -1,10 +1,12 @@
 import Foundation
 import Combine
+import Observation
 
 @MainActor
-class NetworkInterfaceViewModel: ObservableObject {
-    @Published var interfaces: [NetworkInterface] = []
-    @Published var lastUpdated: Date = Date()
+@Observable
+final class NetworkInterfaceViewModel {
+    var interfaces: [NetworkInterface] = []
+    var lastUpdated: Date = Date()
 
     private var timer: AnyCancellable?
 

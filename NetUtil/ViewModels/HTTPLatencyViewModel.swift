@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import Observation
 
 private final class MetricsDelegate: NSObject, URLSessionTaskDelegate {
     var metrics: URLSessionTaskMetrics?
@@ -22,12 +23,13 @@ private final class MetricsDelegate: NSObject, URLSessionTaskDelegate {
     }
 }
 
+@Observable
 @MainActor
-class HTTPLatencyViewModel: ObservableObject {
-    @Published var result: HTTPLatencyResult?
-    @Published var history: [HTTPLatencyResult] = []
-    @Published var isRunning = false
-    @Published var error: String?
+final class HTTPLatencyViewModel {
+    var result: HTTPLatencyResult?
+    var history: [HTTPLatencyResult] = []
+    var isRunning = false
+    var error: String?
 
     private var currentTask: Task<Void, Never>?
 

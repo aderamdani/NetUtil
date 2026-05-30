@@ -1,10 +1,11 @@
 import Foundation
-import Combine
+import Observation
 
-final class HostHistory: ObservableObject {
+@Observable
+final class HostHistory {
     static let shared = HostHistory()
 
-    @Published private(set) var hosts: [String] = []
+    private(set) var hosts: [String] = []
 
     private let key = "netutil.hostHistory"
     private let limit = 20

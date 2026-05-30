@@ -2,6 +2,7 @@ import Foundation
 import Security
 import CryptoKit
 import Combine
+import Observation
 
 private final class TLSDelegate: NSObject, URLSessionDelegate {
     var certResult: CertResult?
@@ -102,11 +103,12 @@ private final class TLSDelegate: NSObject, URLSessionDelegate {
     }
 }
 
+@Observable
 @MainActor
-class SSLInspectorViewModel: ObservableObject {
-    @Published var result: CertResult?
-    @Published var isRunning = false
-    @Published var error: String?
+final class SSLInspectorViewModel {
+    var result: CertResult?
+    var isRunning = false
+    var error: String?
 
     private var task: Task<Void, Never>?
 

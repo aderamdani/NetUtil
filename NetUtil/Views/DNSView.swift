@@ -1,8 +1,9 @@
 import SwiftUI
+import Observation
 
 struct DNSView: View {
-    @ObservedObject var vm: DNSViewModel
-    @StateObject private var history = HostHistory.shared
+    var vm: DNSViewModel
+    @State private var history = HostHistory.shared
     @State private var host = ""
     @State private var recordType = DNSRecordType.a
     @State private var server = DNSServer.system

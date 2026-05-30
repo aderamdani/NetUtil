@@ -1,14 +1,16 @@
 import Foundation
 import Combine
+import Observation
 
+@Observable
 @MainActor
-class DNSViewModel: ObservableObject {
-    @Published var result: DNSResult?
-    @Published var isRunning = false
-    @Published var rawOutput = ""
-    @Published var error: String?
+final class DNSViewModel {
+    var result: DNSResult?
+    var isRunning = false
+    var rawOutput = ""
+    var error: String?
 
-    private var process: Process?
+    nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?
 
     deinit { process?.terminate() }

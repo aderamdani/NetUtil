@@ -1,16 +1,18 @@
 import Foundation
 import Combine
 import CoreLocation
+import Observation
 
+@Observable
 @MainActor
-class TracerouteViewModel: ObservableObject {
-    @Published var hops: [TracerouteHop] = []
-    @Published var isRunning = false
-    @Published var rawLines: [String] = []
-    @Published var error: String?
-    @Published var round = 0
-    @Published var currentHost: String = ""
-    @Published var startTime: Date?
+final class TracerouteViewModel {
+    var hops: [TracerouteHop] = []
+    var isRunning = false
+    var rawLines: [String] = []
+    var error: String?
+    var round = 0
+    var currentHost: String = ""
+    var startTime: Date?
 
     var pathAvgRtt: Double? {
         let avgs = hops.compactMap(\.avgRtt)
@@ -22,7 +24,7 @@ class TracerouteViewModel: ObservableObject {
     private var interval: Double = 5
     private var maxHops: Int = 30
     private var targetHost: String = ""
-    private var process: Process?
+    nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?
     private var pendingHops: [TracerouteHop] = []
 

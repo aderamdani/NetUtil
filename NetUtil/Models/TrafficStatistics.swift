@@ -1,13 +1,15 @@
 import Foundation
 import Combine
+import Observation
 
 /// Persistent traffic statistics — stores daily totals to UserDefaults.
 @MainActor
-class TrafficStatistics: ObservableObject {
-    @Published var dailyTotals: [DayTotal] = []
-    @Published var sessionStart: Date = Date()
-    @Published var sessionRxBytes: UInt64 = 0
-    @Published var sessionTxBytes: UInt64 = 0
+@Observable
+final class TrafficStatistics {
+    var dailyTotals: [DayTotal] = []
+    var sessionStart: Date = Date()
+    var sessionRxBytes: UInt64 = 0
+    var sessionTxBytes: UInt64 = 0
 
     var todayRx: UInt64 { dailyTotals.last?.rxBytes ?? 0 }
     var todayTx: UInt64 { dailyTotals.last?.txBytes ?? 0 }

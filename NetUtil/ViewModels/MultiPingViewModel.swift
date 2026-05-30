@@ -1,21 +1,23 @@
 import Foundation
 import Combine
+import Observation
 
+@Observable
 @MainActor
-final class PingSlot: ObservableObject, Identifiable {
+final class PingSlot: Identifiable {
     let id = UUID()
     let host: String
-    @Published var customName: String
+    var customName: String
 
-    @Published var lastRtt: Double?
-    @Published var avgRtt: Double?
-    @Published var loss: Double = 0
-    @Published var sent: Int = 0
-    @Published var samples: [RTTSample] = []
-    @Published var isRunning = false
+    var lastRtt: Double?
+    var avgRtt: Double?
+    var loss: Double = 0
+    var sent: Int = 0
+    var samples: [RTTSample] = []
+    var isRunning = false
 
     private static let historyLimit = 120
-    private var process: Process?
+    nonisolated(unsafe) private var process: Process?
     private var pipe: Pipe?
 
     init(host: String) { 
@@ -99,10 +101,11 @@ enum MultiPingSort: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+@Observable
 @MainActor
-class MultiPingViewModel: ObservableObject {
-    @Published var slots: [PingSlot] = []
-    @Published var sortMode: MultiPingSort = .alias {
+final class MultiPingViewModel {
+    var slots: [PingSlot] = []
+    var sortMode: MultiPingSort = .alias {
         didSet { sortSlots() }
     }
 

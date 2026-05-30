@@ -1,9 +1,10 @@
 import SwiftUI
 import Charts
 import UniformTypeIdentifiers
+import Observation
 
 struct StatisticsView: View {
-    @EnvironmentObject private var tools: ToolStore
+    @Environment(ToolStore.self) private var tools
     private var stats: TrafficStatistics { tools.statistics }
     private var bw: BandwidthMonitor { tools.bandwidth }
     @State private var showLearningGuide = false

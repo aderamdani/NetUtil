@@ -1,16 +1,18 @@
 import Foundation
 import Darwin
 import Combine
+import Observation
 
 @MainActor
-class SystemMonitor: ObservableObject {
-    @Published var cpuUsage: Double = 0.0
-    @Published var memoryPressure: String = "Normal"
-    @Published var memoryColor: String = "green"
+@Observable
+final class SystemMonitor {
+    var cpuUsage: Double = 0.0
+    var memoryPressure: String = "Normal"
+    var memoryColor: String = "green"
     
-    private var timer: Timer?
-    private var lastCpuInfo: processor_info_array_t?
-    private var lastCpuInfoCount: mach_msg_type_number_t = 0
+    nonisolated(unsafe) private var timer: Timer?
+    nonisolated(unsafe) private var lastCpuInfo: processor_info_array_t?
+    nonisolated(unsafe) private var lastCpuInfoCount: mach_msg_type_number_t = 0
     
     init() {
         start()

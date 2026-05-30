@@ -1,11 +1,13 @@
 import Foundation
 import Combine
+import Observation
 
+@Observable
 @MainActor
-class SubnetViewModel: ObservableObject {
-    @Published var ipAddress: String = "192.168.1.1"
-    @Published var prefix: Int = 24
-    @Published var result: SubnetResult?
+final class SubnetViewModel {
+    var ipAddress: String = "192.168.1.1"
+    var prefix: Int = 24
+    var result: SubnetResult?
     
     init() {
         calculate()

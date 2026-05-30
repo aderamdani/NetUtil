@@ -2,9 +2,10 @@ import SwiftUI
 import Charts
 import Darwin
 import Combine
+import Observation
 
 struct BandwidthView: View {
-    @EnvironmentObject private var tools: ToolStore
+    @Environment(ToolStore.self) private var tools
     private var vm: BandwidthMonitor { tools.bandwidth }
     @State private var showLearningGuide = false
     @State private var selectedPoint: Date? = nil
@@ -216,7 +217,7 @@ struct BandwidthView: View {
 // MARK: - Interface Card
 
 struct BandwidthInterfaceCard: View {
-    @ObservedObject var vm: BandwidthMonitor
+    var vm: BandwidthMonitor
     let iface: NetworkInterface
 
     private var history: [BandwidthSample] { vm.history[iface.name] ?? [] }

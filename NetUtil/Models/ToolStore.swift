@@ -1,10 +1,12 @@
 import Foundation
+import Observation
 import Combine
 import SystemConfiguration
 import CoreWLAN
 
 @MainActor
-class ToolStore: ObservableObject {
+@Observable
+final class ToolStore {
     let ping        = PingViewModel()
     let traceroute  = TracerouteViewModel()
     let portScan    = PortScanViewModel()
@@ -22,8 +24,8 @@ class ToolStore: ObservableObject {
     let speedTest   = SpeedTestViewModel()
     let statistics  = TrafficStatistics()
     
-    @Published var externalIP: String = "Checking..."
-    @Published var isVPNActive: Bool = false
+    var externalIP: String = "Checking..."
+    var isVPNActive: Bool = false
 
     init() {
         bandwidth.onAggregateDelta = { [weak self] rx, tx in

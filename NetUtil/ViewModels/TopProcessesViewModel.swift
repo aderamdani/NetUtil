@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import Observation
 
 struct AppTrafficItem: Identifiable, Equatable {
     let id: String
@@ -8,11 +9,12 @@ struct AppTrafficItem: Identifiable, Equatable {
     let txBps: Double
 }
 
+@Observable
 @MainActor
-class TopProcessesViewModel: ObservableObject {
-    @Published var apps: [AppTrafficItem] = []
-    @Published var isRunning = false
-    @Published var error: String?
+final class TopProcessesViewModel {
+    var apps: [AppTrafficItem] = []
+    var isRunning = false
+    var error: String?
 
     private var process: Process?
     private var pipe: Pipe?

@@ -1,6 +1,7 @@
 import SwiftUI
 import Charts
 import MapKit
+import Observation
 
 private enum TraceViewMode: String, CaseIterable {
     case hops     = "Table"
@@ -10,8 +11,8 @@ private enum TraceViewMode: String, CaseIterable {
 }
 
 struct TracerouteView: View {
-    @ObservedObject var vm: TracerouteViewModel
-    @StateObject private var history = HostHistory.shared
+    var vm: TracerouteViewModel
+    @State private var history = HostHistory.shared
 
     @State private var host = ""
     @State private var viewMode: TraceViewMode = .hops

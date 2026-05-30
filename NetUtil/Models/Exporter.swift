@@ -197,7 +197,9 @@ enum Exporter {
     static func save(string: String, defaultName: String, ext: String) {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = defaultName
-        panel.allowedContentTypes = [.init(filenameExtension: ext)!]
+        if let contentType = UTType(filenameExtension: ext) {
+            panel.allowedContentTypes = [contentType]
+        }
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
             try? string.write(to: url, atomically: true, encoding: .utf8)
@@ -207,7 +209,9 @@ enum Exporter {
     static func save(data: Data, defaultName: String, ext: String) {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = defaultName
-        panel.allowedContentTypes = [.init(filenameExtension: ext)!]
+        if let contentType = UTType(filenameExtension: ext) {
+            panel.allowedContentTypes = [contentType]
+        }
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
             try? data.write(to: url)

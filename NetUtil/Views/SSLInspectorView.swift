@@ -1,8 +1,9 @@
 import SwiftUI
+import Observation
 
 struct SSLInspectorView: View {
-    @ObservedObject var vm: SSLInspectorViewModel
-    @StateObject private var history = HostHistory.shared
+    var vm: SSLInspectorViewModel
+    @State private var history = HostHistory.shared
     @State private var host = ""
     @State private var portText = "443"
     @State private var selectedCertIndex = 0

@@ -1,6 +1,7 @@
 import Foundation
 import Darwin
 import Combine
+import Observation
 
 struct BandwidthSample: Identifiable {
     let id = UUID()
@@ -12,17 +13,18 @@ struct BandwidthSample: Identifiable {
 }
 
 @MainActor
-class BandwidthMonitor: ObservableObject {
-    @Published var interfaces: [NetworkInterface] = []
-    @Published var history: [String: [BandwidthSample]] = [:]
-    @Published var lastUpdated: Date = Date()
-    @Published var showActiveOnly = true
+@Observable
+final class BandwidthMonitor {
+    var interfaces: [NetworkInterface] = []
+    var history: [String: [BandwidthSample]] = [:]
+    var lastUpdated: Date = Date()
+    var showActiveOnly = true
 
     /// Aggregate samples across all non-loopback adapters — one per second.
-    @Published var totalHistory: [BandwidthSample] = []
-    @Published var peakRx: Double = 0
-    @Published var peakTx: Double = 0
-    @Published var isPaused = false
+    var totalHistory: [BandwidthSample] = []
+    var peakRx: Double = 0
+    var peakTx: Double = 0
+    var isPaused = false
 
     private var timer: Timer?
     private var prevBytes: [String: (rx: UInt64, tx: UInt64)] = [:]
