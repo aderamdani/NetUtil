@@ -129,7 +129,7 @@ struct RouteTableView: View {
             }
             
             VStack(alignment: .trailing, spacing: 4) {
-                Text("Last Synced").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                Text("Last Synced").font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
                 Text(lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
             }
@@ -154,7 +154,7 @@ struct RouteTableView: View {
         Table(displayed) {
             TableColumn("Destination") { r in
                 HStack(spacing: 8) {
-                    if r.isDefault { Image(systemName: "star.fill").foregroundColor(.orange).font(.system(size: 9)) }
+                    if r.isDefault { Image(systemName: "star.fill").foregroundColor(.orange).font(.system(size: 10)) }
                     Text(r.destination)
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(r.isDefault ? .primary : .secondary)

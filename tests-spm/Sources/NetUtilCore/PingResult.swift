@@ -1,0 +1,1 @@
+../../../NetUtil/Models/PingResult.swift

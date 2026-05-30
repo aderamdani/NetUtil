@@ -209,8 +209,8 @@ struct SpeedTestView: View {
                     .font(.system(.caption2, design: .default).weight(.bold))
                     .foregroundColor(.secondary)
                 Spacer()
-                Text(vm.phase.rawValue.uppercased())
-                    .font(.system(size: 10, weight: .black, design: .monospaced))
+                Text(vm.phase.rawValue)
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
                     .foregroundColor(phaseColor)
             }
             
@@ -244,7 +244,7 @@ struct SpeedTestView: View {
                     tHeader("Verdict", flexible: true)
                 }
                 .padding(.vertical, 10).padding(.horizontal, 16)
-                .background(Color.secondary.opacity(0.05))
+                .background(.regularMaterial)
                 
                 Divider()
                 
@@ -287,7 +287,7 @@ struct SpeedTestView: View {
             
             HStack(spacing: 8) {
                 Image(systemName: "circle.fill")
-                    .font(.system(size: 6))
+                    .font(.system(size: 10))
                     .foregroundColor(verdict.color)
                 Text(verdict.label)
                     .font(.system(size: 11, weight: .semibold))

@@ -182,8 +182,8 @@ struct HTTPLatencyView: View {
                 let maxMs = r.phases.map(\.endMs).max() ?? r.totalMs
                 ForEach(r.phases) { phase in
                     HStack(spacing: 12) {
-                        Text(phase.phase.rawValue.uppercased())
-                            .font(.system(size: 9, weight: .bold))
+                        Text(phase.phase.rawValue)
+                            .font(.system(size: 10, weight: .bold))
                             .foregroundColor(.secondary)
                             .frame(width: 70, alignment: .trailing)
                         
@@ -218,7 +218,7 @@ struct HTTPLatencyView: View {
                 tHeader("URL / Endpoint", flexible: true)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
-            .background(Color.secondary.opacity(0.05))
+            .background(.regularMaterial)
             
             Divider()
             
@@ -282,9 +282,6 @@ struct HTTPLatencyView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "stopwatch")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Request Sent")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -326,7 +323,7 @@ private struct HTTPStatusBadge: View {
     let code: Int?
     var body: some View {
         Text("\(code ?? 0)")
-            .font(.system(size: 8, weight: .bold))
+            .font(.system(size: 10, weight: .bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(color.opacity(0.15))

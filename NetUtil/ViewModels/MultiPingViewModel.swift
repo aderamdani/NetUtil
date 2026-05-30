@@ -78,8 +78,11 @@ final class PingSlot: ObservableObject, Identifiable {
         loss = Double(timeouts) / Double(samples.count) * 100
     }
 
-    private nonisolated static func parseLine(_ line: String) -> Double?? {
-        if line.contains("Request timeout") || line.contains("no route") { return .some(nil) }
+    nonisolated static func parseLine(_ line: String) -> Double?? {
+        // Case-insensitive: real ping emits "Request timeout..." and
+        // "ping: sendto: No route to host" (capital N) — both are losses.
+        let lower = line.lowercased()
+        if lower.contains("request timeout") || lower.contains("no route") { return .some(nil) }
         guard let matchRange = line.range(of: #"time[=<]([\d.]+)"#, options: .regularExpression) else { return nil }
         let sub = String(line[matchRange])
         let value = sub.components(separatedBy: CharacterSet(charactersIn: "=<")).last ?? ""

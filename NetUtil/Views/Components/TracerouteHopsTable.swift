@@ -21,7 +21,7 @@ struct TracerouteHopsTable: View {
                 tHeader("", width: 40)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
-            .background(Color.secondary.opacity(0.05))
+            .background(.regularMaterial)
             
             Divider()
             

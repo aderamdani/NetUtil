@@ -55,7 +55,7 @@ struct WiFiInspectorView: View {
                 
                 HStack(spacing: 16) {
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("Interface").font(.system(size: 8, weight: .bold)).foregroundColor(.secondary)
+                        Text("Interface").font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
                         Text(vm.info?.interfaceName ?? "en0")
                             .font(.system(size: 11, weight: .bold, design: .monospaced))
                     }
@@ -116,7 +116,7 @@ struct WiFiInspectorView: View {
             Spacer()
             
             VStack(alignment: .trailing, spacing: 4) {
-                Text("Last Polled").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                Text("Last Polled").font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
                 Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
             }
@@ -161,7 +161,7 @@ struct WiFiInspectorView: View {
                     AxisValueLabel {
                         if let v = value.as(Double.self) {
                             Text("\(Int(v)) dBm")
-                                .font(.system(size: 9, design: .monospaced))
+                                .font(.system(size: 10, design: .monospaced))
                         }
                     }
                 }
@@ -193,9 +193,6 @@ struct WiFiInspectorView: View {
 
     private var noWiFiState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "wifi.slash")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Wi-Fi Connection")
                 .font(.headline)
                 .foregroundColor(.secondary)

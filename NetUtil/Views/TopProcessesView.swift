@@ -130,7 +130,7 @@ struct TopProcessesView: View {
                 tHeader("Load Intensity", width: 140)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
-            .background(Color.secondary.opacity(0.05))
+            .background(.regularMaterial)
             
             Divider()
             
@@ -214,9 +214,6 @@ struct TopProcessesView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "list.bullet.rectangle")
-                .font(.system(size: 32))
-                .foregroundColor(.secondary.opacity(0.5))
             Text(vm.isRunning ? "No Active Traffic" : "Monitoring Paused")
                 .font(.headline)
                 .foregroundColor(.secondary)

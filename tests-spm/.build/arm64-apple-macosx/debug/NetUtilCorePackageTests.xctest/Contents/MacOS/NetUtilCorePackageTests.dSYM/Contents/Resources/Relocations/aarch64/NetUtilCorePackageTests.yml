@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCorePackageTests.xctest/Contents/MacOS/NetUtilCorePackageTests'
+relocations:     []
+...

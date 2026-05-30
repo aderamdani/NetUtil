@@ -191,9 +191,6 @@ struct BandwidthView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "network.slash")
-                .font(.system(size: 32))
-                .foregroundColor(.secondary)
             Text("No Active Traffic Detected")
                 .font(.headline)
             Text("Enable 'Show All' or connect to a network to see adapters.")
@@ -314,7 +311,7 @@ private struct StatusBadge: View {
     let isUp: Bool
     var body: some View {
         Text(isUp ? "Active" : "Inactive")
-            .font(.system(size: 8, weight: .bold))
+            .font(.system(size: 10, weight: .bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(isUp ? Color.green.opacity(0.15) : Color.secondary.opacity(0.15))

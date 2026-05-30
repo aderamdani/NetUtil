@@ -30,7 +30,11 @@ struct NetworkMath {
         let firstHostValue = networkValue + 1
         let lastHostValue = broadcastValue - 1
         
-        let totalHosts = prefix >= 31 ? (prefix == 32 ? 1 : 2) : UInt32(pow(2.0, Double(32 - prefix)))
+        // Bit-shift instead of pow() to stay integer-exact and avoid the
+        // UInt32(pow(2,32)) overflow trap that crashed on a /0 prefix.
+        let totalHosts: UInt32 = prefix >= 31
+            ? (prefix == 32 ? 1 : 2)
+            : (prefix == 0 ? .max : UInt32(1) << UInt32(32 - prefix))
         let usableHosts = prefix >= 31 ? 0 : totalHosts - 2
         
         return SubnetResult(

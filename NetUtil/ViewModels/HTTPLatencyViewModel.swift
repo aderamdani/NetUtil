@@ -3,11 +3,22 @@ import Combine
 
 private final class MetricsDelegate: NSObject, URLSessionTaskDelegate {
     var metrics: URLSessionTaskMetrics?
+    var followRedirects = true
 
     func urlSession(_ session: URLSession,
                     task: URLSessionTask,
                     didFinishCollecting metrics: URLSessionTaskMetrics) {
         self.metrics = metrics
+    }
+
+    // Returning nil for newRequest halts the redirect and surfaces the 3xx
+    // response itself — the only correct way to honor "Follow Redirects = off".
+    func urlSession(_ session: URLSession,
+                    task: URLSessionTask,
+                    willPerformHTTPRedirection response: HTTPURLResponse,
+                    newRequest request: URLRequest,
+                    completionHandler: @escaping (URLRequest?) -> Void) {
+        completionHandler(followRedirects ? request : nil)
     }
 }
 
@@ -59,11 +70,9 @@ class HTTPLatencyViewModel: ObservableObject {
         guard let url = URL(string: urlStr) else { throw URLError(.badURL) }
 
         let delegate = MetricsDelegate()
+        delegate.followRedirects = followRedirects
         let config = URLSessionConfiguration.ephemeral
         config.timeoutIntervalForRequest = 15
-        if !followRedirects {
-            config.httpMaximumConnectionsPerHost = 1
-        }
         let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
         defer { session.invalidateAndCancel() }
 

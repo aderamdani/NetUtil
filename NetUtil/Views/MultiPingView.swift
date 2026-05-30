@@ -167,7 +167,7 @@ struct MultiPingView: View {
             tHeader("", width: 60)
         }
         .padding(.vertical, 10).padding(.horizontal, 16)
-        .background(Color.secondary.opacity(0.05))
+        .background(.regularMaterial)
     }
 
     private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
@@ -180,9 +180,6 @@ struct MultiPingView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "dot.radiowaves.left.and.right")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Monitoring Targets")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -232,7 +229,7 @@ private struct MultiPingRow: View {
                         .lineLimit(1)
                     
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundColor(.secondary.opacity(0.5))
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
@@ -303,7 +300,7 @@ private struct MultiPingRow: View {
                         AxisMarks(position: .leading, values: .automatic(desiredCount: 2)) { val in
                             AxisValueLabel {
                                 if let ms = val.as(Double.self) {
-                                    Text("\(Int(ms)) ms").font(.system(size: 9, design: .monospaced))
+                                    Text("\(Int(ms)) ms").font(.system(size: 10, design: .monospaced))
                                 }
                             }
                         }

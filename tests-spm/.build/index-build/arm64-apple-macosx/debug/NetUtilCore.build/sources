@@ -1,0 +1,13 @@
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/CertInfo.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSRecord.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/DNSViewModel.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/HTTPLatencyResult.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/IPAddressDetails.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/MultiPingViewModel.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/NetworkMath.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingResult.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PingViewModel.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/PortResult.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/RouteEntry.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteHop.swift
+/Users/aderamdani/Developer/NetUtil/tests-spm/Sources/NetUtilCore/TracerouteViewModel.swift

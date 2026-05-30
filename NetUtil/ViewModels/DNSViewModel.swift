@@ -72,7 +72,7 @@ class DNSViewModel: ObservableObject {
         isRunning = false
     }
 
-    private nonisolated static func parse(output: String, server: DNSServer) -> DNSResult {
+    nonisolated static func parse(output: String, server: DNSServer) -> DNSResult {
         var records: [DNSRecord] = []
         var queryTimeMs: Int?
         var resolvedServer = server.address ?? "system"

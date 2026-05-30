@@ -1,0 +1,3 @@
+module NetUtilCore {
+    header "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/index-build/arm64-apple-macosx/debug/NetUtilCore.build/include/NetUtilCore-Swift.h"
+}

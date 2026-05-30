@@ -282,7 +282,7 @@ struct PingView: View {
                 tHeader("Timestamp", width: 120)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
-            .background(Color.secondary.opacity(0.05))
+            .background(.regularMaterial)
             
             Divider()
             
@@ -402,9 +402,6 @@ struct PingView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "antenna.radiowaves.left.and.right")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Host Target")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -453,7 +450,7 @@ private struct StatusBadge: View {
     let isSuccess: Bool
     var body: some View {
         Text(isSuccess ? "Success" : "Timeout")
-            .font(.system(size: 8, weight: .bold))
+            .font(.system(size: 10, weight: .bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(isSuccess ? Color.green.opacity(0.15) : Color.red.opacity(0.15))

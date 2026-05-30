@@ -165,7 +165,7 @@ struct DNSView: View {
                 tHeader("Record Value", flexible: true)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
-            .background(Color.secondary.opacity(0.05))
+            .background(.regularMaterial)
             
             Divider()
             
@@ -242,9 +242,6 @@ struct DNSView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "globe")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Lookup Performed")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -281,7 +278,7 @@ private struct DNSTypeBadge: View {
     let type: String
     var body: some View {
         Text(type)
-            .font(.system(size: 8, weight: .bold))
+            .font(.system(size: 10, weight: .bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(color.opacity(0.15))

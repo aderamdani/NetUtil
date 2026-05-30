@@ -49,7 +49,7 @@ private struct TimelineHopRow: View {
                     .font(.system(size: 11, weight: .semibold))
                     .lineLimit(1)
                 Text(hop.ip ?? "—")
-                    .font(.system(size: 9, design: .monospaced))
+                    .font(.system(size: 10, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             .frame(width: 140, alignment: .leading)

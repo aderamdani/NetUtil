@@ -218,9 +218,6 @@ struct PortScanView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "checklist")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary.opacity(0.5))
             Text("No Target Audited")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -301,8 +298,8 @@ struct PortResultCard: View {
 private struct PortStatusBadge: View {
     let status: PortStatus
     var body: some View {
-        Text(status.label.uppercased())
-            .font(.system(size: 7, weight: .black))
+        Text(status.label)
+            .font(.caption2.weight(.semibold))
             .padding(.horizontal, 5)
             .padding(.vertical, 2)
             .background(color.opacity(0.15))
