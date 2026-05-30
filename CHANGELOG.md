@@ -4,6 +4,15 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [3.4.0] — 2026-05-31
+
+### Changed
+- **Observation Framework Migration**: Major architectural refactoring to migrate all ViewModels and applicable Models from `ObservableObject` to the modern Swift `@Observable` framework.
+- **State Management & Concurrency Optimization**: Deconstructed monolithic ViewModels (like `SpeedTestViewModel`) into discrete models and engines for cleaner state handling. Enhanced thread-safety and optimized background task execution using `private(set)` on internally-mutated properties and rigorous `@MainActor` isolation.
+- **Bug Fixes**: Removed legacy force unwraps to guarantee stable execution.
+
+---
+
 ## [3.3.0] — 2026-05-30
 
 ### Changed
