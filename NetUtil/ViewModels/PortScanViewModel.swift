@@ -1,15 +1,17 @@
 import Foundation
 import Network
 import Combine
+import Observation
 
+@Observable
 @MainActor
-class PortScanViewModel: ObservableObject {
-    @Published var results: [PortResult] = []
-    @Published var isRunning = false
-    @Published var scanned = 0
-    @Published var total = 0
-    @Published var openCount = 0
-    @Published var error: String?
+final class PortScanViewModel {
+    var results: [PortResult] = []
+    var isRunning = false
+    var scanned = 0
+    var total = 0
+    var openCount = 0
+    var error: String?
 
     var startTime: Date?
     var elapsed: TimeInterval { startTime.map { Date().timeIntervalSince($0) } ?? 0 }

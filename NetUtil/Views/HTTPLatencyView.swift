@@ -1,9 +1,10 @@
 import SwiftUI
 import Charts
+import Observation
 
 struct HTTPLatencyView: View {
-    @ObservedObject var vm: HTTPLatencyViewModel
-    @StateObject private var history = HostHistory.shared
+    var vm: HTTPLatencyViewModel
+    @State private var history = HostHistory.shared
     @State private var urlString = ""
     @State private var method = "GET"
     @State private var followRedirects = true

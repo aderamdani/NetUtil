@@ -1,9 +1,10 @@
 import SwiftUI
 import Charts
+import Observation
 
 struct MultiPingView: View {
-    @ObservedObject var vm: MultiPingViewModel
-    @StateObject private var history = HostHistory.shared
+    @Bindable var vm: MultiPingViewModel
+    @State private var history = HostHistory.shared
     @State private var newHost = ""
     @State private var expandedSlotID: UUID?
     @State private var showLearningGuide = false
@@ -198,7 +199,7 @@ struct MultiPingView: View {
 }
 
 private struct MultiPingRow: View {
-    @ObservedObject var slot: PingSlot
+    @Bindable var slot: PingSlot
     let isExpanded: Bool
     var rttWarn: Double
     var rttCrit: Double

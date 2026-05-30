@@ -1,9 +1,10 @@
 import SwiftUI
 import Combine
+import Observation
 
 struct WhoisView: View {
-    @ObservedObject var vm: WhoisViewModel
-    @StateObject private var history = HostHistory.shared
+    var vm: WhoisViewModel
+    @State private var history = HostHistory.shared
     @State private var query = ""
     @State private var filterText = ""
     @State private var showLearningGuide = false
@@ -271,11 +272,12 @@ struct WhoisLine: Identifiable {
     var value: String?
 }
 
+@Observable
 @MainActor
-class WhoisViewModel: ObservableObject {
-    @Published var lines: [WhoisLine] = []
-    @Published var isRunning = false
-    @Published var error: String?
+class WhoisViewModel {
+    var lines: [WhoisLine] = []
+    var isRunning = false
+    var error: String?
     private var process: Process?
 
     func lookup(_ query: String) {

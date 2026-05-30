@@ -1,4 +1,5 @@
 import SwiftUI
+import Observation
 
 // MARK: - Root
 
@@ -259,7 +260,7 @@ private struct ToolsPane: View {
 
 private struct PrivacyPane: View {
     @AppStorage("geoEnabled") private var geoEnabled = true
-    @StateObject private var history = HostHistory.shared
+    @State private var history = HostHistory.shared
 
     var body: some View {
         Form {

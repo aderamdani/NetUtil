@@ -1,7 +1,8 @@
 import SwiftUI
+import Observation
 
 struct NetworkInterfaceView: View {
-    @ObservedObject var vm: NetworkInterfaceViewModel
+    var vm: NetworkInterfaceViewModel
     @State private var showAll = false
     @State private var showLearningGuide = false
 

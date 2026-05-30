@@ -1,19 +1,21 @@
 import Foundation
 import Combine
 import AppKit
+import Observation
 
 @MainActor
-class PingViewModel: ObservableObject {
-    @Published var results: [PingResult] = []
-    @Published var stats = PingStats()
-    @Published var isRunning = false
-    @Published var rawLines: [String] = []
-    @Published var error: String?
-    @Published var resolvedIP: String?
-    @Published var beepOnLoss: Bool = false
-    @Published var currentHost: String = ""
+@Observable
+final class PingViewModel {
+    private(set) var results: [PingResult] = []
+    private(set) var stats = PingStats()
+    private(set) var isRunning = false
+    private(set) var rawLines: [String] = []
+    var error: String?
+    var resolvedIP: String?
+    var beepOnLoss: Bool = false
+    private(set) var currentHost: String = ""
 
-    private var process: Process?
+    nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?
 
     private static let rawLinesLimit = 500
@@ -23,18 +25,19 @@ class PingViewModel: ObservableObject {
     private var batchTimer: AnyCancellable?
 
     // Pre-compiled — avoids re-compiling regex per packet
-    private nonisolated static let pingPatterns: [NSRegularExpression] = [
-        try! NSRegularExpression(
-            pattern: #"(\d+) bytes from (.*?): icmp_seq=(\d+) ttl=(\d+) time=(\d+\.?\d*) ms"#),
-        try! NSRegularExpression(
-            pattern: #"(\d+) bytes from (.*?): icmp6_seq=(\d+) hlim=(\d+) time=(\d+\.?\d*) ms"#)
-    ]
+    private nonisolated static let pingPatterns: [NSRegularExpression] = {
+        let patterns = [
+            #"(\d+) bytes from (.*?): icmp_seq=(\d+) ttl=(\d+) time=(\d+\.?\d*) ms"#,
+            #"(\d+) bytes from (.*?): icmp6_seq=(\d+) hlim=(\d+) time=(\d+\.?\d*) ms"#
+        ]
+        return patterns.compactMap { try? NSRegularExpression(pattern: $0) }
+    }()
     
-    private nonisolated static let headerPattern = try! NSRegularExpression(
+    private nonisolated static let headerPattern = try? NSRegularExpression(
         pattern: #"PING .*? \((.*?)\):"#
     )
 
-    private nonisolated static let timeoutPattern = try! NSRegularExpression(
+    private nonisolated static let timeoutPattern = try? NSRegularExpression(
         pattern: #"Request timeout for icmp(?:6)?_seq (\d+)"#
     )
 
@@ -175,7 +178,8 @@ class PingViewModel: ObservableObject {
     }
 
     nonisolated static func parseHeader(_ line: String) -> String? {
-        guard let m = headerPattern.firstMatch(
+        guard let pattern = headerPattern,
+              let m = pattern.firstMatch(
             in: line, range: NSRange(line.startIndex..., in: line)
         ) else { return nil }
 
@@ -185,7 +189,8 @@ class PingViewModel: ObservableObject {
     }
 
     nonisolated static func parseTimeout(_ line: String) -> Int? {
-        guard let m = timeoutPattern.firstMatch(
+        guard let pattern = timeoutPattern,
+              let m = pattern.firstMatch(
             in: line, range: NSRange(line.startIndex..., in: line)
         ) else { return nil }
 

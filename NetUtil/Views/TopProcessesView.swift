@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TopProcessesView: View {
-    @ObservedObject var vm: TopProcessesViewModel
+    var vm: TopProcessesViewModel
     @State private var showLearningGuide = false
 
     var body: some View {

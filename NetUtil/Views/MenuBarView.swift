@@ -1,10 +1,11 @@
 import SwiftUI
 import Combine
+import Observation
 
 struct MenuBarView: View {
-    @EnvironmentObject private var vm: MenuBarViewModel
-    @EnvironmentObject private var tools: ToolStore
-    @EnvironmentObject private var networkInterfaces: NetworkInterfaceViewModel
+    @Environment(MenuBarViewModel.self) private var vm
+    @Environment(ToolStore.self) private var tools
+    @Environment(NetworkInterfaceViewModel.self) private var networkInterfaces
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -178,12 +179,13 @@ struct MenuBarView: View {
 // MARK: - ViewModel
 
 @MainActor
-class MenuBarViewModel: ObservableObject {
-    @Published var lastRtt: Double?
-    @Published var loss: Double = 0
-    @Published var sent: Int = 0
-    @Published var rttHistory: [Double] = []
-    @Published var pingHost: String = UserDefaults.standard.string(forKey: "menuBarPingHost") ?? "8.8.8.8" {
+@Observable
+class MenuBarViewModel {
+    var lastRtt: Double?
+    var loss: Double = 0
+    var sent: Int = 0
+    var rttHistory: [Double] = []
+    var pingHost: String = UserDefaults.standard.string(forKey: "menuBarPingHost") ?? "8.8.8.8" {
         didSet { UserDefaults.standard.set(pingHost, forKey: "menuBarPingHost") }
     }
 

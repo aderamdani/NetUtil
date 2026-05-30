@@ -2,7 +2,7 @@ import SwiftUI
 import Charts
 
 struct DashboardView: View {
-    @EnvironmentObject private var tools: ToolStore
+    @Environment(ToolStore.self) private var tools
     @Binding var selection: Tool?
     
     var body: some View {

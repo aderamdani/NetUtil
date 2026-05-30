@@ -1,8 +1,9 @@
 import SwiftUI
+import Observation
 
 struct SpeedTestView: View {
-    @ObservedObject var vm: SpeedTestViewModel
-    @EnvironmentObject private var tools: ToolStore
+    @Bindable var vm: SpeedTestViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var showLearningGuide = false
     @State private var renamingId: UUID?
     @State private var renameDraft: String = ""

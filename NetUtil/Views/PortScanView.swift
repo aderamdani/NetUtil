@@ -1,9 +1,10 @@
 import SwiftUI
 import Combine
+import Observation
 
 struct PortScanView: View {
-    @ObservedObject var vm: PortScanViewModel
-    @StateObject private var history = HostHistory.shared
+    var vm: PortScanViewModel
+    @State private var history = HostHistory.shared
     @State private var host = ""
     @State private var preset = PortPreset.common
     @State private var customRange = "1-1024"

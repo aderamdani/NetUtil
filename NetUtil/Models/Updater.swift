@@ -2,16 +2,18 @@ import Foundation
 import AppKit
 import SwiftUI
 import Combine
+import Observation
 
 @MainActor
-class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
+@Observable
+final class Updater: NSObject, URLSessionDownloadDelegate {
     static let shared = Updater()
 
-    @Published var downloadProgress: Double = 0
-    @Published var isDownloading = false
-    @Published var updateReady = false
-    @Published var error: String?
-    @Published var isChecking = false
+    var downloadProgress: Double = 0
+    var isDownloading = false
+    var updateReady = false
+    var error: String?
+    var isChecking = false
 
     private var downloadTask: URLSessionDownloadTask?
     private var downloadSession: URLSession?
@@ -29,7 +31,11 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
         isChecking = true
         error = nil
 
-        var request = URLRequest(url: URL(string: "https://api.github.com/repos/aderamdani/NetUtil/releases/latest")!)
+        guard let url = URL(string: "https://api.github.com/repos/aderamdani/NetUtil/releases/latest") else {
+            isChecking = false
+            return
+        }
+        var request = URLRequest(url: url)
         request.timeoutInterval = 15
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
 
@@ -219,7 +225,7 @@ class Updater: NSObject, ObservableObject, URLSessionDownloadDelegate {
 // MARK: - Progress View
 
 struct DownloadProgressView: View {
-    @ObservedObject var updater: Updater
+    var updater: Updater
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

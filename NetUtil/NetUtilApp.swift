@@ -1,17 +1,18 @@
 import SwiftUI
 import AppKit
+import Observation
 
 @main
 struct NetUtilApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.openWindow) private var openWindow
-    @StateObject private var tools = ToolStore()
-    @StateObject private var menuBarVM = MenuBarViewModel()
+    @State private var tools = ToolStore()
+    @State private var menuBarVM = MenuBarViewModel()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(tools)
+                .environment(tools)
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
@@ -49,9 +50,9 @@ struct NetUtilApp: App {
 
         MenuBarExtra {
             MenuBarView()
-                .environmentObject(tools)
-                .environmentObject(tools.interfaces)
-                .environmentObject(menuBarVM)
+                .environment(tools)
+                .environment(tools.interfaces)
+                .environment(menuBarVM)
         } label: {
             MenuBarLabel()
         }

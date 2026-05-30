@@ -1,8 +1,9 @@
 import SwiftUI
+import Observation
 
 struct SubnetCalculatorView: View {
-    @ObservedObject var vm: SubnetViewModel
-    @StateObject private var history = HostHistory.shared
+    @Bindable var vm: SubnetViewModel
+    @State private var history = HostHistory.shared
     @State private var showLearningGuide = false
     
     var body: some View {

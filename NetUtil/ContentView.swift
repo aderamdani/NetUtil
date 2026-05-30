@@ -1,4 +1,5 @@
 import SwiftUI
+import Observation
 
 enum Tool: String, CaseIterable, Identifiable {
     case dashboard   = "Dashboard"
@@ -61,8 +62,8 @@ enum Tool: String, CaseIterable, Identifiable {
 
 struct ContentView: View {
     @State private var selection: Tool? = .dashboard
-    @EnvironmentObject private var tools: ToolStore
-    @StateObject private var history = HostHistory.shared
+    @Environment(ToolStore.self) private var tools
+    @State private var history = HostHistory.shared
     
     @State private var searchText = ""
     @FocusState private var isSearchFocused: Bool
