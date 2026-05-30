@@ -1,3 +1,137 @@
+---
+
+## Swift Engineering Rules
+
+### Progressive Architecture
+- Start with direct implementation. Only extract a protocol when a second implementation exists. Only generalize when a pattern emerges across 3+ cases.
+- NO God objects: if a ViewModel exceeds 300 lines, decompose it.
+- Inject all dependencies via init for testability.
+
+### Error Handling
+- Make impossible states unrepresentable using exhaustive enums with associated values.
+- Every error case must have an actionable recovery path.
+- NEVER force unwrap (`!`, `try!`) in production code. Use `guard let` or `if let`.
+- NEVER use stringly-typed APIs. Use enums or constants.
+
+### Access Control & Performance
+- Default to `private` for all properties and methods. Widen only when needed.
+- Mark all classes `final` unless explicitly designed for subclassing.
+- Use value types (struct/enum) over reference types (class) when no identity is needed.
+- Prefer `LazyVStack` / `LazyHStack` over `VStack` / `HStack` for large data sets (e.g., ping results, port scan grids).
+
+### Quality Gates (verify before every commit)
+- [ ] No force unwrapping (`!`, `try!`, `as!`)
+- [ ] All errors have recovery paths
+- [ ] Dependencies injected via init (not hardcoded singletons)
+- [ ] No retained cycles in closures (use `[weak self]` where needed)
+- [ ] Public APIs have parameter documentation
+
+
+---
+
+## SwiftUI Agent Rules
+
+### View Composition
+- If a view `body` exceeds 50 lines, extract subviews using computed properties or separate structs.
+- NEVER use `AnyView` — it destroys SwiftUI's diffing. Use `@ViewBuilder` or `some View` returns.
+- Prefer `Group {}` over `AnyView` for conditional views.
+- Use `.task {}` instead of `.onAppear { Task {} }` for async work.
+
+### State Management
+- Use `@State` only for view-local transient state.
+- Use `@Observable` (or `@ObservableObject`) for shared ViewModel state.
+- NEVER store derived/computed data in `@State` — compute it in the view body or as a computed property.
+- NEVER modify `@State` during view body evaluation — this causes infinite layout loops.
+
+### Deprecated API (NEVER use these)
+- `NavigationView` → use `NavigationSplitView` or `NavigationStack`
+- `.navigationBarTitle()` → use `.navigationTitle()`
+- `GeometryReader` for simple alignment → use `.frame()` or layout containers
+- `.onAppear` for async → use `.task` modifier
+- `List { ForEach }` with static content → use `List(items)` directly
+- `@StateObject` → prefer `@State` with `@Observable` on macOS 15+
+
+### Performance
+- Avoid unnecessary `GeometryReader` — it forces parent layout passes.
+- Use `.drawingGroup()` for complex overlapping views (charts, sparklines).
+- Use `EquatableView` or manual `Equatable` conformance on heavy subviews to skip redundant diffs.
+- Minimize use of `.onChange()` — prefer derived state.
+- In `ForEach`, always use stable identifiers. Never use array index as id.
+
+### Accessibility
+- Every interactive element needs `.accessibilityLabel()`.
+- Every `Image(systemName:)` used as a button needs `.accessibilityLabel()`.
+- Use `.accessibilityValue()` for dynamic data (RTT values, percentages, status).
+- Group related controls with `.accessibilityElement(children: .combine)`.
+
+---
+
+## Swift 6 Concurrency Rules
+
+### MainActor Isolation (Critical for NetUtil)
+- All ViewModels MUST be `@MainActor`.
+- NEVER call `DispatchQueue.main.async` — use `await MainActor.run {}` or `@MainActor` isolation.
+- Background work: use `Task.detached` or `nonisolated` methods, then hop back to MainActor for UI updates.
+
+### Sendable Compliance
+- All types passed across concurrency boundaries must conform to `Sendable`.
+- Value types (struct, enum) with Sendable stored properties are implicitly Sendable.
+- Use `@unchecked Sendable` only as a last resort, with documented justification.
+- Mark closures crossing isolation boundaries as `@Sendable`.
+
+### Task Management
+- Store `Task` handles and cancel them in `deinit` or when navigation changes.
+- Use `withTaskGroup` for parallel operations (e.g., Multi-Ping, Port Scanner).
+- Prefer structured concurrency (`async let`, `TaskGroup`) over unstructured (`Task {}`).
+- NEVER use `Task { @MainActor in }` when the enclosing context is already `@MainActor`.
+
+### Actor Safety
+- NEVER access actor-isolated state from `nonisolated` context without `await`.
+- Use `nonisolated` for pure helper functions and static regex patterns.
+- Prefer `actor` over `class` + lock for shared mutable state.
+
+---
+
+## Xcode Build Optimization
+
+### Build Settings (apply to NetUtil.xcodeproj)
+- Enable `SWIFT_COMPILATION_CACHING = YES` (Xcode 16+) for faster incremental builds.
+- Set `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES` to catch deprecated API early.
+- Set `EAGER_LINKING = YES` for Debug to speed up link phase.
+- Verify `SWIFT_COMPILATION_MODE = singlefile` for Debug (incremental) and `wholemodule` for Release.
+
+### Code-Level Build Performance
+- Avoid complex type inference in single expressions — break into typed intermediate `let` bindings.
+- Avoid long chains of `+` string concatenation — use string interpolation.
+- Minimize use of type-erasing wrappers (`AnyView`, `AnyPublisher`).
+- Add explicit return types on complex computed properties.
+- Use `final` on all classes — helps compiler devirtualize method calls.
+
+### Script Phases
+- All Run Script Phases must declare Input/Output files for incremental build support.
+- Guard scripts with `if [ "$CONFIGURATION" = "Debug" ]; then exit 0; fi` when not needed for Debug.
+
+---
+
+## macOS Development Patterns
+
+### Window Management
+- Use `WindowGroup` for the main window. Use `Window` for auxiliary single-instance windows (Settings, About).
+- Implement `.defaultSize()` and `.defaultPosition()` for predictable window placement.
+- Support window restoration with `@SceneStorage`.
+
+### Menu & Keyboard
+- Use `.commands {}` modifier on `WindowGroup` for menu bar customization.
+- Map all primary actions to keyboard shortcuts using `.keyboardShortcut()`.
+- Follow macOS conventions: `⌘,` for Settings, `⌘W` for close, `⌘Q` for quit.
+
+### Build & Distribution
+- Always build Universal Binary: `ARCHS = 'arm64 x86_64'`.
+- Use Hardened Runtime for notarization compatibility.
+- Validate with `spctl --assess --verbose` after packaging.
+- Agent MUST pipe build output through `xcbeautify` when available for clean, parseable logs.
+
+
 # NetUtil — GEMINI.md
 
 Specialized instructions for codebase conventions, UI standards, and release procedures.
