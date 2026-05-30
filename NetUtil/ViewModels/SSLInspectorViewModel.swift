@@ -106,9 +106,9 @@ private final class TLSDelegate: NSObject, URLSessionDelegate {
 @Observable
 @MainActor
 final class SSLInspectorViewModel {
-    var result: CertResult?
-    var isRunning = false
-    var error: String?
+    private(set) var result: CertResult?
+    private(set) var isRunning = false
+    private(set) var error: String?
 
     private var task: Task<Void, Never>?
 

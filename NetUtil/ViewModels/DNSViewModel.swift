@@ -5,10 +5,10 @@ import Observation
 @Observable
 @MainActor
 final class DNSViewModel {
-    var result: DNSResult?
-    var isRunning = false
-    var rawOutput = ""
-    var error: String?
+    private(set) var result: DNSResult?
+    private(set) var isRunning = false
+    private(set) var rawOutput = ""
+    private(set) var error: String?
 
     nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?

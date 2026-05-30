@@ -9,12 +9,12 @@ final class PingSlot: Identifiable {
     let host: String
     var customName: String
 
-    var lastRtt: Double?
-    var avgRtt: Double?
-    var loss: Double = 0
-    var sent: Int = 0
-    var samples: [RTTSample] = []
-    var isRunning = false
+    private(set) var lastRtt: Double?
+    private(set) var avgRtt: Double?
+    private(set) var loss: Double = 0
+    private(set) var sent: Int = 0
+    private(set) var samples: [RTTSample] = []
+    private(set) var isRunning = false
 
     private static let historyLimit = 120
     nonisolated(unsafe) private var process: Process?

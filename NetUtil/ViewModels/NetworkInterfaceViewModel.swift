@@ -5,8 +5,8 @@ import Observation
 @MainActor
 @Observable
 final class NetworkInterfaceViewModel {
-    var interfaces: [NetworkInterface] = []
-    var lastUpdated: Date = Date()
+    private(set) var interfaces: [NetworkInterface] = []
+    private(set) var lastUpdated: Date = Date()
 
     private var timer: AnyCancellable?
 

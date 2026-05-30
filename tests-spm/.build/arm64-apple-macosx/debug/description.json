@@ -22,7 +22,7 @@
   ],
   "swiftCommands" : {
     "C.NetUtilCore-arm64-apple-macosx-debug.module" : {
-      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "executable" : "/Library/Developer/CommandLineTools/usr/bin/swiftc",
       "fileList" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCore.build/sources",
       "importPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/Modules",
       "inputs" : [
@@ -80,7 +80,7 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt"
         },
         {
           "kind" : "file",
@@ -128,25 +128,19 @@
         "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCore.build/include/NetUtilCore-Swift.h",
         "-swift-version",
         "5",
-        "-plugin-path",
-        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
-        "-sdk",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-        "-F",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
         "-I",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
         "-L",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+        "-plugin-path",
+        "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-g",
         "-Xcc",
         "-isysroot",
         "-Xcc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-        "-Xcc",
-        "-F",
-        "-Xcc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-Xcc",
         "-fPIC",
         "-Xcc",
@@ -233,7 +227,7 @@
       "wholeModuleOptimization" : false
     },
     "C.NetUtilCorePackageTests-arm64-apple-macosx-debug.module" : {
-      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "executable" : "/Library/Developer/CommandLineTools/usr/bin/swiftc",
       "fileList" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/sources",
       "importPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/Modules",
       "inputs" : [
@@ -243,7 +237,7 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt"
         },
         {
           "kind" : "file",
@@ -283,25 +277,19 @@
         "-emit-objc-header",
         "-emit-objc-header-path",
         "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/include/NetUtilCorePackageTests-Swift.h",
-        "-plugin-path",
-        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
-        "-sdk",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-        "-F",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
         "-I",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
         "-L",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+        "-plugin-path",
+        "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-g",
         "-Xcc",
         "-isysroot",
         "-Xcc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-        "-Xcc",
-        "-F",
-        "-Xcc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-Xcc",
         "-fPIC",
         "-Xcc",
@@ -328,7 +316,7 @@
       "wholeModuleOptimization" : false
     },
     "C.NetUtilCoreTests-arm64-apple-macosx-debug.module" : {
-      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "executable" : "/Library/Developer/CommandLineTools/usr/bin/swiftc",
       "fileList" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/sources",
       "importPath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/Modules",
       "inputs" : [
@@ -358,7 +346,7 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+          "name" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt"
         },
         {
           "kind" : "file",
@@ -402,25 +390,19 @@
         "-parse-as-library",
         "-swift-version",
         "5",
-        "-plugin-path",
-        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
-        "-sdk",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-        "-F",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
         "-I",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
         "-L",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+        "-plugin-path",
+        "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-g",
         "-Xcc",
         "-isysroot",
         "-Xcc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-        "-Xcc",
-        "-F",
-        "-Xcc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
         "-Xcc",
         "-fPIC",
         "-Xcc",
@@ -477,7 +459,7 @@
   },
   "swiftTargetScanArgs" : {
     "NetUtilCore" : [
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc",
       "-module-name",
       "NetUtilCore",
       "-package-name",
@@ -520,25 +502,19 @@
       "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCore.build/include/NetUtilCore-Swift.h",
       "-swift-version",
       "5",
-      "-plugin-path",
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
-      "-sdk",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-      "-F",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
       "-I",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
       "-L",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+      "-plugin-path",
+      "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
       "-g",
       "-Xcc",
       "-isysroot",
       "-Xcc",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-      "-Xcc",
-      "-F",
-      "-Xcc",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
       "-Xcc",
       "-fPIC",
       "-Xcc",
@@ -546,10 +522,10 @@
       "-package-name",
       "tests_spm",
       "-driver-use-frontend-path",
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc"
     ],
     "NetUtilCorePackageTests" : [
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc",
       "-module-name",
       "NetUtilCorePackageTests",
       "-package-name",
@@ -580,25 +556,19 @@
       "-emit-objc-header",
       "-emit-objc-header-path",
       "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCorePackageTests.build/include/NetUtilCorePackageTests-Swift.h",
-      "-plugin-path",
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
-      "-sdk",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-      "-F",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
       "-I",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
       "-L",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+      "-plugin-path",
+      "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
       "-g",
       "-Xcc",
       "-isysroot",
       "-Xcc",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-      "-Xcc",
-      "-F",
-      "-Xcc",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
       "-Xcc",
       "-fPIC",
       "-Xcc",
@@ -606,10 +576,10 @@
       "-package-name",
       "tests_spm",
       "-driver-use-frontend-path",
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc"
     ],
     "NetUtilCoreTests" : [
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc",
       "-module-name",
       "NetUtilCoreTests",
       "-package-name",
@@ -644,25 +614,19 @@
       "-parse-as-library",
       "-swift-version",
       "5",
-      "-plugin-path",
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
-      "-sdk",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-      "-F",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
       "-I",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
       "-L",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+      "-plugin-path",
+      "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
       "-g",
       "-Xcc",
       "-isysroot",
       "-Xcc",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
-      "-Xcc",
-      "-F",
-      "-Xcc",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
       "-Xcc",
       "-fPIC",
       "-Xcc",
@@ -670,7 +634,7 @@
       "-package-name",
       "tests_spm",
       "-driver-use-frontend-path",
-      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+      "/Library/Developer/CommandLineTools/usr/bin/swiftc"
     ]
   },
   "targetDependencyMap" : {
@@ -907,7 +871,7 @@
       ],
       "outputFilePath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/NetUtilCoreTests.build/sources"
     },
-    "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt" : {
+    "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt" : {
       "alwaysOutOfDate" : true,
       "inputs" : [
         {
@@ -916,10 +880,10 @@
         },
         {
           "kind" : "file",
-          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+          "name" : "/Library/Developer/CommandLineTools/usr/bin/swiftc"
         }
       ],
-      "outputFilePath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+      "outputFilePath" : "/Users/aderamdani/Developer/NetUtil/tests-spm/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt"
     }
   }
 }
