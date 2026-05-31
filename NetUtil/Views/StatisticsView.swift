@@ -159,6 +159,7 @@ struct StatisticsView: View {
                         AxisGridLine()
                     }
                 }
+                .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
                 .frame(height: 160)
             }
             .padding(20)
@@ -252,6 +253,7 @@ struct StatisticsView: View {
                             AxisGridLine()
                         }
                     }
+                    .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
                     .chartOverlay { proxy in
                         GeometryReader { geometry in
                             Rectangle().fill(.clear).contentShape(Rectangle())
