@@ -28,7 +28,7 @@
 | Wi-Fi | RSSI stability chart, SNR, channel, CoreWLAN | Optimized (v4.3.0) |
 | Routes | netstat -rn, protocol matrix, flag legend | Optimized (v4.3.0) |
 
-**Total: 18 tools (17 diagnostics + Dashboard)**
+**Total: 17 tools (16 diagnostics + Dashboard)**
 
 ---
 
@@ -92,10 +92,7 @@
 - CSV/PDF export, context menu quick actions (v4.2.0)
 
 ### mDNS / Bonjour Browser
-**Tool ID:** `mdns` | **Status:** Open
-- Browse `_http`, `_ssh`, `_airplay`, etc.
-- Resolve host/IP/Port on demand.
-- Filter by service type.
+**Tool ID:** `mdns` | **Status:** Removed — out of scope for core diagnostics
 
 ---
 

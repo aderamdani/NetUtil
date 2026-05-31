@@ -97,7 +97,6 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
    ("checklist",                              "Port Scanner"),
    ("stopwatch",                              "HTTP Latency"),
    ("network.badge.shield.half.filled",       "Subnet Scanner"),
-   ("bonjour",                                "Bonjour Browser"),
    ("number.square",                          "Subnet Calc"),
    ("globe",                                  "DNS Lookup"),
    ("lock.shield",                            "SSL/TLS"),
