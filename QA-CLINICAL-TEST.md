@@ -1,7 +1,7 @@
 # NetUtil — Clinical Test Report
 
 Scope: end-to-end functional + HIG audit of every tool, with an automated
-regression suite. Generated 2026-05-31 against `main` @ v3.5.0.
+regression suite. Generated 2026-05-31 against `main` @ v4.3.0.
 
 Two deliverables:
 
@@ -334,6 +334,59 @@ writing a matching `*Tests.swift`. Keep parser funcs `internal` (not `private`) 
 1. Klik icon Traceroute di sebelah gateway
 2. Verify: berpindah ke tool Traceroute dengan host diisi IP gateway
 3. Verify: otomatis memulai traceroute
+
+## v4.x Feature & Fix Verification (v4.0.0 – v4.3.0)
+
+### Subnet Scanner (v4.0.0)
+1. Enter `192.168.1.0/24`, click Scan. Verify: hosts discovered, status Alive/Unreachable, RTT displayed.
+2. Wait for scan to finish. Verify: hostname and MAC address columns populate for Alive hosts.
+3. Right-click an Alive host → Ping. Verify: navigates to Ping tool with that IP, ping starts automatically.
+4. Right-click an Alive host → Port Scan. Verify: navigates to Port Scanner, scan starts automatically.
+5. Right-click an Alive host → Traceroute. Verify: navigates to Traceroute, trace starts automatically.
+6. Export PDF. Verify: NSSavePanel opens, file saves with correct filename pattern.
+7. Export CSV. Verify: CSV contains ip, hostname, status, rtt_ms, mac_address columns.
+8. Click learning guide button. Verify: HelpView opens.
+
+### Speed Test (v4.1.0)
+1. Select Speed kind, click Start. Verify: Download/Upload/Ping/Jitter cards update live, progress bar shows phase.
+2. Select Browsing kind, click Start. Verify: Sites Tested/Avg Load/Median TTFB cards update.
+3. Select Gaming kind. Verify: Median Ping/P99/Jitter/Loss cards shown.
+4. Select Streaming kind. Verify: Avg Speed/Min Speed/Tier cards shown.
+5. After a Speed test completes: verify result in history table with timestamp, kind icon, primary metric.
+6. Click a label cell in history. Verify: inline text field opens for rename.
+7. Click trash icon on a result. Verify: row removed.
+8. Click Clear. Verify: all history removed.
+9. Export PDF and CSV. Verify: both generate correctly.
+
+### Bandwidth Monitor (v4.3.0)
+1. Open Bandwidth Monitor. Verify: aggregate stat cards show live Download/Upload values (not 0 after a few seconds).
+2. Verify: 60-second chart renders with green (RX) above axis and blue (TX) below.
+3. Verify: Y-axis labels fully visible, not clipped at the top (e.g., "500 Kbps" label fully readable).
+4. Verify: per-interface table shows at least en0 or en1 with type icon and IP.
+5. Verify: sparkline per interface updates every second.
+6. Click Pause. Verify: chart freezes, "Paused" badge appears.
+7. Click Resume. Verify: chart continues updating.
+8. Toggle Active Only. Verify: interfaces with no traffic are hidden.
+9. Export CSV. Verify: file contains timestamp, interface, rx_bps, tx_bps columns.
+10. Generate traffic (download something). Verify: Peak RX stat updates; click reset arrow, verify it resets.
+
+### Traceroute Host History (v4.3.0)
+1. Run a traceroute to `8.8.8.8`. Verify: host recorded in history.
+2. Clear host field. Verify: clock icon appears in TextField trailing edge.
+3. Click clock icon. Verify: dropdown with recent hosts appears.
+4. Select a host from dropdown. Verify: host field fills AND traceroute starts automatically.
+5. Click "Clear History" in dropdown. Verify: history cleared, clock icon disappears.
+
+### Chart Y-axis Clipping (v4.3.0)
+1. Open Bandwidth Monitor with active traffic. Verify: highest Y-axis label (e.g., "1.5 Mbps") fully visible.
+2. Open Statistics view with data. Verify: top label on throughput chart not cut off.
+3. Open Wi-Fi Inspector. Verify: highest dBm label on RSSI chart not cut off.
+4. Open Multi-Ping with an expanded slot. Verify: highest "X ms" label on RTT chart not cut off.
+
+### Export PDF — All Tools (v4.0.1 + v4.3.0)
+Verify Export PDF works (NSSavePanel opens, file saves) for every tool:
+- Ping, Multi-Ping, Traceroute, HTTP Latency, DNS Lookup
+- Port Scanner, WHOIS, SSL/TLS, Subnet Scanner, Speed Test
 
 ## T1-5: Regression Testing
 

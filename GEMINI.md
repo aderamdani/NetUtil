@@ -188,6 +188,7 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
     ("dot.radiowaves.left.and.right",          "Multi-Ping"),
     ("checklist",                              "Port Scanner"),
     ("stopwatch",                              "HTTP Latency"),
+    ("network.badge.shield.half.filled",       "Subnet Scanner"),
     ("number.square",                          "Subnet Calc"),
     ("globe",                                  "DNS Lookup"),
     ("lock.shield",                            "SSL/TLS"),

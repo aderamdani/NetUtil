@@ -45,6 +45,7 @@ bash scripts/build_dmg.sh
 | Multi-Ping | MultiPingViewModel | `/sbin/ping` (concurrent sessions) |
 | Port Scanner | PortScanViewModel | Swift `URLSessionStreamTask` (TCP connect) |
 | HTTP Latency | HTTPLatencyViewModel | `URLSession` + `URLSessionTaskMetrics` |
+| Subnet Scanner | SubnetScanViewModel | `ping` (concurrent), ARP, `host` |
 | Subnet Calc | SubnetViewModel | `NetworkMath.swift` (native) |
 | DNS Lookup | DNSViewModel | `/usr/bin/dig` |
 | SSL/TLS | SSLInspectorViewModel | `SecTrust` / `Network.framework` |
@@ -61,7 +62,7 @@ bash scripts/build_dmg.sh
 
 ## Feature Notes (per tool)
 
-### Dashboard (v2.0.0, current: v4.0.0)
+### Dashboard (v2.0.0, current: v4.3.0)
 - **Features**: Ultra-interactive hub with clickable cards, sparklines (RTT/RSSI), and system health badges (CPU/RAM).
 - **Network Identity Header**: Displays Hostname, Local IP, Public IP (fetched from ipify.org), and VPN Status (utun detection).
 - **IP Analysis**: Uses `IPAddressDetails` model for automated Class/Private/Netmask detection.
@@ -95,6 +96,7 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
    ("dot.radiowaves.left.and.right",          "Multi-Ping"),
    ("checklist",                              "Port Scanner"),
    ("stopwatch",                              "HTTP Latency"),
+   ("network.badge.shield.half.filled",       "Subnet Scanner"),
    ("number.square",                          "Subnet Calc"),
    ("globe",                                  "DNS Lookup"),
    ("lock.shield",                            "SSL/TLS"),

@@ -81,6 +81,7 @@ struct AboutView: View {
         ("dot.radiowaves.left.and.right",          "Multi-Ping"),
         ("checklist",                              "Port Scanner"),
         ("stopwatch",                              "HTTP Latency"),
+        ("network.badge.shield.half.filled",       "Subnet Scanner"),
         ("number.square",                          "Subnet Calc"),
         ("globe",                                  "DNS Lookup"),
         ("lock.shield",                            "SSL/TLS"),
@@ -91,8 +92,7 @@ struct AboutView: View {
         ("list.bullet.rectangle",                  "Top Processes"),
         ("network",                                "Interfaces"),
         ("wifi",                                   "Wi-Fi"),
-        ("arrow.triangle.branch",                  "Routes"),
-        ("network.badge.shield.half.filled",      "Subnet Scanner")
+        ("arrow.triangle.branch",                  "Routes")
     ]
 
     private func showAck() {
