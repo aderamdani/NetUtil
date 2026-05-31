@@ -15,13 +15,14 @@ struct HTTPLatencyView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            httpMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
                         errorBanner(err)
                     }
-                    
+
                     if let result = vm.result {
                         statsBarSection(result)
                         
@@ -63,6 +64,29 @@ struct HTTPLatencyView: View {
     }
 
     // MARK: - Components
+
+    private var httpMoodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            guard let r = vm.result else {
+                return ("stopwatch", .secondary, vm.isRunning ? "Request in progress..." : "Enter a URL to measure latency")
+            }
+            let ttfb = r.phases.first(where: { $0.phase == .ttfb })?.durationMs ?? r.totalMs
+            let code  = r.statusCode ?? 0
+            if code >= 500 { return ("xmark.circle.fill", .red, "HTTP \(code)  —  Total: \(String(format: "%.0f", r.totalMs)) ms") }
+            if code >= 400 { return ("exclamationmark.triangle.fill", .orange, "HTTP \(code)  —  Total: \(String(format: "%.0f", r.totalMs)) ms") }
+            if ttfb > 500  { return ("exclamationmark.triangle.fill", .orange, "Slow TTFB: \(String(format: "%.0f", ttfb)) ms  —  Total: \(String(format: "%.0f", r.totalMs)) ms") }
+            return ("checkmark.circle.fill", .green, "HTTP \(code)  —  TTFB: \(String(format: "%.0f", ttfb)) ms  —  Total: \(String(format: "%.0f", r.totalMs)) ms")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
+    }
 
     private var controlBar: some View {
         VStack(spacing: 0) {

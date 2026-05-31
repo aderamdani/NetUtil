@@ -11,6 +11,7 @@ struct BandwidthView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
+            bandwidthMoodBar
 
             ScrollView {
                 VStack(spacing: 24) {
@@ -22,6 +23,29 @@ struct BandwidthView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Bandwidth Monitor") }
+    }
+
+    private var bandwidthMoodBar: some View {
+        let rx = vm.totalRxBps
+        let tx = vm.totalTxBps
+        let active = vm.interfaces.filter { !$0.isLoopback && vm.hasTraffic($0.name) }.count
+        let (icon, color, msg): (String, Color, String) = {
+            if vm.isPaused { return ("pause.fill", .orange, "Monitoring paused") }
+            if rx > 0 || tx > 0 {
+                return ("arrow.up.arrow.down.circle.fill", .green,
+                        "↓ \(NetworkMath.formatRate(rx))  ↑ \(NetworkMath.formatRate(tx))  —  \(active) active interface\(active == 1 ? "" : "s")")
+            }
+            return ("circle.fill", .secondary, "No active traffic detected")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(color == .secondary ? .secondary : .primary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
 
     // MARK: - Control Bar

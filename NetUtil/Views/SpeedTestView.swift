@@ -10,6 +10,7 @@ struct SpeedTestView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
+            speedMoodBar
 
             ScrollView {
                 VStack(spacing: 24) {
@@ -30,6 +31,36 @@ struct SpeedTestView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Speed Test") }
+    }
+
+    // MARK: - Mood Bar
+
+    private var speedMoodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            if vm.isTesting { return ("hourglass", .accentColor, "Running \(vm.kind.rawValue) test...") }
+            guard let r = vm.lastResult else {
+                return ("speedometer", .secondary, "No test results yet — select a test type and tap Start")
+            }
+            switch r.kind {
+            case .speed:
+                return ("speedometer", .green, "Last: ↓ \(String(format: "%.1f", r.downloadMbps)) / ↑ \(String(format: "%.1f", r.uploadMbps)) Mbps  —  \(Int(r.pingMs)) ms ping")
+            case .browsing:
+                return ("safari.fill", .blue, "Last browsing: \(String(format: "%.0f", r.browsingAvgMs)) ms avg")
+            case .gaming:
+                return ("gamecontroller.fill", .purple, "Last gaming: \(String(format: "%.0f", r.gameMedianMs)) ms median")
+            case .streaming:
+                return ("play.rectangle.fill", .orange, "Last streaming: \(r.streamTier)")
+            }
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
 
     // MARK: - Control Bar

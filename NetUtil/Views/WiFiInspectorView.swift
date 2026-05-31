@@ -67,6 +67,18 @@ struct WiFiInspectorView: View {
                     
                     Divider().frame(height: 16)
                     
+                    if let info = vm.info {
+                        ReportMenuButton(
+                            onExportPDF: {},
+                            onExportCSV: {
+                                let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                                Exporter.save(string: Exporter.csvString(from: info),
+                                              defaultName: "NetUtil-WiFi-\(ts.string(from: Date())).csv",
+                                              ext: "csv")
+                            }
+                        )
+                    }
+
                     Button { vm.refresh() } label: {
                         Label("Scan", systemImage: "arrow.clockwise")
                     }

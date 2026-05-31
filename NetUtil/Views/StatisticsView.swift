@@ -33,15 +33,16 @@ struct StatisticsView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            statisticsMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     summaryStats
-                    
+
                     realtimeSection
-                    
+
                     dailySection
-                    
+
                     if !stats.dailyTotals.isEmpty {
                         historyTable
                     }
@@ -59,6 +60,25 @@ struct StatisticsView: View {
     }
 
     // MARK: - Components
+
+    private var statisticsMoodBar: some View {
+        let totalToday = stats.todayRx + stats.todayTx
+        let days = stats.dailyTotals.count
+        let (icon, color, msg): (String, Color, String) = {
+            if days == 0 { return ("chart.line.uptrend.xyaxis", .secondary, "No historical data yet — collecting...") }
+            let todayStr = NetworkMath.formatBytes(totalToday)
+            return ("chart.line.uptrend.xyaxis", .accentColor, "Today: \(todayStr) total  —  \(days) day\(days == 1 ? "" : "s") of history")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
+    }
 
     private var controlBar: some View {
         VStack(spacing: 0) {
@@ -159,7 +179,9 @@ struct StatisticsView: View {
                         AxisGridLine()
                     }
                 }
+                .chartYScale(domain: 0...max(1024, (bw.totalHistory.map { max($0.rxBps, $0.txBps) }.max() ?? 1024) * 1.15))
                 .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+                .drawingGroup()
                 .frame(height: 160)
             }
             .padding(20)
@@ -254,6 +276,7 @@ struct StatisticsView: View {
                         }
                     }
                     .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+                    .drawingGroup()
                     .chartOverlay { proxy in
                         GeometryReader { geometry in
                             Rectangle().fill(.clear).contentShape(Rectangle())

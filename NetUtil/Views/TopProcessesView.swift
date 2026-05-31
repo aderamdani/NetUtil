@@ -61,7 +61,17 @@ struct TopProcessesView: View {
                     }
                     
                     Divider().frame(height: 16)
-                    
+
+                    ReportMenuButton(
+                        onExportPDF: {},
+                        onExportCSV: {
+                            let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                            Exporter.save(string: Exporter.csvString(from: vm.apps),
+                                          defaultName: "NetUtil-TopProcesses-\(ts.string(from: Date())).csv",
+                                          ext: "csv")
+                        }
+                    )
+
                     Button(action: { if vm.isRunning { vm.stop() } else { vm.start() } }) {
                         Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
