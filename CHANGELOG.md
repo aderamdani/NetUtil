@@ -4,6 +4,27 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.0.1] — 2026-05-31
+
+### Fixed
+- Implemented all PDF export methods (Ping, Multi-Ping, HTTP Latency, Traceroute, DNS, SSL, Subnet Scanner, Speed Test) that were previously empty stubs.
+- Implemented all CSV export functions (Traceroute, Multi-Ping, HTTP Latency, Subnet Scan, Speed Test) that were returning empty strings.
+- SSLInspectorView: `watchlist` was not wrapped in `@State`, preventing view from observing changes. Fixed.
+- SubnetScanView: Force unwrap `result.rtt!` replaced with safe optional mapping.
+- SpeedTestView: Start/Stop button had an empty action closure. Now correctly calls `vm.start()` / `vm.cancel()`.
+
+### Changed
+- SSLInspectorView: Control bar action group reordered to `[Report]` `[Watch]` `[Inspect]` `[Guide]` per HIG layout spec.
+- SubnetScanView: Added learning guide button and `HelpView` sheet (was the only tool missing it).
+- SubnetScanView `statusMoodBar`: Background changed from `Color.secondary.opacity(0.1)` to `.regularMaterial` (Anti-Slop compliance).
+- TracerouteView `StatCardMini`: Background changed from `Color.secondary.opacity(0.1)` to `.regularMaterial`.
+- TracerouteViewModel: `rawLines` type changed from `[String]` to `[PingLogLine]` for stable `ForEach` identifiers.
+- DNSView: `ForEach(records, id: \.value)` replaced with `ForEach(records)` using model's native `Identifiable` conformance.
+- SpeedTestView: Added `speedometer` SF symbol to control bar title for consistency with all other tools.
+- Removed inline code-explaining comments from `PingView` and `MultiPingView`.
+
+---
+
 ## [4.0.0] — 2026-05-31
 
 ### Added
