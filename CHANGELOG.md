@@ -4,6 +4,14 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [3.5.1] — 2026-05-31
+
+### Changed
+- **Documentation & Wiki Sync**: Comprehensive update of README, Technical Documentation, and GitHub Wiki to reflect the new modular architecture and native test infrastructure.
+- **QA & Testing**: Refined QA clinical test cases and ensured full synchronization between documentation and the native Xcode test suite.
+
+---
+
 ## [3.5.0] — 2026-05-31
 
 ### Changed
