@@ -1,7 +1,10 @@
-dist/
-*.dmg
 *.app
-DerivedData/
-.DS_Store
-xcuserdata/
+*.dmg
 *.xcuserstate
+.DS_Store
+.air/
+DerivedData/
+build/
+dist/
+tests-spm/.build/
+xcuserdata/

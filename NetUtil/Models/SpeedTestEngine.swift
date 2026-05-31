@@ -24,7 +24,7 @@ protocol SpeedTestDelegate: AnyObject {
     var streamTier: String { get set }
 }
 
-private class MetricsDelegate: NSObject, URLSessionTaskDelegate {
+private final class MetricsDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
     var ttfb: TimeInterval = 0
     func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
         if let transaction = metrics.transactionMetrics.last {

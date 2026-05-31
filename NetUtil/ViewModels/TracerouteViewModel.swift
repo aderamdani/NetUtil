@@ -30,9 +30,10 @@ final class TracerouteViewModel {
 
     private static let rawLinesLimit = 500
     private var geoCache: [String: GeoInfo] = [:]
-    private var geoInFlight: Set<String> = []
+    private var geoInFlight: [String: Task<Void, Never>] = [:]
 
     deinit {
+        // Safe in deinit as we are the last owner
         process?.terminate()
     }
 
@@ -59,6 +60,9 @@ final class TracerouteViewModel {
         process = nil
         outputPipe = nil
         isRunning = false
+        
+        geoInFlight.values.forEach { $0.cancel() }
+        geoInFlight.removeAll()
     }
 
     private func runOnce() {
@@ -153,20 +157,25 @@ final class TracerouteViewModel {
         guard UserDefaults.standard.object(forKey: "geoEnabled") as? Bool != false else { return }
         let ipsNeeded = hops.compactMap { hop -> String? in
             guard let ip = hop.ip, hop.geo == nil,
-                  !geoInFlight.contains(ip),
+                  geoInFlight[ip] == nil,
                   !Self.isPrivateIP(ip) else { return nil }
             return ip
         }
         for ip in ipsNeeded {
-            geoInFlight.insert(ip)
-            Task {
+            let task = Task {
                 let geo = await Self.fetchGeo(ip: ip)
-                geoCache[ip] = geo
-                geoInFlight.remove(ip)
-                if let geo, let idx = hops.firstIndex(where: { $0.ip == ip }) {
-                    hops[idx].geo = geo
+                guard !Task.isCancelled else { return }
+                
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    self.geoCache[ip] = geo
+                    self.geoInFlight.removeValue(forKey: ip)
+                    if let geo, let idx = self.hops.firstIndex(where: { $0.ip == ip }) {
+                        self.hops[idx].geo = geo
+                    }
                 }
             }
+            geoInFlight[ip] = task
         }
     }
 

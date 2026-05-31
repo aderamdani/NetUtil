@@ -19,7 +19,7 @@ struct WiFiInspectorView: View {
                         
                         statsBarSection(info)
                         
-                        if vm.rssiHistory.count > 1 {
+                        if vm.rssiSamples.count > 1 {
                             signalStabilitySection
                         }
                         
@@ -51,6 +51,8 @@ struct WiFiInspectorView: View {
                     Text(vm.info?.ssid ?? "Searching...")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Wi-Fi Inspector Tool")
                 
                 Spacer()
                 
@@ -60,6 +62,8 @@ struct WiFiInspectorView: View {
                         Text(vm.info?.interfaceName ?? "en0")
                             .font(.system(size: 11, weight: .bold, design: .monospaced))
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Network Interface: \(vm.info?.interfaceName ?? "en0")")
                     
                     Divider().frame(height: 16)
                     
@@ -67,11 +71,13 @@ struct WiFiInspectorView: View {
                         Label("Scan", systemImage: "arrow.clockwise")
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Rescan Wi-Fi Network")
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -86,6 +92,7 @@ struct WiFiInspectorView: View {
             Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
             Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
+        .accessibilityAddTraits(.isHeader)
     }
 
     private func interpretationSection(_ info: WiFiInfo) -> some View {
@@ -113,6 +120,8 @@ struct WiFiInspectorView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(status). \(desc)")
             
             Spacer()
             
@@ -125,6 +134,8 @@ struct WiFiInspectorView: View {
             .padding(.vertical, 8)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Last polled at \(vm.lastUpdated.formatted(date: .omitted, time: .standard))")
         }
     }
 
@@ -146,13 +157,13 @@ struct WiFiInspectorView: View {
             sectionHeader("Signal Stability (RSSI)", icon: "chart.line.uptrend.xyaxis")
             
             Chart {
-                ForEach(Array(vm.rssiHistory.enumerated()), id: \.offset) { i, rssi in
-                    LineMark(x: .value("Sample", i), y: .value("RSSI", Double(rssi)))
-                        .foregroundStyle(signalColor(rssi))
+                ForEach(vm.rssiSamples) { sample in
+                    LineMark(x: .value("Sample", sample.timestamp), y: .value("RSSI", Double(sample.rssi)))
+                        .foregroundStyle(signalColor(sample.rssi))
                         .interpolationMethod(.catmullRom)
                     
-                    AreaMark(x: .value("Sample", i), y: .value("RSSI", Double(rssi)))
-                        .foregroundStyle(LinearGradient(colors: [signalColor(rssi).opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
+                    AreaMark(x: .value("Sample", sample.timestamp), y: .value("RSSI", Double(sample.rssi)))
+                        .foregroundStyle(LinearGradient(colors: [signalColor(sample.rssi).opacity(0.2), .clear], startPoint: .top, endPoint: .bottom))
                         .interpolationMethod(.catmullRom)
                 }
             }
@@ -167,10 +178,12 @@ struct WiFiInspectorView: View {
                     }
                 }
             }
+            .drawingGroup() // PERFORMANCE: Optimized for real-time signal chart
             .frame(height: 120)
             .padding(20)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .accessibilityLabel("Signal stability chart showing RSSI in dBm")
         }
     }
 
@@ -232,16 +245,22 @@ struct WiFiInfo {
     var hardwareAddress: String?
 }
 
+struct SignalSample: Identifiable {
+    let id = UUID()
+    let timestamp = Date()
+    let rssi: Int
+}
+
 @MainActor
 @Observable
 class WiFiInspectorViewModel {
     var info: WiFiInfo?
-    var rssiHistory: [Int] = []
+    var rssiSamples: [SignalSample] = []
     var lastUpdated = Date()
     
     private var timer: Timer?
     private let client = CWWiFiClient.shared()
-    private static let rssiHistoryLimit = 100
+    private static let rssiSamplesLimit = 100
 
     func start() {
         refresh()
@@ -290,8 +309,8 @@ class WiFiInspectorViewModel {
         )
 
         if rssi != 0 {
-            rssiHistory.append(rssi)
-            if rssiHistory.count > Self.rssiHistoryLimit { rssiHistory.removeFirst() }
+            rssiSamples.append(SignalSample(rssi: rssi))
+            if rssiSamples.count > Self.rssiSamplesLimit { rssiSamples.removeFirst() }
         }
     }
 }
@@ -321,5 +340,7 @@ struct WiFiDetailCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }

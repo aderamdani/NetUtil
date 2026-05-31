@@ -18,6 +18,11 @@ struct PingResult: Identifiable {
     let timestamp: Date = Date()
 }
 
+struct PingLogLine: Identifiable {
+    let id = UUID()
+    let text: String
+}
+
 struct PingStats {
     var transmitted: Int = 0
     var received: Int = 0

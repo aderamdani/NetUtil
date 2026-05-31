@@ -1,14 +1,10 @@
 import Foundation
 
-enum PortStatus {
+enum PortStatus: String {
     case open, closed, filtered
 
     var label: String {
-        switch self {
-        case .open:     "Open"
-        case .closed:   "Closed"
-        case .filtered: "Filtered"
-        }
+        rawValue.capitalized
     }
 }
 

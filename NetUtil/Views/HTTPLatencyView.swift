@@ -163,6 +163,7 @@ struct HTTPLatencyView: View {
                     .frame(width: 3, height: 12)
             }
         }
+        .drawingGroup() // PERFORMANCE: Optimized for mini health strip
     }
 
     private func latencyWaterfallSection(_ r: HTTPLatencyResult) -> some View {
@@ -202,6 +203,8 @@ struct HTTPLatencyView: View {
                             .font(.system(size: 11, design: .monospaced))
                             .frame(width: 80, alignment: .trailing)
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(phase.phase.rawValue) Phase: \(Int(phase.durationMs)) milliseconds")
                 }
             }
             .padding(20)
@@ -248,6 +251,9 @@ struct HTTPLatencyView: View {
                     .padding(.vertical, 8).padding(.horizontal, 16)
                     .contentShape(Rectangle())
                     .onTapGesture { urlString = r.url; method = r.method }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Request to \(r.url) at \(r.timestamp.formatted(date: .omitted, time: .standard)). Status: \(r.statusCode ?? 0). Latency: \(Int(r.totalMs)) ms.")
+                    .accessibilityHint("Tap to restore this request")
                     
                     if r.id != vm.history.last?.id {
                         Divider().padding(.horizontal, 16).opacity(0.5)

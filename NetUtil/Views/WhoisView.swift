@@ -74,6 +74,8 @@ struct WhoisView: View {
                     Text("WHOIS")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("WHOIS Lookup Tool")
                 
                 Divider().frame(height: 16).padding(.horizontal, 4)
                 
@@ -82,6 +84,7 @@ struct WhoisView: View {
                     .controlSize(.large)
                     .frame(width: 250)
                     .onSubmit(lookup)
+                    .accessibilityLabel("Query Input")
                     .overlay(alignment: .trailing) {
                         if !history.hosts.isEmpty {
                             Menu {
@@ -97,6 +100,7 @@ struct WhoisView: View {
                             .menuStyle(.borderlessButton)
                             .frame(width: 28)
                             .padding(.trailing, 4)
+                            .accessibilityLabel("Host History")
                         }
                     }
 
@@ -108,6 +112,7 @@ struct WhoisView: View {
                             Label("Report", systemImage: "doc.text.fill")
                         }
                         .buttonStyle(.bordered)
+                        .accessibilityLabel("Export Menu")
                     }
 
                     Button(action: lookup) {
@@ -117,11 +122,13 @@ struct WhoisView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && query.isEmpty)
+                    .accessibilityLabel(vm.isRunning ? "Stop Lookup" : "Start Lookup")
                     
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -149,6 +156,9 @@ struct WhoisView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Registry Record Identified.")
+            
             Spacer()
         }
     }
@@ -191,6 +201,8 @@ struct WhoisView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 1)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(line.label != nil ? "\(line.label!): \(line.value ?? "")" : line.raw)
                 }
             }
             .padding(.vertical, 16)
@@ -205,6 +217,7 @@ struct WhoisView: View {
             Image(systemName: systemImage).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
             Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
+        .accessibilityAddTraits(.isHeader)
     }
     
     private func errorBanner(_ msg: String) -> some View {

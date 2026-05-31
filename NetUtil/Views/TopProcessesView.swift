@@ -8,28 +8,26 @@ struct TopProcessesView: View {
         VStack(spacing: 0) {
             controlBar
             
-            ScrollView {
-                VStack(spacing: 24) {
-                    if let err = vm.error {
-                        errorBanner(err)
-                    }
+            VStack(spacing: 24) {
+                if let err = vm.error {
+                    errorBanner(err)
+                }
+                
+                interpretationSection
+                
+                statsBarSection
+                
+                VStack(alignment: .leading, spacing: 16) {
+                    sectionHeader("Real-time App Traffic", icon: "app.dashed")
                     
-                    interpretationSection
-                    
-                    statsBarSection
-                    
-                    VStack(alignment: .leading, spacing: 16) {
-                        sectionHeader("Real-time App Traffic", icon: "app.dashed")
-                        
-                        if vm.apps.isEmpty {
-                            emptyState
-                        } else {
-                            processTable
-                        }
+                    if vm.apps.isEmpty {
+                        emptyState
+                    } else {
+                        processTable
                     }
                 }
-                .padding(24)
             }
+            .padding(24)
         }
         .onAppear { if !vm.isRunning { vm.start() } }
         .onDisappear { vm.stop() }
@@ -48,6 +46,8 @@ struct TopProcessesView: View {
                     Text("Top Processes")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Top Processes Tool")
                 
                 Spacer()
                 
@@ -57,6 +57,7 @@ struct TopProcessesView: View {
                             ProgressView().controlSize(.small)
                             Text("Monitoring").font(.system(size: 11, weight: .bold)).foregroundColor(.green)
                         }
+                        .accessibilityLabel("Monitoring active")
                     }
                     
                     Divider().frame(height: 16)
@@ -67,11 +68,13 @@ struct TopProcessesView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
+                    .accessibilityLabel(vm.isRunning ? "Stop Monitoring" : "Start Monitoring")
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -86,6 +89,7 @@ struct TopProcessesView: View {
             Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
             Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
+        .accessibilityAddTraits(.isHeader)
     }
 
     private var interpretationSection: some View {
@@ -106,6 +110,9 @@ struct TopProcessesView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(vm.isRunning ? "Activity Monitor Active" : "Process Monitor Idle")
+            
             Spacer()
         }
     }
@@ -115,8 +122,13 @@ struct TopProcessesView: View {
         let totalTx = vm.apps.map(\.txBps).reduce(0, +)
         return HStack(spacing: 12) {
             StatCard(title: "Active Apps", value: "\(vm.apps.count)", icon: "app.badge.fill")
+                .accessibilityElement(children: .combine)
             StatCard(title: "Total Download", value: NetworkMath.formatRate(totalRx), icon: "arrow.down", color: .blue)
+                .accessibilityElement(children: .combine)
+                .accessibilityValue(NetworkMath.formatRate(totalRx))
             StatCard(title: "Total Upload", value: NetworkMath.formatRate(totalTx), icon: "arrow.up", color: .orange)
+                .accessibilityElement(children: .combine)
+                .accessibilityValue(NetworkMath.formatRate(totalTx))
         }
     }
 
@@ -131,44 +143,44 @@ struct TopProcessesView: View {
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
             .background(.regularMaterial)
+            .accessibilityElement(children: .ignore)
             
             Divider()
             
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(vm.apps) { app in
-                        HStack(spacing: 0) {
-                            HStack(spacing: 10) {
-                                Image(systemName: "app.dashed")
-                                    .foregroundColor(.secondary)
-                                    .font(.system(size: 12))
-                                Text(app.name)
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .lineLimit(1)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            
-                            Text(NetworkMath.formatRate(app.rxBps))
-                                .font(.system(size: 11, design: .monospaced))
-                                .foregroundColor(.blue)
-                                .frame(width: 100, alignment: .leading)
-                            
-                            Text(NetworkMath.formatRate(app.txBps))
-                                .font(.system(size: 11, design: .monospaced))
-                                .foregroundColor(.orange)
-                                .frame(width: 100, alignment: .leading)
-                            
-                            activityIntensityBar(rx: app.rxBps, tx: app.txBps, maxBps: maxBps)
-                                .frame(width: 140)
+            List {
+                ForEach(vm.apps) { app in
+                    HStack(spacing: 0) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "app.dashed")
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 12))
+                            Text(app.name)
+                                .font(.system(size: 12, weight: .semibold))
+                                .lineLimit(1)
                         }
-                        .padding(.vertical, 8).padding(.horizontal, 16)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        if app.id != vm.apps.last?.id {
-                            Divider().padding(.horizontal, 16).opacity(0.5)
-                        }
+                        Text(NetworkMath.formatRate(app.rxBps))
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.blue)
+                            .frame(width: 100, alignment: .leading)
+                        
+                        Text(NetworkMath.formatRate(app.txBps))
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.orange)
+                            .frame(width: 100, alignment: .leading)
+                        
+                        activityIntensityBar(rx: app.rxBps, tx: app.txBps, maxBps: maxBps)
+                            .frame(width: 140)
                     }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowSeparator(.visible, edges: .bottom)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Process \(app.name). Download: \(NetworkMath.formatRate(app.rxBps)), Upload: \(NetworkMath.formatRate(app.txBps))")
                 }
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
         }
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
@@ -188,6 +200,7 @@ struct TopProcessesView: View {
             .frame(maxHeight: .infinity, alignment: .center)
         }
         .frame(height: 14)
+        .accessibilityLabel("Activity intensity bar")
     }
 
     private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
@@ -210,6 +223,7 @@ struct TopProcessesView: View {
         .background(Color.red.opacity(0.1))
         .cornerRadius(8)
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
+        .accessibilityLabel("Error: \(msg)")
     }
 
     private var emptyState: some View {
@@ -222,5 +236,6 @@ struct TopProcessesView: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 200)
+        .accessibilityElement(children: .combine)
     }
 }

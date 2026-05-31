@@ -48,6 +48,8 @@ struct SubnetCalculatorView: View {
                     Text("Subnet Calculator")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Subnet Calculator Tool")
                 
                 Divider().frame(height: 16).padding(.horizontal, 4)
                 
@@ -56,6 +58,7 @@ struct SubnetCalculatorView: View {
                     .controlSize(.large)
                     .frame(width: 250)
                     .onSubmit { vm.calculate() }
+                    .accessibilityLabel("IP Address Input")
                     .overlay(alignment: .trailing) {
                         if !history.hosts.isEmpty {
                             Menu {
@@ -71,6 +74,7 @@ struct SubnetCalculatorView: View {
                             .menuStyle(.borderlessButton)
                             .frame(width: 28)
                             .padding(.trailing, 4)
+                            .accessibilityLabel("Host History")
                         }
                     }
 
@@ -90,11 +94,13 @@ struct SubnetCalculatorView: View {
                             .pickerStyle(.menu)
                             .frame(width: 70)
                             .onChange(of: vm.prefix) { vm.calculate() }
+                            .accessibilityLabel("Network Prefix Length")
                         }
                         
                         Slider(value: Binding(get: { Double(vm.prefix) }, set: { vm.updatePrefix(Int($0)) }), in: 0...32, step: 1)
                             .frame(width: 120)
                             .tint(.accentColor)
+                            .accessibilityLabel("Adjust Prefix Length")
                     }
 
                     if let result = vm.result {
@@ -106,12 +112,14 @@ struct SubnetCalculatorView: View {
                             Label("Copy Info", systemImage: "doc.on.clipboard")
                         }
                         .buttonStyle(.bordered)
+                        .accessibilityLabel("Copy result summary to clipboard")
                     }
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -126,6 +134,7 @@ struct SubnetCalculatorView: View {
             Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
             Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
+        .accessibilityAddTraits(.isHeader)
     }
 
     private func interpretationSection(_ r: SubnetResult) -> some View {
@@ -146,6 +155,9 @@ struct SubnetCalculatorView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("IPv4 Class \(r.ipClass) Network for \(r.address) with prefix \(r.prefix).")
+            
             Spacer()
         }
     }
@@ -193,6 +205,7 @@ struct SubnetCalculatorView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                .accessibilityLabel("Binary mask visualization: \(r.binaryMask)")
         }
     }
 
@@ -233,5 +246,7 @@ struct SubnetDetailCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }

@@ -9,10 +9,10 @@ final class SystemMonitor {
     var cpuUsage: Double = 0.0
     var memoryPressure: String = "Normal"
     var memoryColor: String = "green"
-    
-    nonisolated(unsafe) private var timer: Timer?
-    nonisolated(unsafe) private var lastCpuInfo: processor_info_array_t?
-    nonisolated(unsafe) private var lastCpuInfoCount: mach_msg_type_number_t = 0
+
+    private var timer: Timer?
+    private var lastCpuInfo: processor_info_array_t?
+    private var lastCpuInfoCount: mach_msg_type_number_t = 0
     
     init() {
         start()
@@ -30,15 +30,6 @@ final class SystemMonitor {
         timer?.invalidate()
         timer = nil
         freeLastCpuInfo()
-    }
-
-    deinit {
-        timer?.invalidate()
-        if let info = lastCpuInfo {
-            vm_deallocate(mach_task_self_,
-                          vm_address_t(bitPattern: info),
-                          vm_size_t(lastCpuInfoCount) * vm_size_t(MemoryLayout<integer_t>.stride))
-        }
     }
 
     private func freeLastCpuInfo() {

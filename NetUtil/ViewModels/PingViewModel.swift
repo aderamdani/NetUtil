@@ -9,7 +9,7 @@ final class PingViewModel {
     private(set) var results: [PingResult] = []
     private(set) var stats = PingStats()
     private(set) var isRunning = false
-    private(set) var rawLines: [String] = []
+    private(set) var rawLines: [PingLogLine] = []
     private(set) var error: String?
     private(set) var resolvedIP: String?
     private(set) var beepOnLoss: Bool = false
@@ -100,7 +100,8 @@ final class PingViewModel {
                 guard let self else { return }
                 if let resolved { self.resolvedIP = resolved }
                 
-                self.rawLines.append(contentsOf: lines)
+                let newLogLines = lines.map { PingLogLine(text: $0) }
+                self.rawLines.append(contentsOf: newLogLines)
                 if self.rawLines.count > Self.rawLinesLimit {
                     self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
                 }

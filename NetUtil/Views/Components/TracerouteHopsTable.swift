@@ -104,9 +104,12 @@ private struct HopRowView: View {
             }
             .buttonStyle(.borderless)
             .frame(width: 40)
+            .accessibilityLabel("Show IP Geolocation Info")
         }
         .padding(.vertical, 10).padding(.horizontal, 16)
         .background(isSelected ? Color.accentColor.opacity(0.05) : Color.clear)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Hop \(hop.hop): \(hop.displayHost). Latency: \(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "Timeout")")
     }
 
     private var avgColor: Color {

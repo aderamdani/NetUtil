@@ -52,6 +52,8 @@ struct RouteTableView: View {
                     Text("Routing Table")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Routing Table Tool")
                 
                 Spacer()
                 
@@ -62,6 +64,7 @@ struct RouteTableView: View {
                     }
                     .pickerStyle(.segmented)
                     .frame(width: 120)
+                    .accessibilityLabel("IP Version Selector")
                     
                     HStack(spacing: 8) {
                         Image(systemName: "line.3.horizontal.decrease.circle")
@@ -70,6 +73,7 @@ struct RouteTableView: View {
                             .textFieldStyle(.plain)
                             .font(.subheadline)
                             .frame(width: 150)
+                            .accessibilityLabel("Filter by destination")
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
@@ -82,11 +86,13 @@ struct RouteTableView: View {
                         Label("Refresh", systemImage: "arrow.clockwise")
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Refresh routing table")
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -101,6 +107,7 @@ struct RouteTableView: View {
             Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
             Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
+        .accessibilityAddTraits(.isHeader)
     }
 
     private var interpretationSection: some View {
@@ -121,11 +128,14 @@ struct RouteTableView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("System Routing Policy. \(entries.filter { $0.isIPv6 == showIPv6 }.count) active \(showIPv6 ? "IPv6" : "IPv4") routes.")
             
             Spacer()
             
             if isLoading {
                 ProgressView().controlSize(.small).padding(.trailing, 8)
+                    .accessibilityLabel("Loading routing table")
             }
             
             VStack(alignment: .trailing, spacing: 4) {
@@ -137,6 +147,8 @@ struct RouteTableView: View {
             .padding(.vertical, 8)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Last synced at \(lastUpdated.formatted(date: .omitted, time: .standard))")
         }
     }
 

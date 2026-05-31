@@ -55,6 +55,23 @@ final class PortScanViewModel {
 
     // MARK: - Core scan (off main actor)
 
+    private nonisolated final class ScanState: @unchecked Sendable {
+        private let lock = NSLock()
+        private var _isDone = false
+        var isDone: Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            return _isDone
+        }
+        func setDone() -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            if _isDone { return false }
+            _isDone = true
+            return true
+        }
+    }
+
     private static func runScan(
         host: String,
         ports: [Int],
@@ -88,26 +105,27 @@ final class PortScanViewModel {
 
     private static func checkPort(port: Int, host: String, timeout: Double) async -> PortResult {
         let start = Date()
+        let scanState = ScanState()
+        
         let status: PortStatus = await withCheckedContinuation { continuation in
             let conn = NWConnection(
                 host: NWEndpoint.Host(host),
                 port: NWEndpoint.Port(integerLiteral: UInt16(port)),
                 using: .tcp
             )
-            var done = false
 
             conn.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
-                    guard !done else { return }
-                    done = true
-                    conn.cancel()
-                    continuation.resume(returning: .open)
+                    if scanState.setDone() {
+                        conn.cancel()
+                        continuation.resume(returning: .open)
+                    }
                 case .failed:
-                    guard !done else { return }
-                    done = true
-                    conn.cancel()
-                    continuation.resume(returning: .closed)
+                    if scanState.setDone() {
+                        conn.cancel()
+                        continuation.resume(returning: .closed)
+                    }
                 default:
                     break
                 }
@@ -115,10 +133,10 @@ final class PortScanViewModel {
             conn.start(queue: .global(qos: .utility))
 
             DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
-                guard !done else { return }
-                done = true
-                conn.cancel()
-                continuation.resume(returning: .filtered)
+                if scanState.setDone() {
+                    conn.cancel()
+                    continuation.resume(returning: .filtered)
+                }
             }
         }
 
