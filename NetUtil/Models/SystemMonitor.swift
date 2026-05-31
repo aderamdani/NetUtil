@@ -9,12 +9,18 @@ final class SystemMonitor {
     var cpuUsage: Double = 0.0
     var memoryPressure: String = "Normal"
     var memoryColor: String = "green"
+    var ramUsedGB: Double = 0
+    let ramTotalGB: Double
 
     private var timer: Timer?
     private var lastCpuInfo: processor_info_array_t?
     private var lastCpuInfoCount: mach_msg_type_number_t = 0
-    
+
     init() {
+        var size: UInt64 = 0
+        var len = MemoryLayout<UInt64>.size
+        sysctlbyname("hw.memsize", &size, &len, nil, 0)
+        ramTotalGB = Double(size) / (1024 * 1024 * 1024)
         start()
     }
     
@@ -101,7 +107,10 @@ final class SystemMonitor {
             let total = Double(stats.free_count + stats.active_count + stats.inactive_count + stats.wire_count)
             let used = Double(stats.active_count + stats.wire_count + stats.compressor_page_count)
             let ratio = used / total
-            
+
+            let pageSize = Double(vm_kernel_page_size)
+            ramUsedGB = used * pageSize / (1024 * 1024 * 1024)
+
             if ratio > 0.9 {
                 memoryPressure = "Critical"
                 memoryColor = "red"
