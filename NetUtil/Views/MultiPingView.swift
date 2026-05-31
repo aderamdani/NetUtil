@@ -8,6 +8,7 @@ struct MultiPingView: View {
     @State private var newHost = ""
     @State private var expandedSlotID: UUID?
     @State private var showLearningGuide = false
+    @State private var showImportSheet = false
     @AppStorage("rttWarnThreshold") private var rttWarn: Double = 20.0
     @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
 
@@ -47,6 +48,13 @@ struct MultiPingView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Multi-Ping") }
+        .sheet(isPresented: $showImportSheet) {
+            ImportHostsSheet { hosts in
+                for host in hosts {
+                    vm.add(host: host)
+                }
+            }
+        }
     }
 
     private var controlBar: some View {
@@ -92,6 +100,11 @@ struct MultiPingView: View {
                 Spacer()
                 
                 HStack(spacing: 12) {
+                    Button(action: { showImportSheet = true }) {
+                        Label("Import", systemImage: "square.and.arrow.down")
+                    }
+                    .buttonStyle(.bordered)
+                    
                     HStack(spacing: 8) {
                         Text("Sort")
                             .font(.caption2.weight(.bold))
