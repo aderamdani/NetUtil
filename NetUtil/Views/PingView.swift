@@ -292,6 +292,9 @@ struct PingView: View {
                 }
             }
         }
+        .chartPlotStyle { plotArea in
+            plotArea.padding(.top, 10).padding(.bottom, 10)
+        }
         .chartXAxis(.hidden)
     }
 
