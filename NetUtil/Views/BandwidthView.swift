@@ -192,7 +192,7 @@ struct BandwidthView: View {
                 }
             }
             .chartXAxis(.hidden)
-            .chartPlotStyle { $0.padding(.vertical, 8) }
+            .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
             .frame(height: 140)
             .drawingGroup()
 

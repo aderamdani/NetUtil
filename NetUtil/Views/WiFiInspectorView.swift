@@ -178,7 +178,8 @@ struct WiFiInspectorView: View {
                     }
                 }
             }
-            .drawingGroup() // PERFORMANCE: Optimized for real-time signal chart
+            .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+            .drawingGroup()
             .frame(height: 120)
             .padding(20)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))

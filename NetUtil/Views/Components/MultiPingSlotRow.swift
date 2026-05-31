@@ -128,7 +128,8 @@ struct MultiPingSlotRow: View {
                         }
                     }
                     .chartXAxis(.hidden)
-                    .drawingGroup() // PERFORMANCE: Optimized for real-time rendering
+                    .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+                    .drawingGroup()
                     .frame(height: 80)
                     .padding(.horizontal, 32)
                     .padding(.vertical, 16)
