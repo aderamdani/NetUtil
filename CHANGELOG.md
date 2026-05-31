@@ -4,6 +4,20 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.1.0] — 2026-05-31
+
+### Added
+- **Speed Test full UI**: Complete implementation replacing the placeholder view.
+  - Kind selector (Speed / Browsing / Gaming / Streaming) as segmented control in control bar.
+  - Live metric cards per kind: Speed shows Download/Upload/Ping/Jitter; Browsing shows Sites/Avg Load/Median TTFB; Gaming shows Median Ping/P99/Jitter/Loss; Streaming shows Avg Mbps/Min Mbps/Tier.
+  - Linear progress bar with phase label and percentage during active test.
+  - Interactive empty state with kind selection cards showing each test's description.
+  - History table with editable result labels (click to rename), kind icon, primary/secondary metrics, per-row delete, and clear all.
+  - Color-coded metrics: speed tiers, ping quality, streaming tier.
+  - Full PDF and CSV export connected to Exporter.
+
+---
+
 ## [4.0.1] — 2026-05-31
 
 ### Fixed
