@@ -2,6 +2,8 @@ import SwiftUI
 import AppKit
 
 struct SubnetScanView: View {
+    @Binding var selection: Tool?
+    @Environment(ToolStore.self) private var tools
     @State private var viewModel = SubnetScanViewModel()
     @State private var host = ""
     @State private var showLearningGuide = false
@@ -160,9 +162,29 @@ struct SubnetScanView: View {
         .padding(.vertical, 8)
         .contextMenu {
             if result.status == .alive {
-                Button("Ping") { /* TODO */ }
-                Button("Port Scan") { /* TODO */ }
-                Button("Traceroute") { /* TODO */ }
+                Button {
+                    tools.ping.start(host: result.ip, count: 20, interval: 1.0)
+                    selection = .ping
+                } label: {
+                    Label("Ping", systemImage: "antenna.radiowaves.left.and.right")
+                }
+
+                Button {
+                    tools.portScan.scan(host: result.ip,
+                                        ports: PortPreset.common.ports ?? [],
+                                        concurrency: 50, timeout: 1.5)
+                    selection = .portScan
+                } label: {
+                    Label("Port Scan", systemImage: "checklist")
+                }
+
+                Button {
+                    tools.traceroute.start(host: result.ip, maxHops: 30, interval: 5.0)
+                    selection = .traceroute
+                } label: {
+                    Label("Traceroute", systemImage: "point.3.connected.trianglepath.dotted")
+                }
+
                 Divider()
                 Button("Copy IP") { copy(result.ip) }
                 if let mac = result.macAddress { Button("Copy MAC") { copy(mac) } }

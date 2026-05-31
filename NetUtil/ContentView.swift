@@ -242,7 +242,7 @@ struct ContentView: View {
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
         case .subnet:       SubnetCalculatorView(vm: tools.subnet)
-        case .subnetScan:   SubnetScanView()
+        case .subnetScan:   SubnetScanView(selection: $selection)
         case .statistics:   StatisticsView()
         case .speedTest:    SpeedTestView(vm: tools.speedTest)
         case .topApps:      TopProcessesView(vm: tools.topApps)
