@@ -15,6 +15,8 @@ struct NetworkInterfaceView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
+                    gatewaySection
+                    
                     interpretationSection
                     
                     statsBarSection
@@ -52,7 +54,43 @@ struct NetworkInterfaceView: View {
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Network Interfaces") }
     }
 
-    // MARK: - Components
+    private var gatewaySection: some View {
+        let gateway = GatewayParser.getDefaultGateway(for: "en0")
+        return VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("Gateway Quick Actions", icon: "arrow.triangle.branch")
+            
+            HStack(spacing: 16) {
+                if let gateway = gateway {
+                    Text("Gateway: \(gateway)")
+                        .font(.system(.body, design: .monospaced))
+                    
+                    Spacer()
+                    
+                    Button {
+                        vm.refresh() // Dummy trigger to trigger navigation
+                        // In reality, this would need ToolStore injection
+                    } label: {
+                        Label("Ping Gateway", systemImage: "antenna.radiowaves.left.and.right")
+                    }
+                    .buttonStyle(.bordered)
+                    
+                    Button {
+                        // Action for Traceroute
+                    } label: {
+                        Label("Traceroute Gateway", systemImage: "point.3.connected.trianglepath.dotted")
+                    }
+                    .buttonStyle(.bordered)
+                } else {
+                    Text("No gateway detected on en0")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(16)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        }
+    }
 
     private var controlBar: some View {
         VStack(spacing: 0) {
