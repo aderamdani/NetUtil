@@ -4,7 +4,7 @@ import UserNotifications
 
 struct SSLInspectorView: View {
     var vm: SSLInspectorViewModel
-    @State private var watchlist = SSLWatchlist()
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var host = ""
     @State private var portText = "443"
@@ -99,7 +99,7 @@ struct SSLInspectorView: View {
                     }
 
                     if let result = vm.result {
-                        let isWatched = watchlist.items.contains { $0.domain == host }
+                        let isWatched = tools.sslWatchlist.items.contains { $0.domain == host }
 
                         ReportMenuButton(
                             onExportPDF: { Exporter.saveSSLPDF(result: result, host: host) },
@@ -116,11 +116,11 @@ struct SSLInspectorView: View {
 
                         Button {
                             if isWatched {
-                                if let item = watchlist.items.first(where: { $0.domain == host }) {
-                                    watchlist.remove(id: item.id)
+                                if let item = tools.sslWatchlist.items.first(where: { $0.domain == host }) {
+                                    tools.sslWatchlist.remove(id: item.id)
                                 }
                             } else {
-                                watchlist.add(domain: host)
+                                tools.sslWatchlist.add(domain: host)
                                 UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge]) { _, _ in }
                             }
                         } label: {

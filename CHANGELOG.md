@@ -4,6 +4,24 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.4.0] — 2026-05-31
+
+### Changed
+- **Dashboard Live Data Cards**: Traceroute, SSL/TLS, HTTP Latency, DNS, and WHOIS cards now display last session results instead of static placeholder labels. Added Speed Test card (↓/↑ Mbps + download sparkline) and Subnet Scanner card (CIDR + alive host count).
+- **Network Health Summary Bar**: New full-width status bar below the dashboard header showing real-time system health — SSL certificate critical/warning state, Ping packet loss alerts, and Wi-Fi signal weakness. Displays most critical issue with color-coded icon.
+- **System Gauges — RAM**: Gauge now shows actual used/total GB subtitle (e.g. "8.4 / 16 GB") and `.help()` tooltip with percentage. Total RAM read via `hw.memsize` sysctl; used RAM computed from `vm_statistics64`.
+- **System Gauges — CPU**: Added `.help()` tooltip showing usage percentage and logical core count.
+- **App Uptime Counter**: Live "Xh Ym" / "Xm" uptime display in dashboard header, updated every 60 seconds via async `.task`.
+- **Ping Chart**: Hover tooltip rendered outside chart bounds (ZStack sibling) — no longer clipped at left/right/top edges. Chart now uses tight `chartXScale` domain for full-width rendering. X-axis shows sequence number labels (#10, #20…) with dynamic stride (10/25/50 based on packet count).
+- **PDF Export (all tools)**: Fixed blank exports in dark mode. All 10 PDF export functions now force `.aqua` NSAppearance during rendering and use explicit fixed colors (`NSColor.black`, white: 0.35/0.55/0.78) instead of semantic `NSColor.labelColor` / `separatorColor` that resolve to white in dark mode.
+
+### Internal
+- `SSLWatchlist` moved to `ToolStore` (shared singleton); `SSLInspectorView` migrated from `@State` instance to `@Environment(ToolStore.self)`.
+- `DNSViewModel` and `WhoisViewModel` now track `lastQuery` for dashboard display.
+- `SystemMonitor` exposes `ramUsedGB` / `ramTotalGB` (constant, computed at init).
+
+---
+
 ## [4.3.0] — 2026-05-31
 
 ### Added

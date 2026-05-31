@@ -1,7 +1,7 @@
 # NetUtil — Roadmap & Development Plan
 
 > Last updated: 2026-05-31
-> Current version: 4.3.0
+> Current version: 4.4.0
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Tool | Core Capability | Status |
 |------|----------------|--------|
-| Dashboard | Live mission control: sparklines, CPU/RAM, VPN, gateway | Optimized (v4.3.0) |
+| Dashboard | Live mission control: sparklines, CPU/RAM, VPN, gateway, health bar, uptime | Optimized (v4.4.0) |
 | Ping | RTT chart, jitter, distribution, health strip, audio feedback | Optimized (v4.3.0) |
 | Traceroute | Hops / Timeline / Map / Raw, geo, bottleneck, host history | Optimized (v4.3.0) |
 | Multi-Ping | Concurrent sessions, sparklines, bulk import, PDF report | Optimized (v4.3.0) |
@@ -33,6 +33,15 @@
 ---
 
 ## Recent Milestones
+
+### Version 4.4.0 — Dashboard Enhancement & Quality Fixes (2026-05-31)
+- Dashboard: live data in Traceroute, SSL, HTTP Latency, DNS, WHOIS cards
+- Dashboard: Speed Test + Subnet Scanner cards added (with sparklines)
+- Dashboard: Network Health Summary Bar (SSL/Ping/Wi-Fi status)
+- Dashboard: RAM GB subtitle + CPU/RAM `.help()` tooltips + app uptime counter
+- Ping chart: external tooltip (no clipping), tight X scale, sequence X-axis labels
+- PDF export: fixed blank output in dark mode (explicit colors + forced aqua appearance)
+- `SSLWatchlist` centralized in ToolStore; DNS/WHOIS VMs track `lastQuery`
 
 ### Version 4.3.0 — Bug Fixes & Bandwidth Monitor (2026-05-31)
 - Bandwidth Monitor: full live UI replacing placeholder (60s chart, per-interface sparklines, pause/resume)
@@ -110,6 +119,7 @@
 
 | Version | Milestone |
 |---------|-----------|
+| **v4.4.0** | Dashboard live data cards, health summary bar, gauge enhancements, uptime counter, Ping chart fixes, PDF dark mode fix |
 | **v4.3.0** | Bandwidth Monitor full UI, Traceroute history, chart fixes, Swift 6 clean |
 | **v4.2.0** | Subnet Scanner context menu quick actions |
 | **v4.1.0** | Speed Test full UI implementation |

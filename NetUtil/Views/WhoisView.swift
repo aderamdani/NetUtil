@@ -290,10 +290,11 @@ class WhoisViewModel {
     var lines: [WhoisLine] = []
     var isRunning = false
     var error: String?
+    var lastQuery: String = ""
     private var process: Process?
 
     func lookup(_ query: String) {
-        isRunning = true; error = nil; lines = []
+        isRunning = true; error = nil; lines = []; lastQuery = query
         let p = Process(); p.executableURL = URL(fileURLWithPath: "/usr/bin/whois"); p.arguments = [query]
         let pipe = Pipe(); p.standardOutput = pipe; p.standardError = Pipe()
         p.terminationHandler = { _ in

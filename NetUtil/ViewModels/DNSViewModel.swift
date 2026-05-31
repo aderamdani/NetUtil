@@ -9,6 +9,7 @@ final class DNSViewModel {
     private(set) var isRunning = false
     private(set) var rawOutput = ""
     private(set) var error: String?
+    private(set) var lastQuery: String = ""
 
     @ObservationIgnored nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?
@@ -21,6 +22,7 @@ final class DNSViewModel {
         rawOutput = ""
         error = nil
         isRunning = true
+        lastQuery = host
 
         let p = Process()
         let pipe = Pipe()

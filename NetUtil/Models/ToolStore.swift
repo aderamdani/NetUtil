@@ -24,6 +24,7 @@ final class ToolStore {
     let topApps     = TopProcessesViewModel()
     let speedTest   = SpeedTestViewModel()
     let statistics  = TrafficStatistics()
+    let sslWatchlist = SSLWatchlist()
 
     var externalIP: String = "Checking..."
     var isVPNActive: Bool = false
