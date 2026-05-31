@@ -4,6 +4,17 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.5.0] — 2026-05-31
+
+### Changed
+- **Full UX Consistency Audit**: 153-check audit across all 17 tools × 9 criteria. 14 fixes applied, zero remaining violations.
+- **Mood Bars (6 tools)**: Added real-time interpretation bars to Multi-Ping (active/loss summary), HTTP Latency (TTFB health), DNS (records resolved/query time), Bandwidth (throughput status), Statistics (today's total), and Speed Test (last result type + values).
+- **Report Menu (4 tools)**: Added `ReportMenuButton` with CSV export to Top Processes, Network Interfaces, Wi-Fi Inspector, and Route Table. Added corresponding `csvString(from:)` methods to `Exporter`.
+- **Chart Fixes (StatisticsView)**: Realtime chart now uses explicit `chartYScale` with 15% headroom and `drawingGroup()`. Daily bar chart adds `drawingGroup()`.
+- **Multi-Ping Sparkline**: Expanded chart now uses index-based X-axis (sequence numbers #N) instead of timestamps, enabling sequence labels and proper domain clamping.
+
+---
+
 ## [4.4.1] — 2026-05-31
 
 ### Fixed
