@@ -14,8 +14,11 @@ final class PingViewModel {
     private(set) var resolvedIP: String?
     private(set) var beepOnLoss: Bool = false
     private(set) var currentHost: String = ""
+    var quickLaunchHost: String? = nil
+    var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     @ObservationIgnored nonisolated(unsafe) private var process: Process?
+    private var sessionStartTime: Date = Date()
     private var outputPipe: Pipe?
 
     private static let rawLinesLimit = 500
@@ -55,6 +58,7 @@ final class PingViewModel {
         resolvedIP = nil
         currentHost = host
         isRunning = true
+        sessionStartTime = Date()
         
         // Batch timer: update UI every 100ms instead of per packet
         batchTimer = Timer.publish(every: 0.1, on: .main, in: .common)
@@ -176,6 +180,23 @@ final class PingViewModel {
         process = nil
         outputPipe = nil
         isRunning = false
+        logSession()
+    }
+
+    private func logSession() {
+        guard stats.transmitted > 0, !currentHost.isEmpty else { return }
+        let duration = Date().timeIntervalSince(sessionStartTime)
+        let summary = String(format: "%d pkts, %.1f%% loss, avg %.1f ms",
+                             stats.transmitted, stats.loss, stats.avgRtt)
+        let status: SessionStatus = stats.loss > 50 ? .failed : stats.loss > 0 ? .partial : .success
+        var record = SessionRecord(tool: "ping", target: currentHost,
+                                   summary: summary, status: status, duration: duration)
+        record.pingStats = PingStatsSnapshot(
+            transmitted: stats.transmitted, received: stats.received,
+            avgRtt: stats.avgRtt,
+            minRtt: stats.minRtt == .infinity ? 0 : stats.minRtt,
+            maxRtt: stats.maxRtt, jitter: stats.jitter)
+        onSessionComplete?(record)
     }
 
     nonisolated static func parseHeader(_ line: String) -> String? {

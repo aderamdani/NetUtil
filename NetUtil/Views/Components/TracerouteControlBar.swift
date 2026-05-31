@@ -12,6 +12,8 @@ struct TracerouteControlBar: View {
     let hasHops: Bool
     let onExportPDF: () -> Void
     let onExportCSV: () -> Void
+    var isFavorite: Bool = false
+    var onToggleFavorite: (() -> Void)? = nil
     
     var body: some View {
         VStack(spacing: 0) {
@@ -74,6 +76,15 @@ struct TracerouteControlBar: View {
                     .buttonStyle(.borderedProminent)
                     .tint(isRunning ? .red : .accentColor)
                     
+                    if !host.isEmpty, let onToggle = onToggleFavorite {
+                        Button(action: onToggle) {
+                            Image(systemName: isFavorite ? "star.fill" : "star")
+                                .foregroundColor(isFavorite ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFavorite ? "Remove from Favorites" : "Add to Favorites")
+                    }
+
                     Button(action: onShowGuide) {
                         Image(systemName: "questionmark.circle")
                     }

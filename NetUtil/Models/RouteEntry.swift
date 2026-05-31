@@ -12,12 +12,13 @@ struct RouteEntry: Identifiable {
 
     var flagDescriptions: [String] {
         var desc: [String] = []
-        if flags.contains("U") { desc.append("Up") }
-        if flags.contains("G") { desc.append("Gateway") }
-        if flags.contains("H") { desc.append("Host") }
-        if flags.contains("S") { desc.append("Static") }
-        if flags.contains("C") { desc.append("Cloned") }
-        if flags.contains("W") { desc.append("WasCloned") }
+        let f = flags.uppercased()
+        if f.contains("U") { desc.append("Up") }
+        if f.contains("G") { desc.append("Gateway") }
+        if f.contains("H") { desc.append("Host") }
+        if f.contains("S") { desc.append("Static") }
+        if f.contains("C") { desc.append("Cloned") }
+        if f.contains("W") { desc.append("WasCloned") }
         return desc
     }
 }

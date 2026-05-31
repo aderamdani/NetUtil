@@ -89,7 +89,7 @@ final class SystemMonitor {
         var size = MemoryLayout<Int32>.size
         
         // Use sysctl to get memory pressure
-        if sysctlbyname("kern.memo_status_level", &pressure, &size, nil, 0) == 0 {
+        if sysctlbyname("kern.memorystatus_level", &pressure, &size, nil, 0) == 0 {
             // macOS 0-100 scale where lower is more pressure (usually)
             // or use HOST_VM_INFO
         }
@@ -118,8 +118,8 @@ final class SystemMonitor {
                 memoryPressure = "High"
                 memoryColor = "orange"
             } else {
-                memoryPressure = "Healthy"
-                memoryColor = "blue"
+                memoryPressure = "Normal"
+                memoryColor = "green"
             }
         }
     }

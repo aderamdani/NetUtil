@@ -3,6 +3,7 @@ import Observation
 
 struct DNSView: View {
     var vm: DNSViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var host = ""
     @State private var recordType = DNSRecordType.a
@@ -158,6 +159,15 @@ struct DNSView: View {
                     .disabled(!vm.isRunning && host.isEmpty)
                     .accessibilityLabel(vm.isRunning ? "Stop Lookup" : "Start Lookup")
                     
+                    if !host.isEmpty {
+                        let isFav = tools.favorites.isFavorite(host)
+                        Button { tools.favorites.toggle(host: host) } label: {
+                            Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                    }
+
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }

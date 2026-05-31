@@ -4,6 +4,7 @@ import Observation
 
 struct PortScanView: View {
     var vm: PortScanViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var host = ""
     @State private var preset = PortPreset.common
@@ -37,7 +38,9 @@ struct PortScanView: View {
                 onExportPDF: { Exporter.savePortScanPDF(results: displayResults, host: host) },
                 onExportCSV: { exportCSV(displayResults) },
                 hasResults: !vm.results.isEmpty,
-                history: history
+                history: history,
+                isFavorite: tools.favorites.isFavorite(host),
+                onToggleFavorite: { tools.favorites.toggle(host: host) }
             )
             
             ScrollView {
@@ -91,6 +94,9 @@ struct PortScanView: View {
             timeout = defaultTimeout
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Port Scanner") }
+        .onAppear {
+            if let h = vm.quickLaunchHost { host = h; vm.quickLaunchHost = nil; startAction() }
+        }
     }
 
     // MARK: - Components

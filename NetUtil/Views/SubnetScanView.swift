@@ -96,6 +96,15 @@ struct SubnetScanView: View {
                     .tint(viewModel.isScanning ? .red : .accentColor)
                     .accessibilityLabel(viewModel.isScanning ? "Stop Scan" : "Start Scan")
 
+                    if !viewModel.cidrInput.isEmpty {
+                        let isFav = tools.favorites.isFavorite(viewModel.cidrInput)
+                        Button { tools.favorites.toggle(host: viewModel.cidrInput) } label: {
+                            Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                    }
+
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }

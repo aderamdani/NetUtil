@@ -11,6 +11,8 @@ struct PortScanControlBar: View {
     let onExportCSV: () -> Void
     let hasResults: Bool
     let history: HostHistory
+    var isFavorite: Bool = false
+    var onToggleFavorite: (() -> Void)? = nil
     
     var body: some View {
         VStack(spacing: 0) {
@@ -84,6 +86,15 @@ struct PortScanControlBar: View {
                     .disabled(!isRunning && host.isEmpty)
                     .accessibilityLabel(isRunning ? "Stop Scanning" : "Start Scanning")
                     
+                    if !host.isEmpty, let onToggle = onToggleFavorite {
+                        Button(action: onToggle) {
+                            Image(systemName: isFavorite ? "star.fill" : "star")
+                                .foregroundColor(isFavorite ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFavorite ? "Remove from Favorites" : "Add to Favorites")
+                    }
+
                     Button(action: onShowGuide) {
                         Image(systemName: "questionmark.circle")
                     }
@@ -93,7 +104,7 @@ struct PortScanControlBar: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
-            
+
             Divider()
         }
     }

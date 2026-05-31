@@ -76,7 +76,9 @@ final class SubnetScanViewModel {
     }
 
     private func finalizeScan() async {
-        enrichWithARP()
+        let arpOutput = await fetchARPOutput()
+        applyARP(output: arpOutput)
+
         for i in 0..<results.count {
             if results[i].status == .alive {
                 results[i].hostname = await resolveHostname(results[i].ip)
@@ -84,34 +86,46 @@ final class SubnetScanViewModel {
         }
     }
 
-    private func resolveHostname(_ ip: String) async -> String? {
+    private nonisolated func resolveHostname(_ ip: String) async -> String? {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/host")
         process.arguments = [ip]
         let pipe = Pipe()
         process.standardOutput = pipe
-        try? process.run()
-        process.waitUntilExit()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8) ?? ""
-        if let range = output.range(of: "pointer ") {
-            let host = String(output[range.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ".", with: "")
-            return host
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(data: data, encoding: .utf8) ?? ""
+            if let range = output.range(of: "pointer ") {
+                let host = String(output[range.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ".", with: "")
+                return host
+            }
+        } catch {
+            return nil
         }
         return nil
     }
 
-    private func enrichWithARP() {
+    private nonisolated func fetchARPOutput() async -> String {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/arp")
         process.arguments = ["-an"]
         let pipe = Pipe()
         process.standardOutput = pipe
-        try? process.run()
-        process.waitUntilExit()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8) ?? ""
-        
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            return String(data: data, encoding: .utf8) ?? ""
+        } catch {
+            return ""
+        }
+    }
+
+    private func applyARP(output: String) {
         for i in 0..<results.count {
             if let range = output.range(of: "(\(results[i].ip)) at ") {
                 let substring = output[range.upperBound...]

@@ -66,12 +66,13 @@ struct NetworkMath {
     
     private static func detectClass(_ value: UInt32) -> String {
         let firstOctet = value >> 24
-        if firstOctet <= 126 { return "A" }
+        if firstOctet >= 1 && firstOctet <= 126 { return "A" }
         if firstOctet == 127 { return "Loopback" }
-        if firstOctet <= 191 { return "B" }
-        if firstOctet <= 223 { return "C" }
-        if firstOctet <= 239 { return "D (Multicast)" }
-        return "E (Experimental)"
+        if firstOctet >= 128 && firstOctet <= 191 { return "B" }
+        if firstOctet >= 192 && firstOctet <= 223 { return "C" }
+        if firstOctet >= 224 && firstOctet <= 239 { return "D (Multicast)" }
+        if firstOctet >= 240 { return "E (Experimental)" }
+        return "Unknown"
     }
     
     static func formatRate(_ bps: Double) -> String {
@@ -83,8 +84,8 @@ struct NetworkMath {
 
     static func formatBytes(_ bytes: UInt64) -> String {
         if bytes < 1024 { return "\(bytes) B" }
-        if bytes < 1_048_576 { return String(format: "%.1f KB", Double(bytes) / 1024) }
-        if bytes < 1_073_741_824 { return String(format: "%.1f MB", Double(bytes) / 1_048_576) }
+        if bytes < 1_048_576 { return String(format: "%.2f KB", Double(bytes) / 1024) }
+        if bytes < 1_073_741_824 { return String(format: "%.2f MB", Double(bytes) / 1_048_576) }
         if bytes < 1_099_511_627_776 { return String(format: "%.2f GB", Double(bytes) / 1_073_741_824) }
         return String(format: "%.2f TB", Double(bytes) / 1_099_511_627_776)
     }

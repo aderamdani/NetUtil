@@ -13,6 +13,8 @@ final class TracerouteViewModel {
     private(set) var round = 0
     private(set) var currentHost: String = ""
     private(set) var startTime: Date?
+    var quickLaunchHost: String? = nil
+    var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     var pathAvgRtt: Double? {
         let avgs = hops.compactMap(\.avgRtt)
@@ -60,9 +62,20 @@ final class TracerouteViewModel {
         process = nil
         outputPipe = nil
         isRunning = false
-        
         geoInFlight.values.forEach { $0.cancel() }
         geoInFlight.removeAll()
+        logSession()
+    }
+
+    private func logSession() {
+        guard !hops.isEmpty, !currentHost.isEmpty else { return }
+        let duration = startTime.map { Date().timeIntervalSince($0) } ?? 0
+        let summary = "\(hops.count) hops, avg \(pathAvgRtt.map { String(format: "%.1f ms", $0) } ?? "—")"
+        let status: SessionStatus = hops.isEmpty ? .failed : (pathLoss > 0 ? .partial : .success)
+        var record = SessionRecord(tool: "traceroute", target: currentHost,
+                                   summary: summary, status: status, duration: duration)
+        record.tracerouteHops = hops.map { HopSnapshot(hop: $0.hop, host: $0.displayHost, avgRttMs: $0.avgRtt) }
+        onSessionComplete?(record)
     }
 
     private func runOnce() {
@@ -187,6 +200,7 @@ final class TracerouteViewModel {
         switch parts[0] {
         case 10:  return true
         case 127: return true
+        case 169: return parts[1] == 254
         case 172: return (16...31).contains(parts[1])
         case 192: return parts[1] == 168
         default:  return false

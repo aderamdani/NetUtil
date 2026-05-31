@@ -4,6 +4,7 @@ import Observation
 
 struct HTTPLatencyView: View {
     var vm: HTTPLatencyViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var urlString = ""
     @State private var method = "GET"
@@ -156,7 +157,17 @@ struct HTTPLatencyView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && urlString.isEmpty)
-                    
+
+                    let favHost = URL(string: urlString)?.host ?? urlString
+                    if !favHost.isEmpty {
+                        let isFav = tools.favorites.isFavorite(favHost)
+                        Button { tools.favorites.toggle(host: favHost) } label: {
+                            Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                    }
+
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }

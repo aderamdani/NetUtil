@@ -12,8 +12,11 @@ final class PortScanViewModel {
     private(set) var total = 0
     private(set) var openCount = 0
     private(set) var error: String?
+    private(set) var currentHost: String = ""
 
     private(set) var startTime: Date?
+    var quickLaunchHost: String? = nil
+    var onSessionComplete: ((SessionRecord) -> Void)? = nil
     var elapsed: TimeInterval { startTime.map { Date().timeIntervalSince($0) } ?? 0 }
     var eta: TimeInterval? {
         guard scanned > 0, total > scanned else { return nil }
@@ -31,6 +34,7 @@ final class PortScanViewModel {
         total = ports.count
         error = nil
         startTime = Date()
+        currentHost = host
         isRunning = true
 
         scanTask = Task.detached { [weak self] in
@@ -51,6 +55,18 @@ final class PortScanViewModel {
         scanTask?.cancel()
         scanTask = nil
         isRunning = false
+        logSession()
+    }
+
+    private func logSession() {
+        guard !results.isEmpty, !currentHost.isEmpty else { return }
+        let duration = startTime.map { Date().timeIntervalSince($0) } ?? 0
+        let summary = "\(scanned) ports scanned, \(openCount) open"
+        let status: SessionStatus = openCount > 0 ? .success : .partial
+        var record = SessionRecord(tool: "portScan", target: currentHost,
+                                   summary: summary, status: status, duration: duration)
+        record.portResults = results.map { PortResultSnapshot(port: $0.port, service: $0.service, isOpen: $0.status == .open) }
+        onSessionComplete?(record)
     }
 
     // MARK: - Core scan (off main actor)

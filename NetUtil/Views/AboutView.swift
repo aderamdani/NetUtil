@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.5.0"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.6.0"
     private var updater = Updater.shared
 
     var body: some View {
@@ -92,7 +92,9 @@ struct AboutView: View {
         ("list.bullet.rectangle",                  "Top Processes"),
         ("network",                                "Interfaces"),
         ("wifi",                                   "Wi-Fi"),
-        ("arrow.triangle.branch",                  "Routes")
+        ("arrow.triangle.branch",                  "Routes"),
+        ("clock.arrow.circlepath",           "History"),
+        ("arrow.left.arrow.right",                 "Compare")
     ]
 
     private func showAck() {

@@ -10,7 +10,6 @@ final class PortScanViewModelTests: XCTestCase {
         // but we verify result state categorization.
         
         let vm = PortScanViewModel()
-        let ports = [80, 443]
         
         // Ensure state is empty initially
         XCTAssertEqual(vm.results.count, 0)
