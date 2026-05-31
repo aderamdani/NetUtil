@@ -6,5 +6,4 @@
 DerivedData/
 build/
 dist/
-tests-spm/.build/
 xcuserdata/
