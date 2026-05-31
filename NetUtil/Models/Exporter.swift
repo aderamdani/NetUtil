@@ -244,6 +244,43 @@ enum Exporter {
         savePDF(data: pdf, defaultName: "NetUtil-SpeedTest-\(ts).pdf")
     }
 
+    // MARK: - PDF: Port Scan
+    @MainActor static func savePortScanPDF(results: [PortResult], host: String) {
+        let ts = timestamp()
+        let open = results.filter { $0.status == .open }
+        let metaRows: [[String]] = [
+            ["Host", host],
+            ["Total Scanned", "\(results.count)"],
+            ["Open Ports", "\(open.count)"],
+            ["Closed / Filtered", "\(results.count - open.count)"],
+        ]
+        let dataRows: [[String]] = results.map { r in
+            ["\(r.port)", r.service ?? "—", r.status.label,
+             r.responseMs.map { String(format: "%.1f ms", $0) } ?? "—"]
+        }
+        let pdf = PDFReport.build(tool: "Port Scanner", target: host, sections: [
+            ("Summary", metaRows),
+            ("Results", [["Port", "Service", "Status", "Response"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-PortScan-\(host)-\(ts).pdf")
+    }
+
+    // MARK: - PDF: WHOIS
+    @MainActor static func saveWhoisPDF(lines: [WhoisLine], query: String) {
+        let ts = timestamp()
+        let dataRows: [[String]] = lines.compactMap { line -> [String]? in
+            guard let label = line.label, let value = line.value else { return nil }
+            return [label, value]
+        }
+        let rawRows: [[String]] = dataRows.isEmpty
+            ? lines.map { [$0.raw] }
+            : dataRows
+        let pdf = PDFReport.build(tool: "WHOIS", target: query, sections: [
+            ("Registration Data", (dataRows.isEmpty ? [["Raw Output"]] : [["Field", "Value"]]) + rawRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Whois-\(query)-\(ts).pdf")
+    }
+
     // MARK: - Internal
 
     @MainActor private static func savePDF(data: Data, defaultName: String) {

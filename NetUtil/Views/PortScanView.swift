@@ -34,7 +34,7 @@ struct PortScanView: View {
                 customPorts: $customRange,
                 onStart: startAction,
                 onShowGuide: { showLearningGuide = true },
-                onExportPDF: { /* TODO */ },
+                onExportPDF: { Exporter.savePortScanPDF(results: displayResults, host: host) },
                 onExportCSV: { exportCSV(displayResults) },
                 hasResults: !vm.results.isEmpty,
                 history: history
