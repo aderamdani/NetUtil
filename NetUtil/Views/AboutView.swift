@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.3.0"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.4.0"
     private var updater = Updater.shared
 
     var body: some View {
@@ -82,6 +82,7 @@ struct AboutView: View {
         ("checklist",                              "Port Scanner"),
         ("stopwatch",                              "HTTP Latency"),
         ("network.badge.shield.half.filled",       "Subnet Scanner"),
+        ("bonjour",                                "Bonjour Browser"),
         ("number.square",                          "Subnet Calc"),
         ("globe",                                  "DNS Lookup"),
         ("lock.shield",                            "SSL/TLS"),

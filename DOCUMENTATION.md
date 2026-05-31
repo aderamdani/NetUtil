@@ -46,6 +46,7 @@ NetUtil follows a strict **MVVM (Model-View-ViewModel)** architectural pattern.
 
 ### IP Toolbox
 - **Subnet Scanner**: Concurrent ICMP sweep across entire CIDR ranges. Discovers alive hosts, resolves hostnames, enriches with ARP MAC addresses, and provides context menu quick actions (Ping, Port Scan, Traceroute) for each result. CSV and PDF export.
+- **Bonjour Browser**: Local network mDNS/Bonjour service discovery using `NWBrowser` (Network.framework). Select service type from 12 presets (Web Servers, SSH, Printers, AirPlay, SMB, Chromecast, HomeKit, Sleep Proxy, etc.), live-filter discovered services by name, and view resolved host/port.
 - **Subnet Calculator**: Network math utility supporting CIDR prefixes, wildcard masking, IP class detection, and 32-bit binary representation.
 
 ### Discovery & Analysis
@@ -114,5 +115,5 @@ Refer to these internal documents for specific guidance:
 
 ---
 
-*Documentation Version: 4.3.0 (May 31, 2026)*
+*Documentation Version: 4.4.0 (May 31, 2026)*
 *Primary Developer: Ade Ramdani*
