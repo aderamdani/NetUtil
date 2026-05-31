@@ -198,3 +198,138 @@ Add a logic file to the suite by symlinking it into `tests-spm/Sources/NetUtilCo
 (Foundation/AppKit/Combine/CoreLocation/Security/Network only — no SwiftUI) and
 writing a matching `*Tests.swift`. Keep parser funcs `internal` (not `private`) so
 `@testable import NetUtilCore` can reach them.
+
+## T1-1: DNS Server Comparison
+
+**Test Case 1: Basic Comparison**
+1. Buka DNS Lookup → switch mode ke "Compare"
+2. Ketik "google.com", record type A, klik Lookup
+3. Verify: 4 hasil muncul (System, Google, Cloudflare, Quad9)
+4. Verify: semua menampilkan IP yang sama atau serupa
+5. Verify: response time ditampilkan dalam ms, monospaced
+6. Verify: hasil diurutkan tercepat di atas
+7. Verify: baris tercepat ter-highlight subtle
+
+**Contoh hasil yang diharapkan:**
+```
+Resolver     Result           Time    Status
+
+Cloudflare   142.250.4.100    12 ms   OK
+
+Google       142.250.4.100    18 ms   OK
+
+System       142.250.4.100    25 ms   OK
+
+Quad9        142.250.4.100    31 ms   OK
+```
+
+**Test Case 2: Multiple Record Types**
+1. Compare "google.com" dengan record type MX
+2. Verify: setiap resolver menampilkan MX records
+3. Compare "google.com" dengan record type TXT
+4. Verify: SPF/DKIM records muncul
+
+**Test Case 3: Non-existent Domain**
+1. Compare "thisdomaindoesnotexist12345.com"
+2. Verify: semua resolver menampilkan status Error atau NXDOMAIN
+3. Verify: app tidak crash, error message clinical
+
+**Test Case 4: Resolver Timeout**
+1. Compare domain saat salah satu resolver lambat
+2. Verify: hasil yang sudah selesai tampil duluan
+3. Verify: resolver yang timeout menampilkan "Timeout" status
+
+**Test Case 5: Switch Mode**
+1. Jalankan Compare query
+2. Switch kembali ke mode "Single"
+3. Verify: comparison results hilang, kembali ke single result view
+4. Jalankan single query — verify berfungsi normal
+
+## T1-2: SSL Certificate Expiry Watchlist
+
+**Test Case 1: Add to Watchlist**
+1. Buka SSL/TLS Inspector → scan "google.com"
+2. Verify: tombol "Watch" (bell.badge) muncul setelah scan selesai
+3. Klik Watch → verify domain ditambahkan ke watchlist
+4. Verify: tombol berubah jadi "Unwatch" (bell.slash)
+
+**Test Case 2: Watchlist View**
+1. Tambahkan 3 domain ke watchlist: google.com, github.com, expired.badssl.com
+2. Buka watchlist view
+3. Verify: google.com dan github.com menampilkan badge hijau "Safe"
+4. Verify: expired.badssl.com menampilkan badge merah "Expired"
+5. Verify: expiry dates ditampilkan monospaced
+
+**Contoh domain untuk testing status:**
+- Safe (>30 days): google.com, github.com, apple.com, cloudflare.com
+- Expired: expired.badssl.com
+- Self-signed: self-signed.badssl.com
+
+**Test Case 3: Remove from Watchlist**
+1. Swipe atau klik remove pada satu domain
+2. Verify: domain hilang dari list
+3. Buka SSL Inspector untuk domain tersebut — verify tombol kembali ke "Watch"
+
+**Test Case 4: Check All**
+1. Tambahkan 3+ domain ke watchlist
+2. Klik "Check All Now"
+3. Verify: semua domain di-refresh, lastChecked diupdate
+4. Verify: loading indicator muncul selama proses
+
+**Test Case 5: Dashboard Integration**
+1. Tambahkan minimal 1 domain ke watchlist
+2. Buka Dashboard
+3. Verify: mini-card "SSL Watchlist" muncul
+4. Verify: menampilkan jumlah watched dan status summary
+5. Klik card → verify navigate ke SSL Inspector atau watchlist
+
+**Test Case 6: Notification Permission**
+1. Hapus semua domain dari watchlist
+2. Tambahkan domain pertama
+3. Verify: macOS permission dialog muncul untuk notifications
+4. Allow → verify notification terdaftar di System Settings > Notifications
+
+**Test Case 1: Basic Import**
+1. Buka Multi-Ping → klik "Import"
+2. Paste teks berikut ke TextEditor:
+   ```
+   google.com
+   1.1.1.1
+   cloudflare.com
+   8.8.8.8
+   ```
+3. Verify: "4 hosts detected" muncul
+4. Klik Import → verify 4 slot terisi dengan host tersebut
+5. Start All → verify semua slot mulai ping
+
+**Test Case 2: Input dengan noise**
+1. Paste teks berikut (ada baris kosong dan duplikat):
+   ```
+   google.com
+
+   1.1.1.1
+
+   1.1.1.1
+
+   cloudflare.com
+
+   google.com
+   ```
+2. Klik "Import Hosts"
+3. Verify: hanya 3 unique hosts yang terdeteksi (`google.com`, `1.1.1.1`, `cloudflare.com`).
+4. Verify: duplikat dan baris kosong diskip.
+
+**Test Case 3: Paste from Clipboard**
+1. Copy list host ke clipboard (⌘C dari Notes atau TextEdit).
+2. Buka Import sheet → klik "Paste from Clipboard".
+3. Verify: TextEditor terisi dengan konten clipboard.
+
+**Test Case 4: Overflow**
+1. Pastikan hanya ada 2 slot kosong di Multi-Ping.
+2. Import 5 hosts.
+3. Verify: warning muncul bahwa hanya 2 yang bisa diimport.
+4. Verify: 2 slot terisi, sisanya tidak.
+
+**Test Case 5: Input kosong**
+1. Buka Import sheet, biarkan TextEditor kosong.
+2. Verify: tombol Import disabled atau "0 hosts detected".
