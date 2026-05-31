@@ -4,6 +4,24 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.0.0] — 2026-05-31
+
+### Added
+- **Subnet Scanner (Tier 2)**: Concurrent ping sweep across entire subnets with host discovery, ARP enrichment, hostname resolution, MAC address detection, and CSV/PDF export. Context menu quick actions to Ping/Port Scan/Traceroute discovered hosts. Common subnet presets including auto-detect current network.
+- **DNS Server Comparison (T1-1)**: Parallel query across System, Google (8.8.8.8), Cloudflare (1.1.1.1), and Quad9 (9.9.9.9) with side-by-side response time ranking.
+- **SSL Expiry Watchlist (T1-2)**: Background certificate monitoring with local macOS notifications for expiring certificates. Dashboard integration with status badges.
+- **Bulk Host Import (T1-4)**: Paste or import host lists into Multi-Ping with duplicate detection and clipboard integration.
+- **Default Gateway Actions (T1-5)**: Quick Ping/Traceroute buttons in Network Interfaces with automatic gateway detection from route table.
+
+### Changed
+- Expanded test coverage with 8+ new test files covering models, ViewModels, and new features.
+- Migrated test suite from standalone SPM package to native Xcode test target.
+
+### Fixed
+- Y-axis label clipping ("0 ms") on Ping RTT chart.
+
+---
+
 ## [3.5.1] — 2026-05-31
 
 ### Changed

@@ -17,7 +17,7 @@
 
 ### Core Diagnostics
 
-NetUtil provides 16+ integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
+NetUtil provides 17 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
 
 *   **Bento Dashboard**: A dynamic mission control featuring live sparklines, pulsing activity indicators, and real-time CPU/RAM gauges.
 *   **Advanced Ping**: Beyond ICMP. Visualizes latency history with GPU-accelerated charts, analyzes jitter, and provides GitHub-style health strips.
@@ -25,13 +25,11 @@ NetUtil provides 16+ integrated tools designed for precision monitoring, infrast
 *   **Traceroute**: Comprehensive hop-by-hop path discovery with a visual timeline, MapKit geographic routing, and automatic bottleneck detection.
 *   **Port Scanner**: High-speed, parallelized TCP reachability auditing using a modern mini-card grid system.
 *   **HTTP Latency**: Millisecond-precise breakdown of web requests (DNS, TCP, TLS, TTFB) using native `URLSessionTaskMetrics`.
+*   **Subnet Scanner**: Concurrent ping sweep across entire subnets with host discovery, ARP enrichment, hostname resolution, MAC address detection, and CSV/PDF export.
 *   **DNS Comparison**: Parallel DNS resolution across multiple resolvers (System, Google, Cloudflare, Quad9) with query-time comparison.
 *   **SSL Watchlist**: Automated tracking of certificate lifecycles with local notification alerts for near-expiry domains.
-*   **IP Toolbox**: Subnet calculator supporting CIDR prefixes, wildcard masking, and IP class detection.
-*   **Security Audit**: Deep inspection of SSL/TLS certificate chains, SANs, and SHA-256 fingerprints.
-*   **DNS & WHOIS**: Direct access to `dig` and `whois` queries with elegantly parsed, copy-ready outputs.
+*   **Bulk Host Import**: Import or paste host lists into Multi-Ping with duplicate detection.
 *   **Gateway Actions**: Direct diagnostic triggers (Ping/Traceroute) integrated into network gateway analysis.
-*   **Traffic & Interfaces**: Live bandwidth throughput monitors (RX/TX), Wi-Fi signal/SNR analytics, and automatic VLAN (802.1Q) detection.
 *   **Speed Test & Statistics**: Nperf-style four-tier speed tests, real-time per-process network traffic (`nettop`), and daily data usage tracking.
 
 ---
@@ -77,9 +75,11 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 *   **Traceroute Geografis**: Deteksi *hop-by-hop* dengan Peta Rute, grafik *timeline*, dan deteksi *bottleneck* otomatis.
 *   **Port & Security Audit**: Pemindai TCP berkecepatan tinggi dan inspektor sertifikat SSL/TLS mendalam dengan fitur *Watchlist* untuk pemantauan kadaluwarsa.
 *   **HTTP Latency**: Analisis presisi setiap fase akses *web* (DNS, TCP, TLS, TTFB).
+*   **Subnet Scanner**: Pemindaian ping serentak di seluruh subnet untuk penemuan host, pengayaan ARP, resolusi hostname, deteksi MAC address, dan ekspor CSV/PDF.
 *   **DNS Comparison**: Resolusi DNS paralel lintas *resolver* (System, Google, Cloudflare, Quad9) dengan perbandingan waktu kueri.
-*   **IP Toolbox & DNS/WHOIS**: Kalkulator *Subnet* (CIDR), resolusi DNS komprehensif, data kepemilikan domain, dan *Gateway Actions* untuk diagnosa cepat.
-*   **Traffic & Interface**: Monitor *Bandwidth* (RX/TX) *real-time*, analisis sinyal Wi-Fi, dan deteksi otomatis untuk *Virtual LAN* (VLAN).
+*   **SSL Watchlist**: Pemantauan otomatis siklus hidup sertifikat dengan notifikasi lokal untuk domain yang akan kedaluwarsa.
+*   **Bulk Host Import**: Impor atau tempel daftar host ke dalam Multi-Ping dengan deteksi duplikat.
+*   **Gateway Actions**: Pemicu diagnostik langsung (Ping/Traceroute) yang terintegrasi ke dalam analisis gateway jaringan.
 *   **Speed Test & Statistik**: Uji kecepatan jaringan komprehensif, pemantauan trafik *real-time* per aplikasi, dan riwayat penggunaan data harian.
 
 ### Keunggulan Teknis

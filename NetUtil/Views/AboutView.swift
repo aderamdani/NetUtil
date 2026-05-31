@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "3.5.0"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.0.0"
     private var updater = Updater.shared
 
     var body: some View {
@@ -21,16 +21,13 @@ struct AboutView: View {
 
     private var logoHeader: some View {
         VStack(spacing: 16) {
-            Image("AppIcon-Internal") // Placeholder logic or actual asset
+            Image(systemName: "network") // Simplified to SF Symbol for icon
                 .resizable()
+                .scaledToFit()
                 .frame(width: 80, height: 80)
                 .cornerRadius(18)
                 .shadow(radius: 4)
-                .overlay(
-                    Image(systemName: "network")
-                        .font(.system(size: 40))
-                        .foregroundColor(.white)
-                )
+                .foregroundColor(.accentColor)
                 .accessibilityLabel("NetUtil Application Icon")
             
             VStack(spacing: 4) {
@@ -78,23 +75,24 @@ struct AboutView: View {
     }
 
     private let toolList: [(String, String)] = [
-        ("square.grid.2x2",                       "Mission Dashboard"),
-        ("antenna.radiowaves.left.and.right",      "Advanced Ping"),
+        ("square.grid.2x2",                       "Dashboard"),
+        ("antenna.radiowaves.left.and.right",      "Ping"),
         ("point.3.connected.trianglepath.dotted",  "Traceroute"),
         ("dot.radiowaves.left.and.right",          "Multi-Ping"),
         ("checklist",                              "Port Scanner"),
         ("stopwatch",                              "HTTP Latency"),
-        ("number.square",                          "Subnet Calculator"),
+        ("number.square",                          "Subnet Calc"),
         ("globe",                                  "DNS Lookup"),
+        ("lock.shield",                            "SSL/TLS"),
         ("magnifyingglass.circle",                 "WHOIS"),
-        ("lock.shield",                            "SSL/TLS Inspector"),
-        ("network",                                "Network Interfaces"),
-        ("wifi",                                   "Wi-Fi Inspector"),
-        ("arrow.triangle.branch",                  "Route Table"),
-        ("chart.bar.xaxis",                        "Bandwidth Monitor"),
-        ("chart.line.uptrend.xyaxis",              "Traffic Statistics"),
+        ("chart.bar.xaxis",                        "Bandwidth"),
+        ("chart.line.uptrend.xyaxis",              "Statistics"),
         ("speedometer",                            "Speed Test"),
-        ("list.bullet.rectangle",                  "Top Processes")
+        ("list.bullet.rectangle",                  "Top Processes"),
+        ("network",                                "Interfaces"),
+        ("wifi",                                   "Wi-Fi"),
+        ("arrow.triangle.branch",                  "Routes"),
+        ("network.badge.shield.half.filled",      "Subnet Scanner")
     ]
 
     private func showAck() {

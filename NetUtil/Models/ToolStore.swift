@@ -18,6 +18,7 @@ final class ToolStore {
     let wifi        = WiFiInspectorViewModel()
     let interfaces  = NetworkInterfaceViewModel()
     let subnet      = SubnetViewModel()
+    let subnetScan  = SubnetScanViewModel()
     let system      = SystemMonitor()
     let bandwidth   = BandwidthMonitor()
     let topApps     = TopProcessesViewModel()

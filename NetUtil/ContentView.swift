@@ -7,6 +7,7 @@ enum Tool: String, CaseIterable, Identifiable {
     case traceroute  = "Traceroute"
     case multiPing   = "Multi-Ping"
     case portScan    = "Port Scanner"
+    case subnetScan  = "Subnet Scanner"
     case httpLatency = "HTTP Latency"
     case subnet      = "Subnet Calc"
     case dns         = "DNS Lookup"
@@ -29,6 +30,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .traceroute:   "point.3.connected.trianglepath.dotted"
         case .dns:          "globe"
         case .portScan:     "checklist"
+        case .subnetScan:   "network.badge.shield.half.filled"
         case .interfaces:   "network"
         case .httpLatency:  "stopwatch"
         case .multiPing:    "dot.radiowaves.left.and.right"
@@ -138,6 +140,7 @@ struct ContentView: View {
                         }
 
                         Section("IP Toolbox") {
+                            sidebarItem(.subnetScan)
                             sidebarItem(.subnet)
                         }
                         
@@ -239,6 +242,7 @@ struct ContentView: View {
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
         case .subnet:       SubnetCalculatorView(vm: tools.subnet)
+        case .subnetScan:   SubnetScanView()
         case .statistics:   StatisticsView()
         case .speedTest:    SpeedTestView(vm: tools.speedTest)
         case .topApps:      TopProcessesView(vm: tools.topApps)
