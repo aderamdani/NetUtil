@@ -4,6 +4,22 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.3.0] — 2026-05-31
+
+### Added
+- **Traceroute host history**: Clock icon dropdown in Traceroute control bar — identical to Ping, DNS, and HTTP Latency. Selecting a recent host auto-starts the trace.
+- **Bandwidth Monitor full UI**: Replaced placeholder with live implementation — aggregate stat cards (Download, Upload, Peak RX/TX with reset), 60-second mirrored throughput chart (RX above / TX below axis), per-interface table with type icon, IP, live rates, and 30-sample sparkline per interface. Pause/Resume, Active Only filter, and CSV export all functional.
+
+### Fixed
+- **Chart Y-axis label clipping**: Applied `.chartPlotStyle` top/bottom padding and `.chartYScale(domain:)` with explicit headroom across all charts that had visible Y-axis labels (BandwidthView, StatisticsView line + bar, WiFiInspectorView RSSI, MultiPingSlotRow expanded RTT). Matches PingView's existing pattern.
+- **Port Scanner PDF export**: `onExportPDF` wired to `Exporter.savePortScanPDF`.
+- **WHOIS PDF export**: `onExportPDF` wired to `Exporter.saveWhoisPDF`.
+- **Swift 6 concurrency warnings** (all now clean in Release build):
+  - `SystemMonitor`: Timer closure captures `[weak self]` directly in inner `Task` to avoid "captured var in concurrently-executing code" warning.
+  - `PingViewModel`, `DNSViewModel`, `TracerouteViewModel`, `MultiPingViewModel`: Added `@ObservationIgnored` to `process: Process?` property — excludes it from `@Observable` macro synthesis so `nonisolated(unsafe)` applies to the raw stored property as intended.
+
+---
+
 ## [4.2.0] — 2026-05-31
 
 ### Added
