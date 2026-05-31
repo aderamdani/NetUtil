@@ -15,7 +15,7 @@ final class PingViewModel {
     private(set) var beepOnLoss: Bool = false
     private(set) var currentHost: String = ""
 
-    nonisolated(unsafe) private var process: Process?
+    @ObservationIgnored nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?
 
     private static let rawLinesLimit = 500

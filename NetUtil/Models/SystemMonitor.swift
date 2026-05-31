@@ -20,7 +20,7 @@ final class SystemMonitor {
     
     func start() {
         timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.updateStats()
             }
         }

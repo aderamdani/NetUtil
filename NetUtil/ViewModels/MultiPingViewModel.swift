@@ -17,7 +17,7 @@ final class PingSlot: Identifiable {
     private(set) var isRunning = false
 
     private static let historyLimit = 120
-    nonisolated(unsafe) private var process: Process?
+    @ObservationIgnored nonisolated(unsafe) private var process: Process?
     private var pipe: Pipe?
 
     init(host: String) { 
