@@ -24,7 +24,7 @@ final class TracerouteViewModel {
     private var interval: Double = 5
     private var maxHops: Int = 30
     private var targetHost: String = ""
-    nonisolated(unsafe) private var process: Process?
+    @ObservationIgnored nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?
     private var pendingHops: [TracerouteHop] = []
 

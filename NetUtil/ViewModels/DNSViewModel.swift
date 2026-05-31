@@ -10,7 +10,7 @@ final class DNSViewModel {
     private(set) var rawOutput = ""
     private(set) var error: String?
 
-    nonisolated(unsafe) private var process: Process?
+    @ObservationIgnored nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?
 
     deinit { process?.terminate() }
