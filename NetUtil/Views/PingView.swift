@@ -4,6 +4,7 @@ import Observation
 
 struct PingView: View {
     var vm: PingViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var host = ""
     @AppStorage("defaultPingCount")    private var defaultCount: Int = 20
@@ -69,6 +70,13 @@ struct PingView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Advanced Ping") }
+        .onAppear {
+            if let h = vm.quickLaunchHost {
+                host = h
+                vm.quickLaunchHost = nil
+                startAction()
+            }
+        }
     }
 
     // MARK: - Components
@@ -173,6 +181,18 @@ struct PingView: View {
                     .disabled(!vm.isRunning && host.isEmpty)
                     .accessibilityLabel(vm.isRunning ? "Stop Ping" : "Start Ping")
                     
+                    let favHost = vm.isRunning ? vm.currentHost : host
+                    if !favHost.isEmpty {
+                        let isFav = tools.favorites.isFavorite(favHost)
+                        Button { tools.favorites.toggle(host: favHost) } label: {
+                            Image(systemName: isFav ? "star.fill" : "star")
+                                .foregroundColor(isFav ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                        .accessibilityLabel(isFav ? "Remove from Favorites" : "Add to Favorites")
+                    }
+
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
@@ -182,7 +202,7 @@ struct PingView: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
-            
+
             Divider()
         }
     }

@@ -24,7 +24,9 @@ final class ToolStore {
     let topApps     = TopProcessesViewModel()
     let speedTest   = SpeedTestViewModel()
     let statistics  = TrafficStatistics()
-    let sslWatchlist = SSLWatchlist()
+    let sslWatchlist  = SSLWatchlist()
+    let favorites     = FavoritesManager()
+    let sessionHistory = SessionHistory()
 
     var externalIP: String = "Checking..."
     var isVPNActive: Bool = false
@@ -34,6 +36,13 @@ final class ToolStore {
             self?.statistics.record(rxDelta: rx, txDelta: tx)
         }
         bandwidth.start()
+        wireSessionLogging()
+    }
+
+    private func wireSessionLogging() {
+        ping.onSessionComplete = { [weak self] record in self?.sessionHistory.log(record) }
+        traceroute.onSessionComplete = { [weak self] record in self?.sessionHistory.log(record) }
+        portScan.onSessionComplete = { [weak self] record in self?.sessionHistory.log(record) }
     }
 
     /// Primary LAN/Wi-Fi interface — excludes tunnels, AirDrop, tethering.

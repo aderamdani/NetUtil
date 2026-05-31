@@ -10,7 +10,7 @@ final class SubnetScanTests: XCTestCase {
         
         let components = vm.cidrInput.split(separator: "/")
         let prefix = Int(components[1])!
-        let subnet = NetworkMath.calculateSubnet(ip: String(components[0]), prefix: prefix)!
+        _ = NetworkMath.calculateSubnet(ip: String(components[0]), prefix: prefix)!
         
         // This is a manual test of the logic used in SubnetScanViewModel
         let count = prefix >= 31 ? 0 : (1 << (32 - prefix)) - 2

@@ -48,6 +48,7 @@ struct TracerouteHop: Identifiable {
         switch parts[0] {
         case 10:  return true
         case 127: return true
+        case 169: return parts[1] == 254
         case 172: return (16...31).contains(parts[1])
         case 192: return parts[1] == 168
         default:  return false

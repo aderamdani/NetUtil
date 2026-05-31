@@ -4,6 +4,7 @@ import Observation
 
 struct MultiPingView: View {
     @Bindable var vm: MultiPingViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var newHost = ""
     @State private var expandedSlotID: UUID?
@@ -159,6 +160,16 @@ struct MultiPingView: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
                     .accessibilityLabel("Add Host to Monitor")
+
+                    if !newHost.trimmingCharacters(in: .whitespaces).isEmpty {
+                        let h = newHost.trimmingCharacters(in: .whitespaces)
+                        let isFav = tools.favorites.isFavorite(h)
+                        Button { tools.favorites.toggle(host: h) } label: {
+                            Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                    }
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")

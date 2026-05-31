@@ -139,6 +139,15 @@ struct SSLInspectorView: View {
                     .disabled(!vm.isRunning && host.isEmpty)
                     .accessibilityLabel(vm.isRunning ? "Stop Inspection" : "Start Inspection")
 
+                    if !host.isEmpty {
+                        let isFav = tools.favorites.isFavorite(host)
+                        Button { tools.favorites.toggle(host: host) } label: {
+                            Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                    }
+
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
@@ -148,7 +157,7 @@ struct SSLInspectorView: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
-            
+
             Divider()
         }
     }

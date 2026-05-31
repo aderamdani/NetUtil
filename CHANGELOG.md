@@ -4,6 +4,26 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.6.0] — 2026-05-31
+
+### Added
+- **Favorites**: Pin frequently-used hosts to sidebar with quick-launch to any tool. Star button across all input tools. Drag-to-reorder, max 20 favorites. `FavoritesManager` persisted to UserDefaults.
+- **Session History**: Automatic logging of all scan/test sessions (max 200 records, max 20 with full detail). Filter by tool/date, search by hostname, CSV export. Click any record to revisit with pre-filled target and auto-start.
+- **Compare Mode**: Side-by-side diff of two sessions — Ping stats comparison (RTT, loss, jitter with green/red delta), Port Scan port diff (new/closed/unchanged ports), Traceroute hop-by-hop RTT comparison.
+
+### Changed
+- Sidebar reorganized: Favorites section at top, then Dashboard/History/Compare, then diagnostic tools.
+- Star button added to all 9 input tools (Ping, Traceroute, Port Scanner, Multi-Ping, HTTP Latency, Subnet Scanner, DNS, SSL/TLS, WHOIS).
+- SessionHistoryView and CompareView use flat `ScrollView + LazyVStack + Divider` layout consistent with existing tools.
+- CompareView session pickers moved into control bar for faster workflow.
+
+### Internal
+- `FavoritesManager` and `SessionHistory` added to `ToolStore` (shared singletons, UserDefaults-persisted).
+- `PingViewModel`, `TracerouteViewModel`, `PortScanViewModel` gain `onSessionComplete` logging closure and `quickLaunchHost` for favorites auto-start.
+- `SessionRecord` with optional detail snapshots (`PingStatsSnapshot`, `PortResultSnapshot`, `HopSnapshot`) for Compare feature.
+
+---
+
 ## [4.5.0] — 2026-05-31
 
 ### Changed

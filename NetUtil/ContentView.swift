@@ -20,6 +20,8 @@ enum Tool: String, CaseIterable, Identifiable {
     case statistics    = "Statistics"
     case speedTest     = "Speed Test"
     case topApps       = "Top Processes"
+    case sessionHistory = "History"
+    case compare        = "Compare"
     var id: String { rawValue }
 
     var icon: String {
@@ -40,8 +42,10 @@ enum Tool: String, CaseIterable, Identifiable {
         case .bandwidth:    "chart.bar.xaxis"
         case .subnet:       "number.square"
         case .statistics:   "chart.line.uptrend.xyaxis"
-        case .speedTest:    "speedometer"
-        case .topApps:      "list.bullet.rectangle"
+        case .speedTest:      "speedometer"
+        case .topApps:        "list.bullet.rectangle"
+        case .sessionHistory: "clock.arrow.circlepath"
+        case .compare:        "arrow.left.arrow.right"
         }
     }
     
@@ -126,10 +130,24 @@ struct ContentView: View {
                     }
                 } else {
                     List(selection: $selection) {
+                        if !tools.favorites.favorites.isEmpty {
+                            Section("Favorites") {
+                                ForEach(tools.favorites.favorites) { fav in
+                                    FavoriteSidebarItem(fav: fav, selection: $selection, tools: tools)
+                                }
+                                .onMove { tools.favorites.move(from: $0, to: $1) }
+                                .onDelete { idxs in
+                                    idxs.map { tools.favorites.favorites[$0].id }.forEach { tools.favorites.remove(id: $0) }
+                                }
+                            }
+                        }
+
                         Section {
                             sidebarItem(.dashboard)
+                            sidebarItem(.sessionHistory)
+                            sidebarItem(.compare)
                         }
-                        
+
                         Section("Active Probing") {
                             sidebarItem(.ping)
                             sidebarItem(.traceroute)
@@ -243,9 +261,86 @@ struct ContentView: View {
         case .subnet:       SubnetCalculatorView(vm: tools.subnet)
         case .subnetScan:   SubnetScanView(selection: $selection)
         case .statistics:   StatisticsView()
-        case .speedTest:    SpeedTestView(vm: tools.speedTest)
-        case .topApps:      TopProcessesView(vm: tools.topApps)
+        case .speedTest:      SpeedTestView(vm: tools.speedTest)
+        case .topApps:        TopProcessesView(vm: tools.topApps)
+        case .sessionHistory: SessionHistoryView(selection: $selection)
+        case .compare:        CompareView()
         }
+    }
+}
+
+// MARK: - Favorites Sidebar Item
+
+struct FavoriteSidebarItem: View {
+    let fav: FavoriteHost
+    @Binding var selection: Tool?
+    let tools: ToolStore
+    @State private var showPopover = false
+
+    var body: some View {
+        Button {
+            showPopover = true
+        } label: {
+            Label(fav.displayName, systemImage: "star.fill")
+                .foregroundColor(.orange)
+                .lineLimit(1)
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $showPopover, arrowEdge: .trailing) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(fav.host)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 8)
+                Divider()
+                ForEach(favToolActions, id: \.0.rawValue) { tool, label in
+                    Button {
+                        showPopover = false
+                        launchFavorite(tool: tool)
+                    } label: {
+                        Label(label, systemImage: tool.icon)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                }
+                Divider()
+                Button(role: .destructive) {
+                    showPopover = false
+                    tools.favorites.remove(id: fav.id)
+                } label: {
+                    Label("Remove from Favorites", systemImage: "star.slash")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.red)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .padding(.bottom, 4)
+            }
+            .frame(width: 220)
+        }
+    }
+
+    private let favToolActions: [(Tool, String)] = [
+        (.ping,        "Ping"),
+        (.traceroute,  "Traceroute"),
+        (.portScan,    "Port Scanner"),
+        (.dns,         "DNS Lookup"),
+        (.httpLatency, "HTTP Latency"),
+        (.ssl,         "SSL/TLS"),
+    ]
+
+    private func launchFavorite(tool: Tool) {
+        switch tool {
+        case .ping:        tools.ping.quickLaunchHost = fav.host
+        case .traceroute:  tools.traceroute.quickLaunchHost = fav.host
+        case .portScan:    tools.portScan.quickLaunchHost = fav.host
+        default: break
+        }
+        selection = tool
     }
 }
 

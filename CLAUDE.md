@@ -108,6 +108,8 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
    ("network",                                "Interfaces"),
    ("wifi",                                   "Wi-Fi"),
    ("arrow.triangle.branch",                  "Routes"),
+   ("clock.arrow.circlepath",           "History"),
+   ("arrow.left.arrow.right",                 "Compare"),
    ```
    If a new tool is added to `ContentView.swift` Tool enum, add it here too (same SF symbol, same display name).
 

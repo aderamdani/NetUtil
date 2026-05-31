@@ -4,6 +4,7 @@ import Observation
 
 struct WhoisView: View {
     var vm: WhoisViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var query = ""
     @State private var filterText = ""
@@ -123,6 +124,15 @@ struct WhoisView: View {
                     .disabled(!vm.isRunning && query.isEmpty)
                     .accessibilityLabel(vm.isRunning ? "Stop Lookup" : "Start Lookup")
                     
+                    if !query.isEmpty {
+                        let isFav = tools.favorites.isFavorite(query)
+                        Button { tools.favorites.toggle(host: query) } label: {
+                            Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                    }
+
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
@@ -201,7 +211,7 @@ struct WhoisView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 1)
                     .accessibilityElement(children: .combine)
-                    .accessibilityLabel(line.label != nil ? "\(line.label!): \(line.value ?? "")" : line.raw)
+                    .accessibilityLabel(line.label.map { "\($0): \(line.value ?? "")" } ?? line.raw)
                 }
             }
             .padding(.vertical, 16)

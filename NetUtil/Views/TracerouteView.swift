@@ -4,6 +4,7 @@ import CoreLocation
 
 struct TracerouteView: View {
     var vm: TracerouteViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var host = ""
     @AppStorage("defaultMaxHops")       private var defaultMaxHops = 30
@@ -38,7 +39,9 @@ struct TracerouteView: View {
                 onExportCSV: {
                     let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
                     Exporter.save(string: Exporter.csvString(from: vm.hops), defaultName: "NetUtil-Traceroute-\(host)-\(date.string(from: Date())).csv", ext: "csv")
-                }
+                },
+                isFavorite: tools.favorites.isFavorite(host),
+                onToggleFavorite: { tools.favorites.toggle(host: host) }
             )
             
             ScrollView {
@@ -87,6 +90,9 @@ struct TracerouteView: View {
             traceInterval = defaultInterval
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Traceroute") }
+        .onAppear {
+            if let h = vm.quickLaunchHost { host = h; vm.quickLaunchHost = nil; startAction() }
+        }
         .sheet(item: $infoHop) { hop in TracerouteIPInfoSheet(hop: hop) }
     }
 
