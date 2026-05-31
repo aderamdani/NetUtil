@@ -45,16 +45,17 @@ NetUtil follows a strict **MVVM (Model-View-ViewModel)** architectural pattern.
 - **HTTP Latency**: Phase-by-phase breakdown (DNS, TCP, TLS, TTFB, Download) using `URLSessionTaskMetrics`. Includes a latency waterfall chart and history tracking.
 
 ### IP Toolbox
+- **Subnet Scanner**: Concurrent ICMP sweep across entire CIDR ranges. Discovers alive hosts, resolves hostnames, enriches with ARP MAC addresses, and provides context menu quick actions (Ping, Port Scan, Traceroute) for each result. CSV and PDF export.
 - **Subnet Calculator**: Network math utility supporting CIDR prefixes, wildcard masking, IP class detection, and 32-bit binary representation.
 
 ### Discovery & Analysis
-- **Port Scanner**: High-speed TCP port scanner with customizable ranges and concurrency controls. Results are displayed in a modern, scannable mini-card grid layout.
-- **SSL/TLS Inspector**: Full certificate chain analysis, expiry tracking, TLS version badge, and cipher suite verification.
-- **DNS Lookup**: Comprehensive query tool (A, AAAA, MX, TXT, NS, CNAME, SOA, PTR, ANY) using `dig`. Multiple server presets.
-- **WHOIS**: Structured key/value display of domain registration and ownership records, with inline filtering.
+- **Port Scanner**: High-speed TCP port scanner with preset (Web, Mail, Database, Remote, Common) and custom port ranges, concurrency control, ETA, and PDF/CSV export.
+- **SSL/TLS Inspector**: Full certificate chain analysis, expiry tracking, TLS version badge, cipher suite verification, and SSL Expiry Watchlist with local macOS notifications.
+- **DNS Lookup**: Comprehensive query tool (A, AAAA, MX, TXT, NS, CNAME, SOA, PTR, ANY) using `dig`. Multiple server presets including DNS comparison mode (System, Google, Cloudflare, Quad9).
+- **WHOIS**: Structured key/value display of domain registration and ownership records, with inline filtering and PDF export.
 
 ### System & Monitoring
-- **Bandwidth Monitor**: Real-time RX/TX rate per interface with 60-second rolling area charts. State persists across navigation.
+- **Bandwidth Monitor**: Live aggregate throughput chart (60-second window, RX/TX mirrored axis), per-interface table with type icon, IP, live rates, and 30-sample sparklines. Pause/Resume, Active Only filter, and CSV export.
 - **Network Interfaces**: Hardware interfaces via `getifaddrs()` — MAC, IPv4, IPv6, MTU. Includes automatic detection and labeling of Virtual LANs (802.1Q).
 - **Wi-Fi Inspector**: Signal analysis via CoreWLAN — SSID, BSSID, RSSI, SNR, channel, security. Includes an RSSI stability sparkline.
 - **Route Table**: IPv4 and IPv6 routing rules via `netstat -rn`, with flag descriptions and live text filter.
