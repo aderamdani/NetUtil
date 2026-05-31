@@ -1,7 +1,7 @@
 # NetUtil — Roadmap & Development Plan
 
 > Last updated: 2026-05-31
-> Current version: 4.4.0
+> Current version: 4.5.0
 
 ---
 
@@ -33,6 +33,13 @@
 ---
 
 ## Recent Milestones
+
+### Version 4.5.0 — Polish & Consistency (2026-05-31)
+- 153-check UX audit: 17 tools × 9 criteria, 14 fixes, zero remaining violations
+- Mood bars added to 6 missing tools (Multi-Ping, HTTP Latency, DNS, Bandwidth, Statistics, Speed Test)
+- Report menus (CSV export) added to 4 missing tools (Top Processes, Interfaces, Wi-Fi, Routes)
+- StatisticsView charts: `drawingGroup()` + explicit `chartYScale` headroom
+- Multi-Ping expanded sparkline: index-based X-axis with #N sequence labels
 
 ### Version 4.4.0 — Dashboard Enhancement & Quality Fixes (2026-05-31)
 - Dashboard: live data in Traceroute, SSL, HTTP Latency, DNS, WHOIS cards
@@ -119,6 +126,7 @@
 
 | Version | Milestone |
 |---------|-----------|
+| **v4.5.0** | Full 153-check UX audit: mood bars (6 tools), report menus (4 tools), chart fixes, Multi-Ping sparkline index labels |
 | **v4.4.0** | Dashboard live data cards, health summary bar, gauge enhancements, uptime counter, Ping chart fixes, PDF dark mode fix |
 | **v4.3.0** | Bandwidth Monitor full UI, Traceroute history, chart fixes, Swift 6 clean |
 | **v4.2.0** | Subnet Scanner context menu quick actions |
