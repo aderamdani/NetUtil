@@ -210,19 +210,6 @@ writing a matching `*Tests.swift`. Keep parser funcs `internal` (not `private`) 
 6. Verify: hasil diurutkan tercepat di atas
 7. Verify: baris tercepat ter-highlight subtle
 
-**Contoh hasil yang diharapkan:**
-```
-Resolver     Result           Time    Status
-
-Cloudflare   142.250.4.100    12 ms   OK
-
-Google       142.250.4.100    18 ms   OK
-
-System       142.250.4.100    25 ms   OK
-
-Quad9        142.250.4.100    31 ms   OK
-```
-
 **Test Case 2: Multiple Record Types**
 1. Compare "google.com" dengan record type MX
 2. Verify: setiap resolver menampilkan MX records
@@ -260,11 +247,6 @@ Quad9        142.250.4.100    31 ms   OK
 4. Verify: expired.badssl.com menampilkan badge merah "Expired"
 5. Verify: expiry dates ditampilkan monospaced
 
-**Contoh domain untuk testing status:**
-- Safe (>30 days): google.com, github.com, apple.com, cloudflare.com
-- Expired: expired.badssl.com
-- Self-signed: self-signed.badssl.com
-
 **Test Case 3: Remove from Watchlist**
 1. Swipe atau klik remove pada satu domain
 2. Verify: domain hilang dari list
@@ -288,6 +270,8 @@ Quad9        142.250.4.100    31 ms   OK
 2. Tambahkan domain pertama
 3. Verify: macOS permission dialog muncul untuk notifications
 4. Allow → verify notification terdaftar di System Settings > Notifications
+
+## T1-3: Multi-Ping Bulk Import
 
 **Test Case 1: Basic Import**
 1. Buka Multi-Ping → klik "Import"
@@ -333,3 +317,33 @@ Quad9        142.250.4.100    31 ms   OK
 **Test Case 5: Input kosong**
 1. Buka Import sheet, biarkan TextEditor kosong.
 2. Verify: tombol Import disabled atau "0 hosts detected".
+
+## T1-4: Gateway Actions
+
+**Test Case 1: Gateway Detection**
+1. Buka Network Interfaces atau Dashboard
+2. Verify: gateway terdeteksi dengan benar (misal: 192.168.1.1)
+3. Verify: ada icon "Action" (antenna.radiowaves.left.and.right / point.3.connected.trianglepath.dotted) di sebelah IP gateway
+
+**Test Case 2: Ping Gateway**
+1. Klik icon Ping di sebelah gateway
+2. Verify: berpindah ke tool Ping dengan host diisi IP gateway
+3. Verify: otomatis memulai ping
+
+**Test Case 3: Traceroute Gateway**
+1. Klik icon Traceroute di sebelah gateway
+2. Verify: berpindah ke tool Traceroute dengan host diisi IP gateway
+3. Verify: otomatis memulai traceroute
+
+## T1-5: Regression Testing
+
+1. Ping: test valid/invalid, export PDF/CSV.
+2. Traceroute: test standard/map view, export PDF.
+3. Speed Test: test complete cycle.
+4. Port Scanner: test concurrency slider.
+5. Interfaces: test refresh, VLAN identification.
+6. Statistics: test reset counters.
+7. Settings: test threshold panes.
+
+---
+

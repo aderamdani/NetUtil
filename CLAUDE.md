@@ -37,18 +37,23 @@ bash scripts/build_dmg.sh
 
 | Tool | VM | CLI / API |
 |------|----|-----------|
+| Dashboard | — | — |
 | Ping | PingViewModel | `/sbin/ping` |
 | Traceroute | TracerouteViewModel | `/usr/bin/traceroute -a`, geolocation via `ipinfo.io` |
 | Multi-Ping | MultiPingViewModel | `/sbin/ping` (concurrent sessions) |
 | Port Scanner | PortScanViewModel | Swift `URLSessionStreamTask` (TCP connect) |
 | HTTP Latency | HTTPLatencyViewModel | `URLSession` + `URLSessionTaskMetrics` |
+| Subnet Calc | SubnetViewModel | `NetworkMath.swift` (native) |
 | DNS Lookup | DNSViewModel | `/usr/bin/dig` |
+| SSL/TLS | SSLInspectorViewModel | `SecTrust` / `Network.framework` |
 | WHOIS | WhoisViewModel | `/usr/bin/whois` |
-| SSL/TLS Inspector | SSLInspectorViewModel | `SecTrust` / `Network.framework` |
-| Network Interfaces | — | `getifaddrs()` via Darwin |
-| Wi-Fi Inspector | — | `CoreWLAN.CWWiFiClient` |
-| Route Table | — | `/usr/sbin/netstat -rn` |
-| Bandwidth Monitor | — | `getifaddrs()` polled on timer |
+| Bandwidth | — | `getifaddrs()` via Darwin |
+| Statistics | — | `UserDefaults` (90-day cap) |
+| Speed Test | SpeedTestViewModel | Cloudflare Speed Test API |
+| Top Processes | TopProcessesViewModel | `/usr/bin/top -l 0 -n 10` |
+| Interfaces | NetworkInterfaceViewModel | `getifaddrs()` via Darwin |
+| Wi-Fi | — | `CoreWLAN.CWWiFiClient` |
+| Routes | — | `/usr/sbin/netstat -rn` |
 
 ---
 
@@ -80,7 +85,7 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
    - `DOCUMENTATION.md` → update footer version, update toolset section if tools changed
    - `AboutView.swift` → update version fallback string AND verify `toolList` matches canonical list below
 
-3. **Verify AboutView toolList** — must match this canonical list exactly (same order, same names, same SF symbols):
+3. Verify AboutView toolList — must match this canonical list exactly (same order, same names, same SF symbols):
    ```swift
    ("square.grid.2x2",                       "Dashboard"),
    ("antenna.radiowaves.left.and.right",      "Ping"),
@@ -93,6 +98,9 @@ When requested to **"commit, build DMG, and release"** (or similar), follow this
    ("lock.shield",                            "SSL/TLS"),
    ("magnifyingglass.circle",                 "WHOIS"),
    ("chart.bar.xaxis",                        "Bandwidth"),
+   ("chart.line.uptrend.xyaxis",              "Statistics"),
+   ("speedometer",                            "Speed Test"),
+   ("list.bullet.rectangle",                  "Top Processes"),
    ("network",                                "Interfaces"),
    ("wifi",                                   "Wi-Fi"),
    ("arrow.triangle.branch",                  "Routes"),
