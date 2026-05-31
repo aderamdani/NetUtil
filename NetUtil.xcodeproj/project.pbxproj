@@ -10,8 +10,19 @@
 		AA02AA02AA02AA02AA02AA02 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA01AA01AA01AA01AA01AA01 /* CoreWLAN.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		2C6292C62FCBE3230013C019 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C46D5202FC4FCCC006CF18C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C46D5272FC4FCCC006CF18C;
+			remoteInfo = NetUtil;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		2C46D5792FC4FF85006CF18C /* NetUtil.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetUtil.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C6292C22FCBE3230013C019 /* NetUtilTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetUtilTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA01AA01AA01AA01AA01AA01 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -19,6 +30,11 @@
 		2C46D52A2FC4FCCC006CF18C /* NetUtil */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = NetUtil;
+			sourceTree = "<group>";
+		};
+		2C6292C32FCBE3230013C019 /* NetUtilTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = NetUtilTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +48,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2C6292BF2FCBE3230013C019 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -41,6 +64,8 @@
 				2C46D52A2FC4FCCC006CF18C /* NetUtil */,
 				2C46D5792FC4FF85006CF18C /* NetUtil.app */,
 				AA01AA01AA01AA01AA01AA01 /* CoreWLAN.framework */,
+				2C6292C22FCBE3230013C019 /* NetUtilTests.xctest */,
+				2C6292C32FCBE3230013C019 /* NetUtilTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,6 +94,29 @@
 			productReference = 2C46D5792FC4FF85006CF18C /* NetUtil.app */;
 			productType = "com.apple.product-type.application";
 		};
+		2C6292C12FCBE3230013C019 /* NetUtilTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C6292CA2FCBE3230013C019 /* Build configuration list for PBXNativeTarget "NetUtilTests" */;
+			buildPhases = (
+				2C6292BE2FCBE3230013C019 /* Sources */,
+				2C6292BF2FCBE3230013C019 /* Frameworks */,
+				2C6292C02FCBE3230013C019 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2C6292C72FCBE3230013C019 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2C6292C32FCBE3230013C019 /* NetUtilTests */,
+			);
+			name = NetUtilTests;
+			packageProductDependencies = (
+			);
+			productName = NetUtilTests;
+			productReference = 2C6292C22FCBE3230013C019 /* NetUtilTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +130,10 @@
 					2C46D5272FC4FCCC006CF18C = {
 						CreatedOnToolsVersion = 26.5;
 						LastSwiftMigration = 2650;
+					};
+					2C6292C12FCBE3230013C019 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 2C46D5272FC4FCCC006CF18C;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				2C46D5272FC4FCCC006CF18C /* NetUtil */,
+				2C6292C12FCBE3230013C019 /* NetUtilTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		2C46D5262FC4FCCC006CF18C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C6292C02FCBE3230013C019 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2C6292BE2FCBE3230013C019 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2C6292C72FCBE3230013C019 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C46D5272FC4FCCC006CF18C /* NetUtil */;
+			targetProxy = 2C6292C62FCBE3230013C019 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		2C46D5312FC4FCCD006CF18C /* Debug */ = {
@@ -160,6 +235,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				EAGER_LINKING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -189,7 +265,6 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
-				EAGER_LINKING = YES;
 			};
 			name = Debug;
 		};
@@ -262,6 +337,7 @@
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 23;
+				EAGER_LINKING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -276,14 +352,13 @@
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_COMPILATION_CACHING = YES;
+				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_COMPILATION_CACHING = YES;
-				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
-				EAGER_LINKING = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -314,14 +389,52 @@
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_COMPILATION_CACHING = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		2C6292C82FCBE3230013C019 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = VertexData.NetUtilTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NetUtil.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NetUtil";
+			};
+			name = Debug;
+		};
+		2C6292C92FCBE3230013C019 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = VertexData.NetUtilTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NetUtil.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NetUtil";
 			};
 			name = Release;
 		};
@@ -342,6 +455,15 @@
 			buildConfigurations = (
 				2C46D5342FC4FCCD006CF18C /* Debug */,
 				2C46D5352FC4FCCD006CF18C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2C6292CA2FCBE3230013C019 /* Build configuration list for PBXNativeTarget "NetUtilTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C6292C82FCBE3230013C019 /* Debug */,
+				2C6292C92FCBE3230013C019 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
