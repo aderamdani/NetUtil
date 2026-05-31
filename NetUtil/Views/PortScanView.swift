@@ -27,7 +27,18 @@ struct PortScanView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            PortScanControlBar(host: $host, isRunning: vm.isRunning, portRangeType: $preset, customPorts: $customRange, onStart: startAction, onShowGuide: { showLearningGuide = true }, history: history)
+            PortScanControlBar(
+                host: $host,
+                isRunning: vm.isRunning,
+                portRangeType: $preset,
+                customPorts: $customRange,
+                onStart: startAction,
+                onShowGuide: { showLearningGuide = true },
+                onExportPDF: { /* TODO */ },
+                onExportCSV: { exportCSV(displayResults) },
+                hasResults: !vm.results.isEmpty,
+                history: history
+            )
             
             ScrollView {
                 VStack(spacing: 24) {

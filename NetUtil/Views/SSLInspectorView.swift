@@ -4,7 +4,7 @@ import UserNotifications
 
 struct SSLInspectorView: View {
     var vm: SSLInspectorViewModel
-    var watchlist = SSLWatchlist()
+    @State private var watchlist = SSLWatchlist()
     @State private var history = HostHistory.shared
     @State private var host = ""
     @State private var portText = "443"
@@ -98,23 +98,22 @@ struct SSLInspectorView: View {
                             .accessibilityLabel("Connection Port")
                     }
 
-                    Button(action: startInspection) {
-                        Label(vm.isRunning ? "Stop" : "Inspect", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
-                            .frame(minWidth: 80)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(vm.isRunning ? .red : .accentColor)
-                    .disabled(!vm.isRunning && host.isEmpty)
-                    .accessibilityLabel(vm.isRunning ? "Stop Inspection" : "Start Inspection")
-                    
-                    Button { showLearningGuide = true } label: {
-                        Image(systemName: "questionmark.circle")
-                    }
-                    .buttonStyle(.borderless)
-                    .accessibilityLabel("Show Help Guide")
-                    
-                    if vm.result != nil {
+                    if let result = vm.result {
                         let isWatched = watchlist.items.contains { $0.domain == host }
+
+                        ReportMenuButton(
+                            onExportPDF: { Exporter.saveSSLPDF(result: result, host: host) },
+                            onExportCSV: {
+                                let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                                let content = result.chain.map {
+                                    "\($0.subject),\($0.notAfter?.description ?? ""),\(($0.daysRemaining ?? 0) >= 0 ? "Valid" : "Expired")"
+                                }.joined(separator: "\n")
+                                Exporter.save(string: "subject,notAfter,status\n\(content)",
+                                              defaultName: "NetUtil-SSL-\(host)-\(ts.string(from: Date())).csv",
+                                              ext: "csv")
+                            }
+                        )
+
                         Button {
                             if isWatched {
                                 if let item = watchlist.items.first(where: { $0.domain == host }) {
@@ -130,6 +129,21 @@ struct SSLInspectorView: View {
                         .buttonStyle(.borderless)
                         .accessibilityLabel(isWatched ? "Unwatch Domain" : "Watch Domain")
                     }
+
+                    Button(action: startInspection) {
+                        Label(vm.isRunning ? "Stop" : "Inspect", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
+                            .frame(minWidth: 80)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(vm.isRunning ? .red : .accentColor)
+                    .disabled(!vm.isRunning && host.isEmpty)
+                    .accessibilityLabel(vm.isRunning ? "Stop Inspection" : "Start Inspection")
+
+                    Button { showLearningGuide = true } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)

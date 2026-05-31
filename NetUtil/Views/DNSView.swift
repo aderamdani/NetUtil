@@ -120,17 +120,10 @@ struct DNSView: View {
                     }
 
                     if let result = vm.result, !result.records.isEmpty {
-                        Menu {
-                            Button("Copy All Values") {
-                                let val = result.records.map { $0.value }.joined(separator: "\n")
-                                NSPasteboard.general.clearContents(); NSPasteboard.general.setString(val, forType: .string)
-                            }
-                            Button("Export CSV") { Exporter.save(string: exportCSV(result), defaultName: "dns-\(host).csv", ext: "csv") }
-                        } label: {
-                            Label("Report", systemImage: "doc.text.fill")
-                        }
-                        .buttonStyle(.bordered)
-                        .accessibilityLabel("Export Menu")
+                        ReportMenuButton(
+                            onExportPDF: { Exporter.saveDNSPDF(result: result, host: host) },
+                            onExportCSV: { Exporter.save(string: exportCSV(result), defaultName: "NetUtil-DNS-\(host).csv", ext: "csv") }
+                        )
                     }
 
                     Button(action: startLookup) {
@@ -181,7 +174,7 @@ struct DNSView: View {
             
             if let res = vm.result {
                 LazyVStack(spacing: 0) {
-                    ForEach(res.records, id: \.value) { r in
+                    ForEach(res.records) { r in
                         HStack(spacing: 0) {
                             Text(r.name)
                                 .font(.system(size: 11, design: .monospaced))

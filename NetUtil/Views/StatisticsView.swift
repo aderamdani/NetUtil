@@ -84,18 +84,15 @@ struct StatisticsView: View {
                     
                     Divider().frame(height: 16)
                     
-                    Button {
-                        exportCSV()
-                    } label: {
-                        Label("Export CSV", systemImage: "square.and.arrow.up")
-                    }
-                    .buttonStyle(.borderless)
-                    .disabled(stats.dailyTotals.isEmpty)
+                    
+                    ReportMenuButton(
+                        onExportPDF: { /* Statistics doesn't have PDF export */ },
+                        onExportCSV: { exportCSV() }
+                    )
                     
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
-                    .buttonStyle(.borderless)
                 }
             }
             .padding(.horizontal, 24)

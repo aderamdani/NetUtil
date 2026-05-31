@@ -3,60 +3,109 @@ import AppKit
 
 struct SubnetScanView: View {
     @State private var viewModel = SubnetScanViewModel()
-    
+    @State private var host = ""
+    @State private var showLearningGuide = false
+
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            statusMoodBar
-            statsHeader
             
             ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.filteredResults) { result in
-                        resultRow(result)
-                        Divider().opacity(0.5)
+                VStack(spacing: 24) {
+                    if viewModel.scanStats.total > 0 {
+                        statusMoodBar
+                        statsHeader
+                        
+                        LazyVStack(spacing: 0) {
+                            ForEach(viewModel.filteredResults) { result in
+                                resultRow(result)
+                                Divider().opacity(0.5)
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                        .padding(24)
+                    } else if viewModel.isScanning {
+                        loadingState
+                    } else {
+                        emptyState
                     }
                 }
-                .padding(.horizontal, 12)
             }
         }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Subnet Scanner") }
     }
-    
+
     private var controlBar: some View {
-        HStack(spacing: 12) {
-            TextField("192.168.1.0/24", text: $viewModel.cidrInput)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 200)
-            
-            Picker("Speed", selection: $viewModel.batchSize) {
-                Text("Normal").tag(8)
-                Text("Fast").tag(16)
-                Text("Aggressive").tag(32)
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "network.badge.shield.half.filled")
+                        .foregroundColor(.accentColor)
+                        .imageScale(.large)
+                    Text("Subnet Scanner")
+                        .font(.headline)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Subnet Scanner Tool")
+                
+                Divider().frame(height: 16).padding(.horizontal, 4)
+                
+                TextField("192.168.1.0/24", text: $viewModel.cidrInput)
+                    .textFieldStyle(.roundedBorder)
+                    .controlSize(.large)
+                    .frame(width: 200)
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    Picker("", selection: $viewModel.batchSize) {
+                        Text("Normal").tag(8)
+                        Text("Fast").tag(16)
+                        Text("Aggressive").tag(32)
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 120)
+                    
+                    if !viewModel.filteredResults.isEmpty {
+                        ReportMenuButton(
+                            onExportPDF: {
+                                Exporter.saveSubnetScanPDF(results: viewModel.filteredResults, cidr: viewModel.cidrInput)
+                            },
+                            onExportCSV: {
+                                let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                                let safe = viewModel.cidrInput.replacingOccurrences(of: "/", with: "_")
+                                Exporter.save(string: Exporter.csvString(from: viewModel.filteredResults),
+                                              defaultName: "NetUtil-SubnetScan-\(safe)-\(ts.string(from: Date())).csv",
+                                              ext: "csv")
+                            }
+                        )
+                    }
+
+                    Button {
+                        if viewModel.isScanning { viewModel.stopScan() }
+                        else { Task { await viewModel.startScan() } }
+                    } label: {
+                        Label(viewModel.isScanning ? "Stop" : "Scan", systemImage: viewModel.isScanning ? "stop.fill" : "play.fill")
+                            .frame(minWidth: 70)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(viewModel.isScanning ? .red : .accentColor)
+                    .accessibilityLabel(viewModel.isScanning ? "Stop Scan" : "Start Scan")
+
+                    Button { showLearningGuide = true } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
+                }
             }
-            .frame(width: 120)
-            
-            Picker("Filter", selection: $viewModel.filterMode) {
-                ForEach(SubnetScanViewModel.FilterMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-            }
-            .frame(width: 120)
-            
-            Button(viewModel.isScanning ? "Stop" : "Scan") {
-                if viewModel.isScanning { viewModel.stopScan() }
-                else { Task { await viewModel.startScan() } }
-            }
-            .keyboardShortcut("s", modifiers: .command)
-            
-            Spacer()
-            
-            Menu("Export", systemImage: "square.and.arrow.up") {
-                Button("Export CSV") { /* TODO */ }
-                Button("Export PDF") { /* TODO */ }
-            }
-            .menuStyle(.borderlessButton)
-            .fixedSize()
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+
+            Divider()
         }
-        .padding(12)
-        .background(.regularMaterial)
     }
     
     private var statusMoodBar: some View {
@@ -76,7 +125,7 @@ struct SubnetScanView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.secondary.opacity(0.1))
+        .background(.regularMaterial)
     }
     
     private var statsHeader: some View {
@@ -104,7 +153,7 @@ struct SubnetScanView: View {
                 .padding(.vertical, 2)
                 .background(result.status == .alive ? Color.green.opacity(0.2) : Color.gray.opacity(0.2))
                 .cornerRadius(4)
-            Text(result.rtt != nil ? String(format: "%.2f ms", result.rtt!) : "-")
+            Text(result.rtt.map { String(format: "%.2f ms", $0) } ?? "—")
                 .font(.system(.caption, design: .monospaced))
                 .frame(width: 80, alignment: .trailing)
         }
@@ -121,6 +170,22 @@ struct SubnetScanView: View {
         }
     }
     
+    private var loadingState: some View {
+        Text("Scanning...")
+            .font(.headline)
+            .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(48)
+    }
+
+    private var emptyState: some View {
+        Text("No Target Selected")
+            .font(.headline)
+            .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(48)
+    }
+
     private func copy(_ string: String) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(string, forType: .string)
