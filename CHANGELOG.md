@@ -4,6 +4,13 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.2.0] — 2026-05-31
+
+### Added
+- **Subnet Scanner context menu quick actions**: Right-click any alive host to instantly launch Ping (20 packets), Port Scan (25 common ports), or Traceroute (30 hops). Navigates directly to the target tool with the scan already running.
+
+---
+
 ## [4.1.0] — 2026-05-31
 
 ### Added
