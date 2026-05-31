@@ -17,7 +17,9 @@ struct PingView: View {
     @State private var infinite = false
     @State private var showRaw = false
     @State private var showLearningGuide = false
-    @State private var selectedPacket: Int?
+    @State private var hoveredPoint: PingResult? = nil
+    @State private var hoverLocation: CGPoint = .zero
+    @State private var chartWidth: CGFloat = 500
 
     private var resolvedCount: String { countText.isEmpty ? "\(defaultCount)" : countText }
     private var resolvedInterval: String { intervalText.isEmpty ? String(format: "%.1f", defaultInterval) : intervalText }
@@ -217,14 +219,46 @@ struct PingView: View {
                 healthStrip
                     .accessibilityLabel("Recent health history strip")
             }
-            
+
             VStack(spacing: 0) {
-                rttChart
-                    .drawingGroup()
-                    .frame(height: 160)
-                
+                ZStack(alignment: .topLeading) {
+                    rttChart
+                        .drawingGroup()
+                        .frame(height: 160)
+                        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { chartWidth = $0 }
+
+                    if let point = hoveredPoint {
+                        let tooltipEst: CGFloat = 155
+                        let clampedX = max(0, min(hoverLocation.x - tooltipEst / 2, chartWidth - tooltipEst))
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(point.status == .success ? rttColor(point.rtt) : Color.red)
+                                .frame(width: 6, height: 6)
+                            Text("#\(point.sequence)")
+                                .font(.system(.caption2, design: .monospaced))
+                                .foregroundColor(.secondary)
+                            if point.status == .success {
+                                Text(String(format: "%.2f ms", point.rtt))
+                                    .font(.system(.caption, design: .monospaced).weight(.semibold))
+                                    .foregroundColor(rttColor(point.rtt))
+                            } else {
+                                Text("Timeout")
+                                    .font(.system(.caption, design: .monospaced).weight(.semibold))
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 0.5))
+                        .offset(x: clampedX, y: 4)
+                        .allowsHitTesting(false)
+                        .transition(.opacity)
+                    }
+                }
+
                 Divider().padding(.vertical, 12).opacity(0.5)
-                
+
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Quality Distribution")
                         .font(.system(.caption2, design: .default).weight(.bold))
@@ -242,14 +276,16 @@ struct PingView: View {
     private var rttChart: some View {
         let results = Array(vm.results.suffix(100))
         let maxRtt = results.compactMap { $0.status == .success ? $0.rtt : nil }.max() ?? 50.0
-        
+        let firstSeq = results.first?.sequence ?? 0
+        let lastSeq  = results.last?.sequence  ?? 100
+        let strideValue: Double = results.count < 50 ? 10 : results.count < 200 ? 25 : 50
+
         return Chart {
             ForEach(results) { r in
                 if r.status == .success {
                     AreaMark(x: .value("P", r.sequence), y: .value("R", r.rtt))
                         .foregroundStyle(LinearGradient(colors: [rttColor(r.rtt).opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
                         .interpolationMethod(.monotone)
-
                     LineMark(x: .value("P", r.sequence), y: .value("R", r.rtt))
                         .foregroundStyle(rttColor(r.rtt))
                         .lineStyle(StrokeStyle(lineWidth: 1.5, lineCap: .round))
@@ -259,23 +295,33 @@ struct PingView: View {
                         .foregroundStyle(Color.red.opacity(0.3))
                 }
             }
-            if let selected = selectedPacket, let res = results.first(where: { $0.sequence == selected }) {
-                RuleMark(x: .value("S", selected))
-                    .foregroundStyle(Color.secondary.opacity(0.3))
-                    .annotation(position: .top, alignment: .center) {
-                        VStack(spacing: 4) {
-                            Text("Seq \(res.sequence)").font(.caption2.bold())
-                            Text(res.status == .success ? String(format: "%.2f ms", res.rtt) : "Timeout")
-                                .font(.system(size: 10, design: .monospaced))
-                                .foregroundColor(rttColor(res.rtt))
+            if let point = hoveredPoint {
+                RuleMark(x: .value("Cursor", point.sequence))
+                    .foregroundStyle(Color.secondary.opacity(0.35))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+            }
+        }
+        .chartOverlay { proxy in
+            GeometryReader { geo in
+                Rectangle()
+                    .fill(.clear)
+                    .contentShape(Rectangle())
+                    .onContinuousHover { phase in
+                        switch phase {
+                        case .active(let location):
+                            hoverLocation = location
+                            let plotOriginX = proxy.plotFrame.map { geo[$0].minX } ?? 0
+                            if let seq: Int = proxy.value(atX: location.x - plotOriginX),
+                               let match = results.min(by: { abs($0.sequence - seq) < abs($1.sequence - seq) }) {
+                                hoveredPoint = match
+                            }
+                        case .ended:
+                            hoveredPoint = nil
                         }
-                        .padding(6)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
-                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 0.5))
                     }
             }
         }
-        .chartXSelection(value: $selectedPacket)
+        .chartXScale(domain: firstSeq...max(firstSeq + 1, lastSeq))
         .chartYScale(domain: 0...max(50, maxRtt * 1.2))
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
@@ -288,10 +334,20 @@ struct PingView: View {
                 }
             }
         }
+        .chartXAxis {
+            AxisMarks(values: .stride(by: strideValue)) { value in
+                AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
+                AxisValueLabel {
+                    if let seq = value.as(Double.self) {
+                        Text("#\(Int(seq))")
+                            .font(.system(.caption2, design: .monospaced))
+                    }
+                }
+            }
+        }
         .chartPlotStyle { plotArea in
             plotArea.padding(.top, 10).padding(.bottom, 10)
         }
-        .chartXAxis(.hidden)
     }
 
     private var resultsTable: some View {

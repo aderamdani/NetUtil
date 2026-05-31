@@ -217,7 +217,7 @@ struct StatisticsView: View {
                                 RuleMark(x: .value("Selected", day.dateKey))
                                     .foregroundStyle(.clear)
                                     .offset(y: 0)
-                                    .annotation(position: .top, alignment: .center) {
+                                    .annotation(position: .top, alignment: .center, overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(day.dateKey).font(.caption2.bold())
                                             Text("↓ \(NetworkMath.formatBytes(day.rxBytes))").foregroundColor(.blue)
