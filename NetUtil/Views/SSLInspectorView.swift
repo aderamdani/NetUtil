@@ -1,8 +1,10 @@
 import SwiftUI
 import Observation
+import UserNotifications
 
 struct SSLInspectorView: View {
     var vm: SSLInspectorViewModel
+    var watchlist = SSLWatchlist()
     @State private var history = HostHistory.shared
     @State private var host = ""
     @State private var portText = "443"
@@ -110,6 +112,24 @@ struct SSLInspectorView: View {
                     }
                     .buttonStyle(.borderless)
                     .accessibilityLabel("Show Help Guide")
+                    
+                    if vm.result != nil {
+                        let isWatched = watchlist.items.contains { $0.domain == host }
+                        Button {
+                            if isWatched {
+                                if let item = watchlist.items.first(where: { $0.domain == host }) {
+                                    watchlist.remove(id: item.id)
+                                }
+                            } else {
+                                watchlist.add(domain: host)
+                                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge]) { _, _ in }
+                            }
+                        } label: {
+                            Image(systemName: isWatched ? "bell.slash" : "bell.badge")
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel(isWatched ? "Unwatch Domain" : "Watch Domain")
+                    }
                 }
             }
             .padding(.horizontal, 24)
