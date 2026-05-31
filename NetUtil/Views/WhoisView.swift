@@ -109,7 +109,7 @@ struct WhoisView: View {
                 HStack(spacing: 12) {
                     if !vm.lines.isEmpty {
                         ReportMenuButton(
-                            onExportPDF: { /* TODO */ },
+                            onExportPDF: { Exporter.saveWhoisPDF(lines: vm.lines, query: query) },
                             onExportCSV: { Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"), defaultName: "NetUtil-Whois-\(query).csv", ext: "csv") }
                         )
                     }
