@@ -1,710 +1,358 @@
 import Foundation
 import AppKit
 import UniformTypeIdentifiers
-import SwiftUI
 
 enum Exporter {
 
-    // MARK: - Ping Data Generation
-
+    // MARK: - CSV: Ping
     static func csvString(from results: [PingResult]) -> String {
-        var lines = ["timestamp,sequence,host,bytes,ttl,rtt_ms"]
         let fmt = ISO8601DateFormatter()
-        for r in results {
-            lines.append("\(fmt.string(from: r.timestamp)),\(r.sequence),\(r.host),\(r.bytes),\(r.ttl),\(r.rtt)")
+        let header = "timestamp,sequence,host,bytes,ttl,rtt_ms,status"
+        let rows = results.map {
+            "\(fmt.string(from: $0.timestamp)),\($0.sequence),\($0.host),\($0.bytes),\($0.ttl),\($0.rtt),\($0.status == .success ? "success" : "timeout")"
         }
-        return lines.joined(separator: "\n")
+        return ([header] + rows).joined(separator: "\n")
     }
 
-    static func jsonData(from results: [PingResult]) throws -> Data {
-        let fmt = ISO8601DateFormatter()
-        let payload = results.map { r -> [String: Any] in
-            ["timestamp": fmt.string(from: r.timestamp),
-             "sequence": r.sequence,
-             "host": r.host,
-             "bytes": r.bytes,
-             "ttl": r.ttl,
-             "rtt_ms": r.rtt]
-        }
-        return try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
-    }
-    
-    // MARK: - PDF Export
-    
-    @MainActor
-    static func savePingPDF(results: [PingResult], stats: PingStats, host: String, resolvedIP: String?) {
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
-        let fileDate = formatter.string(from: date)
-        
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "NetUtil-Ping-\(host)-\(fileDate).pdf"
-        panel.allowedContentTypes = [.pdf]
-        
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            
-            let printInfo = NSPrintInfo.shared
-            printInfo.horizontalPagination = .fit
-            printInfo.verticalPagination = .automatic
-            printInfo.leftMargin = 40
-            printInfo.rightMargin = 40
-            
-            // Unified Report View based on Multi-Ping reference
-            let reportView = SinglePingPDFReportView(results: results, stats: stats, host: host, resolvedIP: resolvedIP, generatedDate: date)
-            let hostingView = NSHostingView(rootView: reportView)
-            
-            let totalHeight = 350 + (CGFloat(min(results.count, 100)) * 25)
-            hostingView.frame = NSRect(x: 0, y: 0, width: 550, height: totalHeight)
-            
-            let data = hostingView.dataWithPDF(inside: hostingView.bounds)
-            try? data.write(to: url)
-        }
-    }
-
-    @MainActor
-    static func saveMultiPingPDF(slots: [PingSlot]) {
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
-        let fileDate = formatter.string(from: date)
-        
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "NetUtil-MultiPing-Report-\(fileDate).pdf"
-        panel.allowedContentTypes = [.pdf]
-        
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            
-            let printInfo = NSPrintInfo.shared
-            printInfo.horizontalPagination = .fit
-            printInfo.verticalPagination = .automatic
-            printInfo.leftMargin = 40
-            printInfo.rightMargin = 40
-            
-            let reportView = MultiPingPDFReportView(slots: slots, generatedDate: date)
-            let hostingView = NSHostingView(rootView: reportView)
-            
-            let totalHeight = 300 + (CGFloat(slots.count) * 40)
-            hostingView.frame = NSRect(x: 0, y: 0, width: 550, height: totalHeight)
-            
-            let data = hostingView.dataWithPDF(inside: hostingView.bounds)
-            try? data.write(to: url)
-        }
-    }
-
-    @MainActor
-    static func saveHTTPLatencyPDF(result: HTTPLatencyResult, history: [HTTPLatencyResult]) {
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
-        let fileDate = formatter.string(from: date)
-        
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "NetUtil-HTTPLatency-\(fileDate).pdf"
-        panel.allowedContentTypes = [.pdf]
-        
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            
-            let printInfo = NSPrintInfo.shared
-            printInfo.horizontalPagination = .fit
-            printInfo.verticalPagination = .automatic
-            printInfo.leftMargin = 40
-            printInfo.rightMargin = 40
-            
-            let reportView = HTTPLatencyPDFReportView(result: result, history: history, generatedDate: date)
-            let hostingView = NSHostingView(rootView: reportView)
-            
-            let totalHeight = 400 + (CGFloat(min(history.count, 20)) * 30)
-            hostingView.frame = NSRect(x: 0, y: 0, width: 550, height: totalHeight)
-            
-            let data = hostingView.dataWithPDF(inside: hostingView.bounds)
-            try? data.write(to: url)
-        }
-    }
-
-    // MARK: - Traceroute
-
+    // MARK: - CSV: Traceroute
     static func csvString(from hops: [TracerouteHop]) -> String {
-        var lines = ["hop,host,ip,sent,loss_pct,last_ms,avg_ms,best_ms,worst_ms,updated"]
-        let fmt = ISO8601DateFormatter()
-        for h in hops {
-            let lastMs  = h.lastRtt.map { String(format: "%.2f", $0) } ?? ""
-            let avgMs   = h.avgRtt.map  { String(format: "%.2f", $0) } ?? ""
-            let bestMs  = h.minRtt.map  { String(format: "%.2f", $0) } ?? ""
-            let worstMs = h.maxRtt.map  { String(format: "%.2f", $0) } ?? ""
-            let row = ["\(h.hop)", h.host ?? "", h.ip ?? "", "\(h.sent)",
-                       String(format: "%.1f", h.loss),
-                       lastMs, avgMs, bestMs, worstMs, fmt.string(from: h.lastSeen)]
-            lines.append(row.joined(separator: ","))
+        let header = "hop,host,ip,sent,recv,loss_pct,min_rtt_ms,avg_rtt_ms,max_rtt_ms"
+        let rows = hops.map { h -> String in
+            let loss = String(format: "%.1f", h.loss)
+            let min  = h.minRtt.map { String(format: "%.2f", $0) } ?? ""
+            let avg  = h.avgRtt.map { String(format: "%.2f", $0) } ?? ""
+            let max  = h.maxRtt.map { String(format: "%.2f", $0) } ?? ""
+            return "\(h.hop),\(h.host ?? ""),\(h.ip ?? ""),\(h.sent),\(h.recv),\(loss),\(min),\(avg),\(max)"
         }
-        return lines.joined(separator: "\n")
+        return ([header] + rows).joined(separator: "\n")
     }
 
-    static func jsonData(from hops: [TracerouteHop]) throws -> Data {
+    // MARK: - CSV: Multi-Ping
+    static func csvString(from slots: [PingSlot]) -> String {
+        let header = "host,alias,sent,loss_pct,avg_rtt_ms,last_rtt_ms"
+        let rows = slots.map { s -> String in
+            let loss = String(format: "%.1f", s.loss)
+            let avg  = s.avgRtt.map  { String(format: "%.2f", $0) } ?? ""
+            let last = s.lastRtt.map { String(format: "%.2f", $0) } ?? ""
+            return "\(s.host),\(s.customName),\(s.sent),\(loss),\(avg),\(last)"
+        }
+        return ([header] + rows).joined(separator: "\n")
+    }
+
+    // MARK: - CSV: HTTP Latency
+    static func csvString(from history: [HTTPLatencyResult]) -> String {
         let fmt = ISO8601DateFormatter()
-        let payload = hops.map { h -> [String: Any] in
-            var d: [String: Any] = [
-                "hop": h.hop,
-                "sent": h.sent,
-                "loss_pct": h.loss,
-                "updated": fmt.string(from: h.lastSeen)
-            ]
-            if let host = h.host { d["host"] = host }
-            if let ip   = h.ip   { d["ip"] = ip }
-            if let v = h.lastRtt { d["last_ms"] = v }
-            if let v = h.avgRtt  { d["avg_ms"]  = v }
-            if let v = h.minRtt  { d["best_ms"] = v }
-            if let v = h.maxRtt  { d["worst_ms"] = v }
-            d["samples"] = h.samples.map { s -> [String: Any] in
-                var sd: [String: Any] = ["timestamp": fmt.string(from: s.timestamp)]
-                if let rtt = s.rtt { sd["rtt_ms"] = rtt }
-                return sd
+        let header = "timestamp,method,url,status_code,total_ms,dns_ms,tcp_ms,tls_ms,request_ms,ttfb_ms,download_ms"
+        let rows = history.map { r -> String in
+            func ms(_ phase: HTTPPhase) -> String {
+                r.phases.first(where: { $0.phase == phase }).map { String(format: "%.1f", $0.durationMs) } ?? "0"
             }
-            return d
+            return "\(fmt.string(from: r.timestamp)),\(r.method),\"\(r.url)\",\(r.statusCode ?? 0),\(String(format: "%.1f", r.totalMs)),\(ms(.dns)),\(ms(.tcp)),\(ms(.tls)),\(ms(.request)),\(ms(.ttfb)),\(ms(.download))"
         }
-        return try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
+        return ([header] + rows).joined(separator: "\n")
     }
 
-    @MainActor
-    static func saveTraceroutePDF(hops: [TracerouteHop], host: String, round: Int) {
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd_HH.mm.ss"
-        let fileDate = formatter.string(from: date)
-
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "NetUtil-Traceroute-\(host)-\(fileDate).pdf"
-        panel.allowedContentTypes = [.pdf]
-
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-
-            let reportView = TraceroutePDFReportView(hops: hops, host: host, round: round, generatedDate: date)
-            let hostingView = NSHostingView(rootView: reportView)
-            let rowH: CGFloat = 26
-            let totalHeight = 280 + CGFloat(hops.count) * rowH
-            hostingView.frame = NSRect(x: 0, y: 0, width: 560, height: totalHeight)
-            let data = hostingView.dataWithPDF(inside: hostingView.bounds)
-            try? data.write(to: url)
+    // MARK: - CSV: Subnet Scan
+    static func csvString(from results: [SubnetScanResult]) -> String {
+        let header = "ip,hostname,status,rtt_ms,mac_address"
+        let rows = results.map { r -> String in
+            let rtt = r.rtt.map { String(format: "%.2f", $0) } ?? ""
+            return "\(r.ip),\(r.hostname ?? ""),\(r.status.rawValue),\(rtt),\(r.macAddress ?? "")"
         }
+        return ([header] + rows).joined(separator: "\n")
     }
 
-    // MARK: - Save panel helpers
+    // MARK: - CSV: Speed Test
+    static func csvString(from history: [SpeedTestResult]) -> String {
+        let fmt = ISO8601DateFormatter()
+        let header = "timestamp,kind,name,download_mbps,upload_mbps,ping_ms,jitter_ms,browsing_avg_ms,game_median_ms,stream_avg_mbps,stream_tier"
+        let rows = history.map { r -> String in
+            "\(fmt.string(from: r.timestamp)),\(r.kind.rawValue),\(r.name ?? ""),\(String(format: "%.2f", r.downloadMbps)),\(String(format: "%.2f", r.uploadMbps)),\(String(format: "%.1f", r.pingMs)),\(String(format: "%.1f", r.jitterMs)),\(String(format: "%.1f", r.browsingAvgMs)),\(String(format: "%.1f", r.gameMedianMs)),\(String(format: "%.2f", r.streamAvgMbps)),\(r.streamTier)"
+        }
+        return ([header] + rows).joined(separator: "\n")
+    }
 
+    // MARK: - Generic text save
     static func save(string: String, defaultName: String, ext: String) {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = defaultName
-        if let contentType = UTType(filenameExtension: ext) {
-            panel.allowedContentTypes = [contentType]
-        }
+        if let contentType = UTType(filenameExtension: ext) { panel.allowedContentTypes = [contentType] }
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
             try? string.write(to: url, atomically: true, encoding: .utf8)
         }
     }
 
-    static func save(data: Data, defaultName: String, ext: String) {
+    // MARK: - PDF: Ping
+    @MainActor static func savePingPDF(results: [PingResult], stats: PingStats, host: String, resolvedIP: String?) {
+        let ts = timestamp()
+        let metaRows: [[String]] = [
+            ["Host", host],
+            ["Resolved IP", resolvedIP ?? "—"],
+            ["Transmitted", "\(stats.transmitted)"],
+            ["Received", "\(stats.received)"],
+            ["Packet Loss", String(format: "%.1f%%", stats.loss)],
+            ["Avg RTT", String(format: "%.2f ms", stats.avgRtt)],
+            ["Min RTT", stats.minRtt == .infinity ? "—" : String(format: "%.2f ms", stats.minRtt)],
+            ["Max RTT", String(format: "%.2f ms", stats.maxRtt)],
+            ["Jitter", String(format: "%.2f ms", stats.jitter)],
+        ]
+        let timeFmt = DateFormatter(); timeFmt.dateFormat = "HH:mm:ss"
+        let dataRows: [[String]] = results.map { r in
+            ["\(r.sequence)", r.status == .success ? "Success" : "Timeout",
+             r.status == .success ? String(format: "%.2f ms", r.rtt) : "—",
+             r.ipAddress ?? resolvedIP ?? "—", timeFmt.string(from: r.timestamp)]
+        }
+        let pdf = PDFReport.build(tool: "Ping", target: host, sections: [
+            ("Summary", metaRows),
+            ("Sequence", [["Seq", "Status", "RTT", "IP", "Time"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Ping-\(host)-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Multi-Ping
+    @MainActor static func saveMultiPingPDF(slots: [PingSlot]) {
+        let ts = timestamp()
+        let dataRows: [[String]] = slots.map { s in
+            [s.host, s.customName, "\(s.sent)", String(format: "%.1f%%", s.loss),
+             s.avgRtt.map  { String(format: "%.2f ms", $0) } ?? "—",
+             s.lastRtt.map { String(format: "%.2f ms", $0) } ?? "—"]
+        }
+        let pdf = PDFReport.build(tool: "Multi-Ping", target: "\(slots.count) hosts", sections: [
+            ("Hosts", [["Host", "Alias", "Sent", "Loss", "Avg RTT", "Last RTT"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-MultiPing-\(ts).pdf")
+    }
+
+    // MARK: - PDF: HTTP Latency
+    @MainActor static func saveHTTPLatencyPDF(result: HTTPLatencyResult, history: [HTTPLatencyResult]) {
+        let ts = timestamp()
+        let phaseRows: [[String]] = result.phases.map { p in
+            [p.phase.rawValue, String(format: "%.1f ms", p.startMs), String(format: "%.1f ms", p.durationMs)]
+        }
+        let timeFmt = DateFormatter(); timeFmt.dateFormat = "HH:mm:ss"
+        let histRows: [[String]] = history.map { r in
+            [timeFmt.string(from: r.timestamp), r.method,
+             "\(r.statusCode ?? 0)", String(format: "%.0f ms", r.totalMs),
+             String(r.url.prefix(45))]
+        }
+        let pdf = PDFReport.build(tool: "HTTP Latency", target: result.url, sections: [
+            ("Waterfall", [["Phase", "Start", "Duration"]] + phaseRows),
+            ("History",   [["Time", "Method", "Status", "Latency", "URL"]] + histRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-HTTPLatency-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Traceroute
+    @MainActor static func saveTraceroutePDF(hops: [TracerouteHop], host: String, round: Int) {
+        let ts = timestamp()
+        let dataRows: [[String]] = hops.map { h in
+            ["\(h.hop)", h.displayHost, String(format: "%.1f%%", h.loss),
+             h.avgRtt.map { String(format: "%.2f ms", $0) } ?? "—",
+             h.geo.map { "\($0.flag) \($0.city)" } ?? "—"]
+        }
+        let pdf = PDFReport.build(tool: "Traceroute", target: host, sections: [
+            ("Summary", [["Target", host], ["Round", "\(round)"], ["Hops", "\(hops.count)"]]),
+            ("Path", [["Hop", "Host", "Loss", "Avg RTT", "Location"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Traceroute-\(host)-\(ts).pdf")
+    }
+
+    // MARK: - PDF: DNS
+    @MainActor static func saveDNSPDF(result: DNSResult, host: String) {
+        let ts = timestamp()
+        let metaRows: [[String]] = [
+            ["Domain", host],
+            ["Server", result.server],
+            ["Query Time", result.queryTimeMs.map { "\($0) ms" } ?? "—"],
+            ["Records", "\(result.records.count)"],
+        ]
+        let dataRows: [[String]] = result.records.map { r in [r.name, "\(r.ttl)", r.type, r.value] }
+        let pdf = PDFReport.build(tool: "DNS Lookup", target: host, sections: [
+            ("Summary", metaRows),
+            ("Records", [["Name", "TTL", "Type", "Value"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-DNS-\(host)-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Subnet Scan
+    @MainActor static func saveSubnetScanPDF(results: [SubnetScanResult], cidr: String) {
+        let ts = timestamp()
+        let alive = results.filter { $0.status == .alive }.count
+        let metaRows: [[String]] = [
+            ["CIDR", cidr],
+            ["Total IPs", "\(results.count)"],
+            ["Alive", "\(alive)"],
+            ["Unreachable", "\(results.count - alive)"],
+        ]
+        let dataRows: [[String]] = results.map { r in
+            [r.ip, r.hostname ?? "—", r.status.rawValue,
+             r.rtt.map { String(format: "%.2f ms", $0) } ?? "—",
+             r.macAddress ?? "—"]
+        }
+        let pdf = PDFReport.build(tool: "Subnet Scanner", target: cidr, sections: [
+            ("Summary", metaRows),
+            ("Hosts", [["IP", "Hostname", "Status", "RTT", "MAC"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-SubnetScan-\(cidr.replacingOccurrences(of: "/", with: "_"))-\(ts).pdf")
+    }
+
+    // MARK: - PDF: SSL
+    @MainActor static func saveSSLPDF(result: CertResult, host: String) {
+        let ts = timestamp()
+        let leaf = result.chain.first
+        let metaRows: [[String]] = [
+            ["Host", host],
+            ["Port", "\(result.port)"],
+            ["TLS Version", result.tlsVersion ?? "—"],
+            ["Cipher Suite", result.cipherSuite ?? "—"],
+            ["Chain Depth", "\(result.chain.count)"],
+            ["Status", (leaf?.daysRemaining ?? 0) < 0 ? "Expired" : "Trusted"],
+            ["Days Remaining", leaf?.daysRemaining.map { "\($0)" } ?? "—"],
+        ]
+        let dateFmt = DateFormatter(); dateFmt.dateStyle = .medium
+        let chainRows: [[String]] = result.chain.map { c in
+            [c.isLeaf ? "End-Entity" : "CA",
+             c.subject.components(separatedBy: "CN=").last?.components(separatedBy: ",").first ?? c.subject,
+             c.notAfter.map { dateFmt.string(from: $0) } ?? "—",
+             c.daysRemaining.map { "\($0) days" } ?? "—"]
+        }
+        let pdf = PDFReport.build(tool: "SSL/TLS Inspector", target: host, sections: [
+            ("Summary", metaRows),
+            ("Certificate Chain", [["Role", "Common Name", "Expires", "Days Left"]] + chainRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-SSL-\(host)-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Speed Test
+    @MainActor static func saveSpeedTestPDF(history: [SpeedTestResult]) {
+        let ts = timestamp()
+        let timeFmt = DateFormatter(); timeFmt.dateStyle = .short; timeFmt.timeStyle = .short
+        let dataRows: [[String]] = history.map { r in
+            let primary: String
+            switch r.kind {
+            case .speed:     primary = String(format: "↓%.1f / ↑%.1f Mbps", r.downloadMbps, r.uploadMbps)
+            case .browsing:  primary = String(format: "%.0f ms avg", r.browsingAvgMs)
+            case .gaming:    primary = String(format: "%.0f ms median", r.gameMedianMs)
+            case .streaming: primary = "\(r.streamTier)"
+            }
+            return [timeFmt.string(from: r.timestamp), r.kind.rawValue, r.name ?? "—", primary]
+        }
+        let pdf = PDFReport.build(tool: "Speed Test", target: "Cloudflare", sections: [
+            ("History", [["Timestamp", "Kind", "Label", "Result"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-SpeedTest-\(ts).pdf")
+    }
+
+    // MARK: - Internal
+
+    @MainActor private static func savePDF(data: Data, defaultName: String) {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = defaultName
-        if let contentType = UTType(filenameExtension: ext) {
-            panel.allowedContentTypes = [contentType]
-        }
+        panel.allowedContentTypes = [.pdf]
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
             try? data.write(to: url)
         }
     }
-}
 
-// MARK: - Common PDF Components
-
-struct PDFHeaderView: View {
-    let title: String
-    let subtitle: String
-    let date: Date
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack(alignment: .center, spacing: 15) {
-                Image(nsImage: NSApp.applicationIconImage)
-                    .resizable()
-                    .frame(width: 48, height: 48)
-                    .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("NetUtil")
-                        .font(.system(size: 28, weight: .black))
-                        .foregroundColor(.accentColor)
-                    Text(subtitle)
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(.secondary)
-                        .kerning(1)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("REPORT GENERATED")
-                        .font(.system(size: 8, weight: .black))
-                        .foregroundColor(.secondary)
-                    Text(date.formatted(date: .complete, time: .complete))
-                        .font(.system(size: 10, weight: .bold))
-                    Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.0.0")")
-                        .font(.system(size: 8, design: .monospaced))
-                        .foregroundColor(.secondary)
-                }
-            }
-            Divider()
-        }
+    private static func timestamp() -> String {
+        let fmt = DateFormatter(); fmt.dateFormat = "yyyyMMdd-HHmmss"
+        return fmt.string(from: Date())
     }
 }
 
-struct PDFSectionHeader: View {
-    let title: String
-    var body: some View {
-        Text(title.uppercased())
-            .font(.system(size: 9, weight: .black))
-            .foregroundColor(.secondary)
-            .padding(.top, 10)
-    }
-}
+// MARK: - PDF Report Builder
 
-struct PDFFooterInfo: View {
-    var body: some View {
-        Text("Generated by NetUtil for macOS — Native Infrastructure Monitoring.")
-            .font(.system(size: 7))
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.top, 20)
-    }
-}
+private enum PDFReport {
+    static let pageW:  CGFloat = 595
+    static let pageH:  CGFloat = 842
+    static let margin: CGFloat = 48
+    static let lineH:  CGFloat = 14
 
-// MARK: - Single Ping PDF Report
+    static func build(tool: String, target: String, sections: [(title: String, rows: [[String]])]) -> Data {
+        var pageRect = CGRect(x: 0, y: 0, width: pageW, height: pageH)
+        let buf = NSMutableData()
+        guard let consumer = CGDataConsumer(data: buf as CFMutableData),
+              let ctx = CGContext(consumer: consumer, mediaBox: &pageRect, nil) else { return Data() }
 
-struct SinglePingPDFReportView: View {
-    let results: [PingResult]
-    let stats: PingStats
-    let host: String
-    let resolvedIP: String?
-    let generatedDate: Date
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            PDFHeaderView(title: "Ping Report", subtitle: "Diagnostic Endpoint Measurement", date: generatedDate)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Diagnostic Result")
-                    .font(.system(size: 22, weight: .bold))
-                HStack(spacing: 12) {
-                    Label(host, systemImage: "link")
-                    if let ip = resolvedIP { Text("(\(ip))") }
-                }
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            }
-            
-            PDFSectionHeader(title: "Summary Statistics")
-            HStack(spacing: 30) {
-                PDFSummaryBox(label: "Packets Sent", value: "\(stats.transmitted)")
-                PDFSummaryBox(label: "Packets Recv", value: "\(stats.received)")
-                PDFSummaryBox(label: "Loss %", value: String(format: "%.1f%%", stats.loss), color: stats.loss > 0 ? .red : .primary)
-                PDFSummaryBox(label: "Jitter", value: String(format: "%.2fms", stats.jitter))
-                PDFSummaryBox(label: "Avg RTT", value: String(format: "%.2fms", stats.avgRtt))
-            }
-            .padding(16)
-            .background(Color.secondary.opacity(0.05))
-            .cornerRadius(10)
-            
-            PDFSectionHeader(title: "Detailed Measurements (Last 100)")
-            VStack(spacing: 0) {
-                HStack {
-                    Text("SEQ").frame(width: 40, alignment: .leading)
-                    Text("STATUS").frame(width: 80, alignment: .leading)
-                    Text("RTT (MS)").frame(width: 80, alignment: .leading)
-                    Text("TIMESTAMP").frame(maxWidth: .infinity, alignment: .trailing)
-                }
-                .font(.system(size: 8, weight: .black))
-                .padding(.vertical, 8)
-                .padding(.horizontal, 10)
-                .background(Color.secondary.opacity(0.1))
-                
-                ForEach(results.suffix(100)) { r in
-                    HStack {
-                        Text("\(r.sequence)").frame(width: 40, alignment: .leading)
-                        Text(r.status == .success ? "SUCCESS" : "TIMEOUT")
-                            .foregroundColor(r.status == .success ? .green : .red)
-                            .font(.system(size: 8, weight: .bold))
-                            .frame(width: 80, alignment: .leading)
-                        Text(r.status == .success ? String(format: "%.3f", r.rtt) : "—")
-                            .frame(width: 80, alignment: .leading)
-                        Text(r.timestamp, format: .dateTime.hour().minute().second())
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    .font(.system(size: 8, design: .monospaced))
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 10)
-                    Divider().opacity(0.3)
-                }
-            }
-            
-            Spacer(minLength: 20)
-            PDFFooterInfo()
+        ctx.beginPDFPage(nil)
+        var y = drawHeader(ctx, tool: tool, target: target, y: pageH - margin)
+        for section in sections {
+            if y < margin + 60 { y = newPage(ctx) }
+            y = drawSection(ctx, title: section.title, rows: section.rows, y: y)
         }
-        .padding(35)
-        .frame(width: 550)
-        .background(Color.white)
+        drawFooter(ctx)
+        ctx.endPDFPage()
+        ctx.closePDF()
+        return buf as Data
     }
-}
 
-struct PDFSummaryBox: View {
-    let label: String
-    let value: String
-    var color: Color = .primary
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label.uppercased())
-                .font(.system(size: 7, weight: .black))
-                .foregroundColor(.secondary)
-            Text(value)
-                .font(.system(size: 13, weight: .bold, design: .monospaced))
-                .foregroundColor(color)
+    @discardableResult
+    private static func drawHeader(_ ctx: CGContext, tool: String, target: String, y: CGFloat) -> CGFloat {
+        var cy = y
+        draw(ctx, "NetUtil — \(tool) Report", x: margin, y: cy, font: .boldSystemFont(ofSize: 16))
+        cy -= 22
+
+        let dateFmt = DateFormatter(); dateFmt.dateStyle = .medium; dateFmt.timeStyle = .medium
+        draw(ctx, "Target: \(target)   |   \(dateFmt.string(from: Date()))",
+             x: margin, y: cy, font: .systemFont(ofSize: 10), color: .secondaryLabelColor)
+        cy -= 18
+
+        ctx.setStrokeColor(NSColor.separatorColor.cgColor)
+        ctx.setLineWidth(0.5)
+        ctx.move(to: CGPoint(x: margin, y: cy))
+        ctx.addLine(to: CGPoint(x: pageW - margin, y: cy))
+        ctx.strokePath()
+        cy -= 16
+        return cy
+    }
+
+    private static func drawSection(_ ctx: CGContext, title: String, rows: [[String]], y: CGFloat) -> CGFloat {
+        var cy = y
+        draw(ctx, title, x: margin, y: cy, font: .boldSystemFont(ofSize: 11))
+        cy -= lineH + 4
+
+        let contentW = pageW - 2 * margin
+        for (idx, row) in rows.enumerated() {
+            guard !row.isEmpty else { continue }
+            let colW = contentW / CGFloat(row.count)
+            let isHeader = idx == 0
+            let font: NSFont = isHeader ? .boldSystemFont(ofSize: 9) : .monospacedSystemFont(ofSize: 9, weight: .regular)
+            let color: NSColor = isHeader ? .secondaryLabelColor : .labelColor
+
+            if !isHeader && idx % 2 == 0 {
+                ctx.setFillColor(NSColor.labelColor.withAlphaComponent(0.04).cgColor)
+                ctx.fill(CGRect(x: margin, y: cy - 2, width: contentW, height: lineH + 2))
+            }
+
+            for (col, cell) in row.enumerated() {
+                let clipped = cell.count > 42 ? String(cell.prefix(40)) + "…" : cell
+                draw(ctx, clipped, x: margin + CGFloat(col) * colW, y: cy, font: font, color: color)
+            }
+            cy -= lineH
+
+            if cy < margin + 40 { cy = newPage(ctx) }
         }
-    }
-}
-
-// MARK: - Multi-Ping PDF Report
-
-struct MultiPingPDFReportView: View {
-    let slots: [PingSlot]
-    let generatedDate: Date
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            PDFHeaderView(title: "Multi-Ping", subtitle: "Consolidated Infrastructure Report", date: generatedDate)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Infrastructure Status")
-                    .font(.system(size: 22, weight: .bold))
-                Text("Monitoring \(slots.count) active network endpoints.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            
-            PDFSectionHeader(title: "Overview")
-            HStack(spacing: 40) {
-                PDFSummaryBox(label: "Targets", value: "\(slots.count)")
-                let avgLoss = slots.isEmpty ? 0 : slots.map(\.loss).reduce(0, +) / Double(slots.count)
-                PDFSummaryBox(label: "Avg Global Loss", value: String(format: "%.1f%%", avgLoss), color: avgLoss > 10 ? .red : .primary)
-                let healthyCount = slots.filter { $0.loss == 0 }.count
-                PDFSummaryBox(label: "Healthy Nodes", value: "\(healthyCount)", color: healthyCount == slots.count ? .green : .primary)
-            }
-            .padding(16)
-            .background(Color.secondary.opacity(0.05))
-            .cornerRadius(10)
-
-            PDFSectionHeader(title: "Endpoint Details")
-            VStack(spacing: 0) {
-                HStack {
-                    Text("HOST / ENDPOINT").frame(maxWidth: .infinity, alignment: .leading)
-                    Text("SENT").frame(width: 40)
-                    Text("LOSS").frame(width: 50)
-                    Text("AVG RTT").frame(width: 70)
-                    Text("STATUS").frame(width: 80, alignment: .trailing)
-                }
-                .font(.system(size: 8, weight: .black))
-                .padding(.vertical, 8)
-                .padding(.horizontal, 10)
-                .background(Color.secondary.opacity(0.1))
-                
-                ForEach(slots) { slot in
-                    HStack {
-                        Text(slot.host)
-                            .font(.system(size: 9, weight: .bold))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Text("\(slot.sent)").frame(width: 40)
-                        
-                        Text(String(format: "%.0f%%", slot.loss))
-                            .foregroundColor(slot.loss > 0 ? .red : .secondary)
-                            .frame(width: 50)
-                        
-                        Text(slot.avgRtt.map { String(format: "%.1f", $0) } ?? "—")
-                            .frame(width: 70)
-                        
-                        Text(interpretStatus(slot))
-                            .font(.system(size: 8, weight: .black))
-                            .foregroundColor(statusColor(slot))
-                            .frame(width: 80, alignment: .trailing)
-                    }
-                    .font(.system(size: 9, design: .monospaced))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 10)
-                    
-                    Divider().opacity(0.3)
-                }
-            }
-            
-            Spacer(minLength: 20)
-            PDFFooterInfo()
-        }
-        .padding(35)
-        .frame(width: 550)
-        .background(Color.white)
-    }
-    
-    private func statusColor(_ slot: PingSlot) -> Color {
-        if slot.loss >= 50 { return .red }
-        if slot.loss > 0 { return .orange }
-        return .green
-    }
-    
-    private func interpretStatus(_ slot: PingSlot) -> String {
-        if slot.loss >= 50 { return "CRITICAL" }
-        if slot.loss > 0 { return "DEGRADED" }
-        return "HEALTHY"
-    }
-}
-
-// MARK: - HTTP Latency PDF Report
-
-struct HTTPLatencyPDFReportView: View {
-    let result: HTTPLatencyResult
-    let history: [HTTPLatencyResult]
-    let generatedDate: Date
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            PDFHeaderView(title: "HTTP Latency", subtitle: "Web Request Performance Audit", date: generatedDate)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Request Details")
-                    .font(.system(size: 22, weight: .bold))
-                HStack(spacing: 8) {
-                    Text(result.method)
-                        .font(.system(size: 10, weight: .black))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.accentColor.opacity(0.1))
-                        .cornerRadius(4)
-                    Text(result.url)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
-            }
-            
-            PDFSectionHeader(title: "Timing Summary")
-            HStack(spacing: 30) {
-                PDFSummaryBox(label: "Status", value: "\(result.statusCode ?? 0)", color: result.statusCode == 200 ? .green : .orange)
-                PDFSummaryBox(label: "Total Latency", value: String(format: "%.0f ms", result.totalMs))
-                if let bytes = result.bodyBytes {
-                    PDFSummaryBox(label: "Body Size", value: formatBytes(bytes))
-                }
-            }
-            .padding(16)
-            .background(Color.secondary.opacity(0.05))
-            .cornerRadius(10)
-            
-            if !result.phases.isEmpty {
-                PDFSectionHeader(title: "Latency Waterfall")
-                VStack(spacing: 8) {
-                    let maxMs = result.phases.map(\.endMs).max() ?? result.totalMs
-                    ForEach(result.phases) { phase in
-                        HStack(spacing: 10) {
-                            Text(phase.phase.rawValue.uppercased())
-                                .font(.system(size: 8, weight: .black))
-                                .frame(width: 60, alignment: .trailing)
-                            
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(Color.secondary.opacity(0.1))
-                                    .frame(maxWidth: .infinity)
-                                
-                                let total = max(maxMs, 1)
-                                let x = 300 * CGFloat(phase.startMs / total)
-                                let w = max(4, 300 * CGFloat(phase.durationMs / total))
-                                
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(phaseColor(phase.phase))
-                                    .frame(width: w)
-                                    .offset(x: x)
-                            }
-                            .frame(width: 300, height: 12)
-                            
-                            Text(String(format: "%.1f ms", phase.durationMs))
-                                .font(.system(size: 9, design: .monospaced).bold())
-                        }
-                    }
-                }
-                .padding(16)
-                .background(Color.secondary.opacity(0.03))
-                .cornerRadius(8)
-            }
-            
-            PDFSectionHeader(title: "Recent Analysis History")
-            VStack(spacing: 0) {
-                HStack {
-                    Text("TIMESTAMP").frame(width: 100, alignment: .leading)
-                    Text("METHOD").frame(width: 50)
-                    Text("STATUS").frame(width: 50)
-                    Text("TOTAL").frame(width: 70)
-                    Text("URL / ENDPOINT").frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .font(.system(size: 8, weight: .black))
-                .padding(.vertical, 8)
-                .padding(.horizontal, 10)
-                .background(Color.secondary.opacity(0.1))
-                
-                ForEach(history.prefix(15)) { r in
-                    HStack {
-                        Text(r.timestamp.formatted(date: .abbreviated, time: .shortened)).frame(width: 100, alignment: .leading)
-                        Text(r.method).frame(width: 50)
-                        Text("\(r.statusCode ?? 0)").foregroundColor(r.statusCode == 200 ? .green : .orange).frame(width: 50)
-                        Text("\(Int(r.totalMs)) ms").frame(width: 70)
-                        Text(r.url).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .font(.system(size: 8, design: .monospaced))
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 10)
-                    Divider().opacity(0.3)
-                }
-            }
-            
-            Spacer(minLength: 20)
-            PDFFooterInfo()
-        }
-        .padding(35)
-        .frame(width: 550)
-        .background(Color.white)
-    }
-    
-    private func phaseColor(_ phase: HTTPPhase) -> Color {
-        switch phase {
-        case .dns:      return .teal
-        case .tcp:      return .blue
-        case .tls:      return .purple
-        case .request:  return .orange
-        case .ttfb:     return .yellow
-        case .download: return .green
-        }
+        return cy - 10
     }
 
-    private func formatBytes(_ bytes: Int64) -> String {
-        let kb = Double(bytes) / 1024
-        if kb < 1 { return "\(bytes) B" }
-        if kb < 1024 { return String(format: "%.1f KB", kb) }
-        return String(format: "%.2f MB", kb / 1024)
-    }
-}
-
-// MARK: - Traceroute PDF Report View
-
-struct TraceroutePDFReportView: View {
-    let hops: [TracerouteHop]
-    let host: String
-    let round: Int
-    let generatedDate: Date
-
-    @AppStorage("rttWarnThreshold") private var rttWarn: Double = 20.0
-    @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            PDFHeaderView(title: "Traceroute Report", subtitle: "HOP-BY-HOP PATH ANALYSIS", date: generatedDate)
-
-            // Summary row
-            HStack(spacing: 12) {
-                summaryBox("TARGET",     host)
-                summaryBox("HOPS",       "\(hops.count)")
-                summaryBox("ROUNDS",     "\(round)")
-                summaryBox("BOTTLENECKS","\(hops.filter(\.isBottleneck).count)")
-                summaryBox("MAX LOSS",   String(format: "%.1f%%", hops.map(\.loss).max() ?? 0))
-            }
-
-            PDFSectionHeader(title: "Hop-by-Hop Analysis")
-
-            // Table header
-            HStack(spacing: 0) {
-                colH("#",         36)
-                colH("Host / IP", 9999)
-                colH("Location",  110)
-                colH("Sent",       40)
-                colH("Loss%",      50)
-                colH("Min ms",     60)
-                colH("Avg ms",     60)
-                colH("Max ms",     60)
-                colH("StdDev",     60)
-            }
-            .padding(.vertical, 6).padding(.horizontal, 10)
-            .background(Color.secondary.opacity(0.12))
-            .cornerRadius(4)
-
-            // Rows
-            VStack(spacing: 0) {
-                ForEach(Array(hops.enumerated()), id: \.element.id) { idx, hop in
-                    HStack(spacing: 0) {
-                        colV("\(hop.hop)",                                             36,   .secondary)
-                        colV(hop.displayHost,                                          9999, .primary, isBold: true)
-                        colV(hop.geo?.shortLabel ?? (hop.isPrivateIP ? "Private" : "—"), 110, .secondary)
-                        colV("\(hop.sent)",                                             40,  .secondary)
-                        colV(String(format: "%.0f%%", hop.loss),                        50,  hop.loss > 0 ? .red : .secondary)
-                        colV(hop.minRtt.map { String(format: "%.1f", $0) } ?? "—",     60,  .primary)
-                        colV(hop.avgRtt.map { String(format: "%.1f", $0) } ?? "—",     60,  avgColor(hop))
-                        colV(hop.maxRtt.map { String(format: "%.1f", $0) } ?? "—",     60,  .primary)
-                        colV(hop.jitter.map { String(format: "±%.1f", $0) } ?? "—",    60,  .secondary)
-                    }
-                    .padding(.vertical, 5).padding(.horizontal, 10)
-                    .background(idx.isMultiple(of: 2) ? Color.secondary.opacity(0.03) : Color.clear)
-                }
-            }
-            .background(Color.secondary.opacity(0.04))
-            .cornerRadius(6)
-
-            Spacer()
-            PDFFooterInfo()
-        }
-        .padding(28)
-        .background(Color(.windowBackgroundColor))
+    private static func drawFooter(_ ctx: CGContext) {
+        draw(ctx, "Generated by NetUtil v4.0.0",
+             x: margin, y: margin - 18, font: .systemFont(ofSize: 8), color: .tertiaryLabelColor)
     }
 
-    private func summaryBox(_ label: String, _ value: String) -> some View {
-        VStack(spacing: 3) {
-            Text(label).font(.system(size: 8, weight: .black)).foregroundColor(.secondary)
-            Text(value).font(.system(size: 13, weight: .bold, design: .monospaced))
-        }
-        .frame(maxWidth: .infinity).padding(.vertical, 8)
-        .background(Color.secondary.opacity(0.06)).cornerRadius(6)
+    private static func newPage(_ ctx: CGContext) -> CGFloat {
+        ctx.endPDFPage()
+        ctx.beginPDFPage(nil)
+        return pageH - margin
     }
 
-    @ViewBuilder
-    private func colH(_ title: String, _ width: CGFloat) -> some View {
-        let t = Text(title.uppercased())
-            .font(.system(size: 8, weight: .black)).foregroundColor(.secondary)
-        if width > 500 {
-            t.frame(maxWidth: .infinity, alignment: .leading)
-        } else {
-            t.frame(width: width, alignment: .leading)
-        }
-    }
-
-    @ViewBuilder
-    private func colV(_ value: String, _ width: CGFloat, _ color: Color, isBold: Bool = false) -> some View {
-        let t = Text(value)
-            .font(.system(size: 9, weight: isBold ? .semibold : .regular))
-            .foregroundColor(color).lineLimit(1).truncationMode(.tail)
-        if width > 500 {
-            t.frame(maxWidth: .infinity, alignment: .leading)
-        } else {
-            t.frame(width: width, alignment: .leading)
-        }
-    }
-
-    private func avgColor(_ hop: TracerouteHop) -> Color {
-        guard let avg = hop.avgRtt else { return .secondary }
-        return avg < rttWarn ? .green : avg < rttCrit ? .orange : .red
+    private static func draw(_ ctx: CGContext, _ text: String, x: CGFloat, y: CGFloat, font: NSFont, color: NSColor = .labelColor) {
+        let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: color]
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
+        NSAttributedString(string: text, attributes: attrs).draw(at: CGPoint(x: x, y: y))
+        NSGraphicsContext.restoreGraphicsState()
     }
 }

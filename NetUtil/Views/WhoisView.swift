@@ -108,11 +108,10 @@ struct WhoisView: View {
                 
                 HStack(spacing: 12) {
                     if !vm.lines.isEmpty {
-                        Button { Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"), defaultName: "whois-\(query).txt", ext: "txt") } label: {
-                            Label("Report", systemImage: "doc.text.fill")
-                        }
-                        .buttonStyle(.bordered)
-                        .accessibilityLabel("Export Menu")
+                        ReportMenuButton(
+                            onExportPDF: { /* TODO */ },
+                            onExportCSV: { Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"), defaultName: "NetUtil-Whois-\(query).csv", ext: "csv") }
+                        )
                     }
 
                     Button(action: lookup) {

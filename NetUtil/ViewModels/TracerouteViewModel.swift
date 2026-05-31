@@ -8,7 +8,7 @@ import Observation
 final class TracerouteViewModel {
     private(set) var hops: [TracerouteHop] = []
     private(set) var isRunning = false
-    private(set) var rawLines: [String] = []
+    private(set) var rawLines: [PingLogLine] = []
     private(set) var error: String?
     private(set) var round = 0
     private(set) var currentHost: String = ""
@@ -85,7 +85,7 @@ final class TracerouteViewModel {
 
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.rawLines.append(contentsOf: lines)
+                self.rawLines.append(contentsOf: lines.map { PingLogLine(text: $0) })
                 if self.rawLines.count > Self.rawLinesLimit {
                     self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
                 }

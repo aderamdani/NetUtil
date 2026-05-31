@@ -153,17 +153,13 @@ struct PingView: View {
                     }
 
                     if !vm.results.isEmpty {
-                        Menu {
-                            Button("Export PDF Report") { Exporter.savePingPDF(results: vm.results, stats: vm.stats, host: host, resolvedIP: vm.resolvedIP) }
-                            Button("Export CSV Data") {
-                                let date = DateFormatter(); date.dateFormat = "yyyy-MM-dd_HH.mm.ss"
-                                Exporter.save(string: Exporter.csvString(from: vm.results), defaultName: "ping-\(host)-\(date.string(from: Date())).csv", ext: "csv")
+                        ReportMenuButton(
+                            onExportPDF: { Exporter.savePingPDF(results: vm.results, stats: vm.stats, host: host, resolvedIP: vm.resolvedIP) },
+                            onExportCSV: {
+                                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                                Exporter.save(string: Exporter.csvString(from: vm.results), defaultName: "NetUtil-Ping-\(host)-\(date.string(from: Date())).csv", ext: "csv")
                             }
-                        } label: {
-                            Label("Report", systemImage: "doc.text.fill")
-                        }
-                        .buttonStyle(.bordered)
-                        .accessibilityLabel("Report Menu")
+                        )
                     }
 
                     Button(action: startAction) {
@@ -224,7 +220,7 @@ struct PingView: View {
             
             VStack(spacing: 0) {
                 rttChart
-                    .drawingGroup() // PERFORMANCE: Optimized for real-time latency chart
+                    .drawingGroup()
                     .frame(height: 160)
                 
                 Divider().padding(.vertical, 12).opacity(0.5)
@@ -300,7 +296,6 @@ struct PingView: View {
 
     private var resultsTable: some View {
         VStack(spacing: 0) {
-            // STICKY HEADER
             HStack(spacing: 0) {
                 tHeader("Sequence", width: 80)
                 tHeader("Status", width: 100)
@@ -385,7 +380,7 @@ struct PingView: View {
                     .frame(width: 3, height: 12)
             }
         }
-        .drawingGroup() // PERFORMANCE: Optimized for mini health strip
+        .drawingGroup()
     }
 
     private func healthColor(_ r: PingResult) -> Color {

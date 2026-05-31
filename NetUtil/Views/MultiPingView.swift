@@ -120,16 +120,13 @@ struct MultiPingView: View {
                     }
 
                     if !vm.slots.isEmpty {
-                        Menu {
-                            Button("Export PDF Report") { Exporter.saveMultiPingPDF(slots: vm.slots) }
-                            Divider()
-                            Button("Stop All Sessions") { vm.stopAll() }
-                            Button("Start All Sessions") { vm.startAll() }
-                        } label: {
-                            Label("Actions", systemImage: "ellipsis.circle")
-                        }
-                        .buttonStyle(.bordered)
-                        .accessibilityLabel("Actions Menu")
+                        ReportMenuButton(
+                            onExportPDF: { Exporter.saveMultiPingPDF(slots: vm.slots) },
+                            onExportCSV: {
+                                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                                Exporter.save(string: Exporter.csvString(from: vm.slots), defaultName: "NetUtil-MultiPing-\(date.string(from: Date())).csv", ext: "csv")
+                            }
+                        )
                     }
 
                     Button(action: addHost) {
@@ -226,4 +223,3 @@ struct MultiPingView: View {
     }
 }
 
-// REMOVED: MultiPingRow struct (now in Components/MultiPingSlotRow.swift)

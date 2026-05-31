@@ -7,6 +7,9 @@ struct PortScanControlBar: View {
     @Binding var customPorts: String
     let onStart: () -> Void
     let onShowGuide: () -> Void
+    let onExportPDF: () -> Void
+    let onExportCSV: () -> Void
+    let hasResults: Bool
     let history: HostHistory
     
     var body: some View {
@@ -66,6 +69,10 @@ struct PortScanControlBar: View {
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 180)
                             .accessibilityLabel("Custom Port Range")
+                    }
+                    
+                    if hasResults {
+                        ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV)
                     }
 
                     Button(action: onStart) {

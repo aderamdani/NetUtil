@@ -116,10 +116,13 @@ struct HTTPLatencyView: View {
                     }
 
                     if let res = vm.result {
-                        Button { Exporter.saveHTTPLatencyPDF(result: res, history: vm.history) } label: {
-                            Label("Report", systemImage: "doc.text.fill")
-                        }
-                        .buttonStyle(.bordered)
+                        ReportMenuButton(
+                            onExportPDF: { Exporter.saveHTTPLatencyPDF(result: res, history: vm.history) },
+                            onExportCSV: {
+                                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                                Exporter.save(string: exportCSV(vm.history), defaultName: "NetUtil-HTTPLatency-\(date.string(from: Date())).csv", ext: "csv")
+                            }
+                        )
                     }
 
                     Button(action: startAction) {
@@ -313,6 +316,15 @@ struct HTTPLatencyView: View {
     private func startAction() {
         if vm.isRunning { vm.cancel() }
         else { guard !urlString.isEmpty else { return }; history.record(urlString); vm.run(urlString: urlString, method: method, followRedirects: followRedirects) }
+    }
+
+    private func exportCSV(_ history: [HTTPLatencyResult]) -> String {
+        var lines = ["timestamp,method,url,status,latency_ms"]
+        let fmt = ISO8601DateFormatter()
+        for r in history {
+            lines.append("\(fmt.string(from: r.timestamp)),\(r.method),\"\(r.url)\",\(r.statusCode ?? 0),\(r.totalMs)")
+        }
+        return lines.joined(separator: "\n")
     }
 
     private func statusColor(_ code: Int?) -> Color { guard let c = code else { return .secondary }; return c < 300 ? .green : c < 400 ? .orange : .red }

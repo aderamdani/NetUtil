@@ -35,7 +35,10 @@ struct TracerouteView: View {
                 history: history,
                 hasHops: !vm.hops.isEmpty,
                 onExportPDF: { Exporter.saveTraceroutePDF(hops: vm.hops, host: host, round: vm.round) },
-                onExportCSV: { Exporter.save(string: Exporter.csvString(from: vm.hops), defaultName: "trace-\(host).csv", ext: "csv") }
+                onExportCSV: {
+                    let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                    Exporter.save(string: Exporter.csvString(from: vm.hops), defaultName: "NetUtil-Traceroute-\(host)-\(date.string(from: Date())).csv", ext: "csv")
+                }
             )
             
             ScrollView {
@@ -166,11 +169,10 @@ struct TracerouteView: View {
     private var rawOutputView: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 4) {
-                ForEach(Array(vm.rawLines.enumerated()), id: \.offset) { i, line in
-                    Text(line)
+                ForEach(vm.rawLines) { line in
+                    Text(line.text)
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
-                        .id(i)
                 }
             }
             .padding(16)
@@ -247,7 +249,7 @@ private struct StatCardMini: View {
             Text(value).font(.system(size: 11, weight: .bold, design: .monospaced))
         }
         .padding(.horizontal, 10).padding(.vertical, 6)
-        .background(Color.secondary.opacity(0.1)).cornerRadius(6)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(label): \(value)")
     }
