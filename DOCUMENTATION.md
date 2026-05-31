@@ -6,10 +6,10 @@ Professional Network Diagnostics Toolkit for macOS.
 NetUtil is a native macOS application built with SwiftUI and Swift 6, designed for system administrators, network engineers, and power users. It provides a comprehensive suite of tools for monitoring, analyzing, and debugging network connectivity with a clean, symmetrical, and modern interface.
 
 ### Key Philosophy
-- **Apple Artisan Design**: Adheres strictly to the "Native macOS Anti-Slop Guidelines" — utilizing flat data hierarchies, true material vibrancy (`.regularMaterial`), and data-dense silent states to avoid generic web-style layouts.
+- **Apple Artisan Design**: Adheres strictly to the "Native macOS Anti-Slop Guidelines" — utilizing flat data hierarchies, true material vibrancy (`.regularMaterial`), and data-dense silent states.
+- **Accessibility Centric**: Fully audited for VoiceOver support, including descriptive labels and consolidated information elements for an inclusive experience.
+- **GPU-Accelerated Performance**: Real-time charts and sparklines leverage `.drawingGroup()` to ensure smooth UI performance under high-frequency data updates.
 - **Zero Third-Party Dependencies**: Built entirely using native macOS frameworks (SwiftUI, Network.framework, CoreWLAN, etc.).
-- **Performance**: High-concurrency operations (like port scanning) are optimized for modern Apple Silicon.
-- **Privacy**: No telemetry. All diagnostic data stays local to your machine.
 
 ---
 
@@ -18,17 +18,14 @@ NetUtil is a native macOS application built with SwiftUI and Swift 6, designed f
 NetUtil follows a strict **MVVM (Model-View-ViewModel)** architectural pattern.
 
 ### Core Layers
-- **Views**: SwiftUI-based interface. Highly modular, with each tool having its own dedicated view following a symmetrical layout (Fixed Top Header + Interpretation Bar + Stat Bar + Flat Results).
-- **ViewModels**: Manage state, process CLI output, and handle business logic. Isolated to `@MainActor`.
-- **Models**: Simple data structures and singletons for cross-tool functionality (e.g., `HostHistory`, `Exporter`, `NetworkMath`).
+- **Views**: SwiftUI-based interface. Large views are decomposed into modular components in `Views/Components/` to maintain high readability and focus.
+- **ViewModels**: Manage state and business logic, isolated to `@MainActor` with strict concurrency enforcement.
+- **Models**: Efficient value types and data-management singletons (e.g., `HostHistory`, `Exporter`, `NetworkMath`).
 
-### Process Execution Engine
-Most tools utilize a custom execution engine that wraps standard macOS CLI tools:
-1. Spawns a `Process` (e.g., `/sbin/ping`).
-2. Captures output via `Pipe`.
-3. Streams output through `fileHandleForReading.readabilityHandler`.
-4. Parses raw text into structured Models using `NSRegularExpression` on background threads.
-5. Publishes updates to the UI via `@Published` properties on the Main Actor.
+### Concurrency & Performance
+- **Structured Concurrency**: Utilizes `TaskGroup` and `async let` for parallel operations like port scanning.
+- **Lifecycle Safety**: ViewModels explicitly manage background task handles to ensure proper cancellation and zero resource leaks on deinit.
+- **GPU Rendering**: Complex Swift Charts are offloaded to the GPU using the `.drawingGroup()` modifier to prevent Main Thread contention.
 
 ---
 
@@ -40,8 +37,7 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 ### Connectivity & Latency
 - **Advanced Ping**: Live RTT chart with packet loss bars, jitter analysis, RTT distribution histograms, and configurable audio feedback ("Beep on Loss"). Export via PDF or CSV.
 - **Multi-Ping**: Monitor multiple hosts simultaneously with live sparklines, color-coded stability indicators, and custom host aliases. Consolidated PDF report for all hosts.
-- **Traceroute**: Comprehensive hop-by-hop path analysis with five view modes:
-  - **Live Graph** (default): PingPlotter-style heatmap with inline RTT area charts.
+- **Traceroute**: Comprehensive hop-by-hop path analysis with four view modes:
   - **Table**: Sortable columns with sparklines and detailed metrics (Min/Avg/Max/StdDev).
   - **Timeline**: Stacked per-hop bar charts.
   - **Map**: MapKit-powered interactive map with geo-resolved colored pins.
@@ -64,8 +60,8 @@ Most tools utilize a custom execution engine that wraps standard macOS CLI tools
 - **Route Table**: IPv4 and IPv6 routing rules via `netstat -rn`, with flag descriptions and live text filter.
 
 ### Settings
-macOS System Settings–style sidebar navigation with four panes:
-- **General**: Default limits and operational parameters.
+macOS System Settings–style TabView with four fragmented panes:
+- **General**: Default limits, operational parameters, and Menu Bar settings.
 - **Thresholds**: RTT color-zone boundaries (good/warn/critical) with a live animated preview bar.
 - **Tools**: Per-tool timeouts and concurrency settings.
 - **Privacy**: Geolocation toggle, host history management, and zero-telemetry disclosure.
@@ -84,19 +80,26 @@ NetUtil enforces a strict "Native macOS Polish" across all views:
 
 ---
 
-## 5. Development & CI/CD
+## 5. Development & Testing
 
 ### Requirements
 - **macOS**: 15.0 (Sequoia) or later.
 - **Xcode**: 16.0 or later.
 - **Tools**: `create-dmg` (for building installers).
 
+### Testing Infrastructure
+NetUtil uses a native Xcode test target (**NetUtilTests**) for automated verification.
+- **Logic Coverage**: Unit tests cover core parsers (Ping, Traceroute, DNS), network math, and status models.
+- **Execution**: Run tests directly in Xcode (`Cmd+U`) or via CLI:
+  ```bash
+  xcodebuild test -project NetUtil.xcodeproj -scheme NetUtil -destination 'platform=macOS'
+  ```
+
 ### Release Workflow
-Releases are built locally and published via GitHub CLI. **It is mandatory to update `CHANGELOG.md` before executing a release.**
-1. Bump `MARKETING_VERSION` in `project.pbxproj` and add detailed notes to `CHANGELOG.md`.
-2. Build: `xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release`.
-3. Package: `bash scripts/build_dmg.sh` → produces `dist/NetUtil-X.X.X.dmg`.
-4. Commit, push, tag, create GitHub Release with the DMG attached.
+Releases are built locally and published via GitHub CLI.
+1. Bump version in `project.pbxproj` and add detailed notes to `CHANGELOG.md`.
+2. Build & Package: `bash scripts/build_dmg.sh` → produces `dist/NetUtil-X.X.X.dmg`.
+3. Publish: `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "vX.X.X" --notes "..."`.
 
 ---
 
@@ -106,6 +109,7 @@ Refer to these internal documents for specific guidance:
 - `CLAUDE.md`: Internal agent instructions, strict UI/UX guidelines, and release checklists.
 - `CHANGELOG.md`: Historical record of all versions and changes.
 - `ROADMAP.md`: Planned features and versioning roadmap.
+- `QA-CLINICAL-TEST.md`: Functional test scenarios and clinical HIG audit logs.
 
 ---
 

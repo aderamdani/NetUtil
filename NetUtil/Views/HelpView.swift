@@ -447,12 +447,14 @@ private let allSections: [HelpSection] = [
         icon: "gearshape",
         subtitle: "Configure NetUtil behavior",
         topics: [
-            HelpTopic(heading: "Ping & Multi-Ping", body: "Set default ping count (packets per run) and interval (seconds between pings). These apply to both Ping and Multi-Ping. The count field accepts up to 9999.", tips: nil),
+            HelpTopic(heading: "Navigation", body: "Settings are organized into four dedicated panes: General, Thresholds, Tools, and Privacy. Use the tab bar at the top to switch between them.", tips: nil),
+            HelpTopic(heading: "Ping & Multi-Ping", body: "Set default ping count (packets per run) and interval (seconds between pings). These apply to both Ping and Multi-Ping. You can also enable 'Beep on Loss' for audio feedback.", tips: nil),
             HelpTopic(heading: "RTT thresholds", body: "Warn and critical thresholds control the green/orange/red coloring used across Ping, Traceroute, Multi-Ping sparklines, and the menu bar indicator. Changes take effect immediately.", tips: [
                 "Default: warn at 20 ms, critical at 100 ms.",
                 "Loss alert threshold: loss% above this turns red in the Ping stats bar."
             ]),
-            HelpTopic(heading: "Privacy", body: "Host input history is stored in UserDefaults and shown in the history dropdown across all tools. Clear it here if needed. Geolocation setting is also here.", tips: nil)
+            HelpTopic(heading: "Menu Bar", body: "Configure the background monitoring display. Choose between icon-only, live RTT, aggregate traffic, or a combined view. You can also set the background ping interval.", tips: nil),
+            HelpTopic(heading: "Privacy", body: "Host input history is stored locally in UserDefaults. Clear it here if needed. You can also toggle geographic IP lookups for Traceroute.", tips: nil)
         ]
     ),
 

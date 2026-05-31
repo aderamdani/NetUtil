@@ -17,10 +17,10 @@
 
 ### Core Diagnostics
 
-NetUtil provides 16 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
+NetUtil provides 16+ integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
 
 *   **Bento Dashboard**: A dynamic mission control featuring live sparklines, pulsing activity indicators, and real-time CPU/RAM gauges.
-*   **Advanced Ping**: Beyond ICMP. Visualizes latency history, analyzes jitter, and provides GitHub-style health strips.
+*   **Advanced Ping**: Beyond ICMP. Visualizes latency history with GPU-accelerated charts, analyzes jitter, and provides GitHub-style health strips.
 *   **Multi-Ping**: Monitor multiple server nodes simultaneously with real-time sparklines and consolidated PDF reporting.
 *   **Traceroute**: Hop-by-hop path discovery with a visual timeline, MapKit geographic routing, and automatic bottleneck detection.
 *   **Port Scanner**: High-speed, parallelized TCP reachability auditing using a modern mini-card grid system.
@@ -29,7 +29,7 @@ NetUtil provides 16 integrated tools designed for precision monitoring, infrastr
 *   **Security Audit**: Deep inspection of SSL/TLS certificate chains, SANs, and SHA-256 fingerprints.
 *   **DNS & WHOIS**: Direct access to `dig` and `whois` queries with elegantly parsed, copy-ready outputs.
 *   **Traffic & Interfaces**: Live bandwidth throughput monitors (RX/TX), Wi-Fi signal/SNR analytics, and automatic VLAN (802.1Q) detection.
-*   **Speed Test & Statistics**: Nperf-style four-tier speed tests (Speed, Browsing, Gaming, Streaming), real-time per-process network traffic (`nettop`), and historical data usage.
+*   **Speed Test & Statistics**: Nperf-style four-tier speed tests, real-time per-process network traffic (`nettop`), and daily data usage tracking.
 
 ---
 
@@ -38,8 +38,9 @@ NetUtil provides 16 integrated tools designed for precision monitoring, infrastr
 NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slop" or web-style designs. 
 
 *   **100% Symmetrical Harmony**: Every single diagnostic tool shares an identical visual structure—Fixed Top Headers, Interpretation Mood Bars, and unified action placements.
+*   **Accessibility First**: Fully audited for VoiceOver inclusivity. Every interactive element has descriptive labels, dynamic values, and logical grouping.
+*   **GPU-Accelerated Charts**: Real-time visualizations utilize `.drawingGroup()` for butter-smooth rendering even during high-frequency monitoring.
 *   **True Material Vibrancy**: UI panels react dynamically to your macOS wallpaper using native `.regularMaterial`.
-*   **Flat Data Hierarchy**: Information flows naturally with ultra-fine `0.5pt` system dividers, avoiding nested borders or heavy shadows.
 *   **Keyboard First**: Navigate seamlessly across all tools using `⌘1` through `⌘9` and utilize Global Search (`⌘F`) to instantly recall historical targets.
 
 ---
@@ -48,6 +49,7 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 
 *   **Swift 6 & SwiftUI**: Built exclusively for macOS 15+ ensuring maximum efficiency and minimal battery footprint.
 *   **Zero Dependencies**: No third-party frameworks or bloated SDKs. Pure Apple APIs (`Network`, `CoreWLAN`, `MapKit`).
+*   **Native Testing**: Robust test suite integrated directly into Xcode, covering core network logic and parsers.
 *   **Apple Silicon Native**: Hardware-accelerated for M1/M2/M3/M4 chips.
 *   **Enterprise Reporting**: Generate branded, timestamped PDF and CSV reports for professional auditing.
 
@@ -58,7 +60,6 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 1.  Visit the **[Releases](https://github.com/aderamdani/NetUtil/releases)** page.
 2.  Download the latest `NetUtil-vX.X.X.dmg`.
 3.  Open the DMG and drag **NetUtil** to your `Applications` folder.
-4.  *Note: On first launch, macOS Gatekeeper may prompt you. Simply Right-Click -> Open.*
 
 ---
 
@@ -68,16 +69,17 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 
 ### Fitur Utama
 *   **Dashboard Bento**: Pusat kendali dengan *sparkline* hidup, indikator aktivitas yang berdenyut, serta pantauan CPU/RAM secara *real-time*.
-*   **Advanced Ping & Multi-Ping**: Visualisasi riwayat latensi, analisis *jitter*, dan pemantauan banyak *server* sekaligus dengan laporan PDF terpadu.
+*   **Aksesibilitas Penuh**: Dukungan VoiceOver lengkap di seluruh aplikasi untuk pengguna dengan keterbatasan penglihatan.
+*   **Advanced Ping & Multi-Ping**: Visualisasi riwayat latensi yang diakselerasi GPU, analisis *jitter*, dan pemantauan banyak *server* sekaligus.
 *   **Traceroute Geografis**: Deteksi *hop-by-hop* dengan Peta Rute, grafik *timeline*, dan deteksi *bottleneck* otomatis.
-*   **Port & Security Audit**: Pemindai TCP berkecepatan tinggi dengan sistem *mini-card* modern, serta inspektor sertifikat SSL/TLS mendalam.
+*   **Port & Security Audit**: Pemindai TCP berkecepatan tinggi dan inspektor sertifikat SSL/TLS mendalam.
 *   **HTTP Latency**: Analisis presisi setiap fase akses *web* (DNS, TCP, TLS, TTFB).
 *   **IP Toolbox & DNS/WHOIS**: Kalkulator *Subnet* (CIDR), resolusi DNS komprehensif, dan data kepemilikan domain.
 *   **Traffic & Interface**: Monitor *Bandwidth* (RX/TX) *real-time*, analisis sinyal Wi-Fi, dan deteksi otomatis untuk *Virtual LAN* (VLAN).
-*   **Speed Test & Statistik**: Uji kecepatan jaringan komprehensif, pemantauan trafik *real-time* per aplikasi, dan riwayat penggunaan data.
+*   **Speed Test & Statistik**: Uji kecepatan jaringan komprehensif, pemantauan trafik *real-time* per aplikasi, dan riwayat penggunaan data harian.
 
 ### Keunggulan Teknis
-Didesain 100% menggunakan **Swift 6 & SwiftUI** tanpa *framework* pihak ketiga mana pun (*Zero Dependencies*). Mendukung penuh arsitektur Apple Silicon dan fitur *Keyboard Shortcuts* (`⌘1` - `⌘9`, `⌘F`) untuk navigasi super cepat.
+Didesain 100% menggunakan **Swift 6 & SwiftUI** tanpa *framework* pihak ketiga mana pun (*Zero Dependencies*). Mendukung penuh arsitektur Apple Silicon, akselerasi grafik GPU, dan fitur *Keyboard Shortcuts* (`⌘1` - `⌘9`, `⌘F`) untuk navigasi super cepat.
 
 ---
 

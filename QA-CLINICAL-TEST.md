@@ -1,17 +1,15 @@
 # NetUtil — Clinical Test Report
 
 Scope: end-to-end functional + HIG audit of every tool, with an automated
-regression suite. Generated 2026-05-30 against `main` @ v3.2.0.
+regression suite. Generated 2026-05-31 against `main` @ v3.5.0.
 
 Two deliverables:
 
-1. **Automated suite** — `tests-spm/` (SwiftPM + XCTest). 71 tests over the
-   pure-logic core (parsers, subnet math, stats, models). Run:
+1. **Automated suite** — **NetUtilTests** (Native Xcode Target). 71 tests over the
+   pure-logic core (parsers, subnet math, stats, models). Run via `Cmd+U` or:
    ```bash
-   swift test --package-path tests-spm
+   xcodebuild test -project NetUtil.xcodeproj -scheme NetUtil -destination 'platform=macOS'
    ```
-   Sources are **symlinks** to the real app files (`NetUtil/Models`,
-   `NetUtil/ViewModels`), so tests run against production code with zero drift.
 2. **This document** — manual scenarios per tool, HIG findings, and a bug ledger.
 
 ---

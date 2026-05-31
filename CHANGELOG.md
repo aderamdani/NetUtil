@@ -11,6 +11,7 @@ All notable changes to NetUtil are documented here.
 - **UI Architecture Overhaul**: Decomposed large View bodies into modular components in `Views/Components/` and fragmented `SettingsView` into dedicated panes for better maintainability.
 - **Performance Optimization**: Added `.drawingGroup()` to all real-time Swift Charts, migrating rendering load to GPU. Optimized `TopProcessesView` with native `List` virtualization.
 - **Accessibility (VoiceOver)**: Implemented `.accessibilityLabel()`, `.accessibilityValue()`, and `.accessibilityElement(children: .combine)` across all views, ensuring full inclusivity.
+- **Native Test Infrastructure**: Migrated entire unit test suite from external `tests-spm` to a native Xcode test target (`NetUtilTests`), enabling seamless development and CI integration.
 - **Build Infrastructure**: Optimized Xcode build settings for compilation caching, strict concurrency (Swift 6), and faster linking.
 - **Task Lifecycle Management**: Secured background task execution with explicit cancellation and proper cleanup in all ViewModels.
 
