@@ -4,6 +4,13 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.4.0] — 2026-05-31
+
+### Added
+- **Bonjour Browser**: Local network service discovery using `NWBrowser` (Network.framework). Browse mDNS/Bonjour services by type (Web Servers, SSH, Printers, AirPlay, SMB, Chromecast, HomeKit, and more), live-filter results, and inspect discovered service name, type, and domain. Accessible from the IP Toolbox sidebar section.
+
+---
+
 ## [4.3.0] — 2026-05-31
 
 ### Added
