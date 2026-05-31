@@ -17,7 +17,7 @@
 
 ### Core Diagnostics
 
-NetUtil provides 18 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
+NetUtil provides 17 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
 
 *   **Bento Dashboard**: A dynamic mission control featuring live sparklines, pulsing activity indicators, and real-time CPU/RAM gauges.
 *   **Advanced Ping**: Beyond ICMP. Visualizes latency history with GPU-accelerated charts, analyzes jitter, and provides GitHub-style health strips.
@@ -26,7 +26,6 @@ NetUtil provides 18 integrated tools designed for precision monitoring, infrastr
 *   **Port Scanner**: High-speed, parallelized TCP reachability auditing using a modern mini-card grid system.
 *   **HTTP Latency**: Millisecond-precise breakdown of web requests (DNS, TCP, TLS, TTFB) using native `URLSessionTaskMetrics`.
 *   **Subnet Scanner**: Concurrent ping sweep across entire subnets with host discovery, ARP enrichment, hostname resolution, MAC address detection, and CSV/PDF export.
-*   **Bonjour Browser**: Local network service discovery via `NWBrowser` — browse mDNS services by type (Web, SSH, AirPlay, SMB, Chromecast, HomeKit, and more) with live filtering.
 *   **DNS Comparison**: Parallel DNS resolution across multiple resolvers (System, Google, Cloudflare, Quad9) with query-time comparison.
 *   **SSL Watchlist**: Automated tracking of certificate lifecycles with local notification alerts for near-expiry domains.
 *   **Bulk Host Import**: Import or paste host lists into Multi-Ping with duplicate detection.

@@ -20,8 +20,6 @@ enum Tool: String, CaseIterable, Identifiable {
     case statistics    = "Statistics"
     case speedTest     = "Speed Test"
     case topApps       = "Top Processes"
-    case bonjourBrowser = "Bonjour Browser"
-
     var id: String { rawValue }
 
     var icon: String {
@@ -44,7 +42,6 @@ enum Tool: String, CaseIterable, Identifiable {
         case .statistics:   "chart.line.uptrend.xyaxis"
         case .speedTest:    "speedometer"
         case .topApps:      "list.bullet.rectangle"
-        case .bonjourBrowser: "bonjour"
         }
     }
     
@@ -143,7 +140,6 @@ struct ContentView: View {
 
                         Section("IP Toolbox") {
                             sidebarItem(.subnetScan)
-                            sidebarItem(.bonjourBrowser)
                             sidebarItem(.subnet)
                         }
                         
@@ -249,7 +245,6 @@ struct ContentView: View {
         case .statistics:   StatisticsView()
         case .speedTest:    SpeedTestView(vm: tools.speedTest)
         case .topApps:      TopProcessesView(vm: tools.topApps)
-        case .bonjourBrowser: BonjourBrowserView().environment(tools.bonjourBrowser)
         }
     }
 }
