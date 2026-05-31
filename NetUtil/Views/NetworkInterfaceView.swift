@@ -114,7 +114,17 @@ struct NetworkInterfaceView: View {
                         .accessibilityLabel("Show inactive interfaces")
                     
                     Divider().frame(height: 16)
-                    
+
+                    ReportMenuButton(
+                        onExportPDF: {},
+                        onExportCSV: {
+                            let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                            Exporter.save(string: Exporter.csvString(from: vm.interfaces),
+                                          defaultName: "NetUtil-Interfaces-\(ts.string(from: Date())).csv",
+                                          ext: "csv")
+                        }
+                    )
+
                     Button { vm.refresh() } label: {
                         Label("Refresh", systemImage: "arrow.clockwise")
                     }

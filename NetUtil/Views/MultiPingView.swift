@@ -15,7 +15,8 @@ struct MultiPingView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            multiPingMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if vm.slots.isEmpty {
@@ -55,6 +56,28 @@ struct MultiPingView: View {
                 }
             }
         }
+    }
+
+    private var multiPingMoodBar: some View {
+        let active = vm.slots.filter { $0.isRunning }.count
+        let total  = vm.slots.count
+        let avgLoss = total > 0 ? vm.slots.map { $0.loss }.reduce(0, +) / Double(total) : 0
+        let (icon, color, msg): (String, Color, String) = {
+            if total == 0 { return ("dot.radiowaves.left.and.right", .secondary, "No hosts added") }
+            if active == 0 { return ("pause.circle", .secondary, "Monitoring stopped — \(total) host\(total == 1 ? "" : "s") configured") }
+            if avgLoss > 10 { return ("exclamationmark.triangle.fill", .red, "Active: \(active)/\(total)  —  Avg loss: \(String(format: "%.1f", avgLoss))%") }
+            if avgLoss > 0  { return ("exclamationmark.triangle.fill", .orange, "Active: \(active)/\(total)  —  Avg loss: \(String(format: "%.1f", avgLoss))%") }
+            return ("checkmark.circle.fill", .green, "Active: \(active)/\(total)  —  All hosts reachable")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
 
     private var controlBar: some View {

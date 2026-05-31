@@ -13,7 +13,8 @@ struct DNSView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            dnsMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
@@ -59,6 +60,28 @@ struct DNSView: View {
     }
 
     // MARK: - Components
+
+    private var dnsMoodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            if vm.isRunning { return ("hourglass", .secondary, "Resolving \(vm.lastQuery.isEmpty ? "query" : vm.lastQuery)...") }
+            guard let result = vm.result else {
+                return ("globe", .secondary, "Enter a domain to perform DNS lookup")
+            }
+            let n = result.records.count
+            let ms = result.queryTimeMs.map { "\($0) ms" } ?? "—"
+            if n == 0 { return ("questionmark.circle.fill", .orange, "No records found for \(vm.lastQuery)  —  \(ms)") }
+            return ("checkmark.circle.fill", .green, "\(n) record\(n == 1 ? "" : "s") resolved  —  \(ms)  —  via \(result.server)")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
+    }
 
     private var controlBar: some View {
         VStack(spacing: 0) {

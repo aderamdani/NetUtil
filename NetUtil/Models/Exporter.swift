@@ -62,6 +62,36 @@ enum Exporter {
         return ([header] + rows).joined(separator: "\n")
     }
 
+    // MARK: - CSV: Top Processes
+    static func csvString(from apps: [AppTrafficItem]) -> String {
+        let header = "name,rx_bps,tx_bps"
+        let rows = apps.map { "\($0.name),\(String(format: "%.1f", $0.rxBps)),\(String(format: "%.1f", $0.txBps))" }
+        return ([header] + rows).joined(separator: "\n")
+    }
+
+    // MARK: - CSV: Network Interfaces
+    static func csvString(from interfaces: [NetworkInterface]) -> String {
+        let header = "name,type,status,ipv4,ipv6,mac,mtu"
+        let rows = interfaces.map { i -> String in
+            "\(i.name),\(i.typeName),\(i.isUp ? "Up" : "Down"),\(i.ipv4.joined(separator: ";")),\(i.ipv6.joined(separator: ";")),\(i.mac ?? ""),\(i.mtu.map { "\($0)" } ?? "")"
+        }
+        return ([header] + rows).joined(separator: "\n")
+    }
+
+    // MARK: - CSV: WiFi
+    static func csvString(from info: WiFiInfo) -> String {
+        let header = "ssid,bssid,rssi_dbm,channel,security,interface"
+        let row = "\(info.ssid ?? ""),\(info.bssid ?? ""),\(info.rssi.map { "\($0)" } ?? ""),\(info.channel.map { "\($0)" } ?? ""),\(info.security ?? ""),\(info.interfaceName ?? "")"
+        return header + "\n" + row
+    }
+
+    // MARK: - CSV: Routes
+    static func csvString(from routes: [RouteEntry]) -> String {
+        let header = "destination,gateway,flags,interface,ipv6"
+        let rows = routes.map { "\($0.destination),\($0.gateway),\($0.flags),\($0.netif),\($0.isIPv6)" }
+        return ([header] + rows).joined(separator: "\n")
+    }
+
     // MARK: - CSV: Speed Test
     static func csvString(from history: [SpeedTestResult]) -> String {
         let fmt = ISO8601DateFormatter()

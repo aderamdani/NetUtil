@@ -81,7 +81,17 @@ struct RouteTableView: View {
                     .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                     
                     Divider().frame(height: 16)
-                    
+
+                    ReportMenuButton(
+                        onExportPDF: {},
+                        onExportCSV: {
+                            let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                            Exporter.save(string: Exporter.csvString(from: entries),
+                                          defaultName: "NetUtil-Routes-\(ts.string(from: Date())).csv",
+                                          ext: "csv")
+                        }
+                    )
+
                     Button { load() } label: {
                         Label("Refresh", systemImage: "arrow.clockwise")
                     }
