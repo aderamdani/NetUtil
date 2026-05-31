@@ -182,19 +182,23 @@ When the user asks to **"commit, build DMG, and release"** (or similar), perform
 
 3.  **Canonical `toolList` for `AboutView.swift`** — must always match `ContentView.swift` Tool enum:
     ```swift
-    ("square.grid.2x2",                       "Mission Dashboard"),
-    ("antenna.radiowaves.left.and.right",      "Advanced Ping"),
+    ("square.grid.2x2",                       "Dashboard"),
+    ("antenna.radiowaves.left.and.right",      "Ping"),
     ("point.3.connected.trianglepath.dotted",  "Traceroute"),
     ("dot.radiowaves.left.and.right",          "Multi-Ping"),
     ("checklist",                              "Port Scanner"),
     ("stopwatch",                              "HTTP Latency"),
+    ("number.square",                          "Subnet Calc"),
     ("globe",                                  "DNS Lookup"),
+    ("lock.shield",                            "SSL/TLS"),
     ("magnifyingglass.circle",                 "WHOIS"),
-    ("lock.shield",                            "SSL/TLS Inspector"),
-    ("network",                                "Network Interfaces"),
-    ("wifi",                                   "Wi-Fi Inspector"),
-    ("arrow.triangle.branch",                  "Route Table"),
-    ("chart.bar.xaxis",                        "Bandwidth Monitor"),
+    ("chart.bar.xaxis",                        "Bandwidth"),
+    ("chart.line.uptrend.xyaxis",              "Statistics"),
+    ("speedometer",                            "Speed Test"),
+    ("list.bullet.rectangle",                  "Top Processes"),
+    ("network",                                "Interfaces"),
+    ("wifi",                                   "Wi-Fi"),
+    ("arrow.triangle.branch",                  "Routes"),
     ```
     If a new tool is added to ContentView Tool enum, add it here too (same SF symbol, same display name).
 
