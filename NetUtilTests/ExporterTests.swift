@@ -22,6 +22,6 @@ final class ExporterTests: XCTestCase {
     func testEmptyCSVGeneration() {
         let results: [PingResult] = []
         let csv = Exporter.csvString(from: results)
-        XCTAssertEqual(csv, "timestamp,sequence,host,bytes,ttl,rtt_ms")
+        XCTAssertEqual(csv, "timestamp,sequence,host,bytes,ttl,rtt_ms,status")
     }
 }

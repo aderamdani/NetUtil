@@ -4,6 +4,16 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.4.1] — 2026-05-31
+
+### Fixed
+- **Build System**: Resolved "Cannot find 'Exporter' in scope" error by refactoring `Exporter.swift` to break up complex array literals that caused Swift compiler timeouts.
+- **Unit Tests**: Fixed `@MainActor` isolation errors in `SubnetScanTests.swift`.
+- **Unit Tests**: Synchronized `ExporterTests` CSV header expectation with the latest model changes.
+- **PDF Reports**: Bumped PDF font sizes to 10pt (footer/table content) to strictly comply with Apple HIG and project accessibility standards.
+
+---
+
 ## [4.4.0] — 2026-05-31
 
 ### Changed

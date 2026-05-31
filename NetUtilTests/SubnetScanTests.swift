@@ -3,6 +3,7 @@ import XCTest
 
 final class SubnetScanTests: XCTestCase {
     
+    @MainActor
     func testCIDRGeneration() {
         let vm = SubnetScanViewModel()
         vm.cidrInput = "192.168.1.0/24"

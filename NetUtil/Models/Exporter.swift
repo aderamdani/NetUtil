@@ -99,9 +99,12 @@ enum Exporter {
         ]
         let timeFmt = DateFormatter(); timeFmt.dateFormat = "HH:mm:ss"
         let dataRows: [[String]] = results.map { r in
-            ["\(r.sequence)", r.status == .success ? "Success" : "Timeout",
-             r.status == .success ? String(format: "%.2f ms", r.rtt) : "—",
-             r.ipAddress ?? resolvedIP ?? "—", timeFmt.string(from: r.timestamp)]
+            let seqStr = "\(r.sequence)"
+            let statusStr = (r.status == .success) ? "Success" : "Timeout"
+            let rttStr = (r.status == .success) ? String(format: "%.2f ms", r.rtt) : "—"
+            let ipStr = r.ipAddress ?? resolvedIP ?? "—"
+            let timeStr = timeFmt.string(from: r.timestamp)
+            return [seqStr, statusStr, rttStr, ipStr, timeStr]
         }
         let pdf = PDFReport.build(tool: "Ping", target: host, sections: [
             ("Summary", metaRows),
@@ -114,9 +117,13 @@ enum Exporter {
     @MainActor static func saveMultiPingPDF(slots: [PingSlot]) {
         let ts = timestamp()
         let dataRows: [[String]] = slots.map { s in
-            [s.host, s.customName, "\(s.sent)", String(format: "%.1f%%", s.loss),
-             s.avgRtt.map  { String(format: "%.2f ms", $0) } ?? "—",
-             s.lastRtt.map { String(format: "%.2f ms", $0) } ?? "—"]
+            let hostStr = s.host
+            let nameStr = s.customName
+            let sentStr = "\(s.sent)"
+            let lossStr = String(format: "%.1f%%", s.loss)
+            let avgStr  = s.avgRtt.map  { String(format: "%.2f ms", $0) } ?? "—"
+            let lastStr = s.lastRtt.map { String(format: "%.2f ms", $0) } ?? "—"
+            return [hostStr, nameStr, sentStr, lossStr, avgStr, lastStr]
         }
         let pdf = PDFReport.build(tool: "Multi-Ping", target: "\(slots.count) hosts", sections: [
             ("Hosts", [["Host", "Alias", "Sent", "Loss", "Avg RTT", "Last RTT"]] + dataRows)
@@ -132,9 +139,12 @@ enum Exporter {
         }
         let timeFmt = DateFormatter(); timeFmt.dateFormat = "HH:mm:ss"
         let histRows: [[String]] = history.map { r in
-            [timeFmt.string(from: r.timestamp), r.method,
-             "\(r.statusCode ?? 0)", String(format: "%.0f ms", r.totalMs),
-             String(r.url.prefix(45))]
+            let timeStr = timeFmt.string(from: r.timestamp)
+            let methodStr = r.method
+            let statusStr = "\(r.statusCode ?? 0)"
+            let latencyStr = String(format: "%.0f ms", r.totalMs)
+            let urlStr = String(r.url.prefix(45))
+            return [timeStr, methodStr, statusStr, latencyStr, urlStr]
         }
         let pdf = PDFReport.build(tool: "HTTP Latency", target: result.url, sections: [
             ("Waterfall", [["Phase", "Start", "Duration"]] + phaseRows),
@@ -147,9 +157,12 @@ enum Exporter {
     @MainActor static func saveTraceroutePDF(hops: [TracerouteHop], host: String, round: Int) {
         let ts = timestamp()
         let dataRows: [[String]] = hops.map { h in
-            ["\(h.hop)", h.displayHost, String(format: "%.1f%%", h.loss),
-             h.avgRtt.map { String(format: "%.2f ms", $0) } ?? "—",
-             h.geo.map { "\($0.flag) \($0.city)" } ?? "—"]
+            let hopStr = "\(h.hop)"
+            let hostStr = h.displayHost
+            let lossStr = String(format: "%.1f%%", h.loss)
+            let avgStr = h.avgRtt.map { String(format: "%.2f ms", $0) } ?? "—"
+            let geoStr = h.geo.map { "\($0.flag) \($0.city)" } ?? "—"
+            return [hopStr, hostStr, lossStr, avgStr, geoStr]
         }
         let pdf = PDFReport.build(tool: "Traceroute", target: host, sections: [
             ("Summary", [["Target", host], ["Round", "\(round)"], ["Hops", "\(hops.count)"]]),
@@ -167,7 +180,13 @@ enum Exporter {
             ["Query Time", result.queryTimeMs.map { "\($0) ms" } ?? "—"],
             ["Records", "\(result.records.count)"],
         ]
-        let dataRows: [[String]] = result.records.map { r in [r.name, "\(r.ttl)", r.type, r.value] }
+        let dataRows: [[String]] = result.records.map { r in
+            let nameStr = r.name
+            let ttlStr = "\(r.ttl)"
+            let typeStr = r.type
+            let valStr = r.value
+            return [nameStr, ttlStr, typeStr, valStr]
+        }
         let pdf = PDFReport.build(tool: "DNS Lookup", target: host, sections: [
             ("Summary", metaRows),
             ("Records", [["Name", "TTL", "Type", "Value"]] + dataRows)
@@ -186,9 +205,12 @@ enum Exporter {
             ["Unreachable", "\(results.count - alive)"],
         ]
         let dataRows: [[String]] = results.map { r in
-            [r.ip, r.hostname ?? "—", r.status.rawValue,
-             r.rtt.map { String(format: "%.2f ms", $0) } ?? "—",
-             r.macAddress ?? "—"]
+            let ipStr = r.ip
+            let hostStr = r.hostname ?? "—"
+            let statusStr = r.status.rawValue
+            let rttStr = r.rtt.map { String(format: "%.2f ms", $0) } ?? "—"
+            let macStr = r.macAddress ?? "—"
+            return [ipStr, hostStr, statusStr, rttStr, macStr]
         }
         let pdf = PDFReport.build(tool: "Subnet Scanner", target: cidr, sections: [
             ("Summary", metaRows),
@@ -212,10 +234,11 @@ enum Exporter {
         ]
         let dateFmt = DateFormatter(); dateFmt.dateStyle = .medium
         let chainRows: [[String]] = result.chain.map { c in
-            [c.isLeaf ? "End-Entity" : "CA",
-             c.subject.components(separatedBy: "CN=").last?.components(separatedBy: ",").first ?? c.subject,
-             c.notAfter.map { dateFmt.string(from: $0) } ?? "—",
-             c.daysRemaining.map { "\($0) days" } ?? "—"]
+            let roleStr = c.isLeaf ? "End-Entity" : "CA"
+            let cnStr = c.subject.components(separatedBy: "CN=").last?.components(separatedBy: ",").first ?? c.subject
+            let expiresStr = c.notAfter.map { dateFmt.string(from: $0) } ?? "—"
+            let daysStr = c.daysRemaining.map { "\($0) days" } ?? "—"
+            return [roleStr, cnStr, expiresStr, daysStr]
         }
         let pdf = PDFReport.build(tool: "SSL/TLS Inspector", target: host, sections: [
             ("Summary", metaRows),
@@ -255,8 +278,11 @@ enum Exporter {
             ["Closed / Filtered", "\(results.count - open.count)"],
         ]
         let dataRows: [[String]] = results.map { r in
-            ["\(r.port)", r.service ?? "—", r.status.label,
-             r.responseMs.map { String(format: "%.1f ms", $0) } ?? "—"]
+            let portStr = "\(r.port)"
+            let serviceStr = r.service ?? "—"
+            let statusStr = r.status.label
+            let respStr = r.responseMs.map { String(format: "%.1f ms", $0) } ?? "—"
+            return [portStr, serviceStr, statusStr, respStr]
         }
         let pdf = PDFReport.build(tool: "Port Scanner", target: host, sections: [
             ("Summary", metaRows),
@@ -366,7 +392,7 @@ private enum PDFReport {
             guard !row.isEmpty else { continue }
             let colW = contentW / CGFloat(row.count)
             let isHeader = idx == 0
-            let font: NSFont = isHeader ? .boldSystemFont(ofSize: 9) : .monospacedSystemFont(ofSize: 9, weight: .regular)
+            let font: NSFont = isHeader ? .boldSystemFont(ofSize: 10) : .monospacedSystemFont(ofSize: 10, weight: .regular)
             let color: NSColor = isHeader ? cSubtext : cText
 
             if !isHeader && idx % 2 == 0 {
@@ -386,8 +412,8 @@ private enum PDFReport {
     }
 
     private static func drawFooter(_ ctx: CGContext) {
-        draw(ctx, "Generated by NetUtil v4.3.0",
-             x: margin, y: margin - 18, font: .systemFont(ofSize: 8), color: cFooter)
+        draw(ctx, "Generated by NetUtil v4.4.0",
+             x: margin, y: margin - 18, font: .systemFont(ofSize: 10), color: cFooter)
     }
 
     private static func newPage(_ ctx: CGContext) -> CGFloat {
