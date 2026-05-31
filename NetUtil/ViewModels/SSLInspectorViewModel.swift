@@ -4,7 +4,7 @@ import CryptoKit
 import Combine
 import Observation
 
-private final class TLSDelegate: NSObject, URLSessionDelegate {
+private final class TLSDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
     var certResult: CertResult?
     var host: String = ""
     var port: Int = 443

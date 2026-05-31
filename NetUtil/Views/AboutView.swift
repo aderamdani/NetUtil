@@ -1,95 +1,80 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "3.4.0"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "3.5.0"
     private var updater = Updater.shared
 
     var body: some View {
         ScrollView {
             VStack(spacing: 48) {
-                // App Logo and Name
-                VStack(spacing: 16) {
-                    Image("AppIcon-Internal") // Placeholder logic or actual asset
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .cornerRadius(18)
-                        .shadow(radius: 4)
-                        .overlay(
-                            Image(systemName: "network")
-                                .font(.system(size: 40))
-                                .foregroundColor(.white)
-                        )
-                    
-                    VStack(spacing: 4) {
-                        Text("NetUtil")
-                            .font(.system(size: 24, weight: .bold))
-                        Text("Version \(currentVersion)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .padding(.top, 40)
+                logoHeader
                 
-                // Tool Grid
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("Included Diagnostics")
-                        .font(.headline)
-                        .padding(.leading, 4)
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        ForEach(Array(toolList.enumerated()), id: \.element.1) { index, tool in
-                            HStack(spacing: 12) {
-                                Image(systemName: tool.0)
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.accentColor)
-                                    .frame(width: 24)
-                                
-                                Text(tool.1)
-                                    .font(.subheadline)
-                                
-                                Spacer()
-                            }
-                            .padding(10)
-                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
-                            
-                            if index < toolList.count - 1 {
-                                // Grid fills horizontally
-                            }
-                        }
-                    }
-                }
+                AboutToolGrid(tools: toolList)
                 
-                // Footer
-                VStack(spacing: 24) {
-                    Divider()
-                    
-                    HStack(spacing: 40) {
-                        Button("Check for Updates") {
-                            updater.checkForUpdates()
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(updater.isChecking)
-                        
-                        Button("Acknowledgements") {
-                            showAck()
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    
-                    VStack(spacing: 8) {
-                        Text("© 2026 Ade Ramdani. All rights reserved.")
-                        Text("Handcrafted for macOS with SwiftUI & Zero Dependencies.")
-                    }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                }
-                .padding(.bottom, 60)
+                footerSection
             }
             .padding(.horizontal, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.windowBackgroundColor))
+    }
+
+    private var logoHeader: some View {
+        VStack(spacing: 16) {
+            Image("AppIcon-Internal") // Placeholder logic or actual asset
+                .resizable()
+                .frame(width: 80, height: 80)
+                .cornerRadius(18)
+                .shadow(radius: 4)
+                .overlay(
+                    Image(systemName: "network")
+                        .font(.system(size: 40))
+                        .foregroundColor(.white)
+                )
+                .accessibilityLabel("NetUtil Application Icon")
+            
+            VStack(spacing: 4) {
+                Text("NetUtil")
+                    .font(.system(size: 24, weight: .bold))
+                Text("Version \(currentVersion)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("NetUtil Version \(currentVersion)")
+        }
+        .padding(.top, 40)
+    }
+
+    private var footerSection: some View {
+        VStack(spacing: 24) {
+            Divider()
+            
+            HStack(spacing: 40) {
+                Button("Check for Updates") {
+                    updater.checkForUpdates()
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(updater.isChecking)
+                .accessibilityLabel("Check for software updates")
+                
+                Button("Acknowledgements") {
+                    showAck()
+                }
+                .buttonStyle(.bordered)
+                .accessibilityLabel("Show software acknowledgements")
+            }
+            
+            VStack(spacing: 8) {
+                Text("© 2026 Ade Ramdani. All rights reserved.")
+                Text("Handcrafted for macOS with SwiftUI & Zero Dependencies.")
+            }
+            .font(.caption)
+            .foregroundColor(.secondary)
+            .multilineTextAlignment(.center)
+            .accessibilityElement(children: .combine)
+        }
+        .padding(.bottom, 60)
     }
 
     private let toolList: [(String, String)] = [

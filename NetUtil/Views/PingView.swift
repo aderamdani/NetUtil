@@ -81,6 +81,8 @@ struct PingView: View {
                     Text("Advanced Ping")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Advanced Ping Tool")
                 
                 Divider().frame(height: 16).padding(.horizontal, 4)
                 
@@ -89,6 +91,7 @@ struct PingView: View {
                     .controlSize(.large)
                     .frame(width: 250)
                     .onSubmit(startAction)
+                    .accessibilityLabel("Host Input")
                     .overlay(alignment: .trailing) {
                         if !history.hosts.isEmpty {
                             Menu {
@@ -104,6 +107,7 @@ struct PingView: View {
                             .menuStyle(.borderlessButton)
                             .frame(width: 28)
                             .padding(.trailing, 4)
+                            .accessibilityLabel("Host History")
                         }
                     }
 
@@ -117,6 +121,7 @@ struct PingView: View {
                         }
                         .toggleStyle(.button)
                         .help("Infinite Ping")
+                        .accessibilityLabel("Infinite Ping Mode")
                         
                         Toggle(isOn: $beepOnLoss) {
                             Image(systemName: beepOnLoss ? "speaker.wave.2.fill" : "speaker.slash.fill")
@@ -124,23 +129,27 @@ struct PingView: View {
                         }
                         .toggleStyle(.button)
                         .help("Audio Feedback on Loss")
+                        .accessibilityLabel("Audio feedback on packet loss")
                         
                         if !infinite {
                             TextField("Count", text: $countText)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 50)
                                 .help("Packet Count")
+                                .accessibilityLabel("Packet Count")
                         }
                         
                         TextField("Interval", text: $intervalText)
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 50)
                             .help("Wait Interval (s)")
+                            .accessibilityLabel("Ping Interval")
                         
                         TextField("Size", text: $packetSizeText)
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 50)
                             .help("Payload Size (Bytes)")
+                            .accessibilityLabel("Payload Size")
                     }
 
                     if !vm.results.isEmpty {
@@ -154,6 +163,7 @@ struct PingView: View {
                             Label("Report", systemImage: "doc.text.fill")
                         }
                         .buttonStyle(.bordered)
+                        .accessibilityLabel("Report Menu")
                     }
 
                     Button(action: startAction) {
@@ -163,11 +173,13 @@ struct PingView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && host.isEmpty)
+                    .accessibilityLabel(vm.isRunning ? "Stop Ping" : "Start Ping")
                     
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -180,10 +192,18 @@ struct PingView: View {
     private var statsBarSection: some View {
         HStack(spacing: 12) {
             StatCard(title: "Transmitted", value: "\(vm.stats.transmitted)", icon: "paperplane")
+                .accessibilityElement(children: .combine)
             StatCard(title: "Received", value: "\(vm.stats.received)", icon: "tray.and.arrow.down")
+                .accessibilityElement(children: .combine)
             StatCard(title: "Packet Loss", value: String(format: "%.1f%%", vm.stats.loss), icon: "exclamationmark.triangle", color: vm.stats.loss > 0 ? .red : .primary)
+                .accessibilityElement(children: .combine)
+                .accessibilityValue(String(format: "%.1f percent", vm.stats.loss))
             StatCard(title: "Average RTT", value: String(format: "%.1f", vm.stats.avgRtt), unit: "ms", icon: "equal", color: rttColor(vm.stats.avgRtt))
+                .accessibilityElement(children: .combine)
+                .accessibilityValue("\(Int(vm.stats.avgRtt)) milliseconds")
             StatCard(title: "Jitter", value: String(format: "%.1f", vm.stats.jitter), unit: "ms", icon: "waveform.path.ecg", color: vm.stats.jitter > 10 ? .orange : .primary)
+                .accessibilityElement(children: .combine)
+                .accessibilityValue("\(Int(vm.stats.jitter)) milliseconds")
         }
     }
 
@@ -199,10 +219,12 @@ struct PingView: View {
                 }
                 Spacer()
                 healthStrip
+                    .accessibilityLabel("Recent health history strip")
             }
             
             VStack(spacing: 0) {
                 rttChart
+                    .drawingGroup() // PERFORMANCE: Optimized for real-time latency chart
                     .frame(height: 160)
                 
                 Divider().padding(.vertical, 12).opacity(0.5)
@@ -212,6 +234,7 @@ struct PingView: View {
                         .font(.system(.caption2, design: .default).weight(.bold))
                         .foregroundColor(.secondary)
                     distributionBar
+                        .accessibilityLabel("RTT distribution bar")
                 }
             }
             .padding(20)
@@ -359,6 +382,7 @@ struct PingView: View {
                     .frame(width: 3, height: 12)
             }
         }
+        .drawingGroup() // PERFORMANCE: Optimized for mini health strip
     }
 
     private func healthColor(_ r: PingResult) -> Color {
@@ -426,17 +450,16 @@ struct PingView: View {
 
     private var rawOutput: some View {
         List {
-            ForEach(Array(vm.rawLines.enumerated()), id: \.offset) { i, line in
-                Text(line)
+            ForEach(vm.rawLines) { line in
+                Text(line.text)
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
-                    .id(i)
             }
         }
         .listStyle(.plain)
         .frame(minHeight: 400)
         .scrollContentBackground(.hidden)
-        .scrollPosition(id: .constant(vm.rawLines.isEmpty ? nil : vm.rawLines.count - 1))
+        .scrollPosition(id: .constant(vm.rawLines.last?.id))
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }

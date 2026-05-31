@@ -27,7 +27,7 @@ struct PortScanView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            controlBar
+            PortScanControlBar(host: $host, isRunning: vm.isRunning, portRangeType: $preset, customPorts: $customRange, onStart: startAction, onShowGuide: { showLearningGuide = true }, history: history)
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -57,13 +57,14 @@ struct PortScanView: View {
                                 Toggle("Open Only", isOn: $showOnlyOpen)
                                     .font(.subheadline)
                                     .toggleStyle(.checkbox)
+                                    .accessibilityLabel("Show open ports only")
                                 Spacer()
                                 Text("\(displayResults.count) Ports Displayed")
                                     .font(.caption2.bold())
                                     .foregroundColor(.secondary)
                             }
                             
-                            resultsGrid
+                            PortScanTable(results: displayResults, resolvedIP: nil)
                         }
                     } else if vm.isRunning {
                         loadingState
@@ -83,102 +84,16 @@ struct PortScanView: View {
 
     // MARK: - Components
 
-    private var controlBar: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "checklist")
-                        .foregroundColor(.accentColor)
-                        .imageScale(.large)
-                    Text("Port Scanner")
-                        .font(.headline)
-                }
-                
-                Divider().frame(height: 16).padding(.horizontal, 4)
-                
-                TextField("Hostname or IP address", text: $host)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-                    .frame(width: 250)
-                    .onSubmit(startAction)
-                    .overlay(alignment: .trailing) {
-                        if !history.hosts.isEmpty {
-                            Menu {
-                                ForEach(history.hosts, id: \.self) { h in
-                                    Button(h) { host = h; startAction() }
-                                }
-                                Divider()
-                                Button("Clear History", role: .destructive) { history.clear() }
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.secondary)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 28)
-                            .padding(.trailing, 4)
-                        }
-                    }
-
-                Spacer()
-                
-                HStack(spacing: 12) {
-                    HStack(spacing: 8) {
-                        Picker("", selection: $preset) {
-                            ForEach(PortPreset.allCases) { p in
-                                Text(p.rawValue).tag(p)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .frame(width: 120)
-
-                        if preset == .custom {
-                            TextField("Range...", text: $customRange)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 100)
-                        }
-
-                        HStack(spacing: 4) {
-                            Text("Threads")
-                                .font(.caption2.weight(.bold))
-                                .foregroundColor(.secondary)
-                            Stepper("\(concurrency)", value: $concurrency, in: 1...200)
-                                .frame(width: 80)
-                        }
-                    }
-
-                    if !vm.results.isEmpty {
-                        Button { exportCSV(vm.results.sorted { $0.port < $1.port }) } label: {
-                            Label("Report", systemImage: "doc.text.fill")
-                        }
-                        .buttonStyle(.bordered)
-                    }
-
-                    Button(action: startAction) {
-                        Label(vm.isRunning ? "Stop" : "Scan", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
-                            .frame(minWidth: 80)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(vm.isRunning ? .red : .accentColor)
-                    .disabled(!vm.isRunning && (host.isEmpty || portsToScan.isEmpty))
-                    
-                    Button { showLearningGuide = true } label: {
-                        Image(systemName: "questionmark.circle")
-                    }
-                    .buttonStyle(.borderless)
-                }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-            
-            Divider()
-        }
-    }
+    // REMOVED: controlBar (now in Components/PortScanControlBar.swift)
 
     private var statsBarSection: some View {
         HStack(spacing: 12) {
             StatCard(title: "Ports Scanned", value: "\(vm.scanned)", icon: "checklist")
+                .accessibilityElement(children: .combine)
             StatCard(title: "Open Ports", value: "\(vm.openCount)", icon: "lock.open.fill", color: vm.openCount > 0 ? .green : .primary)
+                .accessibilityElement(children: .combine)
             StatCard(title: "Filtered", value: "\(vm.scanned - vm.openCount)", icon: "lock.shield.fill", color: .secondary)
+                .accessibilityElement(children: .combine)
         }
     }
 
@@ -193,15 +108,11 @@ struct PortScanView: View {
                 .progressViewStyle(.linear)
                 .frame(width: 100)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Scan progress: \(Int(progress * 100)) percent")
     }
 
-    private var resultsGrid: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 12)], spacing: 12) {
-            ForEach(displayResults) { r in
-                PortResultCard(result: r)
-            }
-        }
-    }
+    // REMOVED: resultsGrid
 
     private func errorBanner(_ msg: String) -> some View {
         HStack(spacing: 12) {
@@ -215,6 +126,7 @@ struct PortScanView: View {
         .background(Color.red.opacity(0.1))
         .cornerRadius(8)
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
+        .accessibilityLabel("Error: \(msg)")
     }
 
     private var emptyState: some View {
@@ -227,6 +139,7 @@ struct PortScanView: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 400)
+        .accessibilityElement(children: .combine)
     }
 
     private var loadingState: some View {
@@ -238,6 +151,7 @@ struct PortScanView: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 400)
+        .accessibilityLabel("Scanning network ports, please wait")
     }
 
     private func startAction() {
@@ -266,53 +180,4 @@ struct PortScanView: View {
     }
 }
 
-struct PortResultCard: View {
-    let result: PortResult
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center) {
-                Text("\(result.port)")
-                    .font(.system(.headline, design: .monospaced))
-                Spacer()
-                PortStatusBadge(status: result.status)
-            }
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(result.service ?? "Unknown Service")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-                
-                if let ms = result.responseMs {
-                    Text(String(format: "%.1f ms", ms))
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundColor(.secondary)
-                }
-            }
-        }
-        .padding(14)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-    }
-}
-
-private struct PortStatusBadge: View {
-    let status: PortStatus
-    var body: some View {
-        Text(status.label)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 5)
-            .padding(.vertical, 2)
-            .background(color.opacity(0.15))
-            .foregroundColor(color)
-            .cornerRadius(4)
-    }
-    
-    private var color: Color {
-        switch status {
-        case .open: .green
-        case .closed: .secondary
-        case .filtered: .orange
-        }
-    }
-}
+// REMOVED: PortResultCard and PortStatusBadge (now in Components/PortScanTable.swift)

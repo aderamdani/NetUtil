@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import Observation
 
-private final class MetricsDelegate: NSObject, URLSessionTaskDelegate {
+private final class MetricsDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
     var metrics: URLSessionTaskMetrics?
     var followRedirects = true
 

@@ -12,7 +12,7 @@ struct DashboardView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     // HERO SECTION: Network Activity
-                    networkHeroSection
+                    DashboardHeroSection(selection: $selection)
 
                     VStack(alignment: .leading, spacing: 16) {
                         sectionHeader("Core Diagnostics", icon: "bolt.shield.fill")
@@ -112,7 +112,14 @@ struct DashboardView: View {
                 
                 HStack(spacing: 12) {
                     healthGauge(label: "CPU", value: String(format: "%.0f%%", tools.system.cpuUsage), progress: tools.system.cpuUsage / 100, color: tools.system.cpuUsage > 75 ? .red : .accentColor)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("CPU Usage")
+                        .accessibilityValue(String(format: "%.0f percent", tools.system.cpuUsage))
+                    
                     healthGauge(label: "RAM", value: tools.system.memoryPressure.capitalized, progress: tools.system.memoryColor == "red" ? 0.9 : (tools.system.memoryColor == "orange" ? 0.6 : 0.3), color: tools.system.memoryColor == "red" ? .red : (tools.system.memoryColor == "orange" ? .orange : .accentColor))
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Memory Pressure")
+                        .accessibilityValue(tools.system.memoryPressure)
                 }
             }
             .padding(.horizontal, 24)
@@ -128,6 +135,9 @@ struct DashboardView: View {
             Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
             Text(value).font(.system(.caption2, design: .monospaced).weight(.medium))
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label) IP address")
+        .accessibilityValue(value)
     }
 
     private func healthGauge(label: String, value: String, progress: Double, color: Color) -> some View {
@@ -155,63 +165,7 @@ struct DashboardView: View {
             Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
             Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
-    }
-
-    // MARK: - Hero Section
-
-    private var networkHeroSection: some View {
-        Button { selection = .bandwidth } label: {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Network Activity")
-                            .font(.headline)
-                        Text("Live aggregate throughput")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    HStack(spacing: 16) {
-                        heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
-                        heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
-                    }
-                }
-                
-                Chart {
-                    ForEach(tools.bandwidth.totalHistory) { s in
-                        AreaMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps))
-                            .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .blue.opacity(0.0)], startPoint: .top, endPoint: .bottom))
-                            .interpolationMethod(.catmullRom)
-                        LineMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps))
-                            .foregroundStyle(.blue)
-                            .interpolationMethod(.catmullRom)
-
-                        AreaMark(x: .value("t", s.timestamp), y: .value("TX", s.txBps))
-                            .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.15), .orange.opacity(0.0)], startPoint: .top, endPoint: .bottom))
-                            .interpolationMethod(.catmullRom)
-                        LineMark(x: .value("t", s.timestamp), y: .value("TX", s.txBps))
-                            .foregroundStyle(.orange)
-                            .interpolationMethod(.catmullRom)
-                    }
-                }
-                .chartXAxis(.hidden)
-                .chartYAxis(.hidden)
-                .frame(height: 80)
-            }
-            .padding(20)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func heroRateMetric(label: String, value: Double, color: Color) -> some View {
-        VStack(alignment: .trailing, spacing: 0) {
-            Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
-            Text(NetworkMath.formatRate(value))
-                .font(.system(.title3, design: .monospaced).weight(.bold))
-                .foregroundColor(color)
-        }
+        .accessibilityAddTraits(.isHeader)
     }
 
     // MARK: - Bento Cards (Diagnostics)
@@ -424,6 +378,9 @@ struct BentoCard<Content: View>: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(isHovered ? color.opacity(0.3) : Color(.separatorColor).opacity(0.1), lineWidth: 1))
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isHovered)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(title) Diagnostic Card")
+            .accessibilityHint("Tap to open \(title)")
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
@@ -449,6 +406,7 @@ struct PulsingIndicator: View {
                     pulse = true
                 }
             }
+            .accessibilityHidden(true)
     }
 }
 
@@ -477,5 +435,6 @@ struct DashboardSparkline: View {
             fillPath.closeSubpath()
             context.fill(fillPath, with: .linearGradient(Gradient(colors: [color.opacity(0.15), color.opacity(0.0)]), startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: size.height)))
         }
+        .accessibilityLabel("Latency trend sparkline")
     }
 }

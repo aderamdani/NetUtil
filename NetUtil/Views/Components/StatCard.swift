@@ -28,5 +28,6 @@ struct StatCard: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .accessibilityElement(children: .combine)
     }
 }

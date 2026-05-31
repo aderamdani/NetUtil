@@ -53,6 +53,8 @@ struct SSLInspectorView: View {
                     Text("SSL/TLS Inspector")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("SSL/TLS Inspector Tool")
                 
                 Divider().frame(height: 16).padding(.horizontal, 4)
                 
@@ -61,6 +63,7 @@ struct SSLInspectorView: View {
                     .controlSize(.large)
                     .frame(width: 280)
                     .onSubmit(startInspection)
+                    .accessibilityLabel("Target Host Input")
                     .overlay(alignment: .trailing) {
                         if !history.hosts.isEmpty {
                             Menu {
@@ -76,6 +79,7 @@ struct SSLInspectorView: View {
                             .menuStyle(.borderlessButton)
                             .frame(width: 28)
                             .padding(.trailing, 4)
+                            .accessibilityLabel("Host History")
                         }
                     }
 
@@ -89,6 +93,7 @@ struct SSLInspectorView: View {
                         TextField("", text: $portText)
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 50)
+                            .accessibilityLabel("Connection Port")
                     }
 
                     Button(action: startInspection) {
@@ -98,11 +103,13 @@ struct SSLInspectorView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && host.isEmpty)
+                    .accessibilityLabel(vm.isRunning ? "Stop Inspection" : "Start Inspection")
                     
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -177,6 +184,8 @@ struct SSLInspectorView: View {
                         .foregroundColor(selectedCertIndex == i ? .white : .primary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("\(cert.isLeaf ? "End-Entity" : (i == result.chain.count - 1 ? "Root" : "Intermediate")) Certificate: \(cert.subject)")
+                    .accessibilityHint("Tap to view certificate details")
                     
                     if i < result.chain.count - 1 {
                         Divider().frame(height: 24)
@@ -240,6 +249,7 @@ struct SSLInspectorView: View {
             Text(title)
                 .font(.system(.caption, design: .default).weight(.bold))
                 .foregroundColor(.secondary)
+                .accessibilityAddTraits(.isHeader)
             
             VStack(alignment: .leading, spacing: 12) {
                 content()
@@ -261,6 +271,8 @@ struct SSLInspectorView: View {
                 .textSelection(.enabled)
                 .lineLimit(2)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 
     private func errorBanner(_ msg: String) -> some View {

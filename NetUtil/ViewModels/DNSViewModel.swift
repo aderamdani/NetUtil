@@ -50,7 +50,7 @@ final class DNSViewModel {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 self.outputPipe?.fileHandleForReading.readabilityHandler = nil
-                self.result = Self.parse(output: buffer, server: server)
+                self.result = Self.parse(output: buffer, serverAddress: server.address)
                 self.isRunning = false
             }
         }
@@ -74,10 +74,10 @@ final class DNSViewModel {
         isRunning = false
     }
 
-    nonisolated static func parse(output: String, server: DNSServer) -> DNSResult {
+    nonisolated static func parse(output: String, serverAddress: String?) -> DNSResult {
         var records: [DNSRecord] = []
         var queryTimeMs: Int?
-        var resolvedServer = server.address ?? "system"
+        var resolvedServer = serverAddress ?? "system"
         var inAnswer = false
 
         for line in output.components(separatedBy: "\n") {

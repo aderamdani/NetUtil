@@ -25,7 +25,10 @@ final class PingSlot: Identifiable {
         self.customName = host
     }
 
-    deinit { process?.terminate() }
+    deinit {
+        // Safe because we are the only one holding reference to process
+        process?.terminate()
+    }
 
     func start() {
         guard !isRunning else { return }

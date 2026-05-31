@@ -70,6 +70,8 @@ struct DNSView: View {
                     Text("DNS Lookup")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("DNS Lookup Tool")
                 
                 Divider().frame(height: 16).padding(.horizontal, 4)
                 
@@ -78,6 +80,7 @@ struct DNSView: View {
                     .controlSize(.large)
                     .frame(width: 250)
                     .onSubmit(startLookup)
+                    .accessibilityLabel("Target Host Input")
                     .overlay(alignment: .trailing) {
                         if !history.hosts.isEmpty {
                             Menu {
@@ -93,6 +96,7 @@ struct DNSView: View {
                             .menuStyle(.borderlessButton)
                             .frame(width: 28)
                             .padding(.trailing, 4)
+                            .accessibilityLabel("Host History")
                         }
                     }
 
@@ -105,12 +109,14 @@ struct DNSView: View {
                         }
                         .pickerStyle(.menu)
                         .frame(width: 80)
+                        .accessibilityLabel("DNS Record Type")
                         
                         Picker("", selection: $server) {
                             ForEach(DNSServer.allCases) { Text($0.rawValue).tag($0) }
                         }
                         .pickerStyle(.menu)
                         .frame(width: 140)
+                        .accessibilityLabel("DNS Server")
                     }
 
                     if let result = vm.result, !result.records.isEmpty {
@@ -124,6 +130,7 @@ struct DNSView: View {
                             Label("Report", systemImage: "doc.text.fill")
                         }
                         .buttonStyle(.bordered)
+                        .accessibilityLabel("Export Menu")
                     }
 
                     Button(action: startLookup) {
@@ -133,11 +140,13 @@ struct DNSView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && host.isEmpty)
+                    .accessibilityLabel(vm.isRunning ? "Stop Lookup" : "Start Lookup")
                     
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -193,6 +202,8 @@ struct DNSView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .padding(.vertical, 8).padding(.horizontal, 16)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("DNS Record \(r.name). Type \(r.type). TTL \(r.ttl). Value: \(r.value)")
                         
                         if r.value != res.records.last?.value {
                             Divider().padding(.horizontal, 16).opacity(0.5)

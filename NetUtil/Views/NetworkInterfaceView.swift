@@ -64,6 +64,8 @@ struct NetworkInterfaceView: View {
                     Text("Network Interfaces")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Network Interfaces Tool")
                 
                 Spacer()
                 
@@ -71,6 +73,7 @@ struct NetworkInterfaceView: View {
                     Toggle("Show Inactive", isOn: $showAll)
                         .font(.subheadline)
                         .toggleStyle(.checkbox)
+                        .accessibilityLabel("Show inactive interfaces")
                     
                     Divider().frame(height: 16)
                     
@@ -78,11 +81,13 @@ struct NetworkInterfaceView: View {
                         Label("Refresh", systemImage: "arrow.clockwise")
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Refresh interface list")
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -97,6 +102,7 @@ struct NetworkInterfaceView: View {
             Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
             Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }
+        .accessibilityAddTraits(.isHeader)
     }
 
     private var interpretationSection: some View {
@@ -118,6 +124,8 @@ struct NetworkInterfaceView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(count > 0 ? "Network Online. \(count) active interfaces." : "System Disconnected.")
             
             Spacer()
             
@@ -130,18 +138,24 @@ struct NetworkInterfaceView: View {
             .padding(.vertical, 8)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Last updated at \(vm.lastUpdated.formatted(date: .omitted, time: .standard))")
         }
     }
 
     private var statsBarSection: some View {
         HStack(spacing: 12) {
             StatCard(title: "Total Adapters", value: "\(vm.interfaces.count)", icon: "laptopcomputer")
+                .accessibilityElement(children: .combine)
             StatCard(title: "Active Link", value: "\(active.count)", icon: "arrow.up.circle.fill", color: .green)
+                .accessibilityElement(children: .combine)
             if let vlan = vm.interfaces.first(where: { $0.isVLAN }) {
                 StatCard(title: "VLAN Active", value: vlan.name, icon: "tag.fill", color: .purple)
+                    .accessibilityElement(children: .combine)
             }
             if let mac = active.first?.mac {
                 StatCard(title: "Primary MAC", value: String(mac.prefix(8)) + "...", icon: "barcode")
+                    .accessibilityElement(children: .combine)
             }
         }
     }
@@ -155,95 +169,11 @@ struct NetworkInterfaceView: View {
         .frame(maxWidth: .infinity, minHeight: 150)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .accessibilityLabel(msg)
     }
 }
 
-private struct InterfaceDetailCard: View {
-    let iface: NetworkInterface
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(iface.isUp ? (iface.isVLAN ? Color.purple.opacity(0.1) : Color.accentColor.opacity(0.1)) : Color.secondary.opacity(0.1))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: iface.typeIcon)
-                        .foregroundColor(iface.isUp ? (iface.isVLAN ? .purple : .accentColor) : .secondary)
-                }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(iface.name)
-                        .font(.system(.headline, design: .monospaced))
-                    Text(iface.typeName)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                StatusBadge(isConnected: iface.isUp)
-            }
-            
-            Divider().opacity(0.5)
-            
-            VStack(alignment: .leading, spacing: 10) {
-                if iface.isVLAN {
-                    if let tag = iface.vlanTag { ifaceRow(label: "VLAN ID", value: "\(tag)") }
-                    if let parent = iface.parentInterface { ifaceRow(label: "Parent", value: parent) }
-                }
-                
-                if !iface.ipv4.isEmpty {
-                    ForEach(iface.ipv4, id: \.self) { ip in
-                        ifaceRow(label: "IPv4 Addr", value: ip)
-                    }
-                }
-                
-                if !iface.ipv6.isEmpty {
-                    ForEach(iface.ipv6, id: \.self) { ip in
-                        ifaceRow(label: "IPv6 Addr", value: ip)
-                    }
-                }
-                
-                if let mac = iface.mac {
-                    ifaceRow(label: "MAC Addr", value: mac)
-                }
-                
-                if let mtu = iface.mtu {
-                    ifaceRow(label: "MTU Size", value: "\(mtu)")
-                }
-            }
-        }
-        .padding(16)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-    }
-
-    private func ifaceRow(label: String, value: String) -> some View {
-        HStack(spacing: 12) {
-            Text(label)
-                .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.secondary)
-                .frame(width: 70, alignment: .leading)
-            
-            Text(value)
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundColor(.primary)
-                .textSelection(.enabled)
-            
-            Spacer()
-            
-            Button {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(value, forType: .string)
-            } label: {
-                Image(systemName: "doc.on.clipboard")
-                    .font(.system(size: 10))
-            }
-            .buttonStyle(.plain)
-            .foregroundColor(.secondary.opacity(0.5))
-        }
-    }
-}
+// REMOVED: InterfaceDetailCard (now in Components/InterfaceDetailCard.swift)
 
 private struct StatusBadge: View {
     let isConnected: Bool

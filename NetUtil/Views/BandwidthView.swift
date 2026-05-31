@@ -71,6 +71,7 @@ struct BandwidthView: View {
                         Label(vm.isPaused ? "Resume" : "Pause", systemImage: vm.isPaused ? "play.fill" : "pause.fill")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel(vm.isPaused ? "Resume Monitoring" : "Pause Monitoring")
                     
                     Button {
                         vm.resetPeaks()
@@ -78,11 +79,13 @@ struct BandwidthView: View {
                         Label("Reset Peaks", systemImage: "arrow.counterclockwise")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Reset Peak Statistics")
                     
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
@@ -164,7 +167,9 @@ struct BandwidthView: View {
                             }
                     }
                 }
+                .drawingGroup() // PERFORMANCE: Optimized for large aggregate history
                 .frame(height: 180)
+                .accessibilityLabel("Aggregate network throughput chart")
             }
             .padding(20)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
@@ -175,9 +180,13 @@ struct BandwidthView: View {
     private var statsBar: some View {
         HStack(spacing: 12) {
             StatCard(title: "Peak Download", value: NetworkMath.formatRate(vm.peakRx), icon: "arrow.down.to.line", color: .blue)
+                .accessibilityElement(children: .combine)
             StatCard(title: "Peak Upload", value: NetworkMath.formatRate(vm.peakTx), icon: "arrow.up.to.line", color: .orange)
+                .accessibilityElement(children: .combine)
             StatCard(title: "Session Total", value: NetworkMath.formatBytes(vm.totalHistory.last?.totalRx ?? 0), icon: "chart.pie.fill")
+                .accessibilityElement(children: .combine)
             StatCard(title: "Status", value: vm.isPaused ? "Paused" : "Monitoring", icon: vm.isPaused ? "pause.circle.fill" : "record.circle.fill", color: vm.isPaused ? .secondary : .green)
+                .accessibilityElement(children: .combine)
         }
     }
 

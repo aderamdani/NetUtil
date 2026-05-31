@@ -66,6 +66,7 @@ private struct TimelineHopRow: View {
                             .frame(maxHeight: sampleHeight(s, total: geo.size.height), alignment: .bottom)
                     }
                 }
+                .drawingGroup() // PERFORMANCE: Optimized for timeline sparklines
                 .frame(maxHeight: .infinity, alignment: .bottom)
             }
             .frame(maxWidth: .infinity, minHeight: 24)
@@ -77,6 +78,8 @@ private struct TimelineHopRow: View {
         }
         .padding(.horizontal, 16).padding(.vertical, 8)
         .background(isSelected ? Color.accentColor.opacity(0.05) : Color.clear)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Hop \(hop.hop): \(hop.displayHost). Average: \(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "Timeout")")
     }
 
     private func sampleColor(_ s: RTTSample?) -> Color {
