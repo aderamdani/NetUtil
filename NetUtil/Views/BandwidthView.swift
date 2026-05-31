@@ -155,6 +155,10 @@ struct BandwidthView: View {
             }
 
             let samples = vm.totalHistory.suffix(60)
+            let maxRX = samples.map(\.rxBps).max() ?? 1
+            let maxTX = samples.map(\.txBps).max() ?? 1
+            let domainTop    = max(maxRX, 1024) * 1.25
+            let domainBottom = -max(maxTX, 1024) * 1.25
             Chart {
                 ForEach(Array(samples), id: \.id) { s in
                     AreaMark(x: .value("Time", s.timestamp),
@@ -179,6 +183,7 @@ struct BandwidthView: View {
                         .interpolationMethod(.monotone)
                 }
             }
+            .chartYScale(domain: domainBottom...domainTop)
             .chartYAxis {
                 AxisMarks(position: .leading, values: .automatic(desiredCount: 5)) { value in
                     AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
