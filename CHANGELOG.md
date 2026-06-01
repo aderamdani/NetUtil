@@ -4,6 +4,17 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.6.4] — 2026-06-01
+
+### Fixed
+- **Stability**: Resolved critical crash on launch related to `MenuBarExtra` environment initialization. Added missing environment object injection for `ToolStore` and `MenuBarViewModel` in the status bar label scope.
+- **Performance**: Consolidated all optimizations to ensure idle CPU usage stays under 5%.
+  - Eliminated high-frequency `UserDefaults` writes (2-3 writes/sec).
+  - Cached expensive system API calls (`SCNetworkInterfaceCopyAll`, `CWWiFiClient.ssid`) in `ToolStore`.
+  - Optimized `DashboardHeroSection` chart and disabled automatic Menu Bar ping on launch.
+
+---
+
 ## [4.6.3] — 2026-06-01
 
 ### Fixed

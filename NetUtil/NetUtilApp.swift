@@ -55,6 +55,8 @@ struct NetUtilApp: App {
                 .environment(menuBarVM)
         } label: {
             MenuBarLabel()
+                .environment(tools)
+                .environment(menuBarVM)
         }
         .menuBarExtraStyle(.window)
     }
