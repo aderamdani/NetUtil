@@ -154,9 +154,6 @@ The Ping tool in NetUtil is a high-performance wrapper around `/sbin/ping`, util
     - **Smart Interpretation**: Logic-driven status summary (Excellent, Congested, etc.) with dynamic icons.
     - **Scrollable Chart**: Interactive Swift Chart with horizontal scrolling, packet selection, and reference lines.
     - **Auto-Scroll Table**: Custom `ScrollViewReader` based table for guaranteed real-time scrolling to the latest results.
-- **Reporting**:
-    - **PDF Report**: Branded documents with app logo, detailed stats, and timestamped filenames.
-    - **CSV Export**: Standardized timestamped file naming for systemic archiving.
 
 ---
 
