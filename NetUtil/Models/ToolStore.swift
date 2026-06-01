@@ -28,8 +28,16 @@ final class ToolStore {
     let favorites     = FavoritesManager()
     let sessionHistory = SessionHistory()
 
-    var externalIP: String = "Checking..."
-    var isVPNActive: Bool = false
+    private(set) var externalIP: String = "Checking..."
+    private(set) var isVPNActive: Bool = false
+    private(set) var primaryLocalIP: String = "—"
+    private(set) var currentConnectionName: String = "Unknown"
+    private(set) var primaryInterface: NetworkInterface?
+
+    var menuBarCurrentRTT: Double = -1.0
+    private(set) var healthIcon: String = "checkmark.shield.fill"
+    private(set) var healthColor: String = "green"
+    private(set) var healthMessage: String = "All Systems Normal"
 
     init() {
         bandwidth.onAggregateDelta = { [weak self] rx, tx in
@@ -37,6 +45,7 @@ final class ToolStore {
         }
         bandwidth.start()
         wireSessionLogging()
+        refreshGlobalStatus()
     }
 
     private func wireSessionLogging() {
@@ -45,41 +54,78 @@ final class ToolStore {
         portScan.onSessionComplete = { [weak self] record in self?.sessionHistory.log(record) }
     }
 
-    /// Primary LAN/Wi-Fi interface — excludes tunnels, AirDrop, tethering.
-    var primaryInterface: NetworkInterface? {
-        interfaces.interfaces.first {
+    /// Refreshes expensive cached properties.
+    func refreshGlobalStatus() {
+        updatePrimaryInterface()
+        checkVPN()
+        updateConnectionName()
+        fetchExternalIP()
+        updateHealthStatus()
+    }
+
+    private func updateHealthStatus() {
+        let criticalSSL = sslWatchlist.items.filter { $0.status == .critical || $0.status == .expired }
+        let warningSSL  = sslWatchlist.items.filter { $0.status == .warning }
+        let pingLoss    = ping.stats.loss
+        let wifiRSSI    = wifi.info?.rssi ?? 0
+
+        if !criticalSSL.isEmpty {
+            let n = criticalSSL.count
+            healthIcon = "exclamationmark.triangle.fill"
+            healthColor = "red"
+            healthMessage = "\(n) SSL cert\(n == 1 ? "" : "s") critical or expired"
+        } else if !ping.results.isEmpty && pingLoss > 5 && !ping.currentHost.isEmpty {
+            healthIcon = "exclamationmark.triangle.fill"
+            healthColor = "orange"
+            healthMessage = "Ping: \(String(format: "%.0f", pingLoss))% packet loss to \(ping.currentHost)"
+        } else if wifiRSSI < -70 && wifiRSSI != 0 {
+            healthIcon = "exclamationmark.triangle.fill"
+            healthColor = "orange"
+            healthMessage = "Wi-Fi signal weak: \(wifiRSSI) dBm"
+        } else if !warningSSL.isEmpty {
+            let n = warningSSL.count
+            healthIcon = "exclamationmark.triangle.fill"
+            healthColor = "orange"
+            healthMessage = "\(n) SSL cert\(n == 1 ? "" : "s") expiring soon"
+        } else {
+            healthIcon = "checkmark.shield.fill"
+            healthColor = "green"
+            healthMessage = "All Systems Normal"
+        }
+    }
+
+    private func updatePrimaryInterface() {
+        primaryInterface = interfaces.interfaces.first {
             $0.isUp && !$0.isLoopback && !$0.ipv4.isEmpty &&
             !$0.name.hasPrefix("utun") && !$0.name.hasPrefix("ipsec") &&
             !$0.name.hasPrefix("awdl") && !$0.name.hasPrefix("llw") &&
             !$0.name.hasPrefix("bridge") && !$0.name.hasPrefix("tun") &&
             !$0.name.hasPrefix("tap")
         }
+        primaryLocalIP = primaryInterface?.ipv4.first ?? "—"
     }
 
-    var primaryLocalIP: String { primaryInterface?.ipv4.first ?? "—" }
-
-    /// User-facing connection label.
-    /// - Wi-Fi: returns SSID via CoreWLAN (independent of Wi-Fi tool lifecycle),
-    ///   falls back to "Wi-Fi" if not associated.
-    /// - Ethernet / others: returns localized System Settings display name
-    ///   (e.g. "USB 10/100/1000 LAN") via SystemConfiguration.
-    var currentConnectionName: String {
+    private func updateConnectionName() {
         if let iface = primaryInterface {
             if iface.ifType == 161 {
-                if let ssid = Self.currentSSID(), !ssid.isEmpty { return ssid }
-                return "Wi-Fi"
+                if let ssid = Self.currentSSID(), !ssid.isEmpty {
+                    currentConnectionName = ssid
+                    return
+                }
+                currentConnectionName = "Wi-Fi"
+                return
             }
             if let localized = Self.localizedInterfaceName(for: iface.name) {
-                return localized
+                currentConnectionName = localized
+                return
             }
-            return iface.typeName
+            currentConnectionName = iface.typeName
+            return
         }
-        return "Unknown"
+        currentConnectionName = "Unknown"
     }
 
     private static func currentSSID() -> String? {
-        // Direct CoreWLAN query — does not depend on WiFiInspectorViewModel
-        // having been started by the user.
         CWWiFiClient.shared().interface()?.ssid()
     }
 
@@ -93,14 +139,7 @@ final class ToolStore {
         return nil
     }
 
-    func refreshGlobalStatus() {
-        checkVPN()
-        fetchExternalIP()
-    }
-
     private func checkVPN() {
-        // utun with an IPv4 address = user VPN (WireGuard, OpenVPN, etc.)
-        // utun without IPv4 = Apple internal (iCloud Private Relay, Network Extensions) — not a VPN
         isVPNActive = interfaces.interfaces.contains {
             $0.isUp &&
             ($0.name.hasPrefix("utun") || $0.name.hasPrefix("ipsec")) &&
@@ -114,7 +153,7 @@ final class ToolStore {
             do {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 if let ip = String(data: data, encoding: .utf8) {
-                    self.externalIP = ip
+                    self.externalIP = ip.trimmingCharacters(in: .whitespacesAndNewlines)
                 }
             } catch {
                 self.externalIP = "Unknown"

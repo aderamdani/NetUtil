@@ -194,7 +194,7 @@ class MenuBarViewModel {
     @ObservationIgnored private var samples: [Double?] = []
 
     init() {
-        Task { @MainActor in self.startPing() }
+        // Disabled automatic start to save CPU at idle
     }
 
     var pingStatusColor: Color {
@@ -240,7 +240,6 @@ class MenuBarViewModel {
                     if let rtt {
                         self.rttHistory.append(rtt)
                         if self.rttHistory.count > 30 { self.rttHistory.removeFirst() }
-                        UserDefaults.standard.set(rtt, forKey: "menuBarCurrentRTT")
                     }
                     let timeouts = self.samples.filter { $0 == nil }.count
                     self.loss = Double(timeouts) / Double(self.samples.count) * 100
@@ -272,14 +271,16 @@ class MenuBarViewModel {
 // MARK: - Menu Bar Label
 
 struct MenuBarLabel: View {
+    @Environment(ToolStore.self) private var tools
+    @Environment(MenuBarViewModel.self) private var vm
     @AppStorage("menuBarDisplayMode") private var displayMode = "icon"
     @AppStorage("menuBarShowTraffic") private var showTraffic = false
-    @AppStorage("menuBarCurrentRTT")  private var currentRTT  = -1.0
-    @AppStorage("menuBarCurrentRxBps") private var currentRx  = 0.0
-    @AppStorage("menuBarCurrentTxBps") private var currentTx  = 0.0
     @AppStorage("rttWarnThreshold")   private var rttWarn     = 20.0
     @AppStorage("rttCritThreshold")   private var rttCrit     = 100.0
 
+    private var currentRTT: Double { vm.lastRtt ?? -1.0 }
+    private var currentRx: Double { tools.bandwidth.totalRxBps }
+    private var currentTx: Double { tools.bandwidth.totalTxBps }
     private var hasResult: Bool { currentRTT >= 0 }
 
     private var pingColor: Color {
