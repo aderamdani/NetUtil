@@ -29,6 +29,7 @@ final class BandwidthMonitor {
     private var timer: Timer?
     private var prevBytes: [String: (rx: UInt64, tx: UInt64)] = [:]
     private var prevTime: Date = Date()
+    private var tickCount: Int = 0
     private static let historyLimit = 60
     private static let totalHistoryLimit = 600 // 10 min
 
@@ -75,6 +76,7 @@ final class BandwidthMonitor {
 
         let current = fetchRawBytes()
         lastUpdated = now
+        tickCount += 1
 
         var aggRx: Double = 0
         var aggTx: Double = 0
@@ -127,8 +129,13 @@ final class BandwidthMonitor {
         prevBytes = current
         prevTime = now
 
-        let fresh = NetworkInterfaceFetcher.fetch()
-        if fresh.map(\.name) != interfaces.map(\.name) { interfaces = fresh }
+        // Only refresh full interface details every 10 seconds or if counts change
+        if tickCount % 10 == 0 || current.count != interfaces.count {
+            let fresh = NetworkInterfaceFetcher.fetch()
+            if fresh.count != interfaces.count || fresh.map(\.name) != interfaces.map(\.name) {
+                interfaces = fresh
+            }
+        }
     }
 
     private func fetchRawBytes() -> [String: (rx: UInt64, tx: UInt64)] {
@@ -140,7 +147,10 @@ final class BandwidthMonitor {
         var ptr = ifaddr
         while let ifa = ptr {
             defer { ptr = ifa.pointee.ifa_next }
-            guard Int32(ifa.pointee.ifa_addr.pointee.sa_family) == AF_LINK, let data = ifa.pointee.ifa_data else { continue }
+            guard let addr = ifa.pointee.ifa_addr,
+                  Int32(addr.pointee.sa_family) == AF_LINK,
+                  let data = ifa.pointee.ifa_data else { continue }
+            
             let ifdata = data.assumingMemoryBound(to: if_data.self).pointee
             let name = String(cString: ifa.pointee.ifa_name)
             result[name] = (rx: UInt64(ifdata.ifi_ibytes), tx: UInt64(ifdata.ifi_obytes))

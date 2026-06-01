@@ -4,6 +4,18 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.6.1] — 2026-06-01
+
+### Fixed
+- **Performance**: Resolved critical high CPU usage (117% at idle).
+  - Implemented VLAN details caching in `NetworkInterfaceFetcher` to eliminate redundant process spawning of `/sbin/ifconfig`.
+  - Reduced `BandwidthMonitor` polling frequency for full interface details (1s -> 10s).
+  - Optimized `TrafficStatistics` persistence by batching `UserDefaults` writes (30s interval).
+  - Fixed `NetworkInterfaceView` spawning `/usr/sbin/netstat` in the view body.
+- **Safety**: Added null checks for `ifa_addr` in `BandwidthMonitor` to prevent potential crashes in raw byte fetching.
+
+---
+
 ## [4.6.0] — 2026-05-31
 
 ### Added
