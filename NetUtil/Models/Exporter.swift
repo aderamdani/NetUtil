@@ -62,13 +62,6 @@ enum Exporter {
         return ([header] + rows).joined(separator: "\n")
     }
 
-    // MARK: - CSV: Top Processes
-    static func csvString(from apps: [AppTrafficItem]) -> String {
-        let header = "name,rx_bps,tx_bps"
-        let rows = apps.map { "\($0.name),\(String(format: "%.1f", $0.rxBps)),\(String(format: "%.1f", $0.txBps))" }
-        return ([header] + rows).joined(separator: "\n")
-    }
-
     // MARK: - CSV: Network Interfaces
     static func csvString(from interfaces: [NetworkInterface]) -> String {
         let header = "name,type,status,ipv4,ipv6,mac,mtu"

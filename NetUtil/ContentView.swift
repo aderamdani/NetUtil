@@ -19,7 +19,6 @@ enum Tool: String, CaseIterable, Identifiable {
     case routes        = "Routes"
     case statistics    = "Statistics"
     case speedTest     = "Speed Test"
-    case topApps       = "Top Processes"
     case sessionHistory = "History"
     case compare        = "Compare"
     var id: String { rawValue }
@@ -43,7 +42,6 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnet:       "number.square"
         case .statistics:   "chart.line.uptrend.xyaxis"
         case .speedTest:      "speedometer"
-        case .topApps:        "list.bullet.rectangle"
         case .sessionHistory: "clock.arrow.circlepath"
         case .compare:        "arrow.left.arrow.right"
         }
@@ -171,7 +169,6 @@ struct ContentView: View {
                             sidebarItem(.bandwidth)
                             sidebarItem(.statistics)
                             sidebarItem(.speedTest)
-                            sidebarItem(.topApps)
                         }
 
                         Section("Network Status") {
@@ -262,7 +259,6 @@ struct ContentView: View {
         case .subnetScan:   SubnetScanView(selection: $selection)
         case .statistics:   StatisticsView()
         case .speedTest:      SpeedTestView(vm: tools.speedTest)
-        case .topApps:        TopProcessesView(vm: tools.topApps)
         case .sessionHistory: SessionHistoryView(selection: $selection)
         case .compare:        CompareView()
         }

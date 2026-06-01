@@ -23,6 +23,8 @@ struct BandwidthView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Bandwidth Monitor") }
+        .onAppear { vm.isUIActive = true }
+        .onDisappear { vm.isUIActive = false }
     }
 
     private var bandwidthMoodBar: some View {

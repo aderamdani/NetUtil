@@ -114,5 +114,5 @@ Refer to these internal documents for specific guidance:
 
 ---
 
-*Documentation Version: 4.5.0 (May 31, 2026)*
+*Documentation Version: 4.6.5 (June 1, 2026)*
 *Primary Developer: Ade Ramdani*

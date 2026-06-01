@@ -17,7 +17,7 @@
 
 ### Core Diagnostics
 
-NetUtil provides 17 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
+NetUtil provides 16 integrated tools designed for precision monitoring, infrastructure auditing, and rapid troubleshooting:
 
 *   **Bento Dashboard**: A dynamic mission control featuring live sparklines, pulsing activity indicators, and real-time CPU/RAM gauges.
 *   **Advanced Ping**: Beyond ICMP. Visualizes latency history with GPU-accelerated charts, analyzes jitter, and provides GitHub-style health strips.
@@ -30,7 +30,7 @@ NetUtil provides 17 integrated tools designed for precision monitoring, infrastr
 *   **SSL Watchlist**: Automated tracking of certificate lifecycles with local notification alerts for near-expiry domains.
 *   **Bulk Host Import**: Import or paste host lists into Multi-Ping with duplicate detection.
 *   **Gateway Actions**: Direct diagnostic triggers (Ping/Traceroute) integrated into network gateway analysis.
-*   **Speed Test & Statistics**: Nperf-style four-tier speed tests, real-time per-process network traffic (`nettop`), and daily data usage tracking.
+*   **Speed Test & Statistics**: Nperf-style four-tier speed tests and daily data usage tracking.
 
 ---
 
@@ -80,7 +80,7 @@ NetUtil is engineered with an absolute zero-tolerance policy for generic "AI Slo
 *   **SSL Watchlist**: Pemantauan otomatis siklus hidup sertifikat dengan notifikasi lokal untuk domain yang akan kedaluwarsa.
 *   **Bulk Host Import**: Impor atau tempel daftar host ke dalam Multi-Ping dengan deteksi duplikat.
 *   **Gateway Actions**: Pemicu diagnostik langsung (Ping/Traceroute) yang terintegrasi ke dalam analisis gateway jaringan.
-*   **Speed Test & Statistik**: Uji kecepatan jaringan komprehensif, pemantauan trafik *real-time* per aplikasi, dan riwayat penggunaan data harian.
+*   **Speed Test & Statistik**: Uji kecepatan jaringan komprehensif dan riwayat penggunaan data harian.
 
 ### Keunggulan Teknis
 Didesain 100% menggunakan **Swift 6 & SwiftUI** tanpa *framework* pihak ketiga mana pun (*Zero Dependencies*). Mendukung penuh arsitektur Apple Silicon, akselerasi grafik GPU, dan fitur *Keyboard Shortcuts* (`⌘1` - `⌘9`, `⌘F`) untuk navigasi super cepat.
