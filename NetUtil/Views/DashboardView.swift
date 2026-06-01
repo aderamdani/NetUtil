@@ -61,7 +61,6 @@ struct DashboardView: View {
                         HStack(spacing: 12) {
                             whoisCard
                             subnetCard
-                            topProcessesCard
                         }
                     }
                 }
@@ -484,12 +483,6 @@ struct DashboardView: View {
     private var subnetCard: some View {
         BentoCard(title: "Subnet Calc", icon: "number.square", color: .green, action: { selection = .subnet }) {
             Text("CIDR Toolbox").font(.subheadline.bold())
-        }
-    }
-
-    private var topProcessesCard: some View {
-        BentoCard(title: "Top Apps", icon: "chart.bar.xaxis", color: .orange, action: { selection = .topApps }) {
-            Text("Process Monitor").font(.subheadline.bold())
         }
     }
 

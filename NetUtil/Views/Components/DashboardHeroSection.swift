@@ -24,7 +24,7 @@ struct DashboardHeroSection: View {
                 }
                 
                 Chart {
-                    ForEach(tools.bandwidth.totalHistory.suffix(100)) { s in
+                    ForEach(tools.bandwidth.totalHistory.suffix(40)) { s in
                         AreaMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps))
                             .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.1), .blue.opacity(0.0)], startPoint: .top, endPoint: .bottom))
                         LineMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps))

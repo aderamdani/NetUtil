@@ -21,7 +21,6 @@ final class ToolStore {
     let subnetScan  = SubnetScanViewModel()
     let system      = SystemMonitor()
     let bandwidth   = BandwidthMonitor()
-    let topApps     = TopProcessesViewModel()
     let speedTest   = SpeedTestViewModel()
     let statistics  = TrafficStatistics()
     let sslWatchlist  = SSLWatchlist()

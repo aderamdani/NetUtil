@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.6.4"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.6.5"
     private var updater = Updater.shared
 
     var body: some View {
@@ -89,7 +89,6 @@ struct AboutView: View {
         ("chart.bar.xaxis",                        "Bandwidth"),
         ("chart.line.uptrend.xyaxis",              "Statistics"),
         ("speedometer",                            "Speed Test"),
-        ("list.bullet.rectangle",                  "Top Processes"),
         ("network",                                "Interfaces"),
         ("wifi",                                   "Wi-Fi"),
         ("arrow.triangle.branch",                  "Routes"),

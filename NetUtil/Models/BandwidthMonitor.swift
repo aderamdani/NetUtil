@@ -15,26 +15,38 @@ struct BandwidthSample: Identifiable {
 @MainActor
 @Observable
 final class BandwidthMonitor {
-    var interfaces: [NetworkInterface] = []
-    var history: [String: [BandwidthSample]] = [:]
-    var lastUpdated: Date = Date()
-    var showActiveOnly = true
-
-    /// Aggregate samples across all non-loopback adapters — one per second.
-    var totalHistory: [BandwidthSample] = []
-    var peakRx: Double = 0
-    var peakTx: Double = 0
-    var isPaused = false
-
+    // MARK: - Layer 1: Background Collection (Always on, low freq)
+    
     private var timer: Timer?
     @ObservationIgnored private var prevBytes: [String: (rx: UInt64, tx: UInt64)] = [:]
     @ObservationIgnored private var prevTime: Date = Date()
     @ObservationIgnored private var tickCount: Int = 0
+    
     private static let historyLimit = 60
     private static let totalHistoryLimit = 600 // 10 min
 
     /// Called every tick with raw byte deltas (non-loopback only).
     var onAggregateDelta: ((UInt64, UInt64) -> Void)?
+
+    // MARK: - Layer 2: UI Observation (Only when visible, high freq)
+
+    var isUIActive: Bool = false {
+        didSet {
+            if isUIActive != oldValue {
+                restartTimer()
+            }
+        }
+    }
+
+    private(set) var interfaces: [NetworkInterface] = []
+    private(set) var history: [String: [BandwidthSample]] = [:]
+    private(set) var totalHistory: [BandwidthSample] = []
+    private(set) var lastUpdated = Date()
+    private(set) var peakRx: Double = 0
+    private(set) var peakTx: Double = 0
+    
+    var isPaused = false
+    var showActiveOnly = true
 
     /// Aggregate current rates (sum across active non-loopback adapters).
     var totalRxBps: Double { totalHistory.last?.rxBps ?? 0 }
@@ -44,14 +56,20 @@ final class BandwidthMonitor {
         guard timer == nil else { return }
         interfaces = NetworkInterfaceFetcher.fetch()
         tick()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor [weak self] in self?.tick() }
-        }
+        restartTimer()
     }
 
     func stop() {
         timer?.invalidate()
         timer = nil
+    }
+
+    private func restartTimer() {
+        timer?.invalidate()
+        let interval: TimeInterval = isUIActive ? 1.0 : 5.0
+        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.tick() }
+        }
     }
 
     func hasTraffic(_ name: String) -> Bool {
@@ -92,11 +110,7 @@ final class BandwidthMonitor {
             let rxDelta = Double(rxDeltaRaw) / dt
             let txDelta = Double(txDeltaRaw) / dt
 
-            let sample = BandwidthSample(timestamp: now, rxBps: rxDelta, txBps: txDelta, totalRx: cur.rx, totalTx: cur.tx)
-            history[name, default: []].append(sample)
-            if history[name]!.count > Self.historyLimit { history[name]!.removeFirst() }
-
-            // Skip loopback for aggregate totals
+            // Always track aggregate for statistics
             if !name.hasPrefix("lo") {
                 aggRx += rxDelta
                 aggTx += txDelta
@@ -105,13 +119,20 @@ final class BandwidthMonitor {
                 aggRxRaw &+= rxDeltaRaw
                 aggTxRaw &+= txDeltaRaw
             }
+
+            // Only update detailed history if UI is watching
+            if isUIActive {
+                let sample = BandwidthSample(timestamp: now, rxBps: rxDelta, txBps: txDelta, totalRx: cur.rx, totalTx: cur.tx)
+                history[name, default: []].append(sample)
+                if history[name]!.count > Self.historyLimit { history[name]!.removeFirst() }
+            }
         }
 
         if !prevBytes.isEmpty {
             onAggregateDelta?(aggRxRaw, aggTxRaw)
         }
 
-        // Persist aggregate sample for menu bar + statistics history
+        // Always update totalHistory for lightweight Dashboard preview
         if prevTime != now {
             let agg = BandwidthSample(timestamp: now, rxBps: aggRx, txBps: aggTx,
                                       totalRx: totalRxBytes, totalTx: totalTxBytes)
@@ -126,8 +147,9 @@ final class BandwidthMonitor {
         prevBytes = current
         prevTime = now
 
-        // Only refresh full interface details every 10 seconds or if counts change
-        if tickCount % 10 == 0 || current.count != interfaces.count {
+        // Refresh interface list (expensive) even less frequently in background
+        let refreshThreshold = isUIActive ? 10 : 60 // 10s foreground, 5min background
+        if tickCount % refreshThreshold == 0 || current.count != interfaces.count {
             let fresh = NetworkInterfaceFetcher.fetch()
             if fresh.count != interfaces.count || fresh.map(\.name) != interfaces.map(\.name) {
                 interfaces = fresh
