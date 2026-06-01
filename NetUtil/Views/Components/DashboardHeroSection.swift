@@ -24,25 +24,19 @@ struct DashboardHeroSection: View {
                 }
                 
                 Chart {
-                    ForEach(tools.bandwidth.totalHistory) { s in
+                    ForEach(tools.bandwidth.totalHistory.suffix(100)) { s in
                         AreaMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps))
-                            .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.2), .blue.opacity(0.0)], startPoint: .top, endPoint: .bottom))
-                            .interpolationMethod(.catmullRom)
+                            .foregroundStyle(LinearGradient(colors: [.blue.opacity(0.1), .blue.opacity(0.0)], startPoint: .top, endPoint: .bottom))
                         LineMark(x: .value("t", s.timestamp), y: .value("RX", s.rxBps))
                             .foregroundStyle(.blue)
-                            .interpolationMethod(.catmullRom)
 
-                        AreaMark(x: .value("t", s.timestamp), y: .value("TX", s.txBps))
-                            .foregroundStyle(LinearGradient(colors: [.orange.opacity(0.15), .orange.opacity(0.0)], startPoint: .top, endPoint: .bottom))
-                            .interpolationMethod(.catmullRom)
                         LineMark(x: .value("t", s.timestamp), y: .value("TX", s.txBps))
                             .foregroundStyle(.orange)
-                            .interpolationMethod(.catmullRom)
                     }
                 }
                 .chartXAxis(.hidden)
                 .chartYAxis(.hidden)
-                .drawingGroup() // PERFORMANCE: Optimized for hero chart
+                .drawingGroup() 
                 .frame(height: 80)
                 .accessibilityLabel("Real-time network throughput hero chart")
             }

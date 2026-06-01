@@ -121,9 +121,6 @@ final class BandwidthMonitor {
             // Update peaks
             if aggRx > peakRx { peakRx = aggRx }
             if aggTx > peakTx { peakTx = aggTx }
-            
-            UserDefaults.standard.set(aggRx, forKey: "menuBarCurrentRxBps")
-            UserDefaults.standard.set(aggTx, forKey: "menuBarCurrentTxBps")
         }
 
         prevBytes = current

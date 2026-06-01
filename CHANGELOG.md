@@ -4,6 +4,18 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.6.3] — 2026-06-01
+
+### Fixed
+- **Performance**: Resolved persistent high CPU usage (114%+ at idle).
+  - Eliminated high-frequency `UserDefaults` writes in `BandwidthMonitor` and `MenuBarViewModel` (was 2-3 writes/sec).
+  - Cached expensive system queries (`SCNetworkInterfaceCopyAll`, `CWWiFiClient.ssid`) in `ToolStore` to avoid hammering system APIs every second.
+  - Optimized `DashboardHeroSection` chart by limiting data points to 100 and removing expensive Catmull-Rom interpolation.
+  - Disabled automatic background ping on launch; Menu Bar ping now only runs when a host is explicitly provided.
+  - Refactored `DashboardView` to use pre-calculated and cached health status properties from `ToolStore`.
+
+---
+
 ## [4.6.2] — 2026-06-01
 
 ### Fixed

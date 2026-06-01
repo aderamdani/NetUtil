@@ -166,44 +166,19 @@ struct DashboardView: View {
     // MARK: - Health Summary Bar
 
     private var healthSummaryBar: some View {
-        let s = healthStatus
-        return HStack(spacing: 8) {
-            Image(systemName: s.icon)
-                .foregroundColor(s.color)
+        HStack(spacing: 8) {
+            Image(systemName: tools.healthIcon)
+                .foregroundColor(tools.healthColor == "red" ? .red : (tools.healthColor == "orange" ? .orange : .green))
                 .font(.system(.callout, weight: .semibold))
-            Text(s.message)
+            Text(tools.healthMessage)
                 .font(.callout)
-                .foregroundColor(s.color == .green ? .secondary : s.color)
+                .foregroundColor(tools.healthColor == "green" ? .secondary : (tools.healthColor == "red" ? .red : .orange))
             Spacer()
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 9)
         .background(.regularMaterial)
         .overlay(Divider(), alignment: .bottom)
-    }
-
-    private var healthStatus: (icon: String, color: Color, message: String) {
-        let criticalSSL = tools.sslWatchlist.items.filter { $0.status == .critical || $0.status == .expired }
-        let warningSSL  = tools.sslWatchlist.items.filter { $0.status == .warning }
-        let pingLoss    = tools.ping.stats.loss
-        let wifiRSSI    = tools.wifi.info?.rssi ?? 0
-
-        if !criticalSSL.isEmpty {
-            let n = criticalSSL.count
-            return ("exclamationmark.triangle.fill", .red, "\(n) SSL cert\(n == 1 ? "" : "s") critical or expired")
-        }
-        if !tools.ping.results.isEmpty && pingLoss > 5 && !tools.ping.currentHost.isEmpty {
-            return ("exclamationmark.triangle.fill", .orange,
-                    "Ping: \(String(format: "%.0f", pingLoss))% packet loss to \(tools.ping.currentHost)")
-        }
-        if wifiRSSI < -70 && wifiRSSI != 0 {
-            return ("exclamationmark.triangle.fill", .orange, "Wi-Fi signal weak: \(wifiRSSI) dBm")
-        }
-        if !warningSSL.isEmpty {
-            let n = warningSSL.count
-            return ("exclamationmark.triangle.fill", .orange, "\(n) SSL cert\(n == 1 ? "" : "s") expiring soon")
-        }
-        return ("checkmark.shield.fill", .green, "All Systems Normal")
     }
 
     private func formatUptime(from date: Date) -> String {
