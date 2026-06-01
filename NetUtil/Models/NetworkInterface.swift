@@ -55,6 +55,8 @@ struct NetworkInterface: Identifiable {
 // MARK: - Fetcher
 
 struct NetworkInterfaceFetcher {
+    private static var vlanCache: [String: (tag: Int?, parent: String?)] = [:]
+    
     static func fetch() -> [NetworkInterface] {
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&ifaddr) == 0 else { return [] }
@@ -123,12 +125,19 @@ struct NetworkInterfaceFetcher {
 
         var results = builders.values.map { $0.build() }
         
-        // Enrich VLAN interfaces with details from ifconfig
+        // Enrich VLAN interfaces with details from ifconfig (cached)
         for i in 0..<results.count {
             if results[i].isVLAN {
-                let (tag, parent) = fetchVLANDetails(for: results[i].name)
-                results[i].vlanTag = tag
-                results[i].parentInterface = parent
+                let name = results[i].name
+                if let cached = vlanCache[name] {
+                    results[i].vlanTag = cached.tag
+                    results[i].parentInterface = cached.parent
+                } else {
+                    let (tag, parent) = fetchVLANDetails(for: name)
+                    vlanCache[name] = (tag, parent)
+                    results[i].vlanTag = tag
+                    results[i].parentInterface = parent
+                }
             }
         }
 

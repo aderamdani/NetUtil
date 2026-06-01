@@ -35,7 +35,15 @@ final class TrafficStatistics {
         return f
     }()
 
-    init() { load() }
+    private var isDirty = false
+    private var saveTimer: Timer?
+
+    init() { 
+        load()
+        saveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.periodicSave() }
+        }
+    }
 
     /// Called every second by ToolStore's BandwidthMonitor with the latest aggregate sample.
     func record(rxDelta: UInt64, txDelta: UInt64) {
@@ -51,7 +59,7 @@ final class TrafficStatistics {
             dailyTotals.append(DayTotal(dateKey: key, rxBytes: rxDelta, txBytes: txDelta))
             if dailyTotals.count > 90 { dailyTotals.removeFirst() }
         }
-        save()
+        isDirty = true
     }
 
     func reset() {
@@ -62,10 +70,17 @@ final class TrafficStatistics {
         UserDefaults.standard.removeObject(forKey: Self.storeKey)
     }
 
+    private func periodicSave() {
+        guard isDirty else { return }
+        save()
+    }
+
     private func save() {
         guard let data = try? JSONEncoder().encode(dailyTotals) else { return }
         UserDefaults.standard.set(data, forKey: Self.storeKey)
+        isDirty = false
     }
+
 
     private func load() {
         guard let data = UserDefaults.standard.data(forKey: Self.storeKey),

@@ -55,20 +55,18 @@ struct NetworkInterfaceView: View {
     }
 
     private var gatewaySection: some View {
-        let gateway = GatewayParser.getDefaultGateway(for: "en0")
-        return VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
             sectionHeader("Gateway Quick Actions", icon: "arrow.triangle.branch")
             
             HStack(spacing: 16) {
-                if let gateway = gateway {
+                if let gateway = vm.defaultGateway {
                     Text("Gateway: \(gateway)")
                         .font(.system(.body, design: .monospaced))
                     
                     Spacer()
                     
                     Button {
-                        vm.refresh() // Dummy trigger to trigger navigation
-                        // In reality, this would need ToolStore injection
+                        // Action for Ping
                     } label: {
                         Label("Ping Gateway", systemImage: "antenna.radiowaves.left.and.right")
                     }
