@@ -7,7 +7,6 @@ struct NetUtilApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.openWindow) private var openWindow
     @State private var tools = ToolStore()
-    @State private var menuBarVM = MenuBarViewModel()
 
     var body: some Scene {
         WindowGroup {
@@ -52,11 +51,8 @@ struct NetUtilApp: App {
             MenuBarView()
                 .environment(tools)
                 .environment(tools.interfaces)
-                .environment(menuBarVM)
         } label: {
             MenuBarLabel()
-                .environment(tools)
-                .environment(menuBarVM)
         }
         .menuBarExtraStyle(.window)
     }

@@ -31,6 +31,8 @@ bash scripts/build_dmg.sh
 - **@Observable**: Preferred over `@ObservableObject` on macOS 15+. Use `@State` on the owning view, `@Bindable` for child views that need bindings.
 - **MainActor Isolation**: All UI-facing logic and ViewModel updates strictly isolated to the main thread.
 - **Asynchronous Parsing**: CLI output captured via readability handlers, parsed on background threads, and published to UI via `Task { @MainActor }`.
+- **Menu Bar Integration**: Quick access to network identity (External/Local IP) and connection status.
+- **Persistence**: Daily traffic totals, scan history, and favorite hosts stored via `UserDefaults`.
 - **Directory Structure**: `Views/Components/` for shared reusable components (`ReportMenuButton`, control bars). `Views/Settings/` for settings panes.
 
 ---
