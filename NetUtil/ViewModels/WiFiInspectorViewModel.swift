@@ -21,6 +21,7 @@ class WiFiInspectorViewModel {
     private static let rssiSamplesLimit = 100
 
     func start() {
+        guard timer == nil else { return }
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in self?.refresh() }

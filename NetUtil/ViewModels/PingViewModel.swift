@@ -18,14 +18,14 @@ final class PingViewModel {
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     @ObservationIgnored nonisolated(unsafe) private var process: Process?
-    private var sessionStartTime: Date = Date()
-    private var outputPipe: Pipe?
+    @ObservationIgnored private var sessionStartTime: Date = Date()
+    @ObservationIgnored private var outputPipe: Pipe?
 
     private static let rawLinesLimit = 500
     private static let resultsLimit  = 1000
 
-    private var resultsBuffer: [PingResult] = []
-    private var batchTimer: AnyCancellable?
+    @ObservationIgnored private var resultsBuffer: [PingResult] = []
+    @ObservationIgnored private var batchTimer: AnyCancellable?
 
     // Pre-compiled — avoids re-compiling regex per packet
     private nonisolated static let pingPatterns: [NSRegularExpression] = {

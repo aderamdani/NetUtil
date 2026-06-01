@@ -16,12 +16,12 @@ final class TopProcessesViewModel {
     private(set) var isRunning = false
     private(set) var error: String?
 
-    private var process: Process?
-    private var pipe: Pipe?
-    private var buffer = Data()
-    private var pendingRows: [String] = []
-    private var sampleCount = 0
-    private var lastSampleTime: Date?
+    @ObservationIgnored private var process: Process?
+    @ObservationIgnored private var pipe: Pipe?
+    @ObservationIgnored private var buffer = Data()
+    @ObservationIgnored private var pendingRows: [String] = []
+    @ObservationIgnored private var sampleCount = 0
+    @ObservationIgnored private var lastSampleTime: Date?
 
     func start() {
         stop()
@@ -79,14 +79,20 @@ final class TopProcessesViewModel {
 
     private func consume(_ data: Data) {
         buffer.append(data)
+        
         while let idx = buffer.firstRange(of: Data([0x0A])) {
             let lineData = buffer[..<idx.lowerBound]
+            if let line = String(data: lineData, encoding: .utf8) {
+                var cleanLine = line
+                if cleanLine.hasSuffix("\r") { cleanLine.removeLast() }
+                processLine(cleanLine.trimmingCharacters(in: .whitespacesAndNewlines))
+            }
             buffer.removeSubrange(..<idx.upperBound)
-            var line = String(data: lineData, encoding: .utf8) ?? ""
-            if line.hasSuffix("\r") { line.removeLast() }
-            processLine(line.trimmingCharacters(in: .whitespacesAndNewlines))
+            
+            // Safety: don't loop forever if buffer is somehow staying huge
+            if buffer.count > Self.maxBufferBytes { break }
         }
-        // Safety: if no newline found and buffer is huge, malformed stream — drop it.
+        
         if buffer.count > Self.maxBufferBytes { buffer.removeAll(keepingCapacity: false) }
         if pendingRows.count > Self.maxPendingRows { pendingRows.removeAll(keepingCapacity: false) }
     }

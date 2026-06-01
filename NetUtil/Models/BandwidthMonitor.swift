@@ -27,9 +27,9 @@ final class BandwidthMonitor {
     var isPaused = false
 
     private var timer: Timer?
-    private var prevBytes: [String: (rx: UInt64, tx: UInt64)] = [:]
-    private var prevTime: Date = Date()
-    private var tickCount: Int = 0
+    @ObservationIgnored private var prevBytes: [String: (rx: UInt64, tx: UInt64)] = [:]
+    @ObservationIgnored private var prevTime: Date = Date()
+    @ObservationIgnored private var tickCount: Int = 0
     private static let historyLimit = 60
     private static let totalHistoryLimit = 600 // 10 min
 

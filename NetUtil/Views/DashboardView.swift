@@ -7,6 +7,7 @@ struct DashboardView: View {
 
     @State private var launchDate = Date()
     @State private var uptimeString = "0m"
+    @State private var localHostName = Host.current().localizedName ?? "Local Mac"
 
     var body: some View {
         VStack(spacing: 0) {
@@ -88,7 +89,7 @@ struct DashboardView: View {
         VStack(spacing: 0) {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(Host.current().localizedName ?? "Local Mac")
+                    Text(localHostName)
                         .font(.system(.title3, design: .default).bold())
                         .tracking(-0.2)
 

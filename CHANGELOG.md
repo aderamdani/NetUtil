@@ -4,6 +4,19 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.6.2] — 2026-06-01
+
+### Fixed
+- **Performance**: Resolved persistent high CPU usage (125% at idle).
+  - Fixed major timer leak in `WiFiInspectorViewModel` where background timers accumulated on every navigation to Dashboard.
+  - Eliminated "Observation Storm" by marking internal state properties in `BandwidthMonitor`, `SystemMonitor`, `PingViewModel`, and `MenuBarViewModel` with `@ObservationIgnored`.
+  - Optimized `TopProcessesViewModel` buffer management to avoid O(N^2) work on the main actor.
+  - Cached `Host.current().localizedName` in `DashboardView` to avoid expensive system calls during re-renders.
+  - Throttled `SubnetScanViewModel` updates to reduce UI pressure during large scans.
+- **Safety**: Added guards to `start()` methods in monitoring view models to prevent redundant background work.
+
+---
+
 ## [4.6.1] — 2026-06-01
 
 ### Fixed
