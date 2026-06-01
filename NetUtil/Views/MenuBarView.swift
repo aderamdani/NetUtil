@@ -189,9 +189,9 @@ class MenuBarViewModel {
         didSet { UserDefaults.standard.set(pingHost, forKey: "menuBarPingHost") }
     }
 
-    private var process: Process?
-    private var pipe: Pipe?
-    private var samples: [Double?] = []
+    @ObservationIgnored private var process: Process?
+    @ObservationIgnored private var pipe: Pipe?
+    @ObservationIgnored private var samples: [Double?] = []
 
     init() {
         Task { @MainActor in self.startPing() }

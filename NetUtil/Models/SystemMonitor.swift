@@ -13,8 +13,8 @@ final class SystemMonitor {
     let ramTotalGB: Double
 
     private var timer: Timer?
-    private var lastCpuInfo: processor_info_array_t?
-    private var lastCpuInfoCount: mach_msg_type_number_t = 0
+    @ObservationIgnored private var lastCpuInfo: processor_info_array_t?
+    @ObservationIgnored private var lastCpuInfoCount: mach_msg_type_number_t = 0
 
     init() {
         var size: UInt64 = 0
@@ -25,6 +25,7 @@ final class SystemMonitor {
     }
     
     func start() {
+        guard timer == nil else { return }
         timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.updateStats()
