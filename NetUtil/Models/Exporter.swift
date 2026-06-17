@@ -365,7 +365,8 @@ private enum PDFReport {
 
     static func build(tool: String, target: String, sections: [(title: String, rows: [[String]])]) -> Data {
         var result = Data()
-        NSAppearance(named: .aqua)!.performAsCurrentDrawingAppearance {
+        let appearance = NSAppearance(named: .aqua) ?? NSAppearance.current
+        appearance.performAsCurrentDrawingAppearance {
             var pageRect = CGRect(x: 0, y: 0, width: pageW, height: pageH)
             let buf = NSMutableData()
             guard let consumer = CGDataConsumer(data: buf as CFMutableData),

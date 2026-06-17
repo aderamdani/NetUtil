@@ -42,7 +42,7 @@ struct SSLWatchlistView: View {
     
     @ViewBuilder
     private func statusBadge(_ status: ExpiryStatus) -> some View {
-        Text(status.rawValue.uppercased())
+        Text(status.rawValue.capitalized)
             .font(.system(size: 10, weight: .bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
