@@ -249,7 +249,7 @@ private struct SessionRecordRow: View {
 
     private var statusBadge: some View {
         Text(record.status.rawValue.capitalized)
-            .font(.system(size: 9, weight: .bold))
+            .font(.system(size: 10, weight: .bold))
             .padding(.horizontal, 5).padding(.vertical, 2)
             .background(statusColor.opacity(0.15))
             .foregroundColor(statusColor)
