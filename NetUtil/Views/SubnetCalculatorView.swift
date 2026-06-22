@@ -81,26 +81,35 @@ struct SubnetCalculatorView: View {
                 Spacer()
                 
                 HStack(spacing: 12) {
-                    HStack(spacing: 12) {
-                        HStack(spacing: 4) {
-                            Text("Prefix")
-                                .font(.caption2.weight(.bold))
-                                .foregroundColor(.secondary)
-                            Picker("", selection: $vm.prefix) {
-                                ForEach(0...32, id: \.self) { p in
-                                    Text("/\(p)").tag(p)
-                                }
+                GlassEffectContainer {
+                    HStack(spacing: 4) {
+                        Text("Prefix")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(.secondary)
+                        Picker("", selection: $vm.prefix) {
+                            ForEach(0...32, id: \.self) { p in
+                                Text("/\(p)").tag(p)
                             }
-                            .pickerStyle(.menu)
-                            .frame(width: 70)
-                            .onChange(of: vm.prefix) { vm.calculate() }
-                            .accessibilityLabel("Network Prefix Length")
                         }
-                        
-                        Slider(value: Binding(get: { Double(vm.prefix) }, set: { vm.updatePrefix(Int($0)) }), in: 0...32, step: 1)
-                            .frame(width: 120)
-                            .tint(.accentColor)
-                            .accessibilityLabel("Adjust Prefix Length")
+                        .pickerStyle(.menu)
+                        .frame(width: 70)
+                        .onChange(of: vm.prefix) { vm.calculate() }
+                        .accessibilityLabel("Network Prefix Length")
+                    }
+                    
+                    Slider(value: Binding(get: { Double(vm.prefix) }, set: { vm.updatePrefix(Int($0)) }), in: 0...32, step: 1)
+                        .frame(width: 120)
+                        .tint(.accentColor)
+                        .accessibilityLabel("Adjust Prefix Length")
+
+                    if let result = vm.result {
+                        ReportMenuButton(
+                            onExportPDF: { Exporter.saveSubnetCalcPDF(result: result) },
+                            onExportCSV: {
+                                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                                Exporter.save(string: Exporter.csvString(from: result), defaultName: "NetUtil-SubnetCalc-\(date.string(from: Date())).csv", ext: "csv")
+                            }
+                        )
                     }
 
                     if let result = vm.result {
@@ -111,15 +120,16 @@ struct SubnetCalculatorView: View {
                         } label: {
                             Label("Copy Info", systemImage: "doc.on.clipboard")
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.borderless)
                         .accessibilityLabel("Copy result summary to clipboard")
                     }
+                }
 
-                    Button { showLearningGuide = true } label: {
-                        Image(systemName: "questionmark.circle")
-                    }
-                    .buttonStyle(.borderless)
-                    .accessibilityLabel("Show Help Guide")
+                Button { showLearningGuide = true } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)

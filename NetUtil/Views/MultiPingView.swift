@@ -123,11 +123,11 @@ struct MultiPingView: View {
 
                 Spacer()
                 
-                HStack(spacing: 12) {
+                GlassEffectContainer {
                     Button(action: { showImportSheet = true }) {
                         Label("Import", systemImage: "square.and.arrow.down")
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.borderless)
                     
                     HStack(spacing: 8) {
                         Text("Sort")

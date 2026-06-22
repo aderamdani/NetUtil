@@ -62,6 +62,13 @@ enum Exporter {
         return ([header] + rows).joined(separator: "\n")
     }
 
+    // MARK: - CSV: Subnet Calculator
+    static func csvString(from result: SubnetResult) -> String {
+        let header = "address,mask,prefix,network,broadcast,first_host,last_host,total_hosts,usable_hosts,ip_class"
+        let row = "\(result.address),\(result.mask),\(result.prefix),\(result.networkAddress),\(result.broadcastAddress),\(result.firstHost),\(result.lastHost),\(result.totalHosts),\(result.usableHosts),\(result.ipClass)"
+        return header + "\n" + row
+    }
+
     // MARK: - CSV: Network Interfaces
     static func csvString(from interfaces: [NetworkInterface]) -> String {
         let header = "name,type,status,ipv4,ipv6,mac,mtu"
@@ -240,6 +247,28 @@ enum Exporter {
             ("Hosts", [["IP", "Hostname", "Status", "RTT", "MAC"]] + dataRows)
         ])
         savePDF(data: pdf, defaultName: "NetUtil-SubnetScan-\(cidr.replacingOccurrences(of: "/", with: "_"))-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Subnet Calculator
+    @MainActor static func saveSubnetCalcPDF(result: SubnetResult) {
+        let ts = timestamp()
+        let metaRows: [[String]] = [
+            ["Address", result.address],
+            ["Mask", result.mask],
+            ["Prefix", "/\(result.prefix)"],
+            ["Network", result.networkAddress],
+            ["Broadcast", result.broadcastAddress],
+            ["First Host", result.firstHost],
+            ["Last Host", result.lastHost],
+            ["Total Hosts", "\(result.totalHosts)"],
+            ["Usable Hosts", "\(result.usableHosts)"],
+            ["Wildcard Mask", result.wildcardMask],
+            ["IP Class", result.ipClass],
+        ]
+        let pdf = PDFReport.build(tool: "Subnet Calculator", target: result.address, sections: [
+            ("Results", metaRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-SubnetCalc-\(result.address)-\(ts).pdf")
     }
 
     // MARK: - PDF: SSL
