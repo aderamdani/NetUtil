@@ -46,6 +46,7 @@ final class BandwidthMonitor {
     
     var isPaused = false
     var showActiveOnly = true
+    var backgroundInterval: TimeInterval = 5.0
 
     /// Aggregate current rates (sum across active non-loopback adapters).
     var totalRxBps: Double { totalHistory.last?.rxBps ?? 0 }
@@ -65,7 +66,7 @@ final class BandwidthMonitor {
 
     private func restartTimer() {
         timer?.invalidate()
-        let interval: TimeInterval = isUIActive ? 1.0 : 5.0
+        let interval: TimeInterval = isUIActive ? 1.0 : backgroundInterval
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in self?.tick() }
         }

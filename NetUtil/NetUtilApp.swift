@@ -64,27 +64,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         let keepRunning = UserDefaults.standard.bool(forKey: "backgroundOnClose")
         if keepRunning {
-            // Switch to accessory mode — hides Dock icon, keeps menu bar alive.
             NSApp.setActivationPolicy(.accessory)
+            postPolicyChange()
             return false
         }
         return true
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Honor the saved policy on launch in case the user previously closed
-        // the window and quit with the menu bar still active.
         if UserDefaults.standard.bool(forKey: "backgroundOnClose") &&
            NSApp.windows.allSatisfy({ !$0.isVisible }) {
             NSApp.setActivationPolicy(.accessory)
+            postPolicyChange()
         }
+    }
+
+    private func postPolicyChange() {
+        NotificationCenter.default.post(name: .init("netutil.activationPolicyChanged"), object: nil)
     }
 }
 
 extension NSApplication {
-    /// Restores the Dock icon and brings the main window forward.
     static func showMainWindow() {
         NSApp.setActivationPolicy(.regular)
+        NotificationCenter.default.post(name: .init("netutil.activationPolicyChanged"), object: nil)
         NSApp.activate()
         if let win = NSApp.windows.first(where: { $0.canBecomeMain }) {
             win.makeKeyAndOrderFront(nil)
