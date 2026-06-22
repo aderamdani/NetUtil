@@ -36,6 +36,9 @@ struct DashboardView: View {
             tools.interfaces.refresh()
             tools.refreshGlobalStatus()
         }
+        .onDisappear {
+            tools.wifi.stop()
+        }
     }
 
     private var headerBar: some View {
