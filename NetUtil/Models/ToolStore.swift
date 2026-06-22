@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import Combine
 import SystemConfiguration
 import CoreWLAN
 
@@ -33,7 +32,6 @@ final class ToolStore {
     private(set) var currentConnectionName: String = "Unknown"
     private(set) var primaryInterface: NetworkInterface?
 
-    var menuBarCurrentRTT: Double = -1.0
     private(set) var healthIcon: String = "checkmark.shield.fill"
     private(set) var healthColor: String = "green"
     private(set) var healthMessage: String = "All Systems Normal"

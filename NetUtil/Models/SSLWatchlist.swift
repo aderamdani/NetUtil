@@ -67,10 +67,7 @@ final class SSLWatchlist {
         items.removeAll { $0.id == id }
     }
     
-    func checkAll() async {
-        // Implementation will interface with SSLInspectorViewModel logic
-    }
-    
+
     func calculateStatus(expiryDate: Date) -> ExpiryStatus {
         let now = Date()
         let daysUntilExpiry = Calendar.current.dateComponents([.day], from: now, to: expiryDate).day ?? 0

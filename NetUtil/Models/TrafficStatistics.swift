@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 import Observation
 
 /// Persistent traffic statistics — stores daily totals to UserDefaults.
