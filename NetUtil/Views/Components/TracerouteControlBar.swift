@@ -73,7 +73,7 @@ struct TracerouteControlBar: View {
                         Label(isRunning ? "Stop" : "Start", systemImage: isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .tint(isRunning ? .red : .accentColor)
                     
                     if !host.isEmpty, let onToggle = onToggleFavorite {

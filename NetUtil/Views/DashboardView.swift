@@ -170,7 +170,6 @@ struct DashboardView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .glassEffect(in: .rect(cornerRadius: 10))
     }
 }

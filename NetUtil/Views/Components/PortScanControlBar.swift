@@ -81,7 +81,7 @@ struct PortScanControlBar: View {
                         Label(isRunning ? "Stop" : "Scan", systemImage: isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 70)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .tint(isRunning ? .red : .accentColor)
                     .disabled(!isRunning && host.isEmpty)
                     .accessibilityLabel(isRunning ? "Stop Scanning" : "Start Scanning")

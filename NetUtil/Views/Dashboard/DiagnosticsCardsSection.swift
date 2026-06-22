@@ -8,13 +8,15 @@ struct DiagnosticsCardsSection: View {
         VStack(alignment: .leading, spacing: 16) {
             sectionHeader("Core Diagnostics", icon: "bolt.shield.fill")
 
-            HStack(spacing: 12) {
-                pingCard.frame(maxWidth: .infinity)
-                VStack(spacing: 12) {
-                    multiPingCard
-                    portScanCard
+            GlassEffectContainer {
+                HStack(spacing: 12) {
+                    pingCard.frame(maxWidth: .infinity)
+                    VStack(spacing: 12) {
+                        multiPingCard
+                        portScanCard
+                    }
+                    .frame(width: 280)
                 }
-                .frame(width: 280)
             }
         }
     }

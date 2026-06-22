@@ -57,9 +57,10 @@ struct PingControlBar: View {
 
                 Spacer()
 
-                HStack(spacing: 12) {
-                    HStack(spacing: 8) {
-                        Toggle(isOn: $infinite) {
+                GlassEffectContainer {
+                    HStack(spacing: 12) {
+                        HStack(spacing: 8) {
+                            Toggle(isOn: $infinite) {
                             Image(systemName: "infinity")
                                 .font(.caption.weight(.bold))
                         }
@@ -104,7 +105,7 @@ struct PingControlBar: View {
                         Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 70)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && host.isEmpty)
                     .accessibilityLabel(vm.isRunning ? "Stop Ping" : "Start Ping")
@@ -126,6 +127,7 @@ struct PingControlBar: View {
                     }
                     .buttonStyle(.borderless)
                     .accessibilityLabel("Show Help Guide")
+                }
                 }
             }
             .padding(.horizontal, 24)

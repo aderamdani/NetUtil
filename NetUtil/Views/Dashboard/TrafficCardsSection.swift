@@ -8,24 +8,32 @@ struct TrafficCardsSection: View {
         VStack(alignment: .leading, spacing: 16) {
             sectionHeader("Network & Traffic", icon: "wifi.router.fill")
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                bandwidthCard
-                statisticsCard
-                interfacesCard
+            GlassEffectContainer {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    bandwidthCard
+                    statisticsCard
+                    interfacesCard
+                }
             }
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                wifiCard
-                tracerouteCard
-                routeTableCard
+            GlassEffectContainer {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    wifiCard
+                    tracerouteCard
+                    routeTableCard
+                }
             }
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                sslCard
-                httpCard
-                dnsCard
+            GlassEffectContainer {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    sslCard
+                    httpCard
+                    dnsCard
+                }
             }
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                speedTestCard
-                subnetScannerCard
+            GlassEffectContainer {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    speedTestCard
+                    subnetScannerCard
+                }
             }
         }
     }

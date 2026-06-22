@@ -119,7 +119,7 @@ struct WhoisView: View {
                         Label(vm.isRunning ? "Stop" : "Lookup", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && query.isEmpty)
                     .accessibilityLabel(vm.isRunning ? "Stop Lookup" : "Start Lookup")

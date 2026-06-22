@@ -192,8 +192,7 @@ struct PingView: View {
         .frame(minHeight: 400)
         .scrollContentBackground(.hidden)
         .scrollPosition(id: .constant(vm.rawLines.last?.id))
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .glassEffect(in: .rect(cornerRadius: 12))
     }
 
     private func startAction() {
