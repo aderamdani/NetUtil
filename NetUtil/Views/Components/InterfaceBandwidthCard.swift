@@ -34,7 +34,7 @@ struct InterfaceBandwidthCard: View {
                     StatusBadge(isUp: iface.isUp)
                     if let ip = iface.ipAddress {
                         Text(ip)
-                            .font(.system(size: 10, design: .monospaced))
+                            .font(.system(.caption2, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -74,7 +74,7 @@ struct InterfaceBandwidthCard: View {
                     .foregroundColor(.secondary)
                 Spacer()
                 Text("\(NetworkMath.formatBytes(current?.totalRx ?? 0)) ↓ · \(NetworkMath.formatBytes(current?.totalTx ?? 0)) ↑")
-                    .font(.system(size: 10, design: .monospaced))
+                    .font(.system(.caption2, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             .accessibilityElement(children: .combine)
@@ -92,7 +92,7 @@ struct InterfaceBandwidthCard: View {
                 .foregroundColor(color)
             VStack(alignment: .leading, spacing: 0) {
                 Text(NetworkMath.formatRate(value))
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .font(.system(.callout, design: .monospaced).weight(.bold))
                     .foregroundColor(value > 0 ? .primary : .secondary)
             }
         }
@@ -106,11 +106,10 @@ private struct StatusBadge: View {
     let isUp: Bool
     var body: some View {
         Text(isUp ? "Active" : "Inactive")
-            .font(.system(size: 10, weight: .bold))
+            .font(.caption2.weight(.bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(isUp ? Color.green.opacity(0.15) : Color.secondary.opacity(0.15))
+            .background(isUp ? Color.green.opacity(0.15) : Color.secondary.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
             .foregroundColor(isUp ? .green : .secondary)
-            .cornerRadius(4)
     }
 }

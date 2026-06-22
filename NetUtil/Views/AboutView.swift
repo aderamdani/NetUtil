@@ -25,14 +25,14 @@ struct AboutView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 80, height: 80)
-                .cornerRadius(18)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
                 .shadow(radius: 4)
                 .foregroundColor(.accentColor)
                 .accessibilityLabel("NetUtil Application Icon")
             
             VStack(spacing: 4) {
                 Text("NetUtil")
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.system(.title, design: .default).weight(.bold))
                 Text("Version \(currentVersion)")
                     .font(.subheadline)
                     .foregroundColor(.secondary)

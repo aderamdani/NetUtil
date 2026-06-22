@@ -28,14 +28,14 @@
 | Wi-Fi | RSSI stability chart, SNR, channel, CoreWLAN | Optimized (v4.3.0) |
 | Routes | netstat -rn, protocol matrix, flag legend | Optimized (v4.3.0) |
 
-**Total: 17 tools (16 diagnostics + Dashboard)**
+**Total: 19 tools (18 diagnostics + Dashboard)**
 
 ---
 
 ## Recent Milestones
 
 ### Version 4.5.0 — Polish & Consistency (2026-05-31)
-- 153-check UX audit: 17 tools × 9 criteria, 14 fixes, zero remaining violations
+- 153-check UX audit: 19 tools × 9 criteria, 14 fixes, zero remaining violations
 - Mood bars added to 6 missing tools (Multi-Ping, HTTP Latency, DNS, Bandwidth, Statistics, Speed Test)
 - Report menus (CSV export) added to 4 missing tools (Top Processes, Interfaces, Wi-Fi, Routes)
 - StatisticsView charts: `drawingGroup()` + explicit `chartYScale` headroom

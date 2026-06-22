@@ -147,7 +147,7 @@ struct BandwidthView: View {
                     vm.resetPeaks()
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 11))
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -175,12 +175,11 @@ struct BandwidthView: View {
                         .font(.caption.bold())
                         .foregroundColor(.orange)
                         .padding(.horizontal, 8).padding(.vertical, 3)
-                        .background(Color.orange.opacity(0.12))
-                        .cornerRadius(4)
+                        .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 4))
                 }
             }
 
-            let samples = vm.totalHistory.suffix(60)
+            let samples = vm.totalHistory.suffix(Metrics.healthStripWindow)
             let maxRX = samples.map(\.rxBps).max() ?? 1
             let maxTX = samples.map(\.txBps).max() ?? 1
             let domainTop    = max(maxRX, 1024) * 1.25
@@ -217,7 +216,7 @@ struct BandwidthView: View {
                         if let v = value.as(Double.self) {
                             let abs = Swift.abs(v)
                             Text(abs < 1 ? "0" : formatBps(abs).value + " " + formatBps(abs).unit)
-                                .font(.system(size: 9, design: .monospaced))
+                                .font(.system(.caption2, design: .monospaced))
                         }
                     }
                 }
@@ -304,39 +303,39 @@ struct BandwidthView: View {
         return HStack(spacing: 0) {
             HStack(spacing: 6) {
                 Image(systemName: iface.typeIcon)
-                    .font(.system(size: 10))
+                    .font(.caption2)
                     .foregroundColor(.accentColor)
                 Text(iface.name)
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced).weight(.semibold))
             }
             .frame(width: 100, alignment: .leading)
 
             Text(iface.typeName)
-                .font(.system(size: 11))
+                .font(.caption)
                 .foregroundColor(.secondary)
                 .frame(width: 90, alignment: .leading)
 
             Text(iface.ipv4.first ?? "—")
-                .font(.system(size: 11, design: .monospaced))
+                .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary)
                 .frame(width: 120, alignment: .leading)
 
             HStack(spacing: 2) {
                 Text(rxFmt.value)
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced).weight(.bold))
                     .foregroundColor(rx > 0 ? .green : .primary)
                 Text(rxFmt.unit)
-                    .font(.system(size: 9, design: .monospaced))
+                    .font(.system(.caption2, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             .frame(width: 110, alignment: .leading)
 
             HStack(spacing: 2) {
                 Text(txFmt.value)
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced).weight(.bold))
                     .foregroundColor(tx > 0 ? .blue : .primary)
                 Text(txFmt.unit)
-                    .font(.system(size: 9, design: .monospaced))
+                    .font(.system(.caption2, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             .frame(width: 110, alignment: .leading)

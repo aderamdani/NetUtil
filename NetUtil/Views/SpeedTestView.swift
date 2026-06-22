@@ -320,13 +320,13 @@ struct SpeedTestView: View {
     private func historyRow(_ result: SpeedTestResult) -> some View {
         HStack(spacing: 0) {
             Text(result.timestamp.formatted(date: .omitted, time: .standard))
-                .font(.system(size: 11, design: .monospaced))
+                .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary)
                 .frame(width: 80, alignment: .leading)
 
             HStack(spacing: 4) {
-                Image(systemName: result.kind.icon).font(.system(size: 10))
-                Text(result.kind.rawValue).font(.system(size: 11))
+                Image(systemName: result.kind.icon).font(.caption2)
+                Text(result.kind.rawValue).font(.caption)
             }
             .foregroundColor(.secondary)
             .frame(width: 90, alignment: .leading)
@@ -335,14 +335,14 @@ struct SpeedTestView: View {
                 if editingResultID == result.id {
                     TextField("Label", text: $editingName)
                         .textFieldStyle(.roundedBorder)
-                        .font(.system(size: 11))
+                        .font(.caption)
                         .onSubmit {
                             vm.renameResult(result.id, to: editingName)
                             editingResultID = nil
                         }
                 } else {
                     Text(result.name ?? "—")
-                        .font(.system(size: 11))
+                        .font(.caption)
                         .foregroundColor(result.name != nil ? .primary : .secondary)
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -354,18 +354,18 @@ struct SpeedTestView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(primaryMetric(result))
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .font(.system(.caption, design: .monospaced).weight(.bold))
                 .frame(width: 180, alignment: .leading)
 
             Text(secondaryMetric(result))
-                .font(.system(size: 11, design: .monospaced))
+                .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary)
                 .frame(width: 170, alignment: .leading)
 
             Button {
                 withAnimation { vm.deleteResult(result.id) }
             } label: {
-                Image(systemName: "trash").font(.system(size: 10)).foregroundColor(.secondary)
+                Image(systemName: "trash").font(.caption2).foregroundColor(.secondary)
             }
             .buttonStyle(.plain)
             .frame(width: 32, alignment: .center)
@@ -396,7 +396,7 @@ struct SpeedTestView: View {
     private func kindCard(_ kind: SpeedTestKind) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Image(systemName: kind.icon)
-                .font(.system(size: 18))
+                .font(.title3)
                 .foregroundColor(vm.kind == kind ? .accentColor : .secondary)
             Text(kind.rawValue)
                 .font(.system(.subheadline, weight: .semibold))
@@ -430,8 +430,7 @@ struct SpeedTestView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
         .accessibilityLabel("Error: \(msg)")
     }

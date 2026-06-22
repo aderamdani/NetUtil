@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import Observation
 
 struct PingView: View {
@@ -20,7 +19,7 @@ struct PingView: View {
     @State private var showLearningGuide = false
     @State private var hoveredPoint: PingResult? = nil
     @State private var hoverLocation: CGPoint = .zero
-    @State private var chartWidth: CGFloat = 500
+    @State private var chartWidth: CGFloat = Metrics.chartDefaultWidth
 
     private var resolvedCount: String { countText.isEmpty ? "\(defaultCount)" : countText }
     private var resolvedInterval: String { intervalText.isEmpty ? String(format: "%.1f", defaultInterval) : intervalText }
@@ -28,19 +27,43 @@ struct PingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            controlBar
-            
+            PingControlBar(
+                host: $host,
+                countText: $countText,
+                intervalText: $intervalText,
+                packetSizeText: $packetSizeText,
+                infinite: $infinite,
+                beepOnLoss: $beepOnLoss,
+                vm: vm,
+                history: history,
+                onStartStop: startAction,
+                onHelp: { showLearningGuide = true },
+                onExportPDF: { Exporter.savePingPDF(results: vm.results, stats: vm.stats, host: host, resolvedIP: vm.resolvedIP) },
+                onExportCSV: {
+                    let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                    Exporter.save(string: Exporter.csvString(from: vm.results), defaultName: "NetUtil-Ping-\(host)-\(date.string(from: Date())).csv", ext: "csv")
+                }
+            )
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
                         errorBanner(err)
                     }
-                    
+
                     if !vm.results.isEmpty {
                         statsBarSection
-                        
-                        latencyHistorySection
-                        
+
+                        PingLatencyChartView(
+                            results: vm.results,
+                            stats: vm.stats,
+                            rttWarn: rttWarn,
+                            rttCrit: rttCrit,
+                            hoveredPoint: $hoveredPoint,
+                            hoverLocation: $hoverLocation,
+                            chartWidth: $chartWidth
+                        )
+
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 Picker("", selection: $showRaw) {
@@ -49,15 +72,20 @@ struct PingView: View {
                                 }
                                 .pickerStyle(.segmented)
                                 .frame(width: 200)
-                                
+
                                 Spacer()
                                 rttLegend
                             }
-                            
+
                             if showRaw {
                                 rawOutput
                             } else {
-                                resultsTable
+                                PingResultsTable(
+                                    results: vm.results,
+                                    resolvedIP: vm.resolvedIP,
+                                    rttWarn: rttWarn,
+                                    rttCrit: rttCrit
+                                )
                             }
                         }
                     } else if vm.isRunning {
@@ -81,132 +109,6 @@ struct PingView: View {
 
     // MARK: - Components
 
-    private var controlBar: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "antenna.radiowaves.left.and.right")
-                        .foregroundColor(.accentColor)
-                        .imageScale(.large)
-                    Text("Advanced Ping")
-                        .font(.headline)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Advanced Ping Tool")
-                
-                Divider().frame(height: 16).padding(.horizontal, 4)
-                
-                TextField("Hostname or IP address", text: $host)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-                    .frame(width: 250)
-                    .onSubmit(startAction)
-                    .accessibilityLabel("Host Input")
-                    .overlay(alignment: .trailing) {
-                        if !history.hosts.isEmpty {
-                            Menu {
-                                ForEach(history.hosts, id: \.self) { h in
-                                    Button(h) { host = h; startAction() }
-                                }
-                                Divider()
-                                Button("Clear History", role: .destructive) { history.clear() }
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.secondary)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 28)
-                            .padding(.trailing, 4)
-                            .accessibilityLabel("Host History")
-                        }
-                    }
-
-                Spacer()
-                
-                HStack(spacing: 12) {
-                    HStack(spacing: 8) {
-                        Toggle(isOn: $infinite) {
-                            Image(systemName: "infinity")
-                                .font(.system(size: 11, weight: .bold))
-                        }
-                        .toggleStyle(.button)
-                        .help("Infinite Ping")
-                        .accessibilityLabel("Infinite Ping Mode")
-                        
-                        Toggle(isOn: $beepOnLoss) {
-                            Image(systemName: beepOnLoss ? "speaker.wave.2.fill" : "speaker.slash.fill")
-                                .font(.system(size: 11))
-                        }
-                        .toggleStyle(.button)
-                        .help("Audio Feedback on Loss")
-                        .accessibilityLabel("Audio feedback on packet loss")
-                        
-                        if !infinite {
-                            TextField("Count", text: $countText)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 50)
-                                .help("Packet Count")
-                                .accessibilityLabel("Packet Count")
-                        }
-                        
-                        TextField("Interval", text: $intervalText)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 50)
-                            .help("Wait Interval (s)")
-                            .accessibilityLabel("Ping Interval")
-                        
-                        TextField("Size", text: $packetSizeText)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 50)
-                            .help("Payload Size (Bytes)")
-                            .accessibilityLabel("Payload Size")
-                    }
-
-                    if !vm.results.isEmpty {
-                        ReportMenuButton(
-                            onExportPDF: { Exporter.savePingPDF(results: vm.results, stats: vm.stats, host: host, resolvedIP: vm.resolvedIP) },
-                            onExportCSV: {
-                                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
-                                Exporter.save(string: Exporter.csvString(from: vm.results), defaultName: "NetUtil-Ping-\(host)-\(date.string(from: Date())).csv", ext: "csv")
-                            }
-                        )
-                    }
-
-                    Button(action: startAction) {
-                        Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
-                            .frame(minWidth: 70)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(vm.isRunning ? .red : .accentColor)
-                    .disabled(!vm.isRunning && host.isEmpty)
-                    .accessibilityLabel(vm.isRunning ? "Stop Ping" : "Start Ping")
-                    
-                    let favHost = vm.isRunning ? vm.currentHost : host
-                    if !favHost.isEmpty {
-                        let isFav = tools.favorites.isFavorite(favHost)
-                        Button { tools.favorites.toggle(host: favHost) } label: {
-                            Image(systemName: isFav ? "star.fill" : "star")
-                                .foregroundColor(isFav ? .orange : .secondary)
-                        }
-                        .buttonStyle(.borderless)
-                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
-                        .accessibilityLabel(isFav ? "Remove from Favorites" : "Add to Favorites")
-                    }
-
-                    Button { showLearningGuide = true } label: {
-                        Image(systemName: "questionmark.circle")
-                    }
-                    .buttonStyle(.borderless)
-                    .accessibilityLabel("Show Help Guide")
-                }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-
-            Divider()
-        }
-    }
-
     private var statsBarSection: some View {
         HStack(spacing: 12) {
             StatCard(title: "Transmitted", value: "\(vm.stats.transmitted)", icon: "paperplane")
@@ -225,214 +127,6 @@ struct PingView: View {
         }
     }
 
-    private var latencyHistorySection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Latency History")
-                        .font(.headline)
-                    Text("Real-time round-trip performance")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                healthStrip
-                    .accessibilityLabel("Recent health history strip")
-            }
-
-            VStack(spacing: 0) {
-                ZStack(alignment: .topLeading) {
-                    rttChart
-                        .drawingGroup()
-                        .frame(height: 160)
-                        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { chartWidth = $0 }
-
-                    if let point = hoveredPoint {
-                        let tooltipEst: CGFloat = 155
-                        let clampedX = max(0, min(hoverLocation.x - tooltipEst / 2, chartWidth - tooltipEst))
-                        HStack(spacing: 5) {
-                            Circle()
-                                .fill(point.status == .success ? rttColor(point.rtt) : Color.red)
-                                .frame(width: 6, height: 6)
-                            Text("#\(point.sequence)")
-                                .font(.system(.caption2, design: .monospaced))
-                                .foregroundColor(.secondary)
-                            if point.status == .success {
-                                Text(String(format: "%.2f ms", point.rtt))
-                                    .font(.system(.caption, design: .monospaced).weight(.semibold))
-                                    .foregroundColor(rttColor(point.rtt))
-                            } else {
-                                Text("Timeout")
-                                    .font(.system(.caption, design: .monospaced).weight(.semibold))
-                                    .foregroundColor(.red)
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
-                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 0.5))
-                        .offset(x: clampedX, y: 4)
-                        .allowsHitTesting(false)
-                        .transition(.opacity)
-                    }
-                }
-
-                Divider().padding(.vertical, 12).opacity(0.5)
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Quality Distribution")
-                        .font(.system(.caption2, design: .default).weight(.bold))
-                        .foregroundColor(.secondary)
-                    distributionBar
-                        .accessibilityLabel("RTT distribution bar")
-                }
-            }
-            .padding(20)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-        }
-    }
-
-    private var rttChart: some View {
-        let results = Array(vm.results.suffix(100))
-        let maxRtt = results.compactMap { $0.status == .success ? $0.rtt : nil }.max() ?? 50.0
-        let firstSeq = results.first?.sequence ?? 0
-        let lastSeq  = results.last?.sequence  ?? 100
-        let strideValue: Double = results.count < 50 ? 10 : results.count < 200 ? 25 : 50
-
-        return Chart {
-            ForEach(results) { r in
-                if r.status == .success {
-                    AreaMark(x: .value("P", r.sequence), y: .value("R", r.rtt))
-                        .foregroundStyle(LinearGradient(colors: [rttColor(r.rtt).opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
-                        .interpolationMethod(.monotone)
-                    LineMark(x: .value("P", r.sequence), y: .value("R", r.rtt))
-                        .foregroundStyle(rttColor(r.rtt))
-                        .lineStyle(StrokeStyle(lineWidth: 1.5, lineCap: .round))
-                        .interpolationMethod(.monotone)
-                } else {
-                    RuleMark(x: .value("P", r.sequence))
-                        .foregroundStyle(Color.red.opacity(0.3))
-                }
-            }
-            if let point = hoveredPoint {
-                RuleMark(x: .value("Cursor", point.sequence))
-                    .foregroundStyle(Color.secondary.opacity(0.35))
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
-            }
-        }
-        .chartOverlay { proxy in
-            GeometryReader { geo in
-                Rectangle()
-                    .fill(.clear)
-                    .contentShape(Rectangle())
-                    .onContinuousHover { phase in
-                        switch phase {
-                        case .active(let location):
-                            hoverLocation = location
-                            let plotOriginX = proxy.plotFrame.map { geo[$0].minX } ?? 0
-                            if let seq: Int = proxy.value(atX: location.x - plotOriginX),
-                               let match = results.min(by: { abs($0.sequence - seq) < abs($1.sequence - seq) }) {
-                                hoveredPoint = match
-                            }
-                        case .ended:
-                            hoveredPoint = nil
-                        }
-                    }
-            }
-        }
-        .chartXScale(domain: firstSeq...max(firstSeq + 1, lastSeq))
-        .chartYScale(domain: 0...max(50, maxRtt * 1.2))
-        .chartYAxis {
-            AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
-                AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
-                AxisValueLabel {
-                    if let v = value.as(Double.self) {
-                        Text("\(Int(v)) ms")
-                            .font(.system(size: 10, design: .monospaced))
-                    }
-                }
-            }
-        }
-        .chartXAxis {
-            AxisMarks(values: .stride(by: strideValue)) { value in
-                AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
-                AxisValueLabel {
-                    if let seq = value.as(Double.self) {
-                        Text("#\(Int(seq))")
-                            .font(.system(.caption2, design: .monospaced))
-                    }
-                }
-            }
-        }
-        .chartPlotStyle { plotArea in
-            plotArea.padding(.top, 10).padding(.bottom, 10)
-        }
-    }
-
-    private var resultsTable: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                tHeader("Sequence", width: 80)
-                tHeader("Status", width: 100)
-                tHeader("Latency", width: 120)
-                tHeader("Target IP", flexible: true)
-                tHeader("Timestamp", width: 120)
-            }
-            .padding(.vertical, 10).padding(.horizontal, 16)
-            .background(.regularMaterial)
-            
-            Divider()
-            
-            List {
-                ForEach(vm.results) { r in
-                    HStack(spacing: 0) {
-                        Text("\(r.sequence)")
-                            .font(.system(size: 11, design: .monospaced))
-                            .frame(width: 80, alignment: .leading)
-                            .foregroundColor(.secondary)
-                        
-                        StatusBadge(isSuccess: r.status == .success)
-                            .frame(width: 100, alignment: .leading)
-                        
-                        let rttString = r.status == .success ? String(format: "%.2f ms", r.rtt) : "—"
-                        Text(rttString)
-                            .font(.system(size: 11, design: .monospaced).weight(.bold))
-                            .frame(width: 120, alignment: .leading)
-                            .foregroundColor(rttColor(r.rtt))
-                        
-                        let ipString = r.ipAddress ?? vm.resolvedIP ?? "—"
-                        Text(ipString)
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Text(r.timestamp, format: .dateTime.hour().minute().second())
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundColor(.secondary)
-                            .frame(width: 120, alignment: .trailing)
-                    }
-                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                    .listRowSeparator(.visible, edges: .bottom)
-                }
-            }
-            .listStyle(.plain)
-            .frame(minHeight: 400)
-            .scrollContentBackground(.hidden)
-            .scrollPosition(id: .constant(vm.results.last?.id))
-        }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-    }
-
-    private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
-            .foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
-    }
-
     private func errorBanner(_ msg: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle.fill")
@@ -442,50 +136,14 @@ struct PingView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
-    }
-
-    private var healthStrip: some View {
-        let results = vm.results.suffix(60)
-        return HStack(spacing: 2) {
-            ForEach(results) { r in
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(healthColor(r))
-                    .frame(width: 3, height: 12)
-            }
-        }
-        .drawingGroup()
-    }
-
-    private func healthColor(_ r: PingResult) -> Color {
-        if r.status == .timeout { return .red }
-        if r.rtt > rttCrit { return .red }
-        if r.rtt > rttWarn { return .orange }
-        return .green
     }
 
     private func rttColor(_ rtt: Double) -> Color {
         if rtt < rttWarn { return .primary }
         if rtt < rttCrit { return .orange }
         return .red
-    }
-
-    private var distributionBar: some View {
-        GeometryReader { geo in
-            HStack(spacing: 0) {
-                distSegment(count: vm.stats.bucketLow, color: .green.opacity(0.6), total: geo.size.width)
-                distSegment(count: vm.stats.bucketMedium, color: .orange.opacity(0.8), total: geo.size.width)
-                distSegment(count: vm.stats.bucketHigh, color: .red.opacity(0.8), total: geo.size.width)
-                distSegment(count: vm.stats.bucketCritical, color: .purple.opacity(0.8), total: geo.size.width)
-            }
-        }.frame(height: 6).clipShape(Capsule())
-    }
-
-    private func distSegment(count: Int, color: Color, total: CGFloat) -> some View {
-        let ratio = CGFloat(count) / CGFloat(max(1, vm.stats.received))
-        return Rectangle().fill(color).frame(width: max(0, ratio * total))
     }
 
     private var rttLegend: some View {
@@ -526,7 +184,7 @@ struct PingView: View {
         List {
             ForEach(vm.rawLines) { line in
                 Text(line.text)
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.secondary)
             }
         }
@@ -541,18 +199,5 @@ struct PingView: View {
     private func startAction() {
         if vm.isRunning { vm.stop() }
         else { guard !host.isEmpty else { return }; history.record(host); vm.start(host: host, count: infinite ? nil : Int(resolvedCount), interval: Double(resolvedInterval) ?? defaultInterval, packetSize: resolvedPacketSize) }
-    }
-}
-
-private struct StatusBadge: View {
-    let isSuccess: Bool
-    var body: some View {
-        Text(isSuccess ? "Success" : "Timeout")
-            .font(.system(size: 10, weight: .bold))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(isSuccess ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
-            .foregroundColor(isSuccess ? .green : .red)
-            .cornerRadius(4)
     }
 }

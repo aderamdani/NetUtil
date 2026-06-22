@@ -176,7 +176,7 @@ struct NetworkInterfaceView: View {
             Spacer()
             
             VStack(alignment: .trailing, spacing: 4) {
-                Text("Last Updated").font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
+                Text("Last Updated").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                 Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
             }
@@ -225,11 +225,10 @@ private struct StatusBadge: View {
     let isConnected: Bool
     var body: some View {
         Text(isConnected ? "Connected" : "Disconnected")
-            .font(.system(size: 10, weight: .bold))
+            .font(.caption2.weight(.bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(isConnected ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
+            .background(isConnected ? Color.green.opacity(0.15) : Color.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
             .foregroundColor(isConnected ? .green : .red)
-            .cornerRadius(4)
     }
 }

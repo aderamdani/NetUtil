@@ -65,34 +65,34 @@ private struct HopRowView: View {
     var body: some View {
         HStack(spacing: 0) {
             Text("\(hop.hop)")
-                .font(.system(size: 11, design: .monospaced))
+                .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary)
                 .frame(width: 40, alignment: .leading)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(hop.displayHost)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
                 if let ip = hop.ip, ip != hop.displayHost {
                     Text(ip)
-                        .font(.system(size: 10, design: .monospaced))
+                        .font(.system(.caption2, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
             Text(String(format: "%.0f%%", hop.loss))
-                .font(.system(size: 11, design: .monospaced).weight(.bold))
+                .font(.system(.caption, design: .monospaced).weight(.bold))
                 .foregroundColor(hop.loss > 0 ? .red : .primary)
                 .frame(width: 60, alignment: .leading)
             
             Text(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "—")
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .font(.system(.caption, design: .monospaced).weight(.bold))
                 .foregroundColor(avgColor)
                 .frame(width: 80, alignment: .leading)
             
             Text(hop.jitter.map { String(format: "%.1f ms", $0) } ?? "—")
-                .font(.system(size: 11, design: .monospaced))
+                .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary)
                 .frame(width: 80, alignment: .leading)
             

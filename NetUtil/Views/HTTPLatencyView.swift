@@ -223,7 +223,7 @@ struct HTTPLatencyView: View {
                 ForEach(r.phases) { phase in
                     HStack(spacing: 12) {
                         Text(phase.phase.rawValue)
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.caption2.weight(.bold))
                             .foregroundColor(.secondary)
                             .frame(width: 70, alignment: .trailing)
                         
@@ -238,7 +238,7 @@ struct HTTPLatencyView: View {
                         .frame(height: 12)
                         
                         Text(String(format: "%.1f ms", phase.durationMs))
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.system(.caption, design: .monospaced))
                             .frame(width: 80, alignment: .trailing)
                     }
                     .accessibilityElement(children: .combine)
@@ -268,7 +268,7 @@ struct HTTPLatencyView: View {
                 ForEach(vm.history) { r in
                     HStack(spacing: 0) {
                         Text(r.timestamp.formatted(date: .omitted, time: .standard))
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.system(.caption, design: .monospaced))
                             .foregroundColor(.secondary)
                             .frame(width: 100, alignment: .leading)
                         
@@ -276,12 +276,12 @@ struct HTTPLatencyView: View {
                             .frame(width: 80, alignment: .leading)
                         
                         Text(String(format: "%.0f ms", r.totalMs))
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .font(.system(.caption, design: .monospaced).weight(.bold))
                             .foregroundColor(totalColor(r.totalMs))
                             .frame(width: 100, alignment: .leading)
                         
                         Text(r.url)
-                            .font(.system(size: 11))
+                            .font(.caption)
                             .foregroundColor(.secondary)
                             .lineLimit(1)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -320,8 +320,7 @@ struct HTTPLatencyView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
     }
 
@@ -377,12 +376,11 @@ private struct HTTPStatusBadge: View {
     let code: Int?
     var body: some View {
         Text("\(code ?? 0)")
-            .font(.system(size: 10, weight: .bold))
+            .font(.caption2.weight(.bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(color.opacity(0.15))
+            .background(color.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
             .foregroundColor(color)
-            .cornerRadius(4)
     }
     
     private var color: Color {

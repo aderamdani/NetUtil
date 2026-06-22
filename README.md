@@ -11,7 +11,7 @@
 
 <br>
 
-NetUtil is a native macOS diagnostics toolkit built with SwiftUI and Swift 6. 20 integrated network tools — Ping, Traceroute, Subnet Scanner, SSL Inspector, and more — in a symmetrical, Anti-Slop interface with zero third-party dependencies.
+NetUtil is a native macOS diagnostics toolkit built with SwiftUI and Swift 6. 19 integrated network tools — Ping, Traceroute, Subnet Scanner, SSL Inspector, and more — in a symmetrical, Anti-Slop interface with zero third-party dependencies.
 
 ## Installation
 

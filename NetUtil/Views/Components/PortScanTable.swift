@@ -24,25 +24,25 @@ struct PortScanTable: View {
                     ForEach(results) { r in
                         HStack(spacing: 0) {
                             Text("\(r.port)")
-                                .font(.system(size: 11, design: .monospaced).weight(.bold))
+                                .font(.system(.caption, design: .monospaced).weight(.bold))
                                 .frame(width: 80, alignment: .leading)
                             
                             PortStatusBadge(status: r.status)
                                 .frame(width: 100, alignment: .leading)
                             
                             Text(r.service ?? "Unknown")
-                                .font(.system(size: 11))
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                                 .frame(width: 150, alignment: .leading)
                                 .lineLimit(1)
                             
                             Text(r.responseMs.map { String(format: "%.1f ms", $0) } ?? "—")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(.caption, design: .monospaced))
                                 .foregroundColor(.secondary)
                                 .frame(width: 100, alignment: .leading)
                             
                             Text(resolvedIP ?? "—")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(.caption, design: .monospaced))
                                 .foregroundColor(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -80,12 +80,11 @@ private struct PortStatusBadge: View {
     let status: PortStatus
     var body: some View {
         Text(status.rawValue.capitalized)
-            .font(.system(size: 10, weight: .bold))
+            .font(.caption2.weight(.bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(statusColor.opacity(0.15))
+            .background(statusColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
             .foregroundColor(statusColor)
-            .cornerRadius(4)
     }
     
     private var statusColor: Color {

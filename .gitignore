@@ -1,5 +1,6 @@
 *.app
 *.dmg
+*.log
 *.xcuserstate
 .DS_Store
 .air/

@@ -145,7 +145,7 @@ struct SubnetCalculatorView: View {
                     .frame(width: 40, height: 40)
                 Text(r.ipClass)
                     .foregroundColor(.accentColor)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.subheadline.weight(.bold))
             }
             
             VStack(alignment: .leading, spacing: 2) {
@@ -194,7 +194,7 @@ struct SubnetCalculatorView: View {
                     .foregroundColor(.secondary)
                 Spacer()
                 Text("\(r.prefix) bits masked · \(32 - r.prefix) host bits")
-                    .font(.system(size: 10, design: .monospaced))
+                    .font(.system(.caption2, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             
@@ -229,9 +229,9 @@ struct SubnetDetailCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.accentColor)
+            Image(systemName: icon)
+                .font(.caption2.weight(.bold))
+                .foregroundColor(.accentColor)
                 Text(label)
                     .font(.system(.caption2, design: .default).weight(.bold))
                     .foregroundColor(.secondary)

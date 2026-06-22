@@ -65,12 +65,12 @@ struct InterfaceDetailCard: View {
     private func ifaceRow(label: String, value: String) -> some View {
         HStack(spacing: 12) {
             Text(label)
-                .font(.system(size: 10, weight: .bold))
+                .font(.caption2.weight(.bold))
                 .foregroundColor(.secondary)
                 .frame(width: 70, alignment: .leading)
             
             Text(value)
-                .font(.system(size: 11, design: .monospaced))
+                .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.primary)
                 .textSelection(.enabled)
             
@@ -81,7 +81,7 @@ struct InterfaceDetailCard: View {
                 NSPasteboard.general.setString(value, forType: .string)
             } label: {
                 Image(systemName: "doc.on.clipboard")
-                    .font(.system(size: 10))
+                    .font(.caption2)
             }
             .buttonStyle(.plain)
             .foregroundColor(.secondary.opacity(0.5))
@@ -96,11 +96,10 @@ private struct StatusBadge: View {
     let isConnected: Bool
     var body: some View {
         Text(isConnected ? "Connected" : "Disconnected")
-            .font(.system(size: 10, weight: .bold))
+            .font(.caption2.weight(.bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(isConnected ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
+            .background(isConnected ? Color.green.opacity(0.15) : Color.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
             .foregroundColor(isConnected ? .green : .red)
-            .cornerRadius(4)
     }
 }

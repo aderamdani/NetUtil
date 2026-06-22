@@ -149,7 +149,7 @@ struct RouteTableView: View {
             }
             
             VStack(alignment: .trailing, spacing: 4) {
-                Text("Last Synced").font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
+                Text("Last Synced").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                 Text(lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
             }
@@ -176,27 +176,27 @@ struct RouteTableView: View {
         Table(displayed) {
             TableColumn("Destination") { r in
                 HStack(spacing: 8) {
-                    if r.isDefault { Image(systemName: "star.fill").foregroundColor(.orange).font(.system(size: 10)) }
+                    if r.isDefault { Image(systemName: "star.fill").foregroundColor(.orange).font(.caption2) }
                     Text(r.destination)
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.system(.caption, design: .monospaced))
                         .foregroundColor(r.isDefault ? .primary : .secondary)
                         .bold(r.isDefault)
                 }
             }
             TableColumn("Gateway") { r in
                 Text(r.gateway)
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             TableColumn("Flags") { r in
                 Text(r.flags)
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.secondary)
                     .help(flagDescription(r.flags))
             }
             TableColumn("Interface") { r in
                 Text(r.netif)
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced).weight(.bold))
                     .foregroundColor(.accentColor)
             }
         }

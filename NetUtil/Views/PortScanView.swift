@@ -118,7 +118,7 @@ struct PortScanView: View {
         let progress = Double(vm.scanned) / Double(max(vm.total, 1))
         return HStack(spacing: 12) {
             Text("\(Int(progress * 100))%")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .font(.caption2.weight(.bold).monospaced())
                 .foregroundColor(.secondary)
             
             ProgressView(value: progress)
@@ -140,8 +140,7 @@ struct PortScanView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
         .accessibilityLabel("Error: \(msg)")
     }

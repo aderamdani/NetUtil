@@ -46,19 +46,19 @@ private struct TimelineHopRow: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(hop.displayHost)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .lineLimit(1)
                 Text(hop.ip ?? "—")
-                    .font(.system(size: 10, design: .monospaced))
+                    .font(.system(.caption2, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             .frame(width: 140, alignment: .leading)
             
             GeometryReader { geo in
-                let samples = Array(hop.samples.suffix(60))
-                let sw = geo.size.width / 60
+                let samples = Array(hop.samples.suffix(Metrics.healthStripWindow))
+                let sw = geo.size.width / CGFloat(Metrics.healthStripWindow)
                 HStack(spacing: 0) {
-                    ForEach(0..<60) { i in
+                    ForEach(Array(0..<Metrics.healthStripWindow), id: \.self) { i in
                         let s = i < samples.count ? samples[i] : nil
                         Rectangle()
                             .fill(sampleColor(s))
@@ -72,7 +72,7 @@ private struct TimelineHopRow: View {
             .frame(maxWidth: .infinity, minHeight: 24)
             
             Text(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "—")
-                .font(.system(size: 10, design: .monospaced))
+                .font(.system(.caption2, design: .monospaced))
                 .foregroundColor(.secondary)
                 .frame(width: 60, alignment: .trailing)
         }

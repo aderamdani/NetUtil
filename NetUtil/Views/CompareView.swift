@@ -306,9 +306,9 @@ struct CompareView: View {
 
                 ForEach(Array(rows.enumerated()), id: \.offset) { idx, row in
                     HStack(spacing: 0) {
-                        Text(row.0).font(.system(size: 11, design: .monospaced)).frame(maxWidth: .infinity, alignment: .leading)
-                        Text(row.1).font(.system(size: 11, design: .monospaced)).foregroundColor(row.3 == .red ? .primary : .primary).frame(width: 160, alignment: .leading)
-                        Text(row.2).font(.system(size: 11, design: .monospaced)).foregroundColor(row.3 ?? .primary).frame(width: 160, alignment: .leading)
+                        Text(row.0).font(.system(.caption, design: .monospaced)).frame(maxWidth: .infinity, alignment: .leading)
+                        Text(row.1).font(.system(.caption, design: .monospaced)).foregroundColor(row.3 == .red ? .primary : .primary).frame(width: 160, alignment: .leading)
+                        Text(row.2).font(.system(.caption, design: .monospaced)).foregroundColor(row.3 ?? .primary).frame(width: 160, alignment: .leading)
                     }
                     .padding(.horizontal, 16).padding(.vertical, 8)
                     .background(idx % 2 == 0 ? Color.clear : Color.secondary.opacity(0.03))
