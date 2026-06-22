@@ -11,11 +11,21 @@ final class NetworkInterfaceViewModel {
 
     private var timer: AnyCancellable?
 
-    init() {
-        refresh()
-        timer = Timer.publish(every: 3, on: .main, in: .common)
+    static let normalInterval: TimeInterval = 3
+    static let backgroundInterval: TimeInterval = 15
+
+    init() { refresh(); start() }
+
+    func start(interval: TimeInterval = 3) {
+        guard timer == nil else { return }
+        timer = Timer.publish(every: interval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in self?.refresh() }
+    }
+
+    func stop() {
+        timer?.cancel()
+        timer = nil
     }
 
     func refresh() {

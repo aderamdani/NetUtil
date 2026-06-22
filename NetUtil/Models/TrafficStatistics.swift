@@ -37,11 +37,18 @@ final class TrafficStatistics {
     private var isDirty = false
     private var saveTimer: Timer?
 
-    init() { 
-        load()
+    init() { load(); start() }
+
+    func start() {
+        guard saveTimer == nil else { return }
         saveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in self?.periodicSave() }
         }
+    }
+
+    func stop() {
+        saveTimer?.invalidate()
+        saveTimer = nil
     }
 
     /// Called every second by ToolStore's BandwidthMonitor with the latest aggregate sample.

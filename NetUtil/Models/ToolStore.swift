@@ -2,6 +2,7 @@ import Foundation
 import Observation
 import SystemConfiguration
 import CoreWLAN
+import AppKit
 
 @MainActor
 @Observable
@@ -43,6 +44,46 @@ final class ToolStore {
         bandwidth.start()
         wireSessionLogging()
         refreshGlobalStatus()
+        observeActivationPolicy()
+    }
+
+    /// Stops all app-lifetime pollers to save battery when no window is visible.
+    func pauseMonitoring() {
+        bandwidth.stop()
+        system.stop()
+        statistics.stop()
+        interfaces.stop()
+    }
+
+    /// Restarts pollers. Pass `reduced: true` for accessory/menu-bar mode.
+    func resumeMonitoring(reduced: Bool = false) {
+        if reduced {
+            bandwidth.backgroundInterval = 10.0
+            bandwidth.start()
+            system.start(interval: 10)
+            statistics.start()
+            interfaces.start(interval: 15)
+        } else {
+            bandwidth.backgroundInterval = 5.0
+            bandwidth.start()
+            system.start()
+            statistics.start()
+            interfaces.start()
+        }
+    }
+
+    private func observeActivationPolicy() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleActivationPolicyChange),
+            name: .init("netutil.activationPolicyChanged"),
+            object: nil
+        )
+    }
+
+    @objc private func handleActivationPolicyChange() {
+        pauseMonitoring()
+        resumeMonitoring(reduced: NSApp.activationPolicy() != .regular)
     }
 
     private func wireSessionLogging() {

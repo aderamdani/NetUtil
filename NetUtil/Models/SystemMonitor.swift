@@ -15,6 +15,9 @@ final class SystemMonitor {
     @ObservationIgnored private var lastCpuInfo: processor_info_array_t?
     @ObservationIgnored private var lastCpuInfoCount: mach_msg_type_number_t = 0
 
+    static let normalInterval: TimeInterval = 2
+    static let backgroundInterval: TimeInterval = 10
+
     init() {
         var size: UInt64 = 0
         var len = MemoryLayout<UInt64>.size
@@ -23,9 +26,9 @@ final class SystemMonitor {
         start()
     }
     
-    func start() {
+    func start(interval: TimeInterval = 2) {
         guard timer == nil else { return }
-        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.updateStats()
             }
