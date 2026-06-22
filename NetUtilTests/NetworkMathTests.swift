@@ -111,8 +111,8 @@ final class NetworkMathTests: XCTestCase {
 
     func testFormatBytes() {
         XCTAssertEqual(NetworkMath.formatBytes(500), "500 B")
-        XCTAssertEqual(NetworkMath.formatBytes(1024), "1.0 KB")
-        XCTAssertEqual(NetworkMath.formatBytes(1_048_576), "1.0 MB")
+        XCTAssertEqual(NetworkMath.formatBytes(1024), "1.00 KB")
+        XCTAssertEqual(NetworkMath.formatBytes(1_048_576), "1.00 MB")
         XCTAssertEqual(NetworkMath.formatBytes(1_073_741_824), "1.00 GB")
         XCTAssertEqual(NetworkMath.formatBytes(1_099_511_627_776), "1.00 TB")
     }
