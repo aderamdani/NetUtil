@@ -4,11 +4,17 @@ All notable changes to NetUtil are documented here.
 
 ---
 
-## [4.6.4] — 2026-06-01
+## [4.7.0] — 2026-06-22
+
+### Added
+- **Liquid Glass**: Adopted Apple's Liquid Glass design system (macOS 26+ Tahoe).
+  - Migrated custom container backgrounds to `.glassEffect(in: .rect(cornerRadius: N))` on all BentoCards, StatCards, healthGauge, PingResultsTable, rawOutput, and chart tooltips.
+  - Wrapped adjacent glass views in `GlassEffectContainer` for unified blur/refraction blending across dashboard card grids and Ping control bar.
+  - Upgraded primary Start/Stop buttons to `.glassProminent` style across all tool views.
+- **Typography**: Extracted remaining `.font(.system(size:))` literals into named `Metrics` constants.
 
 ### Fixed
-- **Stability**: Resolved critical crash on launch related to `MenuBarExtra` environment initialization. Added missing environment object injection for `ToolStore` and `MenuBarViewModel` in the status bar label scope.
-- **Performance**: Consolidated all optimizations to ensure idle CPU usage stays under 5%.
+- **Exporter**: Replaced force-unwrap on `NSAppearance(named: .aqua)` with safe `guard let` fallback (AGENTS.md compliance).
   - Eliminated high-frequency `UserDefaults` writes (2-3 writes/sec).
   - Cached expensive system API calls (`SCNetworkInterfaceCopyAll`, `CWWiFiClient.ssid`) in `ToolStore`.
   - Optimized `DashboardHeroSection` chart and disabled automatic Menu Bar ping on launch.
