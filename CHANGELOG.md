@@ -4,6 +4,20 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.7.1] — 2026-06-22
+
+### Added
+- **Subnet Calculator**: PDF/CSV export via unified ReportMenuButton (was missing).
+- **WhoisViewModel**: Extracted to dedicated file (`ViewModels/WhoisViewModel.swift`).
+
+### Fixed
+- **Battery**: DashboardView now stops Wi-Fi polling (`tools.wifi.stop()`) on `.onDisappear` — was running 2s timer while user browsed other tools.
+- **Dead Code**: Removed 4 orphaned files (`GuideComponents`, `SSLWatchlistView`, `IPAddressDetails` + its test), 20 stale `import Combine` statements, unused `menuBarCurrentRTT` property, empty `SSLWatchlist.checkAll()` stub.
+- **UI Polish**: MultiPing control bar now wraps settings in `GlassEffectContainer` with `.borderless` secondary buttons. Subnet Calculator control bar follows same pattern.
+- **Liquid Glass**: Final 3 `.borderedProminent` buttons (ImportHostsSheet, TracerouteView Done, AboutView) migrated to `.glassProminent`.
+
+---
+
 ## [4.7.0] — 2026-06-22
 
 ### Added
