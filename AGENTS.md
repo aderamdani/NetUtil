@@ -1,6 +1,6 @@
 # NetUtil — Agent Instructions
 
-Native macOS network diagnostics toolkit. SwiftUI, Swift 6, macOS 15+. Zero third-party dependencies.
+Native macOS network diagnostics toolkit. SwiftUI, Swift 6, macOS 26+. Zero third-party dependencies.
 
 ## Build & Run
 

@@ -157,7 +157,7 @@ struct MultiPingView: View {
                         Label("Add Host", systemImage: "plus")
                             .frame(minWidth: 80)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
                     .accessibilityLabel("Add Host to Monitor")
 

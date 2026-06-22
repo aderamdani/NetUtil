@@ -27,7 +27,7 @@ struct StatCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .glassEffect(in: .rect(cornerRadius: 10))
         .accessibilityElement(children: .combine)
     }
 }

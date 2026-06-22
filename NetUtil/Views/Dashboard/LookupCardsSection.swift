@@ -8,9 +8,11 @@ struct LookupCardsSection: View {
         VStack(alignment: .leading, spacing: 16) {
             sectionHeader("Infrastructure Lookup", icon: "magnifyingglass.circle.fill")
 
-            HStack(spacing: 12) {
-                whoisCard
-                subnetCard
+            GlassEffectContainer {
+                HStack(spacing: 12) {
+                    whoisCard
+                    subnetCard
+                }
             }
         }
     }

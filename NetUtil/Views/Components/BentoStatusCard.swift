@@ -31,8 +31,7 @@ struct BentoStatusCard: View {
             }
             .padding(14)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(isHovered ? color.opacity(0.3) : Color(.separatorColor).opacity(0.1), lineWidth: 1))
+            .glassEffect(in: .rect(cornerRadius: 12))
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isHovered)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(title) Diagnostic Card")
