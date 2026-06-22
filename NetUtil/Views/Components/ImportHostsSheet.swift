@@ -53,7 +53,7 @@ struct ImportHostsSheet: View {
                     onImport(detectedHosts)
                     dismiss()
                 }
-                .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                 .disabled(detectedHosts.isEmpty)
             }
             .padding(16)
