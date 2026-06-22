@@ -1,5 +1,4 @@
 import SwiftUI
-import AppKit
 
 struct SubnetScanView: View {
     @Binding var selection: Tool?

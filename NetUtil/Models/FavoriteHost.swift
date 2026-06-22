@@ -1,6 +1,6 @@
 import Foundation
-import SwiftUI
 import Observation
+import SwiftUI
 
 struct FavoriteHost: Codable, Identifiable {
     let id: UUID

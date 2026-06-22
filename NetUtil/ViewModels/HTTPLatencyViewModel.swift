@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 import Observation
 
 private final class MetricsDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {

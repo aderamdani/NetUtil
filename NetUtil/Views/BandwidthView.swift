@@ -1,6 +1,5 @@
 import SwiftUI
 import Charts
-import Darwin
 import Observation
 
 struct BandwidthView: View {
