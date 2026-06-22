@@ -28,18 +28,18 @@ enum Tool: String, CaseIterable, Identifiable {
         case .dashboard:    "square.grid.2x2"
         case .ping:         "antenna.radiowaves.left.and.right"
         case .traceroute:   "point.3.connected.trianglepath.dotted"
-        case .dns:          "globe"
+        case .multiPing:    "dot.radiowaves.left.and.right"
         case .portScan:     "checklist"
         case .subnetScan:   "network.badge.shield.half.filled"
-        case .interfaces:   "network"
         case .httpLatency:  "stopwatch"
-        case .multiPing:    "dot.radiowaves.left.and.right"
-        case .wifi:         "wifi"
-        case .routes:       "arrow.triangle.branch"
+        case .subnet:       "number.square"
+        case .dns:          "globe"
         case .ssl:          "lock.shield"
         case .whois:        "magnifyingglass.circle"
         case .bandwidth:    "chart.bar.xaxis"
-        case .subnet:       "number.square"
+        case .interfaces:   "network"
+        case .wifi:         "wifi"
+        case .routes:       "arrow.triangle.branch"
         case .statistics:   "chart.line.uptrend.xyaxis"
         case .speedTest:      "speedometer"
         case .sessionHistory: "clock.arrow.circlepath"
@@ -58,7 +58,16 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnet:      "7"
         case .dns:         "8"
         case .ssl:         "9"
-        default:           nil
+        case .subnetScan:  nil
+        case .whois:       nil
+        case .bandwidth:   nil
+        case .interfaces:  nil
+        case .wifi:        nil
+        case .routes:      nil
+        case .statistics:  nil
+        case .speedTest:   nil
+        case .sessionHistory: nil
+        case .compare:     nil
         }
     }
 }
@@ -83,10 +92,10 @@ struct ContentView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.caption2.weight(.bold))
                     TextField("Search history... (⌘F)", text: $searchText)
                         .textFieldStyle(.plain)
-                        .font(.system(size: 12))
+                        .font(.subheadline)
                         .focused($isSearchFocused)
                     if !searchText.isEmpty {
                         Button { searchText = "" } label: {

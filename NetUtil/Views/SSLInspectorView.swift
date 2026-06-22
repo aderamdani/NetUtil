@@ -216,9 +216,9 @@ struct SSLInspectorView: View {
                     } label: {
                         VStack(spacing: 4) {
                             Text(cert.isLeaf ? "End-Entity" : (i == result.chain.count - 1 ? "Root" : "Intermediate"))
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.caption.weight(.bold))
                             Text(cert.subject.components(separatedBy: "CN=").last?.components(separatedBy: ",").first ?? cert.subject)
-                                .font(.system(size: 10))
+                                .font(.caption2)
                                 .lineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
@@ -274,11 +274,10 @@ struct SSLInspectorView: View {
                     FlowLayout(spacing: 8) {
                         ForEach(cert.sans, id: \.self) { san in
                             Text(san)
-                                .font(.system(size: 10, design: .monospaced))
+                                .font(.system(.caption2, design: .monospaced))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(Color.secondary.opacity(0.1))
-                                .cornerRadius(4)
+                                .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 4))
                         }
                     }
                 }
@@ -307,7 +306,7 @@ struct SSLInspectorView: View {
     private func kv(_ label: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.system(size: 10, weight: .bold))
+                .font(.caption2.weight(.bold))
                 .foregroundColor(.secondary)
             Text(value)
                 .font(.system(.subheadline, design: .monospaced))
@@ -327,8 +326,7 @@ struct SSLInspectorView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
     }
 

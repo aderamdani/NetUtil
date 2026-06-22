@@ -50,8 +50,7 @@ struct MenuBarView: View {
                         .foregroundColor(.green)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.12))
-                        .cornerRadius(4)
+                        .background(Color.green.opacity(0.12), in: RoundedRectangle(cornerRadius: 4))
                 }
                 if let iface = primaryInterface {
                     HStack(spacing: 4) {
@@ -85,8 +84,8 @@ struct MenuBarView: View {
             Button {
                 NSApplication.showMainWindow()
             } label: {
-                Image(systemName: "macwindow")
-                    .font(.system(size: 13))
+            Image(systemName: "macwindow")
+                .font(.subheadline)
             }
             .buttonStyle(.borderless)
             .help("Open NetUtil")
@@ -95,7 +94,7 @@ struct MenuBarView: View {
 
             SettingsLink {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 13))
+                    .font(.subheadline)
             }
             .buttonStyle(.borderless)
             .foregroundStyle(.secondary)
@@ -107,7 +106,7 @@ struct MenuBarView: View {
                 Updater.shared.checkForUpdates(interactive: true)
             } label: {
                 Image(systemName: "arrow.triangle.2.circlepath")
-                    .font(.system(size: 13))
+                    .font(.subheadline)
             }
             .buttonStyle(.borderless)
             .foregroundStyle(.secondary)
@@ -119,7 +118,7 @@ struct MenuBarView: View {
                 NSApp.terminate(nil)
             } label: {
                 Image(systemName: "power")
-                    .font(.system(size: 13))
+                    .font(.subheadline)
             }
             .buttonStyle(.borderless)
             .foregroundStyle(.red)

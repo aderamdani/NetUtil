@@ -193,17 +193,17 @@ struct WhoisView: View {
                     HStack(alignment: .top, spacing: 0) {
                         if let label = line.label {
                             Text(label)
-                                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                .font(.system(.caption, design: .monospaced).weight(.bold))
                                 .foregroundColor(.accentColor)
                                 .frame(width: 180, alignment: .leading)
                             
                             Text(line.value ?? "")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(.caption, design: .monospaced))
                                 .textSelection(.enabled)
                                 .foregroundColor(.primary)
                         } else {
                             Text(line.raw)
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(.caption, design: .monospaced))
                                 .foregroundColor(line.raw.hasPrefix("%") || line.raw.hasPrefix("#") ? .secondary : .primary)
                                 .textSelection(.enabled)
                         }
@@ -238,8 +238,7 @@ struct WhoisView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
     }
 

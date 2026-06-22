@@ -27,10 +27,10 @@ struct HelpView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.caption.weight(.bold))
                     TextField("Search help...", text: $search)
                         .textFieldStyle(.plain)
-                        .font(.system(size: 12))
+                        .font(.subheadline)
                     if !search.isEmpty {
                         Button { search = "" } label: {
                             Image(systemName: "xmark.circle.fill")
@@ -67,7 +67,7 @@ struct HelpView: View {
                     // Section Header
                     HStack(spacing: 16) {
                         Image(systemName: section.icon)
-                            .font(.system(size: 24))
+                            .font(.title)
                             .foregroundColor(.accentColor)
                             .frame(width: 44, height: 44)
                             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
@@ -127,19 +127,18 @@ struct HelpView: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: section.icon)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundColor(isSelected ? .white : .accentColor)
                     .frame(width: 20)
                 Text(section.title)
-                    .font(.system(size: 13, weight: isSelected ? .bold : .medium))
+                    .font(.subheadline.weight(isSelected ? .bold : .medium))
                     .foregroundColor(isSelected ? .white : .primary)
                 Spacer()
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .contentShape(Rectangle())
-            .background(isSelected ? Color.accentColor : Color.clear)
-            .cornerRadius(8)
+            .background(isSelected ? Color.accentColor : Color.clear, in: RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
     }
@@ -174,7 +173,7 @@ struct HelpView: View {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "lightbulb.fill")
                                 .foregroundColor(.orange)
-                                .font(.system(size: 10))
+                                .font(.caption2)
                                 .padding(.top, 3)
                             Text(tip)
                                 .font(.subheadline)

@@ -138,7 +138,7 @@ struct TracerouteView: View {
                     .font(.system(.caption, design: .default).weight(.bold))
                     .foregroundColor(.secondary)
                 Spacer()
-                Button { selectedHopID = nil } label: { Image(systemName: "xmark").font(.system(size: 10)) }.buttonStyle(.plain).foregroundColor(.secondary)
+                Button { selectedHopID = nil } label: { Image(systemName: "xmark").font(.caption2) }.buttonStyle(.plain).foregroundColor(.secondary)
                     .accessibilityLabel("Close Detail")
             }
             
@@ -177,7 +177,7 @@ struct TracerouteView: View {
             LazyVStack(alignment: .leading, spacing: 4) {
                 ForEach(vm.rawLines) { line in
                     Text(line.text)
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.system(.caption, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }
@@ -203,8 +203,7 @@ struct TracerouteView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
         .accessibilityLabel("Error: \(msg)")
     }
@@ -251,8 +250,8 @@ private struct StatCardMini: View {
     let value: String
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
-            Text(value).font(.system(size: 11, weight: .bold, design: .monospaced))
+            Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
+            Text(value).font(.system(.caption, design: .monospaced).weight(.bold))
         }
         .padding(.horizontal, 10).padding(.vertical, 6)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))

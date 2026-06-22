@@ -29,7 +29,7 @@ struct GeneralPane: View {
                 LabeledContent("Auto-Stop on Loss") {
                     Stepper(autoStopLimit == 0 ? "Disabled" : "\(autoStopLimit) timeouts",
                             value: $autoStopLimit, in: 0...50)
-                        .frame(width: 155)
+                        .frame(width: Metrics.settingsColumnWidth)
                 }
                 .help("Automatically stop the ping session after this many consecutive timeouts. Set to 0 to disable auto-stop.")
                 .accessibilityLabel("Auto-Stop on Loss Threshold")

@@ -18,7 +18,7 @@ struct ToolsPane: View {
 
                 LabeledContent("Concurrency") {
                     Stepper("\(portScanConc) threads", value: $portScanConc, in: 1...200)
-                        .frame(width: 155)
+                        .frame(width: Metrics.settingsColumnWidth)
                 }
                 .help("Number of simultaneous TCP probes. Higher values finish scans faster but are more aggressive and may trigger intrusion detection on the target.")
                 .accessibilityLabel("Port Scan Concurrency Threads")

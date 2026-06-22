@@ -210,12 +210,12 @@ struct DNSView: View {
                     ForEach(res.records) { r in
                         HStack(spacing: 0) {
                             Text(r.name)
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(.caption, design: .monospaced))
                                 .foregroundColor(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
                             Text("\(r.ttl)")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(.caption, design: .monospaced))
                                 .foregroundColor(.secondary)
                                 .frame(width: 80, alignment: .leading)
                             
@@ -223,7 +223,7 @@ struct DNSView: View {
                                 .frame(width: 80, alignment: .leading)
                             
                             Text(r.value)
-                                .font(.system(size: 11, design: .monospaced).weight(.medium))
+                                .font(.system(.caption, design: .monospaced).weight(.medium))
                                 .textSelection(.enabled)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -245,7 +245,7 @@ struct DNSView: View {
     private var rawOutput: some View {
         ScrollView {
             Text(vm.rawOutput)
-                .font(.system(size: 11, design: .monospaced))
+                .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary)
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -273,8 +273,7 @@ struct DNSView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.red.opacity(0.1))
-        .cornerRadius(8)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
     }
 
@@ -316,12 +315,11 @@ private struct DNSTypeBadge: View {
     let type: String
     var body: some View {
         Text(type)
-            .font(.system(size: 10, weight: .bold))
+            .font(.caption2.weight(.bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(color.opacity(0.15))
+            .background(color.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
             .foregroundColor(color)
-            .cornerRadius(4)
     }
     
     private var color: Color {

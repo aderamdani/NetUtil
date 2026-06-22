@@ -22,7 +22,7 @@ struct MultiPingSlotRow: View {
             HStack(spacing: 0) {
                 TextField("Alias", text: $slot.customName)
                     .textFieldStyle(.plain)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .frame(width: 140, alignment: .leading)
                     .focused($isNameFocused)
                     .onSubmit { isNameFocused = false; onCommitRename() }
@@ -35,12 +35,12 @@ struct MultiPingSlotRow: View {
                         .opacity(slot.isRunning ? 1 : 0.3)
                     
                     Text(slot.host)
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(.system(.callout, design: .monospaced))
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                     
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.caption2.weight(.bold))
                         .foregroundColor(.secondary.opacity(0.5))
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
@@ -52,28 +52,28 @@ struct MultiPingSlotRow: View {
                 .accessibilityHint("Tap to toggle detailed chart")
 
                 Text("\(slot.sent)")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced))
                     .frame(width: 60, alignment: .leading)
                     .foregroundColor(.secondary)
                     .accessibilityLabel("Packets Sent")
                     .accessibilityValue("\(slot.sent)")
                 
                 Text(String(format: "%.0f%%", slot.loss))
-                    .font(.system(size: 11, design: .monospaced).weight(.bold))
+                    .font(.system(.caption, design: .monospaced).weight(.bold))
                     .foregroundColor(slot.loss > 0 ? .red : .primary)
                     .frame(width: 70, alignment: .leading)
                     .accessibilityLabel("Packet Loss")
                     .accessibilityValue(String(format: "%.0f percent", slot.loss))
                 
                 Text(slot.lastRtt.map { String(format: "%.1f", $0) } ?? "—")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced))
                     .foregroundColor(slot.lastRtt.map { rttColor($0) } ?? .secondary)
                     .frame(width: 80, alignment: .leading)
                     .accessibilityLabel("Last Latency")
                     .accessibilityValue(slot.lastRtt.map { String(format: "%.1f ms", $0) } ?? "Unknown")
                 
                 Text(slot.avgRtt.map { String(format: "%.1f", $0) } ?? "—")
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .font(.system(.caption, design: .monospaced).weight(.bold))
                     .foregroundColor(slot.avgRtt.map { rttColor($0) } ?? .secondary)
                     .frame(width: 80, alignment: .leading)
                     .accessibilityLabel("Average Latency")
@@ -173,7 +173,7 @@ struct MultiPingSlotRow: View {
                     AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
                     AxisValueLabel {
                         if let ms = val.as(Double.self) {
-                            Text("\(Int(ms)) ms").font(.system(size: 10, design: .monospaced))
+                            Text("\(Int(ms)) ms").font(.system(.caption2, design: .monospaced))
                         }
                     }
                 }
@@ -195,7 +195,7 @@ struct MultiPingSlotRow: View {
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { expandedChartWidth = $0 }
 
             if let s = hoveredSample {
-                let tooltipEst: CGFloat = 130
+                let tooltipEst: CGFloat = Metrics.tooltipEstimateNarrow
                 let clampedX = max(0, min(hoverLocation.x - tooltipEst / 2, expandedChartWidth - tooltipEst))
                 HStack(spacing: 5) {
                     Circle()
@@ -226,9 +226,9 @@ struct MultiPingSlotRow: View {
     }
 
     private var healthStrip: some View {
-        let history = Array(slot.samples.suffix(40))
+        let history = Array(slot.samples.suffix(Metrics.sparklineWindow))
         return HStack(spacing: 1.5) {
-            ForEach(0..<40) { i in
+            ForEach(Array(0..<Metrics.sparklineWindow), id: \.self) { i in
                 RoundedRectangle(cornerRadius: 1)
                     .fill(i < history.count ? hColor(history[i]) : Color.secondary.opacity(0.1))
                     .frame(width: 2.5, height: 14)

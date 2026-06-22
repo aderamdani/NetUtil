@@ -13,7 +13,7 @@ struct AboutToolGrid: View {
                 ForEach(Array(tools.enumerated()), id: \.element.1) { index, tool in
                     HStack(spacing: 12) {
                         Image(systemName: tool.0)
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundColor(.accentColor)
                             .frame(width: 24)
                         

@@ -144,7 +144,7 @@ struct StatisticsView: View {
                 Spacer()
                 if let s = bw.totalHistory.last {
                     Text("Current: ↓ \(NetworkMath.formatRate(s.rxBps)) · ↑ \(NetworkMath.formatRate(s.txBps))")
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.system(.caption, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }
@@ -173,7 +173,7 @@ struct StatisticsView: View {
                         AxisValueLabel {
                             if let v = value.as(Double.self) {
                                 Text(NetworkMath.formatRate(v))
-                                    .font(.system(size: 10, design: .monospaced))
+                                    .font(.system(.caption2, design: .monospaced))
                             }
                         }
                         AxisGridLine()
@@ -214,7 +214,7 @@ struct StatisticsView: View {
                     
                     if !stats.dailyTotals.isEmpty {
                         Text("Avg: ↓ \(NetworkMath.formatBytes(stats.averageDailyRx)) · ↑ \(NetworkMath.formatBytes(stats.averageDailyTx))")
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.system(.caption, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -259,7 +259,7 @@ struct StatisticsView: View {
                             AxisValueLabel {
                                 if let s = val.as(String.self) {
                                     Text(shortDate(s))
-                                        .font(.system(size: 10))
+                                        .font(.caption2)
                                 }
                             }
                         }
@@ -269,7 +269,7 @@ struct StatisticsView: View {
                             AxisValueLabel {
                                 if let v = value.as(Double.self) {
                                     Text(NetworkMath.formatBytes(UInt64(v)))
-                                        .font(.system(size: 10, design: .monospaced))
+                                        .font(.system(.caption2, design: .monospaced))
                                 }
                             }
                             AxisGridLine()
@@ -328,16 +328,16 @@ struct StatisticsView: View {
                 ForEach(filtered.reversed()) { day in
                     HStack(spacing: 0) {
                         Text(day.dateKey)
-                            .font(.system(size: 12, design: .monospaced))
+                            .font(.system(.callout, design: .monospaced))
                             .frame(width: 120, alignment: .leading)
                         
                         Text(NetworkMath.formatBytes(day.rxBytes))
-                            .font(.system(size: 12, weight: .medium, design: .monospaced))
+                            .font(.system(.callout, design: .monospaced).weight(.medium))
                             .foregroundColor(.blue)
                             .frame(width: 140, alignment: .leading)
                         
                         Text(NetworkMath.formatBytes(day.txBytes))
-                            .font(.system(size: 12, weight: .medium, design: .monospaced))
+                            .font(.system(.callout, design: .monospaced).weight(.medium))
                             .foregroundColor(.orange)
                             .frame(width: 140, alignment: .leading)
                         
@@ -373,7 +373,7 @@ struct StatisticsView: View {
                 Rectangle().fill(Color.blue).frame(width: geo.size.width * rxWidth)
                 Rectangle().fill(Color.orange)
             }
-            .cornerRadius(2)
+            .clipShape(RoundedRectangle(cornerRadius: 2))
         }
         .frame(height: 4)
         .frame(maxWidth: 200)

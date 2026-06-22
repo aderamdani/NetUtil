@@ -75,7 +75,7 @@ struct SessionHistoryView: View {
                 Divider().frame(height: 16).padding(.horizontal, 4)
 
                 HStack(spacing: 6) {
-                    Image(systemName: "magnifyingglass").foregroundColor(.secondary).font(.system(size: 11))
+                    Image(systemName: "magnifyingglass").foregroundColor(.secondary).font(.caption)
                     TextField("Filter by host...", text: $searchText)
                         .textFieldStyle(.plain)
                         .font(.subheadline)
@@ -217,7 +217,7 @@ private struct SessionRecordRow: View {
             Image(systemName: toolIcon(record.tool))
                 .foregroundColor(statusColor)
                 .frame(width: 20)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 8) {
@@ -249,11 +249,10 @@ private struct SessionRecordRow: View {
 
     private var statusBadge: some View {
         Text(record.status.rawValue.capitalized)
-            .font(.system(size: 10, weight: .bold))
+            .font(.caption2.weight(.bold))
             .padding(.horizontal, 5).padding(.vertical, 2)
-            .background(statusColor.opacity(0.15))
+            .background(statusColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
             .foregroundColor(statusColor)
-            .cornerRadius(4)
     }
 
     private func toolIcon(_ key: String) -> String {

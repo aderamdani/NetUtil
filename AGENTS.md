@@ -42,7 +42,6 @@ SwiftUI, Swift Charts, Network.framework (TCP/UDP), CoreWLAN (Wi-Fi), Darwin API
 | Bandwidth | — | `getifaddrs()` |
 | Statistics | — | `UserDefaults` (90-day) |
 | Speed Test | SpeedTestViewModel | Cloudflare API |
-| Top Processes | TopProcessesViewModel | `/usr/bin/top` |
 | Interfaces | NetworkInterfaceViewModel | `getifaddrs()` |
 | Wi-Fi | — | `CoreWLAN.CWWiFiClient` |
 | Routes | — | `/usr/sbin/netstat -rn` |
@@ -82,7 +81,6 @@ Must match `ContentView.swift` Tool enum exactly:
 ("chart.bar.xaxis",                        "Bandwidth"),
 ("chart.line.uptrend.xyaxis",              "Statistics"),
 ("speedometer",                            "Speed Test"),
-("list.bullet.rectangle",                  "Top Processes"),
 ("network",                                "Interfaces"),
 ("wifi",                                   "Wi-Fi"),
 ("arrow.triangle.branch",                  "Routes"),

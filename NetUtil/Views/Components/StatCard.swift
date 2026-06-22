@@ -19,7 +19,7 @@ struct StatCard: View {
                     .foregroundColor(color)
                 if let unit {
                     Text(unit)
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.system(.caption, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }

@@ -15,7 +15,7 @@ struct TracerouteMapView: View {
                             .frame(width: 12, height: 12)
                             .shadow(radius: 2)
                         Text("\(hop.hop)")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.caption2.weight(.bold))
                             .foregroundColor(.white)
                     }
                 }

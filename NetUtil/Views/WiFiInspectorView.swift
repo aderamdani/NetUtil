@@ -58,9 +58,9 @@ struct WiFiInspectorView: View {
                 
                 HStack(spacing: 16) {
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("Interface").font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
+                        Text("Interface").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                         Text(vm.info?.interfaceName ?? "en0")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .font(.system(.caption, design: .monospaced).weight(.bold))
                     }
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel("Network Interface: \(vm.info?.interfaceName ?? "en0")")
@@ -138,7 +138,7 @@ struct WiFiInspectorView: View {
             Spacer()
             
             VStack(alignment: .trailing, spacing: 4) {
-                Text("Last Polled").font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)
+                Text("Last Polled").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                 Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
             }
@@ -185,7 +185,7 @@ struct WiFiInspectorView: View {
                     AxisValueLabel {
                         if let v = value.as(Double.self) {
                             Text("\(Int(v)) dBm")
-                                .font(.system(size: 10, design: .monospaced))
+                                .font(.system(.caption2, design: .monospaced))
                         }
                     }
                 }
@@ -251,9 +251,9 @@ struct WiFiDetailCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.accentColor)
+            Image(systemName: icon)
+                .font(.caption2.weight(.bold))
+                .foregroundColor(.accentColor)
                 Text(label)
                     .font(.system(.caption2, design: .default).weight(.bold))
                     .foregroundColor(.secondary)
