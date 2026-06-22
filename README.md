@@ -4,7 +4,7 @@
   <p><b>Professional macOS Network Diagnostics Toolkit</b></p>
 
   [![Latest Release](https://img.shields.io/github/v/release/aderamdani/NetUtil?style=flat-square&color=007AFF)](https://github.com/aderamdani/NetUtil/releases)
-  [![Platform](https://img.shields.io/badge/platform-macOS%2015%2B-lightgrey?style=flat-square&logo=apple)](https://developer.apple.com/macos/)
+  [![Platform](https://img.shields.io/badge/platform-macOS%2026%2B-lightgrey?style=flat-square&logo=apple)](https://developer.apple.com/macos/)
   [![Language](https://img.shields.io/badge/language-Swift%206-orange?style=flat-square&logo=swift)](https://swift.org)
   [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 </div>
