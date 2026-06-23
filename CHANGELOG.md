@@ -4,6 +4,13 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.7.3] — 2026-06-23
+
+### Fixed
+- **Performance**: Ping-infinite CPU reduced (~138% → target <40%) by throttling chart data to 5fps, using verbatim Text for axis labels, replacing glassEffect with regularMaterial on the hover tooltip, and deduplicating geometry-triggered chartWidth updates.
+
+---
+
 ## [4.7.2] — 2026-06-23
 
 ### Added

@@ -2,7 +2,10 @@ import SwiftUI
 import Charts
 
 struct PingLatencyChartView: View {
+    /// Full result set (for health strip / distribution bar — cheap views)
     let results: [PingResult]
+    /// Throttled snapshot for the chart body — avoids per-frame full redraw
+    let chartData: [PingResult]
     let stats: PingStats
     let rttWarn: Double
     let rttCrit: Double
@@ -28,9 +31,10 @@ struct PingLatencyChartView: View {
             VStack(spacing: 0) {
                 ZStack(alignment: .topLeading) {
                     rttChart
-                        .drawingGroup()
                         .frame(height: 160)
-                        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { chartWidth = $0 }
+                        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { newWidth in
+                            if abs(chartWidth - newWidth) > 1 { chartWidth = newWidth }
+                        }
 
                     if let point = hoveredPoint {
                         let tooltipEst: CGFloat = Metrics.tooltipEstimate
@@ -39,22 +43,22 @@ struct PingLatencyChartView: View {
                             Circle()
                                 .fill(point.status == .success ? rttColor(point.rtt) : Color.red)
                                 .frame(width: 6, height: 6)
-                            Text("#\(point.sequence)")
+                            Text(verbatim: "#\(point.sequence)")
                                 .font(.system(.caption2, design: .monospaced))
                                 .foregroundColor(.secondary)
                             if point.status == .success {
-                                Text(String(format: "%.2f ms", point.rtt))
+                                Text(verbatim: String(format: "%.1f ms", point.rtt))
                                     .font(.system(.caption, design: .monospaced).weight(.semibold))
                                     .foregroundColor(rttColor(point.rtt))
                             } else {
-                                Text("Timeout")
+                                Text(verbatim: "Timeout")
                                     .font(.system(.caption, design: .monospaced).weight(.semibold))
                                     .foregroundColor(.red)
                             }
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .glassEffect(in: .rect(cornerRadius: 6))
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
                         .offset(x: clampedX, y: 4)
                         .allowsHitTesting(false)
                         .transition(.opacity)
@@ -77,7 +81,7 @@ struct PingLatencyChartView: View {
     }
 
     private var rttChart: some View {
-        let windowed = Array(results.suffix(Metrics.chartWindow))
+        let windowed = Array(chartData.suffix(Metrics.chartWindow))
         let maxRtt = windowed.compactMap { $0.status == .success ? $0.rtt : nil }.max() ?? 50.0
         let firstSeq = windowed.first?.sequence ?? 0
         let lastSeq  = windowed.last?.sequence  ?? 100
@@ -127,11 +131,11 @@ struct PingLatencyChartView: View {
         .chartXScale(domain: firstSeq...max(firstSeq + 1, lastSeq))
         .chartYScale(domain: 0...max(50, maxRtt * 1.2))
         .chartYAxis {
-            AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 2)) { value in
                 AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
-                        Text("\(Int(v)) ms")
+                        Text(verbatim: "\(Int(v)) ms")
                             .font(.system(.caption2, design: .monospaced))
                     }
                 }
@@ -142,7 +146,7 @@ struct PingLatencyChartView: View {
                 AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
                 AxisValueLabel {
                     if let seq = value.as(Double.self) {
-                        Text("#\(Int(seq))")
+                        Text(verbatim: "#\(Int(seq))")
                             .font(.system(.caption2, design: .monospaced))
                     }
                 }

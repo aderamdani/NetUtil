@@ -56,6 +56,7 @@ struct PingView: View {
 
                         PingLatencyChartView(
                             results: vm.results,
+                            chartData: vm.chartResults,
                             stats: vm.stats,
                             rttWarn: rttWarn,
                             rttCrit: rttCrit,
