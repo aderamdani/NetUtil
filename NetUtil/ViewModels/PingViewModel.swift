@@ -7,6 +7,8 @@ import Observation
 @Observable
 final class PingViewModel {
     private(set) var results: [PingResult] = []
+    /// Throttled snapshot for chart rendering — updates at ~5fps max
+    private(set) var chartResults: [PingResult] = []
     private(set) var stats = PingStats()
     private(set) var isRunning = false
     private(set) var rawLines: [PingLogLine] = []
@@ -26,6 +28,7 @@ final class PingViewModel {
 
     @ObservationIgnored private var resultsBuffer: [PingResult] = []
     @ObservationIgnored private var batchTimer: AnyCancellable?
+    @ObservationIgnored private var lastChartFlush: Date = .distantPast
 
     // Pre-compiled — avoids re-compiling regex per packet
     private nonisolated static let pingPatterns: [NSRegularExpression] = {
@@ -135,6 +138,7 @@ final class PingViewModel {
         p.terminationHandler = { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.flushBuffer() // Final flush
+                self?.chartResults = self?.results ?? [] // Ensure chart gets last snapshot
                 self?.batchTimer = nil
                 self?.outputPipe?.fileHandleForReading.readabilityHandler = nil
                 self?.isRunning = false
@@ -170,6 +174,13 @@ final class PingViewModel {
         
         if results.count > Self.resultsLimit {
             results.removeFirst(results.count - Self.resultsLimit)
+        }
+        
+        // Throttle chart data to ~5fps (200ms) — avoids 10fps full chart redraw
+        let now = Date()
+        if now.timeIntervalSince(lastChartFlush) >= 0.2 {
+            chartResults = results
+            lastChartFlush = now
         }
     }
 
