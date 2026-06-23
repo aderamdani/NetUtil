@@ -4,6 +4,16 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.7.2] — 2026-06-23
+
+### Added
+- **Battery Optimization**: Window visibility monitoring — pause/resume all polling (Wi-Fi, interfaces, bandwidth, system health) when the main window is hidden or occluded (`6b92c53`).
+
+### Fixed
+- **Tests**: Aligned `formatBytes` test expectations with `%.2f` implementation in `NetworkMathTests` (`bfb8c24`).
+
+---
+
 ## [4.7.1] — 2026-06-22
 
 ### Added
