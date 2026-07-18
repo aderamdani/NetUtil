@@ -38,6 +38,7 @@ final class SpeedTestViewModel: SpeedTestDelegate {
     private(set) var lastResult: SpeedTestResult?
     private(set) var history: [SpeedTestResult] = []
     private(set) var error: String?
+    var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     private var isRunning = false
     private var pendingConnectionName: String?
@@ -139,5 +140,16 @@ final class SpeedTestViewModel: SpeedTestDelegate {
         if history.count > Self.historyLimit { history.removeLast() }
         saveHistory()
         pendingConnectionName = nil
+
+        let summary: String
+        switch stamped.kind {
+        case .speed:     summary = String(format: "↓%.1f / ↑%.1f Mbps, ping %.0f ms", stamped.downloadMbps, stamped.uploadMbps, stamped.pingMs)
+        case .browsing:  summary = String(format: "Browsing avg %.0f ms", stamped.browsingAvgMs)
+        case .gaming:    summary = String(format: "Gaming median %.0f ms", stamped.gameMedianMs)
+        case .streaming: summary = "Streaming tier: \(stamped.streamTier)"
+        }
+        onSessionComplete?(SessionRecord(
+            tool: "speedTest", target: stamped.name ?? "Cloudflare",
+            summary: summary, status: .success))
     }
 }

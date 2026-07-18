@@ -100,9 +100,15 @@ final class ToolStore {
     }
 
     private func wireSessionLogging() {
-        ping.onSessionComplete = { [weak self] record in self?.sessionHistory.log(record) }
-        traceroute.onSessionComplete = { [weak self] record in self?.sessionHistory.log(record) }
-        portScan.onSessionComplete = { [weak self] record in self?.sessionHistory.log(record) }
+        let log: (SessionRecord) -> Void = { [weak self] record in self?.sessionHistory.log(record) }
+        ping.onSessionComplete        = log
+        traceroute.onSessionComplete  = log
+        portScan.onSessionComplete    = log
+        dns.onSessionComplete         = log
+        whois.onSessionComplete       = log
+        ssl.onSessionComplete         = log
+        httpLatency.onSessionComplete = log
+        speedTest.onSessionComplete   = log
     }
 
     /// Refreshes expensive cached properties.

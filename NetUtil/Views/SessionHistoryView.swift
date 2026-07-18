@@ -190,19 +190,50 @@ struct SessionHistoryView: View {
 
     private func toolFromKey(_ key: String) -> Tool? {
         switch key {
-        case "ping":       return .ping
-        case "traceroute": return .traceroute
-        case "portScan":   return .portScan
-        default:           return nil
+        case "ping":        return .ping
+        case "traceroute":  return .traceroute
+        case "portScan":    return .portScan
+        case "dns":         return .dns
+        case "whois":       return .whois
+        case "ssl":         return .ssl
+        case "httpLatency": return .httpLatency
+        case "speedTest":   return .speedTest
+        default:            return nil
         }
     }
 
     private func toolLabel(_ key: String) -> String {
+        key == "All" ? "All Tools" : SessionToolNames.label(key)
+    }
+}
+
+/// Shared mapping from SessionRecord.tool keys to display metadata.
+enum SessionToolNames {
+    static func label(_ key: String) -> String {
         switch key {
-        case "ping":       return "Ping"
-        case "traceroute": return "Traceroute"
-        case "portScan":   return "Port Scanner"
-        default:           return key == "All" ? "All Tools" : key
+        case "ping":        return "Ping"
+        case "traceroute":  return "Traceroute"
+        case "portScan":    return "Port Scanner"
+        case "dns":         return "DNS Lookup"
+        case "whois":       return "WHOIS"
+        case "ssl":         return "SSL/TLS"
+        case "httpLatency": return "HTTP Latency"
+        case "speedTest":   return "Speed Test"
+        default:            return key
+        }
+    }
+
+    static func icon(_ key: String) -> String {
+        switch key {
+        case "ping":        return "antenna.radiowaves.left.and.right"
+        case "traceroute":  return "point.3.connected.trianglepath.dotted"
+        case "portScan":    return "checklist"
+        case "dns":         return "globe"
+        case "whois":       return "magnifyingglass.circle"
+        case "ssl":         return "lock.shield"
+        case "httpLatency": return "stopwatch"
+        case "speedTest":   return "speedometer"
+        default:            return "network"
         }
     }
 }
@@ -256,20 +287,10 @@ private struct SessionRecordRow: View {
     }
 
     private func toolIcon(_ key: String) -> String {
-        switch key {
-        case "ping":       return "antenna.radiowaves.left.and.right"
-        case "traceroute": return "point.3.connected.trianglepath.dotted"
-        case "portScan":   return "checklist"
-        default:           return "network"
-        }
+        SessionToolNames.icon(key)
     }
 
     private func toolLabel(_ key: String) -> String {
-        switch key {
-        case "ping":       return "Ping"
-        case "traceroute": return "Traceroute"
-        case "portScan":   return "Port Scanner"
-        default:           return key
-        }
+        SessionToolNames.label(key)
     }
 }

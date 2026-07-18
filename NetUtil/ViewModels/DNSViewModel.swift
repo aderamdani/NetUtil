@@ -9,6 +9,7 @@ final class DNSViewModel {
     private(set) var rawOutput = ""
     private(set) var error: String?
     private(set) var lastQuery: String = ""
+    var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     @ObservationIgnored nonisolated(unsafe) private var process: Process?
 
@@ -52,6 +53,7 @@ final class DNSViewModel {
 
         // Drain to EOF off-main, then parse the complete output in one shot —
         // no incremental buffer means no readability/termination ordering race.
+        let start = Date()
         Task.detached { [weak self] in
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
             p.waitUntilExit()
@@ -59,11 +61,24 @@ final class DNSViewModel {
             await MainActor.run { [weak self] in
                 guard let self, self.runID == id else { return }
                 self.rawOutput = output
-                self.result = Self.parse(output: output, serverAddress: server.address)
+                let parsed = Self.parse(output: output, serverAddress: server.address)
+                self.result = parsed
                 self.process = nil
                 self.isRunning = false
+                self.logSession(parsed, host: host, type: type, started: start)
             }
         }
+    }
+
+    private func logSession(_ result: DNSResult, host: String, type: DNSRecordType, started: Date) {
+        let n = result.records.count
+        let ms = result.queryTimeMs.map { "\($0) ms" } ?? "—"
+        let record = SessionRecord(
+            tool: "dns", target: host,
+            summary: "\(type.rawValue): \(n) record\(n == 1 ? "" : "s")  —  \(ms) via \(result.server)",
+            status: n > 0 ? .success : .partial,
+            duration: Date().timeIntervalSince(started))
+        onSessionComplete?(record)
     }
 
     func cancel() {

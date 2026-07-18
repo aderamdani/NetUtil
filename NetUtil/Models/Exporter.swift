@@ -463,6 +463,22 @@ enum Exporter {
         savePDF(data: pdf, defaultName: "NetUtil-SessionHistory-\(ts).pdf")
     }
 
+    // MARK: - PDF: Compare
+    @MainActor static func saveComparePDF(toolLabel: String, a: SessionRecord, b: SessionRecord,
+                                          sectionTitle: String, rows: [[String]]) {
+        let ts = timestamp()
+        let metaRows: [[String]] = [
+            ["Tool", toolLabel],
+            ["Session A", "\(a.target)  —  \(a.summary)"],
+            ["Session B", "\(b.target)  —  \(b.summary)"],
+        ]
+        let pdf = PDFReport.build(tool: "Compare", target: "\(a.target) vs \(b.target)", sections: [
+            ("Summary", metaRows),
+            (sectionTitle, [["Metric", a.target, b.target]] + rows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Compare-\(ts).pdf")
+    }
+
     // MARK: - Internal
 
     @MainActor private static func savePDF(data: Data, defaultName: String) {

@@ -8,6 +8,7 @@ final class WhoisViewModel {
     var isRunning = false
     var error: String?
     var lastQuery: String = ""
+    var onSessionComplete: ((SessionRecord) -> Void)? = nil
     private var process: Process?
 
     /// Generation token: bumped on cancel/lookup so output of a terminated
@@ -30,6 +31,7 @@ final class WhoisViewModel {
         }
         // Drain to EOF while the process runs — reading only after exit can
         // deadlock once whois output fills the 64 KB pipe buffer.
+        let start = Date()
         Task.detached { [weak self] in
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
             p.waitUntilExit()
@@ -49,6 +51,12 @@ final class WhoisViewModel {
                 self.lines = result
                 self.process = nil
                 self.isRunning = false
+                let fields = result.filter { $0.label != nil }.count
+                self.onSessionComplete?(SessionRecord(
+                    tool: "whois", target: query,
+                    summary: "\(fields) field\(fields == 1 ? "" : "s") parsed",
+                    status: fields > 0 ? .success : .partial,
+                    duration: Date().timeIntervalSince(start)))
             }
         }
     }

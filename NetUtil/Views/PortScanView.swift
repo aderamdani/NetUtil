@@ -41,7 +41,9 @@ struct PortScanView: View {
                 isFavorite: tools.favorites.isFavorite(host),
                 onToggleFavorite: { tools.favorites.toggle(host: host) }
             )
-            
+
+            scanMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
@@ -94,6 +96,30 @@ struct PortScanView: View {
             if let h = vm.quickLaunchHost { host = h; vm.quickLaunchHost = nil; startAction() }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Port Scanner") }
+    }
+
+    private var scanMoodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            if vm.isRunning {
+                return ("hourglass", .secondary, "Scanning \(vm.currentHost)  —  \(vm.scanned)/\(vm.total) ports, \(vm.openCount) open")
+            }
+            guard !vm.results.isEmpty else {
+                return ("checklist", .secondary, "Enter a host to audit TCP ports")
+            }
+            if vm.openCount > 0 {
+                return ("lock.open.fill", .green, "\(vm.openCount) open port\(vm.openCount == 1 ? "" : "s") of \(vm.scanned) scanned on \(vm.currentHost)")
+            }
+            return ("lock.shield.fill", .green, "No open ports  —  \(vm.scanned) scanned on \(vm.currentHost)")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
 
     // MARK: - Components

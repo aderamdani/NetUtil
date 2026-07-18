@@ -58,16 +58,28 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnet:      "7"
         case .dns:         "8"
         case .ssl:         "9"
-        case .subnetScan:  nil
-        case .whois:       nil
-        case .bandwidth:   nil
-        case .interfaces:  nil
-        case .wifi:        nil
-        case .routes:      nil
-        case .statistics:     nil
-        case .speedTest:      nil
-        case .sessionHistory: nil
-        case .compare:        nil
+        case .subnetScan:  "1"
+        case .whois:       "2"
+        case .bandwidth:   "3"
+        case .interfaces:  "4"
+        case .wifi:        "5"
+        case .routes:      "6"
+        case .statistics:     "7"
+        case .speedTest:      "8"
+        case .sessionHistory: "9"
+        case .compare:        "0"
+        }
+    }
+
+    /// First nine tools use plain ⌘; the second bank repeats the digits with ⌥⌘.
+    var shortcutModifiers: EventModifiers {
+        switch self {
+        case .dashboard, .ping, .traceroute, .multiPing, .portScan,
+             .httpLatency, .subnet, .dns, .ssl:
+            return .command
+        case .subnetScan, .whois, .bandwidth, .interfaces, .wifi,
+             .routes, .statistics, .speedTest, .sessionHistory, .compare:
+            return [.command, .option]
         }
     }
 }
@@ -208,7 +220,7 @@ struct ContentView: View {
             ForEach(Tool.allCases) { tool in
                 if let key = tool.shortcut {
                     Button("") { selection = tool }
-                        .keyboardShortcut(key, modifiers: .command)
+                        .keyboardShortcut(key, modifiers: tool.shortcutModifiers)
                         .opacity(0)
                 }
             }
