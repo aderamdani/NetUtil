@@ -89,6 +89,23 @@ final class NetworkMathTests: XCTestCase {
         XCTAssertNil(NetworkMath.calculateSubnet(ip: "999.1.1.1", prefix: 24))
     }
 
+    /// REGRESSION: /32 on boundary IPs computed network+1 / broadcast-1 with
+    /// trapping arithmetic — 255.255.255.255/32 and 0.0.0.0/32 crashed.
+    func testSubnet32BoundaryIPsDoNotCrash() {
+        let top = NetworkMath.calculateSubnet(ip: "255.255.255.255", prefix: 32)
+        XCTAssertEqual(top?.totalHosts, 1)
+        XCTAssertEqual(top?.firstHost, "N/A")
+
+        let bottom = NetworkMath.calculateSubnet(ip: "0.0.0.0", prefix: 32)
+        XCTAssertEqual(bottom?.totalHosts, 1)
+        XCTAssertEqual(bottom?.lastHost, "N/A")
+    }
+
+    func testSubnetOutOfRangePrefixReturnsNil() {
+        XCTAssertNil(NetworkMath.calculateSubnet(ip: "10.0.0.1", prefix: 33))
+        XCTAssertNil(NetworkMath.calculateSubnet(ip: "10.0.0.1", prefix: -1))
+    }
+
     // MARK: - Class detection
 
     func testClassDetection() {

@@ -4,12 +4,19 @@ import UniformTypeIdentifiers
 
 enum Exporter {
 
+    /// RFC 4180 escaping — free-text fields (hostnames, DNS values, summaries)
+    /// can contain commas, quotes, or newlines that would corrupt the columns.
+    static func csvField(_ value: String) -> String {
+        guard value.contains(",") || value.contains("\"") || value.contains("\n") else { return value }
+        return "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+    }
+
     // MARK: - CSV: Ping
     static func csvString(from results: [PingResult]) -> String {
         let fmt = ISO8601DateFormatter()
         let header = "timestamp,sequence,host,bytes,ttl,rtt_ms,status"
         let rows = results.map {
-            "\(fmt.string(from: $0.timestamp)),\($0.sequence),\($0.host),\($0.bytes),\($0.ttl),\($0.rtt),\($0.status == .success ? "success" : "timeout")"
+            "\(fmt.string(from: $0.timestamp)),\($0.sequence),\(csvField($0.host)),\($0.bytes),\($0.ttl),\($0.rtt),\($0.status == .success ? "success" : "timeout")"
         }
         return ([header] + rows).joined(separator: "\n")
     }
@@ -22,7 +29,7 @@ enum Exporter {
             let min  = h.minRtt.map { String(format: "%.2f", $0) } ?? ""
             let avg  = h.avgRtt.map { String(format: "%.2f", $0) } ?? ""
             let max  = h.maxRtt.map { String(format: "%.2f", $0) } ?? ""
-            return "\(h.hop),\(h.host ?? ""),\(h.ip ?? ""),\(h.sent),\(h.recv),\(loss),\(min),\(avg),\(max)"
+            return "\(h.hop),\(csvField(h.host ?? "")),\(h.ip ?? ""),\(h.sent),\(h.recv),\(loss),\(min),\(avg),\(max)"
         }
         return ([header] + rows).joined(separator: "\n")
     }
@@ -34,7 +41,7 @@ enum Exporter {
             let loss = String(format: "%.1f", s.loss)
             let avg  = s.avgRtt.map  { String(format: "%.2f", $0) } ?? ""
             let last = s.lastRtt.map { String(format: "%.2f", $0) } ?? ""
-            return "\(s.host),\(s.customName),\(s.sent),\(loss),\(avg),\(last)"
+            return "\(csvField(s.host)),\(csvField(s.customName)),\(s.sent),\(loss),\(avg),\(last)"
         }
         return ([header] + rows).joined(separator: "\n")
     }
@@ -47,7 +54,7 @@ enum Exporter {
             func ms(_ phase: HTTPPhase) -> String {
                 r.phases.first(where: { $0.phase == phase }).map { String(format: "%.1f", $0.durationMs) } ?? "0"
             }
-            return "\(fmt.string(from: r.timestamp)),\(r.method),\"\(r.url)\",\(r.statusCode ?? 0),\(String(format: "%.1f", r.totalMs)),\(ms(.dns)),\(ms(.tcp)),\(ms(.tls)),\(ms(.request)),\(ms(.ttfb)),\(ms(.download))"
+            return "\(fmt.string(from: r.timestamp)),\(r.method),\(csvField(r.url)),\(r.statusCode ?? 0),\(String(format: "%.1f", r.totalMs)),\(ms(.dns)),\(ms(.tcp)),\(ms(.tls)),\(ms(.request)),\(ms(.ttfb)),\(ms(.download))"
         }
         return ([header] + rows).joined(separator: "\n")
     }
@@ -57,7 +64,7 @@ enum Exporter {
         let header = "ip,hostname,status,rtt_ms,mac_address"
         let rows = results.map { r -> String in
             let rtt = r.rtt.map { String(format: "%.2f", $0) } ?? ""
-            return "\(r.ip),\(r.hostname ?? ""),\(r.status.rawValue),\(rtt),\(r.macAddress ?? "")"
+            return "\(r.ip),\(csvField(r.hostname ?? "")),\(r.status.rawValue),\(rtt),\(r.macAddress ?? "")"
         }
         return ([header] + rows).joined(separator: "\n")
     }
@@ -357,6 +364,103 @@ enum Exporter {
             ("Registration Data", (dataRows.isEmpty ? [["Raw Output"]] : [["Field", "Value"]]) + rawRows)
         ])
         savePDF(data: pdf, defaultName: "NetUtil-Whois-\(query)-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Wi-Fi
+    @MainActor static func saveWiFiPDF(info: WiFiInfo) {
+        let ts = timestamp()
+        let metaRows: [[String]] = [
+            ["SSID", info.ssid ?? "—"],
+            ["BSSID", info.bssid ?? "—"],
+            ["Signal (RSSI)", info.rssi.map { "\($0) dBm" } ?? "—"],
+            ["Channel", info.channel.map { "\($0)" } ?? "—"],
+            ["Security", info.security ?? "—"],
+            ["Interface", info.interfaceName ?? "—"],
+        ]
+        let pdf = PDFReport.build(tool: "Wi-Fi Inspector", target: info.ssid ?? "Wi-Fi", sections: [
+            ("Connection", metaRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-WiFi-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Network Interfaces
+    @MainActor static func saveInterfacesPDF(interfaces: [NetworkInterface]) {
+        let ts = timestamp()
+        let dataRows: [[String]] = interfaces.map { i in
+            [i.name, i.typeName, i.isUp ? "Up" : "Down",
+             i.ipv4.joined(separator: ", "),
+             i.mac ?? "—",
+             i.mtu.map { "\($0)" } ?? "—"]
+        }
+        let pdf = PDFReport.build(tool: "Network Interfaces", target: "\(interfaces.count) interfaces", sections: [
+            ("Interfaces", [["Name", "Type", "Status", "IPv4", "MAC", "MTU"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Interfaces-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Bandwidth
+    @MainActor static func saveBandwidthPDF(interfaces: [NetworkInterface], history: [String: [BandwidthSample]]) {
+        let ts = timestamp()
+        let dataRows: [[String]] = interfaces.compactMap { iface in
+            guard let samples = history[iface.name], !samples.isEmpty else { return nil }
+            let avgRx = samples.map(\.rxBps).reduce(0, +) / Double(samples.count)
+            let avgTx = samples.map(\.txBps).reduce(0, +) / Double(samples.count)
+            let peakRx = samples.map(\.rxBps).max() ?? 0
+            let peakTx = samples.map(\.txBps).max() ?? 0
+            return [iface.name,
+                    NetworkMath.formatRate(avgRx), NetworkMath.formatRate(avgTx),
+                    NetworkMath.formatRate(peakRx), NetworkMath.formatRate(peakTx)]
+        }
+        let pdf = PDFReport.build(tool: "Bandwidth Monitor", target: "\(dataRows.count) interfaces", sections: [
+            ("Throughput (session)", [["Interface", "Avg RX", "Avg TX", "Peak RX", "Peak TX"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Bandwidth-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Routes
+    @MainActor static func saveRoutesPDF(routes: [RouteEntry]) {
+        let ts = timestamp()
+        let dataRows: [[String]] = routes.map {
+            [$0.destination, $0.gateway, $0.flags, $0.netif, $0.isIPv6 ? "IPv6" : "IPv4"]
+        }
+        let pdf = PDFReport.build(tool: "Routing Table", target: "\(routes.count) routes", sections: [
+            ("Routes", [["Destination", "Gateway", "Flags", "Interface", "Family"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Routes-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Traffic Statistics
+    @MainActor static func saveStatisticsPDF(stats: TrafficStatistics) {
+        let ts = timestamp()
+        let metaRows: [[String]] = [
+            ["Days Recorded", "\(stats.dailyTotals.count)"],
+            ["Total Download", NetworkMath.formatBytes(stats.totalRx)],
+            ["Total Upload", NetworkMath.formatBytes(stats.totalTx)],
+            ["Avg Daily Download", NetworkMath.formatBytes(stats.averageDailyRx)],
+            ["Avg Daily Upload", NetworkMath.formatBytes(stats.averageDailyTx)],
+        ]
+        let dataRows: [[String]] = stats.dailyTotals.reversed().map {
+            [$0.dateKey, NetworkMath.formatBytes($0.rxBytes), NetworkMath.formatBytes($0.txBytes)]
+        }
+        let pdf = PDFReport.build(tool: "Traffic Statistics", target: "Daily totals", sections: [
+            ("Summary", metaRows),
+            ("Daily Totals", [["Date", "Download", "Upload"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Statistics-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Session History
+    @MainActor static func saveSessionHistoryPDF(records: [SessionRecord]) {
+        let ts = timestamp()
+        let timeFmt = DateFormatter(); timeFmt.dateStyle = .short; timeFmt.timeStyle = .short
+        let dataRows: [[String]] = records.map {
+            [timeFmt.string(from: $0.timestamp), $0.tool, $0.target,
+             $0.status.rawValue, String(format: "%.1f s", $0.duration), $0.summary]
+        }
+        let pdf = PDFReport.build(tool: "Session History", target: "\(records.count) sessions", sections: [
+            ("Sessions", [["Time", "Tool", "Target", "Status", "Duration", "Summary"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-SessionHistory-\(ts).pdf")
     }
 
     // MARK: - Internal

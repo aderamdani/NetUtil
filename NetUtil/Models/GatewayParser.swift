@@ -1,7 +1,9 @@
 import Foundation
 
 struct GatewayParser {
-    static func getDefaultGateway(for interface: String = "en0") -> String? {
+    // nonisolated: spawns netstat and blocks on its output, so callers must be
+    // able to run it off the main actor.
+    nonisolated static func getDefaultGateway(for interface: String = "en0") -> String? {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/netstat")
         process.arguments = ["-rn"]

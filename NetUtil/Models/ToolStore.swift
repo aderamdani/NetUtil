@@ -45,6 +45,7 @@ final class ToolStore {
         wireSessionLogging()
         refreshGlobalStatus()
         observeActivationPolicy()
+        observeOcclusion()
     }
 
     /// Stops all app-lifetime pollers to save battery when no window is visible.
@@ -75,15 +76,27 @@ final class ToolStore {
     private func observeActivationPolicy() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleActivationPolicyChange),
+            selector: #selector(updateMonitoringState),
             name: .init("netutil.activationPolicyChanged"),
             object: nil
         )
     }
 
-    @objc private func handleActivationPolicyChange() {
+    /// Also drop to reduced cadence when every window is minimized or fully
+    /// covered — activation policy alone only catches close-to-menu-bar.
+    private func observeOcclusion() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateMonitoringState),
+            name: NSApplication.didChangeOcclusionStateNotification,
+            object: nil
+        )
+    }
+
+    @objc private func updateMonitoringState() {
         pauseMonitoring()
-        resumeMonitoring(reduced: NSApp.activationPolicy() != .regular)
+        let occluded = !NSApp.occlusionState.contains(.visible)
+        resumeMonitoring(reduced: occluded || NSApp.activationPolicy() != .regular)
     }
 
     private func wireSessionLogging() {

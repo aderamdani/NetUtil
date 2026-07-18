@@ -119,9 +119,13 @@ final class SSLInspectorViewModel {
 
         task = Task {
             do {
-                result = try await Self.fetch(host: host, port: port)
+                let fetched = try await Self.fetch(host: host, port: port)
+                guard !Task.isCancelled else { return }
+                result = fetched
             } catch is CancellationError {
+                return // cancel() already reset isRunning for the new run
             } catch {
+                guard !Task.isCancelled else { return }
                 self.error = error.localizedDescription
             }
             isRunning = false

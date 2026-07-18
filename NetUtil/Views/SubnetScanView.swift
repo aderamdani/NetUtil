@@ -1,22 +1,25 @@
 import SwiftUI
 
 struct SubnetScanView: View {
+    @Bindable var viewModel: SubnetScanViewModel
     @Binding var selection: Tool?
     @Environment(ToolStore.self) private var tools
-    @State private var viewModel = SubnetScanViewModel()
-    @State private var host = ""
     @State private var showLearningGuide = false
 
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            statusMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
+                    if let err = viewModel.errorMessage {
+                        errorBanner(err)
+                    }
+
                     if viewModel.scanStats.total > 0 {
-                        statusMoodBar
                         statsHeader
-                        
+
                         LazyVStack(spacing: 0) {
                             ForEach(viewModel.filteredResults) { result in
                                 resultRow(result)
@@ -26,13 +29,13 @@ struct SubnetScanView: View {
                         .padding(.horizontal, 12)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-                        .padding(24)
                     } else if viewModel.isScanning {
                         loadingState
                     } else {
                         emptyState
                     }
                 }
+                .padding(24)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Subnet Scanner") }
@@ -119,25 +122,49 @@ struct SubnetScanView: View {
     }
     
     private var statusMoodBar: some View {
-        HStack {
+        let (icon, color, msg): (String, Color, String) = {
             if viewModel.isScanning {
-                Label("Scanning...", systemImage: "arrow.clockwise")
-                    .foregroundColor(.blue)
-            } else if viewModel.scanStats.alive > 0 {
-                Label("Network Healthy — \(viewModel.scanStats.alive) hosts responding", systemImage: "checkmark.shield.fill")
-                    .foregroundColor(.green)
-            } else {
-                Label("No Hosts Found — check CIDR", systemImage: "exclamationmark.triangle.fill")
-                    .foregroundColor(.orange)
+                return ("hourglass", .secondary, "Scanning \(viewModel.cidrInput)...  \(Int(viewModel.progress * 100))%")
+            }
+            guard viewModel.scanStats.total > 0 else {
+                return ("network", .secondary, "Enter a CIDR block to sweep for live hosts")
+            }
+            let alive = viewModel.scanStats.alive
+            if alive > 0 {
+                return ("checkmark.circle.fill", .green, "\(alive) host\(alive == 1 ? "" : "s") responding  —  \(viewModel.scanDuration)")
+            }
+            return ("exclamationmark.triangle.fill", .orange, "No hosts found — check CIDR")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+            if viewModel.isScanning {
+                ProgressView(value: viewModel.progress)
+                    .progressViewStyle(.linear)
+                    .frame(width: 100)
+                    .accessibilityLabel("Scan progress: \(Int(viewModel.progress * 100)) percent")
             }
         }
-        .font(.caption.bold())
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
         .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
-    
+
+    private func errorBanner(_ msg: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.red)
+            Text(msg)
+                .font(.subheadline.weight(.medium))
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
+    }
+
     private var statsHeader: some View {
         HStack {
             StatCard(title: "Total IPs", value: "\(viewModel.scanStats.total)", icon: "list.number")
@@ -145,7 +172,6 @@ struct SubnetScanView: View {
             StatCard(title: "Unreachable", value: "\(viewModel.scanStats.unreachable)", icon: "xmark.circle")
             StatCard(title: "Duration", value: viewModel.scanDuration, icon: "timer")
         }
-        .padding(16)
     }
     
     private func resultRow(_ result: SubnetScanResult) -> some View {
@@ -200,19 +226,26 @@ struct SubnetScanView: View {
     }
     
     private var loadingState: some View {
-        Text("Scanning...")
-            .font(.headline)
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(48)
+        VStack(spacing: 16) {
+            ProgressView()
+                .controlSize(.large)
+            Text("Scanning \(viewModel.cidrInput)...")
+                .font(.headline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
     }
 
     private var emptyState: some View {
-        Text("No Target Selected")
-            .font(.headline)
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(48)
+        VStack(spacing: 12) {
+            Text("No Scan Performed")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Text("Enter a CIDR block (e.g. 192.168.1.0/24) to discover live hosts on your network.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
     }
 
     private func copy(_ string: String) {

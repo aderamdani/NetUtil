@@ -106,7 +106,7 @@ struct StatisticsView: View {
                     
                     
                     ReportMenuButton(
-                        onExportPDF: { /* Statistics doesn't have PDF export */ },
+                        onExportPDF: { Exporter.saveStatisticsPDF(stats: stats) },
                         onExportCSV: { exportCSV() }
                     )
                     
@@ -401,18 +401,11 @@ struct StatisticsView: View {
     }
 
     private func exportCSV() {
-        let header = "Date,Download_Bytes,Upload_Bytes\n"
-        let rows = stats.dailyTotals.map { "\($0.dateKey),\($0.rxBytes),\($0.txBytes)" }.joined(separator: "\n")
-        let csv = header + rows
-        
-        let savePanel = NSSavePanel()
-        savePanel.allowedContentTypes = [.commaSeparatedText]
-        savePanel.nameFieldStringValue = "NetUtil_Traffic_Stats_\(Date().formatted(date: .numeric, time: .omitted).replacingOccurrences(of: "/", with: "-")).csv"
-        
-        savePanel.begin { result in
-            if result == .OK, let url = savePanel.url {
-                try? csv.write(to: url, atomically: true, encoding: .utf8)
-            }
-        }
+        let header = "date,download_bytes,upload_bytes"
+        let rows = stats.dailyTotals.map { "\($0.dateKey),\($0.rxBytes),\($0.txBytes)" }
+        let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+        Exporter.save(string: ([header] + rows).joined(separator: "\n"),
+                      defaultName: "NetUtil-Statistics-\(ts.string(from: Date())).csv",
+                      ext: "csv")
     }
 }

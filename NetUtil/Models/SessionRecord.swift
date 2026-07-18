@@ -94,7 +94,7 @@ final class SessionHistory {
         let fmt = ISO8601DateFormatter()
         let header = "timestamp,tool,target,status,duration_s,summary"
         let rows = records.map {
-            "\(fmt.string(from: $0.timestamp)),\($0.tool),\"\($0.target)\",\($0.status.rawValue),\(String(format: "%.1f", $0.duration)),\"\($0.summary)\""
+            "\(fmt.string(from: $0.timestamp)),\($0.tool),\(Exporter.csvField($0.target)),\($0.status.rawValue),\(String(format: "%.1f", $0.duration)),\(Exporter.csvField($0.summary))"
         }
         return ([header] + rows).joined(separator: "\n")
     }

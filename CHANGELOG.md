@@ -4,6 +4,24 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.7.5] — 2026-07-18
+
+### Fixed
+- **Crash**: `NetworkMath.calculateSubnet` trapped on boundary IPs (`255.255.255.255/32`, `0.0.0.0/32`) — first/last host now use wrapping arithmetic; out-of-range prefixes return `nil`.
+- **Crash**: Subnet Scanner crashed on `/31`–`/32` CIDR input (`1...0` range in `generateIPs`); prefix is now validated (`/16`–`/30`) with a visible error banner.
+- **Concurrency**: restarting Ping/Traceroute mid-run spawned orphan processes and let stale handlers tear down the new run — all subprocess ViewModels (Ping, Traceroute, DNS, WHOIS, Port Scan, SSL) now use run-generation tokens.
+- **Session History**: sessions were logged twice on restart and never logged when a finite run or scan completed naturally; sessions now log exactly once.
+- **Deadlock**: Subnet Scanner helpers called `waitUntilExit()` before draining the pipe (hang risk on large `arp -an` output); WHOIS never drained stderr and read stdout only after exit. All subprocess reads now happen before waiting.
+- **UI**: Stop buttons in DNS, WHOIS, and SSL/TLS were no-ops — they now actually cancel the running operation.
+
+### Changed
+- **Performance**: `netstat` default-gateway lookup moved off the main thread (was a synchronous spawn on the main actor every 3s); monitoring now also drops to reduced cadence when all windows are minimized or fully occluded; dead `sysctl` call removed from `SystemMonitor`.
+- **Export**: 6 dead "Export PDF" menu items implemented (Wi-Fi, Interfaces, Bandwidth, Routes, Statistics, Session History); CSV filenames unified to `NetUtil-[Tool]-[target]-yyyyMMdd-HHmmss`; CSV fields now RFC 4180-escaped; Statistics uses the shared `Exporter.save`.
+- **UI consistency**: Subnet Scanner aligned to the standard tool layout (shared ToolStore VM, standard mood bar with progress, standard empty/loading states, 24pt padding, sidebar activity indicator); stroke opacity normalized in Compare and Session History.
+
+### Tests
+- New regression tests: `/32` boundary IPs, out-of-range prefixes, hostless/too-wide/malformed CIDR rejection, CSV field escaping.
+
 ## [4.7.4] — 2026-07-18
 
 ### Fixed

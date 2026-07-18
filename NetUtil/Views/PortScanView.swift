@@ -175,8 +175,8 @@ struct PortScanView: View {
     private func exportCSV(_ rows: [PortResult]) {
         var lines = ["port,service,status,response_ms"]
         for r in rows { lines.append("\(r.port),\(r.service ?? ""),\(r.status.label),\(r.responseMs.map { String(format: "%.1f", $0) } ?? "")") }
-        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd_HH.mm.ss"
-        Exporter.save(string: lines.joined(separator: "\n"), defaultName: "portscan-\(host)-\(f.string(from: Date())).csv", ext: "csv")
+        let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+        Exporter.save(string: lines.joined(separator: "\n"), defaultName: "NetUtil-PortScan-\(host)-\(ts.string(from: Date())).csv", ext: "csv")
     }
     
     private func parseRange(_ input: String) -> [Int] {

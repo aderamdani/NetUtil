@@ -90,7 +90,7 @@ struct CompareView: View {
                     }
                     .padding(.horizontal, 8).padding(.vertical, 5)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
-                    .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color(.separatorColor).opacity(0.2), lineWidth: 0.5))
+                    .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
@@ -126,7 +126,7 @@ struct CompareView: View {
                     }
                     .padding(.horizontal, 8).padding(.vertical, 5)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
-                    .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color(.separatorColor).opacity(0.2), lineWidth: 0.5))
+                    .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()

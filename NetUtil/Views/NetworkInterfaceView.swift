@@ -114,7 +114,7 @@ struct NetworkInterfaceView: View {
                     Divider().frame(height: 16)
 
                     ReportMenuButton(
-                        onExportPDF: {},
+                        onExportPDF: { Exporter.saveInterfacesPDF(interfaces: vm.interfaces) },
                         onExportCSV: {
                             let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
                             Exporter.save(string: Exporter.csvString(from: vm.interfaces),

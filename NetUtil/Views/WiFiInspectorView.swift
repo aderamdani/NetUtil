@@ -68,7 +68,7 @@ struct WiFiInspectorView: View {
                     
                     if let info = vm.info {
                         ReportMenuButton(
-                            onExportPDF: {},
+                            onExportPDF: { Exporter.saveWiFiPDF(info: info) },
                             onExportCSV: {
                                 let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
                                 Exporter.save(string: Exporter.csvString(from: info),

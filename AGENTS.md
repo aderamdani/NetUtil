@@ -206,4 +206,4 @@ Must match `ContentView.swift` Tool enum exactly:
 ---
 
 *See also: `CHANGELOG.md` (history), `ROADMAP.md` (planned features), `QA-CLINICAL-TEST.md` (test scenarios).*
-*Documentation Version: 4.7.3 (June 23, 2026)*
+*Documentation Version: 4.7.5 (July 18, 2026)*

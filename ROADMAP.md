@@ -1,7 +1,7 @@
 # NetUtil — Roadmap & Development Plan
 
-> Last updated: 2026-05-31
-> Current version: 4.5.0
+> Last updated: 2026-07-18
+> Current version: 4.7.5
 
 ---
 
@@ -23,16 +23,25 @@
 | Bandwidth Monitor | Live RX/TX chart, per-interface sparklines, pause/resume | Optimized (v4.3.0) |
 | Traffic Statistics | 90-day history, daily totals bar chart, CSV export | Optimized (v4.3.0) |
 | Speed Test | 4-tier (Speed/Browsing/Gaming/Streaming), history, PDF/CSV | Optimized (v4.3.0) |
-| Top Processes | Real-time per-app network intensity via nettop | Optimized (v4.3.0) |
 | Interfaces | getifaddrs, IPv4/IPv6/MAC/VLAN detection, gateway actions | Optimized (v4.3.0) |
 | Wi-Fi | RSSI stability chart, SNR, channel, CoreWLAN | Optimized (v4.3.0) |
 | Routes | netstat -rn, protocol matrix, flag legend | Optimized (v4.3.0) |
+| Session History | Auto-logged sessions (ping/traceroute/port scan), filters, PDF/CSV | Active |
+| Compare | Side-by-side comparison of logged sessions per tool | Active |
 
 **Total: 19 tools (18 diagnostics + Dashboard)**
 
 ---
 
 ## Recent Milestones
+
+### Version 4.7.5 — Stability, CPU & Consistency Audit (2026-07-18)
+- Crash fixes: `/32` boundary-IP overflow in `NetworkMath`, `/31`–`/32` range trap in Subnet Scanner (`generateIPs`), CIDR prefix validation with visible error banner (`/16` minimum)
+- Concurrency fixes: run-generation tokens in Ping/Traceroute/DNS/WHOIS/PortScan/SSL — restart no longer leaks orphan processes or lets stale handlers pollute the new run
+- Session History: sessions now logged exactly once (no duplicate on restart; finite runs and completed scans log on natural completion)
+- Subprocess hygiene: read-before-wait everywhere (pipe-deadlock fix in Subnet Scanner helpers), WHOIS drains stdout/stderr during run
+- CPU: `netstat` gateway lookup moved off the main thread; monitoring drops to reduced cadence when all windows are minimized/occluded; dead `sysctl` removed from `SystemMonitor`
+- UI: DNS/WHOIS/SSL Stop buttons actually cancel; 6 dead "Export PDF" stubs implemented (Wi-Fi, Interfaces, Bandwidth, Routes, Statistics, Session History); CSV filenames unified to `NetUtil-[Tool]-[target]-yyyyMMdd-HHmmss`; RFC 4180 CSV escaping; Subnet Scanner aligned to standard layout (shared VM, mood bar, progress, empty state)
 
 ### Version 4.5.0 — Polish & Consistency (2026-05-31)
 - 153-check UX audit: 19 tools × 9 criteria, 14 fixes, zero remaining violations

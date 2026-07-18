@@ -130,7 +130,7 @@ struct SSLInspectorView: View {
                         .accessibilityLabel(isWatched ? "Unwatch Domain" : "Watch Domain")
                     }
 
-                    Button(action: startInspection) {
+                    Button(action: { vm.isRunning ? vm.cancel() : startInspection() }) {
                         Label(vm.isRunning ? "Stop" : "Inspect", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
                     }
