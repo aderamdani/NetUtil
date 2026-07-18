@@ -29,6 +29,7 @@ final class HTTPLatencyViewModel {
     var history: [HTTPLatencyResult] = []
     private(set) var isRunning = false
     private(set) var error: String?
+    var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     private var currentTask: Task<Void, Never>?
 
@@ -46,12 +47,23 @@ final class HTTPLatencyViewModel {
                 result = r
                 history.insert(r, at: 0)
                 if history.count > 20 { history.removeLast() }
+                logSession(r)
             } catch is CancellationError {
             } catch {
                 self.error = error.localizedDescription
             }
             isRunning = false
         }
+    }
+
+    private func logSession(_ r: HTTPLatencyResult) {
+        let code = r.statusCode ?? 0
+        let status: SessionStatus = (200..<400).contains(code) ? .success : .partial
+        onSessionComplete?(SessionRecord(
+            tool: "httpLatency", target: r.url,
+            summary: String(format: "%@ %d  —  %.0f ms", r.method, code, r.totalMs),
+            status: status,
+            duration: r.totalMs / 1000))
     }
 
     func cancel() {

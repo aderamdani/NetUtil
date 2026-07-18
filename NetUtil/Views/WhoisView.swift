@@ -18,7 +18,8 @@ struct WhoisView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            whoisMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
@@ -60,6 +61,31 @@ struct WhoisView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "WHOIS") }
+    }
+
+    private var whoisMoodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            if vm.isRunning {
+                return ("hourglass", .secondary, "Querying registry for \(vm.lastQuery)...")
+            }
+            guard !vm.lines.isEmpty else {
+                return ("magnifyingglass.circle", .secondary, "Enter a domain or IP to query registration data")
+            }
+            let fields = vm.lines.filter { $0.label != nil }.count
+            if fields == 0 {
+                return ("questionmark.circle.fill", .orange, "No structured fields parsed for \(vm.lastQuery)")
+            }
+            return ("checkmark.circle.fill", .green, "\(fields) field\(fields == 1 ? "" : "s") parsed  —  \(vm.lastQuery)")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
 
     // MARK: - Components

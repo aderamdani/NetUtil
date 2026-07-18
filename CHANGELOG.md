@@ -4,6 +4,15 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.8.0] — 2026-07-18
+
+### Added
+- **Session History everywhere**: DNS, WHOIS, SSL/TLS, HTTP Latency, and Speed Test now log completed runs to Session History (previously only Ping, Traceroute, and Port Scan did). History rows show the correct icon and label for every tool.
+- **Compare for all logged tools**: the Compare tool now supports DNS, WHOIS, SSL/TLS, HTTP Latency, and Speed Test sessions via a generic session-overview comparison (status, duration, summary, timestamp) alongside the existing detailed Ping/Port Scan/Traceroute comparisons.
+- **Compare export**: Report menu (Export PDF / Export CSV) added to the Compare tool.
+- **Mood bars**: Ping, Traceroute, Port Scanner, SSL/TLS, and WHOIS gained the standard status mood bar — every diagnostic tool now has one.
+- **Keyboard shortcuts**: the remaining 10 tools are now reachable via ⌥⌘1–⌥⌘9 and ⌥⌘0 (Subnet Scanner through Compare); the first 9 keep ⌘1–⌘9.
+
 ## [4.7.5] — 2026-07-18
 
 ### Fixed

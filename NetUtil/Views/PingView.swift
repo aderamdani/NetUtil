@@ -45,6 +45,8 @@ struct PingView: View {
                 }
             )
 
+            pingMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
@@ -106,6 +108,31 @@ struct PingView: View {
                 startAction()
             }
         }
+    }
+
+    private var pingMoodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            if vm.isRunning {
+                return ("hourglass", .secondary, String(format: "Pinging %@  —  %d sent, %.1f%% loss", vm.currentHost, vm.stats.transmitted, vm.stats.loss))
+            }
+            guard !vm.results.isEmpty else {
+                return ("antenna.radiowaves.left.and.right", .secondary, "Enter a host to measure round-trip latency")
+            }
+            let s = vm.stats
+            if s.loss > 5 {
+                return ("exclamationmark.triangle.fill", .orange, String(format: "%.1f%% packet loss to %@  —  avg %.1f ms", s.loss, vm.currentHost, s.avgRtt))
+            }
+            return ("checkmark.circle.fill", .green, String(format: "%d packets, %.1f%% loss  —  avg %.1f ms", s.transmitted, s.loss, s.avgRtt))
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
 
     // MARK: - Components

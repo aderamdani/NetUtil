@@ -9,12 +9,17 @@ struct CompareView: View {
 
     private var history: SessionHistory { tools.sessionHistory }
 
-    private let comparableTools = ["ping", "portScan", "traceroute"]
+    private let comparableTools = ["ping", "portScan", "traceroute", "dns", "whois", "ssl", "httpLatency", "speedTest"]
+
+    /// Tools whose comparison needs detail snapshots; the rest compare on
+    /// the session summary fields alone.
+    private let detailTools: Set<String> = ["ping", "portScan", "traceroute"]
 
     private var availableSessions: [SessionRecord] {
         history.records.filter { record in
-            record.tool == toolFilter &&
-            (record.pingStats != nil || record.portResults != nil || record.tracerouteHops != nil)
+            guard record.tool == toolFilter else { return false }
+            guard detailTools.contains(toolFilter) else { return true }
+            return record.pingStats != nil || record.portResults != nil || record.tracerouteHops != nil
         }
     }
 
@@ -133,6 +138,13 @@ struct CompareView: View {
 
                 Spacer()
 
+                if let a = sessionA, let b = sessionB {
+                    ReportMenuButton(
+                        onExportPDF: { exportPDF(a: a, b: b) },
+                        onExportCSV: { exportCSV(a: a, b: b) }
+                    )
+                }
+
                 Button { showLearningGuide = true } label: {
                     Image(systemName: "questionmark.circle")
                 }
@@ -147,8 +159,9 @@ struct CompareView: View {
         let (icon, color, msg): (String, Color, String) = {
             if availableSessions.count < 2 {
                 let need = max(0, 2 - availableSessions.count)
+                let suffix = detailTools.contains(toolFilter) ? " with detail data" : ""
                 return ("arrow.left.arrow.right", .secondary,
-                        "Need \(need) more \(toolLabel(toolFilter)) session\(need == 1 ? "" : "s") with detail data")
+                        "Need \(need) more \(toolLabel(toolFilter)) session\(need == 1 ? "" : "s")\(suffix)")
             }
             if sessionA == nil || sessionB == nil {
                 return ("arrow.left.arrow.right", .secondary, "Select Session A and Session B to compare")
@@ -216,14 +229,35 @@ struct CompareView: View {
                 traceCompare(a: ha, labelA: a.target, b: hb, labelB: b.target)
             }
         default:
-            EmptyView()
+            genericCompare(a: a, b: b)
         }
+    }
+
+    // MARK: - Generic Compare (summary-only tools)
+
+    private func genericRows(a: SessionRecord, b: SessionRecord) -> [(String, String, String, Color?)] {
+        let fmt = DateFormatter(); fmt.dateStyle = .short; fmt.timeStyle = .short
+        return [
+            ("Status", a.status.rawValue.capitalized, b.status.rawValue.capitalized, nil),
+            ("Duration", String(format: "%.1f s", a.duration), String(format: "%.1f s", b.duration), nil),
+            ("Summary", a.summary, b.summary, nil),
+            ("When", fmt.string(from: a.timestamp), fmt.string(from: b.timestamp), nil),
+        ]
+    }
+
+    private func genericCompare(a: SessionRecord, b: SessionRecord) -> some View {
+        compareTable(
+            title: "Session Overview",
+            headers: (a.target, b.target),
+            rows: genericRows(a: a, b: b),
+            summary: "\(toolLabel(toolFilter)) — \(a.target) vs \(b.target)"
+        )
     }
 
     // MARK: - Ping Compare
 
-    private func pingCompare(a: PingStatsSnapshot, labelA: String, b: PingStatsSnapshot, labelB: String) -> some View {
-        let metrics: [(String, String, String, Color?)] = [
+    private func pingRows(a: PingStatsSnapshot, b: PingStatsSnapshot) -> [(String, String, String, Color?)] {
+        [
             ("Avg RTT", String(format: "%.2f ms", a.avgRtt), String(format: "%.2f ms", b.avgRtt), rttDiffColor(a.avgRtt, b.avgRtt)),
             ("Min RTT", String(format: "%.2f ms", a.minRtt), String(format: "%.2f ms", b.minRtt), nil),
             ("Max RTT", String(format: "%.2f ms", a.maxRtt), String(format: "%.2f ms", b.maxRtt), nil),
@@ -231,6 +265,10 @@ struct CompareView: View {
             ("Packet Loss", String(format: "%.1f%%", a.lossPercent), String(format: "%.1f%%", b.lossPercent), lossDiffColor(a.lossPercent, b.lossPercent)),
             ("Transmitted", "\(a.transmitted)", "\(b.transmitted)", nil),
         ]
+    }
+
+    private func pingCompare(a: PingStatsSnapshot, labelA: String, b: PingStatsSnapshot, labelB: String) -> some View {
+        let metrics = pingRows(a: a, b: b)
         let improved  = metrics.compactMap { $0.3 }.filter { $0 == .green }.count
         let degraded  = metrics.compactMap { $0.3 }.filter { $0 == .red }.count
 
@@ -244,11 +282,10 @@ struct CompareView: View {
 
     // MARK: - Port Scan Compare
 
-    private func portCompare(a: [PortResultSnapshot], labelA: String, b: [PortResultSnapshot], labelB: String) -> some View {
+    private func portRows(a: [PortResultSnapshot], b: [PortResultSnapshot]) -> [(String, String, String, Color?)] {
         let openA = Set(a.filter { $0.isOpen }.map { $0.port })
         let openB = Set(b.filter { $0.isOpen }.map { $0.port })
-        let allPorts = openA.union(openB).sorted()
-        let rows: [(String, String, String, Color?)] = allPorts.map { port in
+        return openA.union(openB).sorted().map { port in
             let inA = openA.contains(port)
             let inB = openB.contains(port)
             let service = a.first(where: { $0.port == port })?.service ?? b.first(where: { $0.port == port })?.service
@@ -256,22 +293,28 @@ struct CompareView: View {
             let color: Color? = inA && !inB ? .red : !inA && inB ? .green : nil
             return (label, inA ? "Open" : "—", inB ? "Open" : "—", color)
         }
+    }
+
+    private func portCompare(a: [PortResultSnapshot], labelA: String, b: [PortResultSnapshot], labelB: String) -> some View {
+        let openA = Set(a.filter { $0.isOpen }.map { $0.port })
+        let openB = Set(b.filter { $0.isOpen }.map { $0.port })
         let newPorts     = openB.subtracting(openA).count
         let closedPorts  = openA.subtracting(openB).count
         let unchanged    = openA.intersection(openB).count
         return compareTable(
             title: "Open Ports",
             headers: (labelA, labelB),
-            rows: rows,
+            rows: portRows(a: a, b: b),
             summary: "\(newPorts) new, \(closedPorts) closed, \(unchanged) unchanged"
         )
     }
 
     // MARK: - Traceroute Compare
 
-    private func traceCompare(a: [HopSnapshot], labelA: String, b: [HopSnapshot], labelB: String) -> some View {
+    private func traceRows(a: [HopSnapshot], b: [HopSnapshot]) -> [(String, String, String, Color?)] {
         let maxHop = max(a.map(\.hop).max() ?? 0, b.map(\.hop).max() ?? 0)
-        let rows: [(String, String, String, Color?)] = (1...maxHop).map { hop in
+        guard maxHop > 0 else { return [] }
+        return (1...maxHop).map { hop in
             let ha = a.first(where: { $0.hop == hop })
             let hb = b.first(where: { $0.hop == hop })
             let valA = ha?.avgRttMs.map { String(format: "%.1f ms", $0) } ?? (ha != nil ? "*" : "—")
@@ -279,12 +322,54 @@ struct CompareView: View {
             let color: Color? = rttDiffColor(ha?.avgRttMs ?? 0, hb?.avgRttMs ?? 0)
             return ("Hop \(hop)", valA, valB, color)
         }
-        return compareTable(
+    }
+
+    private func traceCompare(a: [HopSnapshot], labelA: String, b: [HopSnapshot], labelB: String) -> some View {
+        compareTable(
             title: "Hop-by-Hop RTT",
             headers: (labelA, labelB),
-            rows: rows,
+            rows: traceRows(a: a, b: b),
             summary: "\(a.count) hops A, \(b.count) hops B"
         )
+    }
+
+    // MARK: - Export
+
+    private func exportRows(a: SessionRecord, b: SessionRecord) -> (title: String, rows: [(String, String, String)]) {
+        switch toolFilter {
+        case "ping":
+            if let sa = a.pingStats, let sb = b.pingStats {
+                return ("Ping Statistics", pingRows(a: sa, b: sb).map { ($0.0, $0.1, $0.2) })
+            }
+        case "portScan":
+            if let pa = a.portResults, let pb = b.portResults {
+                return ("Open Ports", portRows(a: pa, b: pb).map { ($0.0, $0.1, $0.2) })
+            }
+        case "traceroute":
+            if let ha = a.tracerouteHops, let hb = b.tracerouteHops {
+                return ("Hop-by-Hop RTT", traceRows(a: ha, b: hb).map { ($0.0, $0.1, $0.2) })
+            }
+        default:
+            break
+        }
+        return ("Session Overview", genericRows(a: a, b: b).map { ($0.0, $0.1, $0.2) })
+    }
+
+    private func exportCSV(a: SessionRecord, b: SessionRecord) {
+        let (_, rows) = exportRows(a: a, b: b)
+        var lines = ["metric,\(Exporter.csvField(a.target)),\(Exporter.csvField(b.target))"]
+        for r in rows { lines.append("\(Exporter.csvField(r.0)),\(Exporter.csvField(r.1)),\(Exporter.csvField(r.2))") }
+        let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+        Exporter.save(string: lines.joined(separator: "\n"),
+                      defaultName: "NetUtil-Compare-\(toolFilter)-\(ts.string(from: Date())).csv",
+                      ext: "csv")
+    }
+
+    private func exportPDF(a: SessionRecord, b: SessionRecord) {
+        let (title, rows) = exportRows(a: a, b: b)
+        Exporter.saveComparePDF(toolLabel: toolLabel(toolFilter), a: a, b: b,
+                                sectionTitle: title,
+                                rows: rows.map { [$0.0, $0.1, $0.2] })
     }
 
     // MARK: - Shared Table
@@ -344,11 +429,6 @@ struct CompareView: View {
     }
 
     private func toolLabel(_ key: String) -> String {
-        switch key {
-        case "ping":       return "Ping"
-        case "portScan":   return "Port Scanner"
-        case "traceroute": return "Traceroute"
-        default:           return key
-        }
+        SessionToolNames.label(key)
     }
 }

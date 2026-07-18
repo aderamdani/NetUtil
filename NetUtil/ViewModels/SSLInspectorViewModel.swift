@@ -108,6 +108,7 @@ final class SSLInspectorViewModel {
     private(set) var result: CertResult?
     private(set) var isRunning = false
     private(set) var error: String?
+    var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     private var task: Task<Void, Never>?
 
@@ -116,12 +117,14 @@ final class SSLInspectorViewModel {
         error = nil
         result = nil
         isRunning = true
+        let start = Date()
 
         task = Task {
             do {
                 let fetched = try await Self.fetch(host: host, port: port)
                 guard !Task.isCancelled else { return }
                 result = fetched
+                logSession(fetched, host: host, started: start)
             } catch is CancellationError {
                 return // cancel() already reset isRunning for the new run
             } catch {
@@ -130,6 +133,20 @@ final class SSLInspectorViewModel {
             }
             isRunning = false
         }
+    }
+
+    private func logSession(_ result: CertResult, host: String, started: Date) {
+        let days = result.chain.first?.daysRemaining
+        let summary = "Chain of \(result.chain.count), " + (days.map {
+            $0 < 0 ? "expired \(-$0)d ago" : "expires in \($0)d"
+        } ?? "expiry unknown")
+        let status: SessionStatus = {
+            guard let days else { return .partial }
+            return days < 0 ? .failed : days < 14 ? .partial : .success
+        }()
+        onSessionComplete?(SessionRecord(
+            tool: "ssl", target: host, summary: summary, status: status,
+            duration: Date().timeIntervalSince(started)))
     }
 
     func cancel() {

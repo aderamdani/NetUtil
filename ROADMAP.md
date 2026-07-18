@@ -1,7 +1,7 @@
 # NetUtil — Roadmap & Development Plan
 
 > Last updated: 2026-07-18
-> Current version: 4.7.5
+> Current version: 4.8.0
 
 ---
 
@@ -34,6 +34,12 @@
 ---
 
 ## Recent Milestones
+
+### Version 4.8.0 — Session Coverage & Tool Parity (2026-07-18)
+- Session History logging extended to DNS, WHOIS, SSL/TLS, HTTP Latency, Speed Test (all 8 runnable tools now log)
+- Compare supports all logged tools (generic session-overview comparison for summary-only tools) + PDF/CSV export
+- Mood bars added to Ping, Traceroute, Port Scanner, SSL/TLS, WHOIS — every diagnostic tool now has one
+- Keyboard shortcuts for all 19 tools (⌘1–⌘9 + ⌥⌘1–⌥⌘0)
 
 ### Version 4.7.5 — Stability, CPU & Consistency Audit (2026-07-18)
 - Crash fixes: `/32` boundary-IP overflow in `NetworkMath`, `/31`–`/32` range trap in Subnet Scanner (`generateIPs`), CIDR prefix validation with visible error banner (`/16` minimum)

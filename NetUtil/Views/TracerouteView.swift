@@ -43,7 +43,9 @@ struct TracerouteView: View {
                 isFavorite: tools.favorites.isFavorite(host),
                 onToggleFavorite: { tools.favorites.toggle(host: host) }
             )
-            
+
+            traceMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
@@ -91,6 +93,31 @@ struct TracerouteView: View {
             if let h = vm.quickLaunchHost { host = h; vm.quickLaunchHost = nil; startAction() }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Traceroute") }
+    }
+
+    private var traceMoodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            if vm.isRunning {
+                return ("hourglass", .secondary, "Tracing \(vm.currentHost)  —  round \(vm.round + 1), \(vm.hops.count) hops")
+            }
+            guard !vm.hops.isEmpty else {
+                return ("point.3.connected.trianglepath.dotted", .secondary, "Enter a host to map the network path")
+            }
+            let avg = vm.pathAvgRtt.map { String(format: "%.1f ms", $0) } ?? "—"
+            if vm.pathLoss > 0 {
+                return ("exclamationmark.triangle.fill", .orange, String(format: "%.1f%% loss on path  —  %d hops, avg %@", vm.pathLoss, vm.hops.count, avg))
+            }
+            return ("checkmark.circle.fill", .green, "\(vm.hops.count) hops  —  path avg \(avg)")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
 
     // MARK: - Components

@@ -14,7 +14,8 @@ struct SSLInspectorView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            sslMoodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
@@ -41,6 +42,36 @@ struct SSLInspectorView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "SSL/TLS Inspector") }
+    }
+
+    private var sslMoodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            if vm.isRunning {
+                return ("hourglass", .secondary, "Inspecting \(host)...")
+            }
+            guard let result = vm.result else {
+                return ("lock.shield", .secondary, "Enter a host to inspect its certificate chain")
+            }
+            guard let days = result.chain.first?.daysRemaining else {
+                return ("questionmark.circle.fill", .orange, "Chain of \(result.chain.count)  —  expiry unknown")
+            }
+            if days < 0 {
+                return ("xmark.shield.fill", .red, "Certificate expired \(-days) day\(days == -1 ? "" : "s") ago")
+            }
+            if days < 14 {
+                return ("exclamationmark.triangle.fill", .orange, "Certificate expires in \(days) day\(days == 1 ? "" : "s")  —  chain of \(result.chain.count)")
+            }
+            return ("checkmark.shield.fill", .green, "Valid  —  expires in \(days) days, chain of \(result.chain.count)")
+        }()
+        return HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Text(msg).font(.callout).foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
+        .background(.regularMaterial)
+        .overlay(Divider(), alignment: .bottom)
     }
 
     // MARK: - Components
