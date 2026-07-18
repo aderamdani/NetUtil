@@ -230,6 +230,10 @@ final class SpeedTestEngine {
                 windowBytes &+= Int64(data.count)
             } catch { break }
 
+            // Throttle the request loop so a fast connection cannot spin the
+            // CPU at 100%+ by issuing thousands of back-to-back requests.
+            try? await Task.sleep(nanoseconds: 50_000_000)
+
             let now = Date()
             let windowElapsed = now.timeIntervalSince(lastWindowStart)
             if windowElapsed >= 1.0 {
