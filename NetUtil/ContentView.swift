@@ -16,11 +16,11 @@ enum Tool: String, CaseIterable, Identifiable {
     case bandwidth   = "Bandwidth"
     case interfaces  = "Interfaces"
     case wifi        = "Wi-Fi"
-    case routes        = "Routes"
-    case statistics    = "Statistics"
-    case speedTest     = "Speed Test"
-    case sessionHistory = "History"
-    case compare        = "Compare"
+    case routes         = "Routes"
+    case statistics     = "Statistics"
+    case speedTest       = "Speed Test"
+    case sessionHistory  = "History"
+    case compare         = "Compare"
     var id: String { rawValue }
 
     var icon: String {
@@ -39,8 +39,8 @@ enum Tool: String, CaseIterable, Identifiable {
         case .bandwidth:    "chart.bar.xaxis"
         case .interfaces:   "network"
         case .wifi:         "wifi"
-        case .routes:       "arrow.triangle.branch"
-        case .statistics:   "chart.line.uptrend.xyaxis"
+        case .routes:         "arrow.triangle.branch"
+        case .statistics:     "chart.line.uptrend.xyaxis"
         case .speedTest:      "speedometer"
         case .sessionHistory: "clock.arrow.circlepath"
         case .compare:        "arrow.left.arrow.right"
@@ -64,10 +64,10 @@ enum Tool: String, CaseIterable, Identifiable {
         case .interfaces:  nil
         case .wifi:        nil
         case .routes:      nil
-        case .statistics:  nil
-        case .speedTest:   nil
+        case .statistics:     nil
+        case .speedTest:      nil
         case .sessionHistory: nil
-        case .compare:     nil
+        case .compare:        nil
         }
     }
 }
@@ -265,11 +265,11 @@ struct ContentView: View {
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
         case .subnet:       SubnetCalculatorView(vm: tools.subnet)
-        case .subnetScan:   SubnetScanView(selection: $selection)
-        case .statistics:   StatisticsView()
-        case .speedTest:      SpeedTestView(vm: tools.speedTest)
+        case .subnetScan:    SubnetScanView(selection: $selection)
+        case .statistics:    StatisticsView()
+        case .speedTest:     SpeedTestView(vm: tools.speedTest)
         case .sessionHistory: SessionHistoryView(selection: $selection)
-        case .compare:        CompareView()
+        case .compare:       CompareView()
         }
     }
 }

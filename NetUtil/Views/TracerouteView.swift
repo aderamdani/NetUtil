@@ -88,12 +88,9 @@ struct TracerouteView: View {
         .onAppear {
             maxHops = defaultMaxHops
             traceInterval = defaultInterval
-        }
-        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Traceroute") }
-        .onAppear {
             if let h = vm.quickLaunchHost { host = h; vm.quickLaunchHost = nil; startAction() }
         }
-        .sheet(item: $infoHop) { hop in TracerouteIPInfoSheet(hop: hop) }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Traceroute") }
     }
 
     // MARK: - Components

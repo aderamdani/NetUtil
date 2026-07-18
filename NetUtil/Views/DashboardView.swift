@@ -7,6 +7,7 @@ struct DashboardView: View {
     @State private var launchDate = Date()
     @State private var uptimeString = "0m"
     @State private var localHostName = Host.current().localizedName ?? "Local Mac"
+    @State private var uptimeTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,19 +25,24 @@ struct DashboardView: View {
             }
         }
         .background(Color(.windowBackgroundColor).ignoresSafeArea())
-        .task {
-            uptimeString = formatUptime(from: launchDate)
-            while true {
-                try? await Task.sleep(for: .seconds(60))
-                uptimeString = formatUptime(from: launchDate)
-            }
-        }
         .onAppear {
+            uptimeString = formatUptime(from: launchDate)
+            // Run the uptime ticker once. Using onAppear (not .task) avoids
+            // SwiftUI re-running the loop every time `body` recomputes due to
+            // frequently-changing observed state (e.g. live bandwidth rates).
+            uptimeTask = Task {
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(60))
+                    guard !Task.isCancelled else { return }
+                    uptimeString = formatUptime(from: launchDate)
+                }
+            }
             tools.wifi.start()
             tools.interfaces.refresh()
             tools.refreshGlobalStatus()
         }
         .onDisappear {
+            uptimeTask?.cancel()
             tools.wifi.stop()
         }
     }

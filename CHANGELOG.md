@@ -4,6 +4,18 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.7.4] — 2026-07-18
+
+### Fixed
+- **Performance**: Idle CPU reduced (~101% → ~0–3%) by moving the Dashboard uptime ticker out of `.task` (which SwiftUI re-ran on every `body` recompute driven by live bandwidth rates) into a single `onAppear` `Task` cancelled on `onDisappear`.
+- **Performance**: Speed Test streaming phase CPU spin (~119%) eliminated by throttling the sequential request loop in `SpeedTestEngine.runStreaming()` with a 50ms `Task.sleep` per iteration.
+
+### Changed
+- Consolidated duplicate `.onAppear` modifiers in `TracerouteView` and `PortScanView` into single modifiers.
+- Normalized `Tool` enum indentation (`icon`, `shortcut`, `toolView` switch) in `ContentView` for consistency.
+
+---
+
 ## [4.7.3] — 2026-06-23
 
 ### Fixed

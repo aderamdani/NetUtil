@@ -91,11 +91,9 @@ struct PortScanView: View {
         .onAppear {
             concurrency = defaultConcurrency
             timeout = defaultTimeout
-        }
-        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Port Scanner") }
-        .onAppear {
             if let h = vm.quickLaunchHost { host = h; vm.quickLaunchHost = nil; startAction() }
         }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Port Scanner") }
     }
 
     // MARK: - Components
