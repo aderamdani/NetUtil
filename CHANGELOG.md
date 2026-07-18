@@ -4,6 +4,13 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.8.1] — 2026-07-18
+
+### Changed
+- **App Icon**: Redesigned to a minimalist liquid-glass style — a single hub-and-spoke network glyph (accent `#6DCCFF`) over a soft navy gradient with a translucent glass plate and specular sheen, replacing the previous busy concentric-ring + node-dot design. Regenerated all 7 app-icon sizes via `generate_icon.swift`.
+
+---
+
 ## [4.8.0] — 2026-07-18
 
 ### Added

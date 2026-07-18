@@ -3,6 +3,11 @@ import Foundation
 import CoreGraphics
 import ImageIO
 
+// Minimalist "liquid glass" app icon for NetUtil.
+// A single network glyph (hub + three spokes to leaf nodes) floats over a
+// soft navy gradient with a translucent glass highlight, avoiding the
+// busy concentric-ring + node-dot treatment of the previous design.
+
 func createIcon(size: Int) -> CGImage? {
     let s = CGFloat(size)
     let ctx = CGContext(data: nil, width: size, height: size,
@@ -10,81 +15,103 @@ func createIcon(size: Int) -> CGImage? {
                         space: CGColorSpaceCreateDeviceRGB(),
                         bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
 
-    // Background: rounded rect, deep navy gradient
     let radius = s * 0.225
     let rect = CGRect(x: 0, y: 0, width: s, height: s)
-    let path = CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
-    ctx.addPath(path)
+    let clipPath = CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
+    ctx.addPath(clipPath)
     ctx.clip()
 
-    // Gradient background
-    let colors = [CGColor(red: 0.055, green: 0.118, blue: 0.275, alpha: 1),  // #0E1E46
-                  CGColor(red: 0.082, green: 0.259, blue: 0.459, alpha: 1)]  // #154276
-    let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                               colors: colors as CFArray,
-                               locations: [0, 1])!
-    ctx.drawLinearGradient(gradient,
-                           start: CGPoint(x: s * 0.2, y: s),
-                           end: CGPoint(x: s * 0.8, y: 0),
+    // --- Soft navy gradient background ---
+    let bgColors = [CGColor(red: 0.063, green: 0.137, blue: 0.322, alpha: 1.0),  // #10224F
+                    CGColor(red: 0.110, green: 0.290, blue: 0.510, alpha: 1.0)]  // #1C4A82
+    let bgGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                colors: bgColors as CFArray,
+                                locations: [0, 1])!
+    ctx.drawLinearGradient(bgGradient,
+                           start: CGPoint(x: s * 0.15, y: s * 0.9),
+                           end: CGPoint(x: s * 0.85, y: s * 0.1),
                            options: [])
 
     let cx = s / 2
     let cy = s / 2
 
-    // --- Concentric arcs (ping / traceroute rings) ---
-    let arcColor = CGColor(red: 1, green: 1, blue: 1, alpha: 0.85)
-    let radii: [(CGFloat, CGFloat)] = [(0.14, 2.5), (0.24, 2.0), (0.34, 1.5)]
-    for (ratio, lw) in radii {
-        ctx.setStrokeColor(arcColor)
-        ctx.setLineWidth(s * lw / 100)
-        ctx.setLineCap(.round)
-        // Draw 3/4 arc (open at bottom-left)
-        ctx.addArc(center: CGPoint(x: cx, y: cy),
-                   radius: s * ratio,
-                   startAngle: CGFloat.pi * 0.75,
-                   endAngle: CGFloat.pi * 0.25,
-                   clockwise: false)
-        ctx.strokePath()
-    }
+    // --- Translucent glass plate (simulated liquid glass) ---
+    // A lighter, blurred-looking disc with low alpha gives the "glass" feel.
+    let glassR = s * 0.40
+    let glassColors = [CGColor(red: 1, green: 1, blue: 1, alpha: 0.22),
+                       CGColor(red: 1, green: 1, blue: 1, alpha: 0.04)]
+    let glassGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                   colors: glassColors as CFArray,
+                                   locations: [0, 1])!
+    ctx.drawRadialGradient(glassGradient,
+                           startCenter: CGPoint(x: cx - glassR * 0.25, y: cy - glassR * 0.25),
+                           startRadius: 0,
+                           endCenter: CGPoint(x: cx, y: cy),
+                           endRadius: glassR,
+                           options: [])
 
-    // --- 4 node dots on outer ring ---
-    let nodeR = s * 0.34
-    let nodeAngles: [CGFloat] = [.pi * 0.0, .pi * 0.5, .pi * 1.0, .pi * 1.5]
-    for angle in nodeAngles {
-        let nx = cx + nodeR * cos(angle)
-        let ny = cy + nodeR * sin(angle)
-        let dotSize = s * 0.04
-        ctx.setFillColor(CGColor(red: 0.4, green: 0.78, blue: 1.0, alpha: 1))
-        ctx.fillEllipse(in: CGRect(x: nx - dotSize, y: ny - dotSize,
-                                    width: dotSize * 2, height: dotSize * 2))
-        // White ring around dot
-        ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.9))
-        ctx.setLineWidth(s * 0.012)
-        ctx.strokeEllipse(in: CGRect(x: nx - dotSize, y: ny - dotSize,
-                                      width: dotSize * 2, height: dotSize * 2))
-    }
+    // Top-left specular highlight (glass sheen)
+    let sheenColors = [CGColor(red: 1, green: 1, blue: 1, alpha: 0.35),
+                       CGColor(red: 1, green: 1, blue: 1, alpha: 0.0)]
+    let sheenGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                   colors: sheenColors as CFArray,
+                                   locations: [0, 1])!
+    ctx.drawRadialGradient(sheenGradient,
+                           startCenter: CGPoint(x: s * 0.32, y: s * 0.30),
+                           startRadius: 0,
+                           endCenter: CGPoint(x: s * 0.32, y: s * 0.30),
+                           endRadius: s * 0.42,
+                           options: [])
 
-    // --- Center dot ---
-    let centerDotR = s * 0.06
-    ctx.setFillColor(CGColor(red: 0.4, green: 0.78, blue: 1.0, alpha: 1))
-    ctx.fillEllipse(in: CGRect(x: cx - centerDotR, y: cy - centerDotR,
-                                width: centerDotR * 2, height: centerDotR * 2))
-    ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1))
-    ctx.setLineWidth(s * 0.018)
-    ctx.strokeEllipse(in: CGRect(x: cx - centerDotR, y: cy - centerDotR,
-                                  width: centerDotR * 2, height: centerDotR * 2))
+    // --- Network glyph: hub + three spokes ---
+    let accent = CGColor(red: 0.43, green: 0.80, blue: 1.0, alpha: 1.0)  // #6DCCFF
+    let hubR = s * 0.075
+    let spokeEnd = s * 0.28
+    // Three symmetric spokes (top, bottom-left, bottom-right)
+    let angles: [CGFloat] = [-CGFloat.pi / 2, CGFloat.pi * 0.75, CGFloat.pi * 0.25]
 
-    // --- Spoke lines from center to outer nodes ---
-    ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.25))
-    ctx.setLineWidth(s * 0.012)
-    ctx.setLineDash(phase: 0, lengths: [s * 0.04, s * 0.025])
-    for angle in nodeAngles {
-        let nx = cx + nodeR * cos(angle)
-        let ny = cy + nodeR * sin(angle)
+    // Spokes
+    ctx.setStrokeColor(accent)
+    ctx.setLineWidth(s * 0.028)
+    ctx.setLineCap(.round)
+    for a in angles {
+        let ex = cx + spokeEnd * cos(a)
+        let ey = cy + spokeEnd * sin(a)
         ctx.move(to: CGPoint(x: cx, y: cy))
-        ctx.addLine(to: CGPoint(x: nx, y: ny))
+        ctx.addLine(to: CGPoint(x: ex, y: ey))
         ctx.strokePath()
     }
+
+    // Leaf nodes
+    let leafR = s * 0.05
+    for a in angles {
+        let ex = cx + spokeEnd * cos(a)
+        let ey = cy + spokeEnd * sin(a)
+        ctx.setFillColor(accent)
+        ctx.fillEllipse(in: CGRect(x: ex - leafR, y: ey - leafR,
+                                    width: leafR * 2, height: leafR * 2))
+        ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.85))
+        ctx.setLineWidth(s * 0.010)
+        ctx.strokeEllipse(in: CGRect(x: ex - leafR, y: ey - leafR,
+                                      width: leafR * 2, height: leafR * 2))
+    }
+
+    // Center hub
+    ctx.setFillColor(accent)
+    ctx.fillEllipse(in: CGRect(x: cx - hubR, y: cy - hubR,
+                                width: hubR * 2, height: hubR * 2))
+    ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1.0))
+    ctx.setLineWidth(s * 0.016)
+    ctx.strokeEllipse(in: CGRect(x: cx - hubR, y: cy - hubR,
+                                  width: hubR * 2, height: hubR * 2))
+
+    // Subtle inner rim for depth
+    ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.12))
+    ctx.setLineWidth(s * 0.01)
+    ctx.addPath(CGPath(roundedRect: rect.insetBy(dx: s * 0.01, dy: s * 0.01),
+                       cornerWidth: radius - s * 0.01,
+                       cornerHeight: radius - s * 0.01, transform: nil))
+    ctx.strokePath()
 
     return ctx.makeImage()
 }
