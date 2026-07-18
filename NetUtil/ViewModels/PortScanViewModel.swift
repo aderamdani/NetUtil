@@ -25,6 +25,11 @@ final class PortScanViewModel {
 
     private var scanTask: Task<Void, Never>?
 
+    /// Generation token: bumped on stop/scan so results of a cancelled scan
+    /// can't leak into a newer one.
+    private var runID = 0
+    private var sessionLogged = true
+
     func scan(host: String, ports: [Int], concurrency: Int, timeout: Double) {
         stop()
         results = []
@@ -35,22 +40,30 @@ final class PortScanViewModel {
         startTime = Date()
         currentHost = host
         isRunning = true
+        sessionLogged = false
+        runID += 1
+        let id = runID
 
         scanTask = Task.detached { [weak self] in
             await Self.runScan(host: host, ports: ports,
                                concurrency: concurrency, timeout: timeout) { result in
                 await MainActor.run { [weak self] in
-                    guard let self else { return }
+                    guard let self, self.runID == id else { return }
                     self.scanned += 1
                     self.results.append(result)
                     if result.status == .open { self.openCount += 1 }
                 }
             }
-            await MainActor.run { [weak self] in self?.isRunning = false }
+            await MainActor.run { [weak self] in
+                guard let self, self.runID == id else { return }
+                self.isRunning = false
+                self.logSession() // Completed scans end here, not via stop()
+            }
         }
     }
 
     func stop() {
+        runID += 1
         scanTask?.cancel()
         scanTask = nil
         isRunning = false
@@ -58,6 +71,8 @@ final class PortScanViewModel {
     }
 
     private func logSession() {
+        guard !sessionLogged else { return }
+        sessionLogged = true
         guard !results.isEmpty, !currentHost.isEmpty else { return }
         let duration = startTime.map { Date().timeIntervalSince($0) } ?? 0
         let summary = "\(scanned) ports scanned, \(openCount) open"

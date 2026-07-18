@@ -88,16 +88,6 @@ final class SystemMonitor {
     }
     
     private func updateMemory() {
-        var pressure: Int32 = 0
-        var size = MemoryLayout<Int32>.size
-        
-        // Use sysctl to get memory pressure
-        if sysctlbyname("kern.memorystatus_level", &pressure, &size, nil, 0) == 0 {
-            // macOS 0-100 scale where lower is more pressure (usually)
-            // or use HOST_VM_INFO
-        }
-        
-        // Simplified fallback using host_statistics
         var stats = vm_statistics64()
         var count = mach_msg_type_number_t(MemoryLayout<vm_statistics64>.stride / MemoryLayout<integer_t>.stride)
         let result = withUnsafeMutablePointer(to: &stats) {

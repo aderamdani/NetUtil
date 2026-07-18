@@ -30,6 +30,11 @@ final class PingViewModel {
     @ObservationIgnored private var batchTimer: AnyCancellable?
     @ObservationIgnored private var lastChartFlush: Date = .distantPast
 
+    /// Generation token: bumped on every stop/start so a terminated process's
+    /// pending handlers can't tear down or pollute a newer run.
+    @ObservationIgnored private var runID = 0
+    @ObservationIgnored private var sessionLogged = true
+
     // Pre-compiled — avoids re-compiling regex per packet
     private nonisolated static let pingPatterns: [NSRegularExpression] = {
         let patterns = [
@@ -62,7 +67,10 @@ final class PingViewModel {
         currentHost = host
         isRunning = true
         sessionStartTime = Date()
-        
+        sessionLogged = false
+        runID += 1
+        let id = runID
+
         // Batch timer: update UI every 100ms instead of per packet
         batchTimer = Timer.publish(every: 0.1, on: .main, in: .common)
             .autoconnect()
@@ -104,7 +112,7 @@ final class PingViewModel {
             let resolved = foundIP
 
             Task { @MainActor [weak self] in
-                guard let self else { return }
+                guard let self, self.runID == id else { return }
                 if let resolved { self.resolvedIP = resolved }
                 
                 let newLogLines = lines.map { PingLogLine(text: $0) }
@@ -137,11 +145,13 @@ final class PingViewModel {
 
         p.terminationHandler = { [weak self] _ in
             Task { @MainActor [weak self] in
-                self?.flushBuffer() // Final flush
-                self?.chartResults = self?.results ?? [] // Ensure chart gets last snapshot
-                self?.batchTimer = nil
-                self?.outputPipe?.fileHandleForReading.readabilityHandler = nil
-                self?.isRunning = false
+                guard let self, self.runID == id else { return }
+                self.flushBuffer() // Final flush
+                self.chartResults = self.results // Ensure chart gets last snapshot
+                self.batchTimer = nil
+                self.outputPipe?.fileHandleForReading.readabilityHandler = nil
+                self.isRunning = false
+                self.logSession() // Finite (-c) runs end here, not via stop()
             }
         }
 
@@ -185,6 +195,7 @@ final class PingViewModel {
     }
 
     func stop() {
+        runID += 1
         batchTimer = nil
         outputPipe?.fileHandleForReading.readabilityHandler = nil
         process?.terminate()
@@ -195,6 +206,8 @@ final class PingViewModel {
     }
 
     private func logSession() {
+        guard !sessionLogged else { return }
+        sessionLogged = true
         guard stats.transmitted > 0, !currentHost.isEmpty else { return }
         let duration = Date().timeIntervalSince(sessionStartTime)
         let summary = String(format: "%d pkts, %.1f%% loss, avg %.1f ms",

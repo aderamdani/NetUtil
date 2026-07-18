@@ -19,17 +19,19 @@ struct SubnetResult: Identifiable {
 
 struct NetworkMath {
     static func calculateSubnet(ip: String, prefix: Int) -> SubnetResult? {
-        guard let ipAddr = IPv4Address(ip) else { return nil }
-        
+        guard (0...32).contains(prefix), let ipAddr = IPv4Address(ip) else { return nil }
+
         let maskValue: UInt32 = prefix == 0 ? 0 : (0xFFFFFFFF << (32 - prefix))
         let wildcardValue = ~maskValue
-        
+
         let networkValue = ipAddr.value & maskValue
         let broadcastValue = networkValue | wildcardValue
-        
-        let firstHostValue = networkValue + 1
-        let lastHostValue = broadcastValue - 1
-        
+
+        // &+ / &- : for /31 and /32 these values are unused ("N/A" below), but
+        // network 255.255.255.255 or broadcast 0.0.0.0 would trap with plain +/-.
+        let firstHostValue = networkValue &+ 1
+        let lastHostValue = broadcastValue &- 1
+
         // Bit-shift instead of pow() to stay integer-exact and avoid the
         // UInt32(pow(2,32)) overflow trap that crashed on a /0 prefix.
         let totalHosts: UInt32 = prefix >= 31

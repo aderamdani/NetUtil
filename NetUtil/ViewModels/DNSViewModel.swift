@@ -11,7 +11,10 @@ final class DNSViewModel {
     private(set) var lastQuery: String = ""
 
     @ObservationIgnored nonisolated(unsafe) private var process: Process?
-    private var outputPipe: Pipe?
+
+    /// Generation token: bumped on cancel/lookup so output of a terminated
+    /// dig can't populate the result of a newer query.
+    private var runID = 0
 
     deinit { process?.terminate() }
 
@@ -22,6 +25,8 @@ final class DNSViewModel {
         error = nil
         isRunning = true
         lastQuery = host
+        runID += 1
+        let id = runID
 
         let p = Process()
         let pipe = Pipe()
@@ -34,44 +39,37 @@ final class DNSViewModel {
         p.standardOutput = pipe
         p.standardError = pipe
 
-        var buffer = ""
-
-        pipe.fileHandleForReading.readabilityHandler = { [weak self] fh in
-            guard let self else { return }
-            let data = fh.availableData
-            guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                buffer += text
-                self.rawOutput += text
-            }
-        }
-
-        p.terminationHandler = { [weak self] _ in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                self.outputPipe?.fileHandleForReading.readabilityHandler = nil
-                self.result = Self.parse(output: buffer, serverAddress: server.address)
-                self.isRunning = false
-            }
-        }
-
         process = p
-        outputPipe = pipe
 
         do {
             try p.run()
         } catch {
             self.error = error.localizedDescription
+            process = nil
             isRunning = false
+            return
+        }
+
+        // Drain to EOF off-main, then parse the complete output in one shot —
+        // no incremental buffer means no readability/termination ordering race.
+        Task.detached { [weak self] in
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            p.waitUntilExit()
+            let output = String(data: data, encoding: .utf8) ?? ""
+            await MainActor.run { [weak self] in
+                guard let self, self.runID == id else { return }
+                self.rawOutput = output
+                self.result = Self.parse(output: output, serverAddress: server.address)
+                self.process = nil
+                self.isRunning = false
+            }
         }
     }
 
     func cancel() {
-        outputPipe?.fileHandleForReading.readabilityHandler = nil
+        runID += 1
         process?.terminate()
         process = nil
-        outputPipe = nil
         isRunning = false
     }
 

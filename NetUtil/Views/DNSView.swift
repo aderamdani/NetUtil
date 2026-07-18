@@ -146,11 +146,14 @@ struct DNSView: View {
                     if let result = vm.result, !result.records.isEmpty {
                         ReportMenuButton(
                             onExportPDF: { Exporter.saveDNSPDF(result: result, host: host) },
-                            onExportCSV: { Exporter.save(string: exportCSV(result), defaultName: "NetUtil-DNS-\(host).csv", ext: "csv") }
+                            onExportCSV: {
+                                let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                                Exporter.save(string: exportCSV(result), defaultName: "NetUtil-DNS-\(host)-\(ts.string(from: Date())).csv", ext: "csv")
+                            }
                         )
                     }
 
-                    Button(action: startLookup) {
+                    Button(action: { vm.isRunning ? vm.cancel() : startLookup() }) {
                         Label(vm.isRunning ? "Stop" : "Lookup", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
                     }
@@ -306,7 +309,7 @@ struct DNSView: View {
 
     private func exportCSV(_ result: DNSResult) -> String {
         var lines = ["name,ttl,type,value"]
-        for r in result.records { lines.append("\(r.name),\(r.ttl),\(r.type),\"\(r.value)\"") }
+        for r in result.records { lines.append("\(Exporter.csvField(r.name)),\(r.ttl),\(r.type),\(Exporter.csvField(r.value))") }
         return lines.joined(separator: "\n")
     }
 }

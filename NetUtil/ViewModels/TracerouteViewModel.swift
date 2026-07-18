@@ -33,6 +33,11 @@ final class TracerouteViewModel {
     private var geoCache: [String: GeoInfo] = [:]
     private var geoInFlight: [String: Task<Void, Never>] = [:]
 
+    /// Generation token: bumped on every stop/round so handlers of a
+    /// terminated process can't merge into (or re-schedule under) a newer run.
+    private var runID = 0
+    private var sessionLogged = true
+
     deinit {
         // Safe in deinit as we are the last owner
         process?.terminate()
@@ -52,10 +57,12 @@ final class TracerouteViewModel {
         self.maxHops = maxHops
         self.interval = interval
         isRunning = true
+        sessionLogged = false
         runOnce()
     }
 
     func stop() {
+        runID += 1
         outputPipe?.fileHandleForReading.readabilityHandler = nil
         process?.terminate()
         process = nil
@@ -67,6 +74,8 @@ final class TracerouteViewModel {
     }
 
     private func logSession() {
+        guard !sessionLogged else { return }
+        sessionLogged = true
         guard !hops.isEmpty, !currentHost.isEmpty else { return }
         let duration = startTime.map { Date().timeIntervalSince($0) } ?? 0
         let summary = "\(hops.count) hops, avg \(pathAvgRtt.map { String(format: "%.1f ms", $0) } ?? "—")"
@@ -79,6 +88,8 @@ final class TracerouteViewModel {
 
     private func runOnce() {
         pendingHops = []
+        runID += 1
+        let id = runID
 
         let p = Process()
         let pipe = Pipe()
@@ -96,7 +107,7 @@ final class TracerouteViewModel {
             let parsed = lines.compactMap { Self.parseLine($0) }
 
             Task { @MainActor [weak self] in
-                guard let self else { return }
+                guard let self, self.runID == id else { return }
                 self.rawLines.append(contentsOf: lines.map { PingLogLine(text: $0) })
                 if self.rawLines.count > Self.rawLinesLimit {
                     self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
@@ -107,14 +118,14 @@ final class TracerouteViewModel {
 
         p.terminationHandler = { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self else { return }
+                guard let self, self.runID == id else { return }
                 self.outputPipe?.fileHandleForReading.readabilityHandler = nil
                 self.mergeRound()
                 self.lookupGeoForNewHops()
                 self.round += 1
                 guard self.isRunning else { return }
                 try? await Task.sleep(for: .seconds(self.interval))
-                guard self.isRunning else { return }
+                guard self.isRunning, self.runID == id else { return }
                 self.runOnce()
             }
         }

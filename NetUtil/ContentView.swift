@@ -239,6 +239,7 @@ struct ContentView: View {
         case .multiPing:   return tools.multiPing.slots.contains { $0.isRunning }
         case .portScan:    return tools.portScan.isRunning
         case .httpLatency: return tools.httpLatency.isRunning
+        case .subnetScan:  return tools.subnetScan.isScanning
         default:           return false
         }
     }
@@ -265,7 +266,7 @@ struct ContentView: View {
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
         case .subnet:       SubnetCalculatorView(vm: tools.subnet)
-        case .subnetScan:    SubnetScanView(selection: $selection)
+        case .subnetScan:    SubnetScanView(viewModel: tools.subnetScan, selection: $selection)
         case .statistics:    StatisticsView()
         case .speedTest:     SpeedTestView(vm: tools.speedTest)
         case .sessionHistory: SessionHistoryView(selection: $selection)

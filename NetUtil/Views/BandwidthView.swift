@@ -76,7 +76,7 @@ struct BandwidthView: View {
                     .accessibilityLabel("Show active interfaces only")
 
                     ReportMenuButton(
-                        onExportPDF: {},
+                        onExportPDF: { Exporter.saveBandwidthPDF(interfaces: vm.interfaces, history: vm.history) },
                         onExportCSV: {
                             let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
                             Exporter.save(string: exportCSV(),

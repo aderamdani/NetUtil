@@ -110,11 +110,16 @@ struct WhoisView: View {
                     if !vm.lines.isEmpty {
                         ReportMenuButton(
                             onExportPDF: { Exporter.saveWhoisPDF(lines: vm.lines, query: query) },
-                            onExportCSV: { Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"), defaultName: "NetUtil-Whois-\(query).csv", ext: "csv") }
+                            onExportCSV: {
+                                let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                                Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"),
+                                              defaultName: "NetUtil-Whois-\(query)-\(ts.string(from: Date())).csv",
+                                              ext: "csv")
+                            }
                         )
                     }
 
-                    Button(action: lookup) {
+                    Button(action: { vm.isRunning ? vm.cancel() : lookup() }) {
                         Label(vm.isRunning ? "Stop" : "Lookup", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
                     }

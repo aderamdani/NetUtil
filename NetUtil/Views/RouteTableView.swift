@@ -83,7 +83,7 @@ struct RouteTableView: View {
                     Divider().frame(height: 16)
 
                     ReportMenuButton(
-                        onExportPDF: {},
+                        onExportPDF: { Exporter.saveRoutesPDF(routes: entries) },
                         onExportCSV: {
                             let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
                             Exporter.save(string: Exporter.csvString(from: entries),

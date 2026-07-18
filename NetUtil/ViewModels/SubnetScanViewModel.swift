@@ -12,7 +12,12 @@ final class SubnetScanViewModel {
     var filterMode: FilterMode = .aliveOnly
     var sortKey: SortKey = .ip
     var scanDuration: String = "0.0s"
-    
+    private(set) var errorMessage: String?
+
+    /// Largest scannable block: /16 = 65 534 hosts. Anything wider would
+    /// allocate millions of result rows and ping for hours.
+    static let minPrefix = 16
+
     enum FilterMode: String, CaseIterable {
         case all = "All", aliveOnly = "Alive Only", unreachableOnly = "Unreachable Only"
     }
@@ -39,12 +44,24 @@ final class SubnetScanViewModel {
 
     func startScan() async {
         guard !isScanning else { return }
+        errorMessage = nil
         let start = Date()
         let components = cidrInput.split(separator: "/")
         guard components.count == 2,
               let prefix = Int(components[1]),
-              let subnet = NetworkMath.calculateSubnet(ip: String(components[0]), prefix: prefix) else { return }
-        
+              let subnet = NetworkMath.calculateSubnet(ip: String(components[0]), prefix: prefix) else {
+            errorMessage = "Invalid CIDR — expected e.g. 192.168.1.0/24"
+            return
+        }
+        guard prefix >= Self.minPrefix else {
+            errorMessage = "Prefix too wide — use /\(Self.minPrefix) or narrower"
+            return
+        }
+        guard prefix <= 30 else {
+            errorMessage = "Prefix /\(prefix) has no scannable host range"
+            return
+        }
+
         let hosts = generateIPs(network: subnet.networkAddress, prefix: prefix)
         isScanning = true
         results = hosts.map { SubnetScanResult(ip: $0, status: .scanning) }
@@ -58,12 +75,14 @@ final class SubnetScanViewModel {
             await withTaskGroup(of: (String, Double?).self) { group in
                 for ip in batch { group.addTask { await self.pingSingle(ip) } }
                 for await (ip, rtt) in group {
+                    guard self.isScanning else { continue }
                     if let idx = self.results.firstIndex(where: { $0.ip == ip }) {
                         self.results[idx].status = rtt != nil ? .alive : .unreachable
                         self.results[idx].rtt = rtt
                     }
                 }
             }
+            guard isScanning else { break }
             self.progress = Double(min(batchStart + batchSize, hosts.count)) / Double(hosts.count)
             self.updateStats()
             self.scanDuration = String(format: "%.1fs", Date().timeIntervalSince(start))
@@ -95,8 +114,9 @@ final class SubnetScanViewModel {
 
         do {
             try process.run()
-            process.waitUntilExit()
+            // Read before waiting — waiting first deadlocks if output fills the pipe.
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
             let output = String(data: data, encoding: .utf8) ?? ""
             if let range = output.range(of: "pointer ") {
                 let host = String(output[range.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ".", with: "")
@@ -117,8 +137,8 @@ final class SubnetScanViewModel {
 
         do {
             try process.run()
-            process.waitUntilExit()
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
             return String(data: data, encoding: .utf8) ?? ""
         } catch {
             return ""
@@ -150,9 +170,8 @@ final class SubnetScanViewModel {
             return (ip, nil)
         }
 
-        process.waitUntilExit()
-
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
         let output = String(data: data, encoding: .utf8) ?? ""
 
         for line in output.components(separatedBy: CharacterSet.newlines) {
@@ -177,7 +196,9 @@ final class SubnetScanViewModel {
     private func generateIPs(network: String, prefix: Int) -> [String] {
         guard let start = IPv4Address(network) else { return [] }
         let count = prefix >= 31 ? 0 : (1 << (32 - prefix)) - 2
+        guard count > 0 else { return [] }
         var ips: [String] = []
+        ips.reserveCapacity(count)
         for i in 1...count {
             ips.append(IPv4Address(start.value + UInt32(i)).string)
         }

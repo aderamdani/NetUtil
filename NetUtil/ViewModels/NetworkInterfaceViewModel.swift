@@ -10,6 +10,7 @@ final class NetworkInterfaceViewModel {
     private(set) var defaultGateway: String?
 
     private var timer: AnyCancellable?
+    private var gatewayTask: Task<Void, Never>?
 
     static let normalInterval: TimeInterval = 3
     static let backgroundInterval: TimeInterval = 15
@@ -29,9 +30,19 @@ final class NetworkInterfaceViewModel {
     }
 
     func refresh() {
-        let fetched = NetworkInterfaceFetcher.fetch()
-        interfaces = fetched
-        defaultGateway = GatewayParser.getDefaultGateway(for: "en0")
+        interfaces = NetworkInterfaceFetcher.fetch()
         lastUpdated = Date()
+
+        // netstat spawn + routing-table parse is too slow for the main thread;
+        // skip if the previous lookup is still in flight.
+        guard gatewayTask == nil else { return }
+        gatewayTask = Task.detached(priority: .utility) { [weak self] in
+            let gateway = GatewayParser.getDefaultGateway(for: "en0")
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                self.defaultGateway = gateway
+                self.gatewayTask = nil
+            }
+        }
     }
 }
