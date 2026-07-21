@@ -14,7 +14,7 @@ Thank you for considering contributing!
 ### Pull Requests
 1. Fork the repo.
 2. Create a feature branch (`git checkout -b feature/name`).
-3. Make changes following the standards in **[AGENTS.md](./AGENTS.md)**.
+3. Make changes following the standards in **[AGENTS.md](../AGENTS.md)**.
 4. Commit, push, and open a PR.
 
 ## Requirements

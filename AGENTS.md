@@ -54,7 +54,7 @@ When asked to **"commit, build DMG, and release"**, follow this checklist withou
 
 0. `git pull`
 1. **Version** (SemVer): Patch (+0.0.1) = bug fix/UI polish. Minor (+0.1.0) = new feature. Major (+1.0.0) = core overhaul. Update `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION` in `project.pbxproj`.
-2. **Docs**: Add `[X.X.X] — YYYY-MM-DD` section to `CHANGELOG.md`. Update `README.md`, `AGENTS.md` footer. Update `AboutView.swift` version string + verify `toolList`.
+2. **Docs**: Add `[X.X.X] — YYYY-MM-DD` section to `docs/CHANGELOG.md`. Update `README.md`, `AGENTS.md` footer. Update `AboutView.swift` version string + verify `toolList`.
 3. **Audit**: HIG + Anti-Slop check (no font <10pt, no fake opacity, no ALL CAPS, no 40pt+ empty icons, card radius 8-12pt, `questionmark.circle` + `.borderless` for learning guide).
 4. `rm -rf dist/NetUtil.xcarchive`
 5. `xcodebuild` (Release, arm64 + x86_64)
@@ -205,5 +205,5 @@ Must match `ContentView.swift` Tool enum exactly:
 
 ---
 
-*See also: `CHANGELOG.md` (history), `ROADMAP.md` (planned features), `QA-CLINICAL-TEST.md` (test scenarios).*
+*See also: `docs/CHANGELOG.md` (history), `docs/ROADMAP.md` (planned features), `docs/TESTING.md` (test scenarios).*
 *Documentation Version: 4.8.0 (July 18, 2026)*
