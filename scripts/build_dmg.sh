@@ -33,7 +33,7 @@ xcodebuild \
     -scheme "$APP_NAME" \
     -configuration Release \
     -archivePath "$ARCHIVE_PATH" \
-    ARCHS="arm64 x86_64" \
+    ARCHS="arm64" \
     archive -quiet
 
 cp -R "$ARCHIVE_APP" "$APP_PATH"

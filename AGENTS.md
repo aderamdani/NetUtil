@@ -8,7 +8,7 @@ Native macOS network diagnostics toolkit. SwiftUI, Swift 6, macOS 26+. Zero thir
 open NetUtil.xcodeproj                          # Open in Xcode
 bash scripts/build_dmg.sh                        # Build DMG (requires create-dmg)
 xcodebuild -project NetUtil.xcodeproj -scheme NetUtil -configuration Release \
-  -destination 'platform=macOS' ARCHS='arm64 x86_64'  # Release build
+  -destination 'platform=macOS' ARCHS='arm64'  # Release build (Apple Silicon only)
 ```
 
 ## Architecture
@@ -57,7 +57,7 @@ When asked to **"commit, build DMG, and release"**, follow this checklist withou
 2. **Docs**: Add `[X.X.X] — YYYY-MM-DD` section to `docs/CHANGELOG.md`. Update `README.md`, `AGENTS.md` footer. Update `AboutView.swift` version string + verify `toolList`.
 3. **Audit**: HIG + Anti-Slop check (no font <10pt, no fake opacity, no ALL CAPS, no 40pt+ empty icons, card radius 8-12pt, `questionmark.circle` + `.borderless` for learning guide).
 4. `rm -rf dist/NetUtil.xcarchive`
-5. `xcodebuild` (Release, arm64 + x86_64)
+5. `xcodebuild` (Release, arm64 only)
 6. `bash scripts/build_dmg.sh`
 7. `git commit`, `git push`, `git tag vX.X.X`, `git push --tags`
 8. `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "..." --notes "..."`
@@ -200,7 +200,7 @@ Must match `ContentView.swift` Tool enum exactly:
 - `.defaultSize()`, `.defaultPosition()`, `@SceneStorage` for restoration.
 - `.commands {}` for menu bar. `.keyboardShortcut()` for primary actions.
 - `⌘,` Settings, `⌘W` close, `⌘Q` quit.
-- Universal Binary: `ARCHS = 'arm64 x86_64'`. Hardened Runtime. `spctl --assess --verbose`.
+- Apple Silicon only: `ARCHS = 'arm64'`. Hardened Runtime. `spctl --assess --verbose`.
 - Pipe build output through `xcbeautify` when available.
 
 ---
