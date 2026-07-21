@@ -44,19 +44,16 @@ struct MenuBarView: View {
             Spacer()
             VStack(alignment: .trailing, spacing: 6) {
                 if tools.isVPNActive {
-                    Label("VPN", systemImage: "lock.shield.fill")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundColor(.green)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.12), in: RoundedRectangle(cornerRadius: 4))
+                    Label("VPN", systemImage: "lock.shield")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.secondary)
                 }
                 if let iface = primaryInterface {
                     HStack(spacing: 4) {
                         Image(systemName: iface.typeIcon).font(.caption2)
                         Text(iface.typeName).font(.caption2)
                     }
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 }
             }
         }
@@ -134,5 +131,6 @@ struct MenuBarLabel: View {
     var body: some View {
         Image(systemName: "network")
             .imageScale(.medium)
+            .fontWeight(.regular)
     }
 }
