@@ -4,7 +4,7 @@
   <p><b>Professional macOS Network Diagnostics Toolkit</b></p>
 
   [![Latest Release](https://img.shields.io/github/v/release/aderamdani/NetUtil?style=flat-square&color=007AFF)](https://github.com/aderamdani/NetUtil/releases)
-  [![Platform](https://img.shields.io/badge/platform-macOS%2026%2B-lightgrey?style=flat-square&logo=apple)](https://developer.apple.com/macos/)
+  [![Platform](https://img.shields.io/badge/platform-macOS%2026%2B%20(Apple%20Silicon)-lightgrey?style=flat-square&logo=apple)](https://developer.apple.com/macos/)
   [![Language](https://img.shields.io/badge/language-Swift%206-orange?style=flat-square&logo=swift)](https://swift.org)
   [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 </div>
@@ -14,6 +14,8 @@
 NetUtil is a native macOS diagnostics toolkit built with SwiftUI and Swift 6. 19 integrated network tools — Ping, Traceroute, Subnet Scanner, SSL Inspector, and more — in a symmetrical, Anti-Slop interface with zero third-party dependencies.
 
 ## Installation
+
+> Requires an Apple Silicon Mac (M1 or later). Intel Macs are not supported.
 
 1. Visit [Releases](https://github.com/aderamdani/NetUtil/releases).
 2. Download the latest `NetUtil-X.X.X.dmg`.
