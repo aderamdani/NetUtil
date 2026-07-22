@@ -1,7 +1,7 @@
 # NetUtil — Roadmap & Development Plan
 
-> Last updated: 2026-07-18
-> Current version: 4.8.0
+> Last updated: 2026-07-22
+> Current version: 4.8.2
 
 ---
 
