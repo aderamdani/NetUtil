@@ -79,6 +79,18 @@ struct NetworkMath {
     
     /// True for RFC 1918 / loopback / link-local (APIPA) addresses, or their
     /// IPv6 equivalents (`fe80::`/`fc..`/`fd..` unique-local, `::` prefix).
+    /// Converts a dotted-decimal netmask (e.g. "255.255.255.0") to its
+    /// CIDR prefix length (24). Returns nil for a non-contiguous or
+    /// unparseable mask.
+    static func prefixLength(fromNetmask netmask: String) -> Int? {
+        guard let value = IPv4Address(netmask)?.value else { return nil }
+        // A valid mask is all 1s followed by all 0s: inverting it and adding
+        // 1 yields a power of two (or 0 for a full /32 mask).
+        let inverted = ~value
+        guard inverted & (inverted &+ 1) == 0 else { return nil }
+        return value.nonzeroBitCount
+    }
+
     static func isPrivateIP(_ ip: String) -> Bool {
         let parts = ip.components(separatedBy: ".").compactMap { Int($0) }
         guard parts.count == 4 else {

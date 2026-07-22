@@ -39,6 +39,7 @@ struct SubnetScanView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Subnet Scanner") }
+        .onAppear { viewModel.applyDetectedDefault(from: tools.primaryInterface) }
     }
 
     private var controlBar: some View {

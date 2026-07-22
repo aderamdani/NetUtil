@@ -47,6 +47,53 @@ final class SubnetScanTests: XCTestCase {
     }
 
     @MainActor
+    func testDefaultScanCIDRFromInterface() {
+        let iface = NetworkInterface(name: "en0", ipv4: ["192.168.1.42"], ipv6: [],
+                                     netmasks: ["255.255.255.0"], mac: nil, mtu: nil,
+                                     isUp: true, isLoopback: false, ifType: 6)
+        XCTAssertEqual(iface.defaultScanCIDR, "192.168.1.42/24")
+    }
+
+    func testDefaultScanCIDRNilWithoutIPOrMask() {
+        let noIP = NetworkInterface(name: "en0", ipv4: [], ipv6: [], netmasks: ["255.255.255.0"],
+                                    mac: nil, mtu: nil, isUp: true, isLoopback: false, ifType: 6)
+        XCTAssertNil(noIP.defaultScanCIDR)
+        let noMask = NetworkInterface(name: "en0", ipv4: ["192.168.1.42"], ipv6: [], netmasks: [],
+                                      mac: nil, mtu: nil, isUp: true, isLoopback: false, ifType: 6)
+        XCTAssertNil(noMask.defaultScanCIDR)
+    }
+
+    @MainActor
+    func testApplyDetectedDefaultReplacesPlaceholderOnce() {
+        let vm = SubnetScanViewModel()
+        XCTAssertEqual(vm.cidrInput, "192.168.1.0/24")
+        XCTAssertFalse(vm.didApplyDetectedDefault)
+
+        let iface = NetworkInterface(name: "en0", ipv4: ["10.0.0.5"], ipv6: [],
+                                     netmasks: ["255.255.0.0"], mac: nil, mtu: nil,
+                                     isUp: true, isLoopback: false, ifType: 6)
+        vm.applyDetectedDefault(from: iface)
+        XCTAssertEqual(vm.cidrInput, "10.0.0.5/16")
+        XCTAssertTrue(vm.didApplyDetectedDefault)
+
+        // A second call — even with a different interface — must not clobber
+        // whatever the user (or the app) has since put in cidrInput.
+        vm.cidrInput = "172.16.0.0/24"
+        let other = NetworkInterface(name: "en1", ipv4: ["192.168.50.1"], ipv6: [],
+                                     netmasks: ["255.255.255.0"], mac: nil, mtu: nil,
+                                     isUp: true, isLoopback: false, ifType: 6)
+        vm.applyDetectedDefault(from: other)
+        XCTAssertEqual(vm.cidrInput, "172.16.0.0/24")
+    }
+
+    @MainActor
+    func testApplyDetectedDefaultNoOpWithoutInterface() {
+        let vm = SubnetScanViewModel()
+        vm.applyDetectedDefault(from: nil)
+        XCTAssertEqual(vm.cidrInput, "192.168.1.0/24")
+        XCTAssertFalse(vm.didApplyDetectedDefault)
+    }
+
     func testMalformedCIDRSetsError() async {
         let vm = SubnetScanViewModel()
         for cidr in ["not-a-cidr", "10.0.0.0", "10.0.0.0/x", "10.0.0.0/33"] {

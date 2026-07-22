@@ -32,6 +32,15 @@ struct NetworkInterface: Identifiable {
         interfaces.first { $0.isPrimaryCandidate }
     }
 
+    /// CIDR for the network this interface is actually on (e.g.
+    /// "192.168.1.42/24") — used to default Subnet Scanner to the user's
+    /// current network instead of a generic placeholder.
+    var defaultScanCIDR: String? {
+        guard let ip = ipv4.first, let mask = netmasks.first,
+              let prefix = NetworkMath.prefixLength(fromNetmask: mask) else { return nil }
+        return "\(ip)/\(prefix)"
+    }
+
     // VLAN Details
     var isVLAN: Bool { name.hasPrefix("vlan") }
     var vlanTag: Int?
