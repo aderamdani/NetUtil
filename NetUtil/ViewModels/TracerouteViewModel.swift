@@ -25,8 +25,7 @@ final class TracerouteViewModel {
     private var interval: Double = 5
     private var maxHops: Int = 30
     private var targetHost: String = ""
-    @ObservationIgnored nonisolated(unsafe) private var process: Process?
-    private var outputPipe: Pipe?
+    @ObservationIgnored private var subprocess = StreamingSubprocess()
     private var pendingHops: [TracerouteHop] = []
 
     private static let rawLinesLimit = 500
@@ -37,11 +36,6 @@ final class TracerouteViewModel {
     /// terminated process can't merge into (or re-schedule under) a newer run.
     private var runID = 0
     private var sessionLogged = true
-
-    deinit {
-        // Safe in deinit as we are the last owner
-        process?.terminate()
-    }
 
     func start(host: String, maxHops: Int, interval: Double) {
         stop()
@@ -63,10 +57,7 @@ final class TracerouteViewModel {
 
     func stop() {
         runID += 1
-        outputPipe?.fileHandleForReading.readabilityHandler = nil
-        process?.terminate()
-        process = nil
-        outputPipe = nil
+        subprocess.stop()
         isRunning = false
         geoInFlight.values.forEach { $0.cancel() }
         geoInFlight.removeAll()
@@ -91,50 +82,34 @@ final class TracerouteViewModel {
         runID += 1
         let id = runID
 
-        let p = Process()
-        let pipe = Pipe()
-        p.executableURL = URL(fileURLWithPath: "/usr/sbin/traceroute")
-        p.arguments = ["-m", "\(maxHops)", targetHost]
-        p.standardOutput = pipe
-        p.standardError = pipe
-
-        pipe.fileHandleForReading.readabilityHandler = { [weak self] fh in
-            guard let self else { return }
-            let data = fh.availableData
-            guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
-
-            let lines = text.components(separatedBy: "\n").filter { !$0.isEmpty }
-            let parsed = lines.compactMap { Self.parseLine($0) }
-
-            Task { @MainActor [weak self] in
-                guard let self, self.runID == id else { return }
-                self.rawLines.append(contentsOf: lines.map { PingLogLine(text: $0) })
-                if self.rawLines.count > Self.rawLinesLimit {
-                    self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
-                }
-                self.pendingHops.append(contentsOf: parsed)
-            }
-        }
-
-        p.terminationHandler = { [weak self] _ in
-            Task { @MainActor [weak self] in
-                guard let self, self.runID == id else { return }
-                self.outputPipe?.fileHandleForReading.readabilityHandler = nil
-                self.mergeRound()
-                self.lookupGeoForNewHops()
-                self.round += 1
-                guard self.isRunning else { return }
-                try? await Task.sleep(for: .seconds(self.interval))
-                guard self.isRunning, self.runID == id else { return }
-                self.runOnce()
-            }
-        }
-
-        process = p
-        outputPipe = pipe
-
         do {
-            try p.run()
+            try subprocess.run(executable: "/usr/sbin/traceroute",
+                               arguments: ["-m", "\(maxHops)", targetHost],
+                               onChunk: { [weak self] text in
+                let lines = text.components(separatedBy: "\n").filter { !$0.isEmpty }
+                let parsed = lines.compactMap { Self.parseLine($0) }
+
+                Task { @MainActor [weak self] in
+                    guard let self, self.runID == id else { return }
+                    self.rawLines.append(contentsOf: lines.map { PingLogLine(text: $0) })
+                    if self.rawLines.count > Self.rawLinesLimit {
+                        self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
+                    }
+                    self.pendingHops.append(contentsOf: parsed)
+                }
+            }, onTerminate: { [weak self] in
+                Task { @MainActor [weak self] in
+                    guard let self, self.runID == id else { return }
+                    self.subprocess.stop()
+                    self.mergeRound()
+                    self.lookupGeoForNewHops()
+                    self.round += 1
+                    guard self.isRunning else { return }
+                    try? await Task.sleep(for: .seconds(self.interval))
+                    guard self.isRunning, self.runID == id else { return }
+                    self.runOnce()
+                }
+            })
         } catch {
             self.error = error.localizedDescription
             isRunning = false
