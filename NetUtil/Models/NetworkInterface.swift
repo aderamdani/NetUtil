@@ -98,20 +98,20 @@ struct NetworkInterfaceFetcher {
                 var buf = [CChar](repeating: 0, count: Int(NI_MAXHOST))
                 getnameinfo(addr, socklen_t(MemoryLayout<sockaddr_in>.size),
                             &buf, socklen_t(buf.count), nil, 0, NI_NUMERICHOST)
-                builders[name]?.ipv4.append(String(cString: buf))
+                builders[name]?.ipv4.append(string(from: buf))
                 
                 if let netmask = ifa.pointee.ifa_netmask {
                     var mbuf = [CChar](repeating: 0, count: Int(NI_MAXHOST))
                     getnameinfo(netmask, socklen_t(MemoryLayout<sockaddr_in>.size),
                                 &mbuf, socklen_t(mbuf.count), nil, 0, NI_NUMERICHOST)
-                    builders[name]?.netmasks.append(String(cString: mbuf))
+                    builders[name]?.netmasks.append(string(from: mbuf))
                 }
 
             case AF_INET6:
                 var buf = [CChar](repeating: 0, count: Int(NI_MAXHOST))
                 getnameinfo(addr, socklen_t(MemoryLayout<sockaddr_in6>.size),
                             &buf, socklen_t(buf.count), nil, 0, NI_NUMERICHOST)
-                let raw = String(cString: buf)
+                let raw = string(from: buf)
                 let clean = raw.components(separatedBy: "%").first ?? raw
                 builders[name]?.ipv6.append(clean)
 
@@ -159,6 +159,11 @@ struct NetworkInterfaceFetcher {
         }
 
         return results.sorted { $0.name < $1.name }
+    }
+
+    /// Decodes a NUL-terminated C buffer (e.g. from getnameinfo) into a String.
+    private static func string(from buf: [CChar]) -> String {
+        String(decoding: buf.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
     }
 
     private static func fetchVLANDetails(for name: String) -> (tag: Int?, parent: String?) {

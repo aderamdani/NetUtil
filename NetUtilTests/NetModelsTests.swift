@@ -1,6 +1,7 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class RouteEntryTests: XCTestCase {
 
     func testIsDefault() {
@@ -15,6 +16,7 @@ final class RouteEntryTests: XCTestCase {
     }
 }
 
+@MainActor
 final class PortModelTests: XCTestCase {
 
     func testWebPresetPorts() {
@@ -40,6 +42,7 @@ final class PortModelTests: XCTestCase {
     }
 }
 
+@MainActor
 final class HTTPModelTests: XCTestCase {
 
     func testPhaseEndMs() {
@@ -54,6 +57,7 @@ final class HTTPModelTests: XCTestCase {
     }
 }
 
+@MainActor
 final class CertInfoTests: XCTestCase {
 
     private func cert(expiresInDays days: Int?) -> CertInfo {

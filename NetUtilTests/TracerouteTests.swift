@@ -1,6 +1,7 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class TracerouteParserTests: XCTestCase {
 
     func testParseStandardLine() {
@@ -45,6 +46,7 @@ final class TracerouteParserTests: XCTestCase {
     }
 }
 
+@MainActor
 final class TracerouteHopTests: XCTestCase {
 
     private func hop(ip: String?) -> TracerouteHop {

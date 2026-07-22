@@ -1,6 +1,7 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class SSLInspectorViewModelTests: XCTestCase {
     
     // As the parsing logic is private inside TLSDelegate, we test the public API

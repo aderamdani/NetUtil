@@ -1,11 +1,13 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class SSLWatchlistTests: XCTestCase {
     var sut: SSLWatchlist!
 
-    override func setUp() {
-        super.setUp()
+    // The async override runs on this class's MainActor isolation,
+    // unlike the sync setUp() which stays nonisolated in Swift 6.
+    override func setUp() async throws {
         sut = SSLWatchlist()
         UserDefaults.standard.removeObject(forKey: "com.netutil.sslWatchlist")
         sut.items = []

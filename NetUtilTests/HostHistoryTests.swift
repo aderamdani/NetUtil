@@ -1,10 +1,12 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class HostHistoryTests: XCTestCase {
     
-    override func setUp() {
-        super.setUp()
+    // The async override runs on this class's MainActor isolation,
+    // unlike the sync setUp() which stays nonisolated in Swift 6.
+    override func setUp() async throws {
         HostHistory.shared.clear()
     }
     

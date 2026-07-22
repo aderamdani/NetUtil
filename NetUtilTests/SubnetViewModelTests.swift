@@ -1,6 +1,7 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class SubnetViewModelTests: XCTestCase {
     
     @MainActor

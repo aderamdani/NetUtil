@@ -1,6 +1,7 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class SpeedTestModelsTests: XCTestCase {
     
     func testResultInitialization() {

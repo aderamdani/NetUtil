@@ -1,6 +1,7 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class PingStatsTests: XCTestCase {
 
     func testRecordTracksMinMaxAvg() {
@@ -50,6 +51,7 @@ final class PingStatsTests: XCTestCase {
     }
 }
 
+@MainActor
 final class PingParserTests: XCTestCase {
 
     func testParseHeaderIPv4() {
@@ -104,6 +106,7 @@ final class PingParserTests: XCTestCase {
     }
 }
 
+@MainActor
 final class MultiPingSlotParserTests: XCTestCase {
 
     func testParseSuccess() {

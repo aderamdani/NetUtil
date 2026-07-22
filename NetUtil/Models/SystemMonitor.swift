@@ -101,7 +101,7 @@ final class SystemMonitor {
             let used = Double(stats.active_count + stats.wire_count + stats.compressor_page_count)
             let ratio = used / total
 
-            let pageSize = Double(vm_kernel_page_size)
+            let pageSize = Double(sysconf(_SC_PAGESIZE))
             ramUsedGB = used * pageSize / (1024 * 1024 * 1024)
 
             if ratio > 0.9 {
