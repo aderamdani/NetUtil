@@ -25,6 +25,7 @@ final class ToolStore {
     let netQuality  = NetQualityViewModel()
     let wakeOnLAN   = WakeOnLanViewModel()
     let doctor      = NetworkDoctorViewModel()
+    let pathMTU     = PathMTUViewModel()
     let statistics  = TrafficStatistics()
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()
@@ -122,6 +123,7 @@ final class ToolStore {
         speedTest.onSessionComplete   = log
         netQuality.onSessionComplete  = log
         doctor.onSessionComplete      = log
+        pathMTU.onSessionComplete     = log
     }
 
     /// Refreshes expensive cached properties.

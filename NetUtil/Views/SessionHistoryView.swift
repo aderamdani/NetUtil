@@ -191,6 +191,7 @@ struct SessionHistoryView: View {
         case "speedTest":   return .speedTest
         case "netQuality":  return .netQuality
         case "doctor":      return .doctor
+        case "pathMTU":     return .pathMTU
         default:            return nil
         }
     }
@@ -214,6 +215,7 @@ enum SessionToolNames {
         case "speedTest":   return "Speed Test"
         case "netQuality":  return "Net Quality"
         case "doctor":      return "Doctor"
+        case "pathMTU":     return "Path MTU"
         default:            return key
         }
     }
@@ -230,6 +232,7 @@ enum SessionToolNames {
         case "speedTest":   return "speedometer"
         case "netQuality":  return "gauge.with.dots.needle.67percent"
         case "doctor":      return "stethoscope"
+        case "pathMTU":     return "ruler"
         default:            return "network"
         }
     }

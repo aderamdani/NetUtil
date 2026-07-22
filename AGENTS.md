@@ -35,6 +35,7 @@ SwiftUI, Swift Charts, Network.framework (TCP/UDP), CoreWLAN (Wi-Fi), Darwin API
 | Multi-Ping | MultiPingViewModel | `/sbin/ping` (concurrent) |
 | Port Scanner | PortScanViewModel | `URLSessionStreamTask` (TCP) |
 | HTTP Latency | HTTPLatencyViewModel | `URLSessionTaskMetrics` |
+| Path MTU | PathMTUViewModel | `/sbin/ping -D -s` binary search |
 | Subnet Scanner | SubnetScanViewModel | ping, ARP, `host` |
 | Subnet Calc | SubnetViewModel | `NetworkMath.swift` |
 | DNS Lookup | DNSViewModel | `/usr/bin/dig` |
@@ -78,6 +79,7 @@ Must match `ContentView.swift` Tool enum exactly:
 ("checklist",                              "Port Scanner"),
 ("network.badge.shield.half.filled",       "Subnet Scanner"),
 ("stopwatch",                              "HTTP Latency"),
+("ruler",                                  "Path MTU"),
 ("number.square",                          "Subnet Calc"),
 ("globe",                                  "DNS Lookup"),
 ("lock.shield",                            "SSL/TLS"),

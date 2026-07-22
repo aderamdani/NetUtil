@@ -10,6 +10,7 @@ enum Tool: String, CaseIterable, Identifiable {
     case portScan    = "Port Scanner"
     case subnetScan  = "Subnet Scanner"
     case httpLatency = "HTTP Latency"
+    case pathMTU     = "Path MTU"
     case subnet      = "Subnet Calc"
     case dns         = "DNS Lookup"
     case ssl         = "SSL/TLS"
@@ -36,6 +37,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .portScan:     "checklist"
         case .subnetScan:   "network.badge.shield.half.filled"
         case .httpLatency:  "stopwatch"
+        case .pathMTU:      "ruler"
         case .subnet:       "number.square"
         case .dns:          "globe"
         case .ssl:          "lock.shield"
@@ -75,7 +77,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .sessionHistory: "9"
         case .compare:        "0"
         // Both ⌘ digit banks are full; the newest tools have no shortcut.
-        case .netQuality, .wakeOnLAN, .doctor: nil
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU: nil
         }
     }
 
@@ -88,7 +90,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnetScan, .whois, .bandwidth, .interfaces, .wifi,
              .routes, .statistics, .speedTest, .sessionHistory, .compare:
             return [.command, .option]
-        case .netQuality, .wakeOnLAN, .doctor:
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU:
             return []
         }
     }
@@ -184,6 +186,7 @@ struct ContentView: View {
                             sidebarItem(.multiPing)
                             sidebarItem(.portScan)
                             sidebarItem(.httpLatency)
+                            sidebarItem(.pathMTU)
                         }
 
                         Section("IP Toolbox") {
@@ -267,6 +270,7 @@ struct ContentView: View {
         case .subnetScan:  return tools.subnetScan.isRunning
         case .netQuality:  return tools.netQuality.isRunning
         case .doctor:      return tools.doctor.isRunning
+        case .pathMTU:     return tools.pathMTU.isRunning
         default:           return false
         }
     }
@@ -287,6 +291,7 @@ struct ContentView: View {
         case .portScan:    PortScanView(vm: tools.portScan)
         case .interfaces:  NetworkInterfaceView(vm: tools.interfaces)
         case .httpLatency: HTTPLatencyView(vm: tools.httpLatency)
+        case .pathMTU:     PathMTUView(vm: tools.pathMTU)
         case .multiPing:   MultiPingView(vm: tools.multiPing)
         case .wifi:        WiFiInspectorView(vm: tools.wifi)
         case .routes:      RouteTableView()
