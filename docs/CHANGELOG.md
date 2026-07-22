@@ -4,6 +4,23 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.10.0] — 2026-07-22
+
+### Added
+- **Connectivity Doctor**: diagnoses "why doesn't the internet work?" for non-experts by checking four layers in order — router reachability, DNS resolution, plain web egress (with captive-portal detection), and TLS — then states the first broken layer with a concrete fix suggestion.
+- **Multi-Ping latency alerts**: a bell toggle posts a macOS notification when a monitored host's packet loss or average RTT crosses the thresholds set in Settings > Thresholds (rate-limited to one alert per host every 5 minutes).
+- **Path MTU**: binary-searches with don't-fragment pings to find the exact path MTU to a host — diagnoses the classic "large transfers stall on VPN" problem, grading results against known values (1500 Ethernet, 1492 PPPoE, 1420-1460 VPN tunnels).
+- **Neighbors**: ARP table viewer listing every device this Mac has exchanged packets with (IP, MAC, interface), auto-refreshing every 5 seconds.
+- **Connections**: lists every open TCP/UDP socket via `lsof -i -n -P` — which process is talking to which host, filterable by process/address and connection state.
+- **Port Listener**: opens a TCP or UDP port via `NWListener` and logs every inbound connection — the mirror image of Port Scanner, for verifying firewall rules and port forwards from the receiving side.
+
+All six new tools follow the existing house patterns (MoodBar, ToolStateView, Session History logging, learning guide, standard export where applicable) and ship with unit tests for their core logic (verdict resolution, MAC/ARP/lsof parsing, MTU binary search, end-to-end loopback connection logging).
+
+### Changed
+- Tool count is now 26 (25 diagnostics + Dashboard), up from 19.
+
+---
+
 ## [4.9.0] — 2026-07-22
 
 ### Added
