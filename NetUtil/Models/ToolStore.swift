@@ -22,6 +22,8 @@ final class ToolStore {
     let system      = SystemMonitor()
     let bandwidth   = BandwidthMonitor()
     let speedTest   = SpeedTestViewModel()
+    let netQuality  = NetQualityViewModel()
+    let wakeOnLAN   = WakeOnLanViewModel()
     let statistics  = TrafficStatistics()
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()
@@ -117,6 +119,7 @@ final class ToolStore {
         ssl.onSessionComplete         = log
         httpLatency.onSessionComplete = log
         speedTest.onSessionComplete   = log
+        netQuality.onSessionComplete  = log
     }
 
     /// Refreshes expensive cached properties.

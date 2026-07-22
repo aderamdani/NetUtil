@@ -28,8 +28,10 @@
 | Routes | netstat -rn, protocol matrix, flag legend | Optimized (v4.3.0) |
 | Session History | Auto-logged sessions (ping/traceroute/port scan), filters, PDF/CSV | Active |
 | Compare | Side-by-side comparison of logged sessions per tool | Active |
+| Net Quality | Apple networkQuality wrapper: RPM responsiveness/bufferbloat under load | New |
+| Wake on LAN | UDP magic-packet sender (BSD socket, broadcast) | New |
 
-**Total: 19 tools (18 diagnostics + Dashboard)**
+**Total: 21 tools (20 diagnostics + Dashboard)**
 
 ---
 

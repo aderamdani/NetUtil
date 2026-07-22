@@ -189,6 +189,7 @@ struct SessionHistoryView: View {
         case "ssl":         return .ssl
         case "httpLatency": return .httpLatency
         case "speedTest":   return .speedTest
+        case "netQuality":  return .netQuality
         default:            return nil
         }
     }
@@ -210,6 +211,7 @@ enum SessionToolNames {
         case "ssl":         return "SSL/TLS"
         case "httpLatency": return "HTTP Latency"
         case "speedTest":   return "Speed Test"
+        case "netQuality":  return "Net Quality"
         default:            return key
         }
     }
@@ -224,6 +226,7 @@ enum SessionToolNames {
         case "ssl":         return "lock.shield"
         case "httpLatency": return "stopwatch"
         case "speedTest":   return "speedometer"
+        case "netQuality":  return "gauge.with.dots.needle.67percent"
         default:            return "network"
         }
     }
