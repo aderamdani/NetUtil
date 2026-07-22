@@ -29,6 +29,7 @@ SwiftUI, Swift Charts, Network.framework (TCP/UDP), CoreWLAN (Wi-Fi), Darwin API
 | Tool | VM | Source |
 |------|----|--------|
 | Dashboard | — | — |
+| Doctor | NetworkDoctorViewModel | gateway ping, dig, captive.apple.com, TLS probe |
 | Ping | PingViewModel | `/sbin/ping` |
 | Traceroute | TracerouteViewModel | `/usr/bin/traceroute -a`, ipinfo.io |
 | Multi-Ping | MultiPingViewModel | `/sbin/ping` (concurrent) |
@@ -70,6 +71,7 @@ Must match `ContentView.swift` Tool enum exactly:
 
 ```swift
 ("square.grid.2x2",                       "Dashboard"),
+("stethoscope",                            "Doctor"),
 ("antenna.radiowaves.left.and.right",      "Ping"),
 ("point.3.connected.trianglepath.dotted",  "Traceroute"),
 ("dot.radiowaves.left.and.right",          "Multi-Ping"),

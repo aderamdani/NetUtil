@@ -9,7 +9,7 @@ struct CompareView: View {
 
     private var history: SessionHistory { tools.sessionHistory }
 
-    private let comparableTools = ["ping", "portScan", "traceroute", "dns", "whois", "ssl", "httpLatency", "speedTest", "netQuality"]
+    private let comparableTools = ["ping", "portScan", "traceroute", "dns", "whois", "ssl", "httpLatency", "speedTest", "netQuality", "doctor"]
 
     /// Tools whose comparison needs detail snapshots; the rest compare on
     /// the session summary fields alone.

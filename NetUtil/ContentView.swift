@@ -3,6 +3,7 @@ import Observation
 
 enum Tool: String, CaseIterable, Identifiable {
     case dashboard   = "Dashboard"
+    case doctor      = "Doctor"
     case ping        = "Ping"
     case traceroute  = "Traceroute"
     case multiPing   = "Multi-Ping"
@@ -28,6 +29,7 @@ enum Tool: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .dashboard:    "square.grid.2x2"
+        case .doctor:       "stethoscope"
         case .ping:         "antenna.radiowaves.left.and.right"
         case .traceroute:   "point.3.connected.trianglepath.dotted"
         case .multiPing:    "dot.radiowaves.left.and.right"
@@ -73,7 +75,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .sessionHistory: "9"
         case .compare:        "0"
         // Both ⌘ digit banks are full; the newest tools have no shortcut.
-        case .netQuality, .wakeOnLAN: nil
+        case .netQuality, .wakeOnLAN, .doctor: nil
         }
     }
 
@@ -86,7 +88,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnetScan, .whois, .bandwidth, .interfaces, .wifi,
              .routes, .statistics, .speedTest, .sessionHistory, .compare:
             return [.command, .option]
-        case .netQuality, .wakeOnLAN:
+        case .netQuality, .wakeOnLAN, .doctor:
             return []
         }
     }
@@ -171,6 +173,7 @@ struct ContentView: View {
 
                         Section {
                             sidebarItem(.dashboard)
+                            sidebarItem(.doctor)
                             sidebarItem(.sessionHistory)
                             sidebarItem(.compare)
                         }
@@ -263,6 +266,7 @@ struct ContentView: View {
         case .httpLatency: return tools.httpLatency.isRunning
         case .subnetScan:  return tools.subnetScan.isRunning
         case .netQuality:  return tools.netQuality.isRunning
+        case .doctor:      return tools.doctor.isRunning
         default:           return false
         }
     }
@@ -276,6 +280,7 @@ struct ContentView: View {
     private func toolView(_ tool: Tool) -> some View {
         switch tool {
         case .dashboard:   DashboardView(selection: $selection)
+        case .doctor:      NetworkDoctorView(vm: tools.doctor)
         case .ping:        PingView(vm: tools.ping)
         case .traceroute:  TracerouteView(vm: tools.traceroute)
         case .dns:         DNSView(vm: tools.dns)
