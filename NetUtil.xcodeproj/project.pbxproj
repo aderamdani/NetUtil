@@ -341,12 +341,12 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				LM_SKIP_METADATA_EXTRACTION = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LM_SKIP_METADATA_EXTRACTION = YES;
 				MARKETING_VERSION = 4.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "Vertex-Data.NetUtil";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -380,12 +380,12 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				LM_SKIP_METADATA_EXTRACTION = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LM_SKIP_METADATA_EXTRACTION = YES;
 				MARKETING_VERSION = 4.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "Vertex-Data.NetUtil";
 				PRODUCT_NAME = "$(TARGET_NAME)";
