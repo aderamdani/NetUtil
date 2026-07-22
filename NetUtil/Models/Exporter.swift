@@ -99,6 +99,16 @@ enum Exporter {
         return ([header] + rows).joined(separator: "\n")
     }
 
+    // MARK: - CSV: Neighbors
+    static func csvString(from entries: [ARPEntry]) -> String {
+        let header = "ip,mac,interface,type"
+        let rows = entries.map { e in
+            let kind = e.kind == .broadcast ? "broadcast" : e.kind == .multicast ? "multicast" : (e.isPermanent ? "permanent" : "device")
+            return "\(e.ip),\(e.mac ?? "unresolved"),\(e.interface),\(kind)"
+        }
+        return ([header] + rows).joined(separator: "\n")
+    }
+
     // MARK: - CSV: Speed Test
     static func csvString(from history: [SpeedTestResult]) -> String {
         let fmt = ISO8601DateFormatter()
@@ -415,6 +425,19 @@ enum Exporter {
             ("Throughput (session)", [["Interface", "Avg RX", "Avg TX", "Peak RX", "Peak TX"]] + dataRows)
         ])
         savePDF(data: pdf, defaultName: "NetUtil-Bandwidth-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Neighbors
+    @MainActor static func saveNeighborsPDF(entries: [ARPEntry]) {
+        let ts = timestamp()
+        let dataRows: [[String]] = entries.map { e in
+            let kind = e.kind == .broadcast ? "Broadcast" : e.kind == .multicast ? "Multicast" : (e.isPermanent ? "Permanent" : "Device")
+            return [e.ip, e.mac ?? "unresolved", e.interface, kind]
+        }
+        let pdf = PDFReport.build(tool: "Neighbors", target: "\(entries.count) entries", sections: [
+            ("ARP Table", [["IP Address", "MAC Address", "Interface", "Type"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Neighbors-\(ts).pdf")
     }
 
     // MARK: - PDF: Routes

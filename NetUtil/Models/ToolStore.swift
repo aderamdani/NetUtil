@@ -26,6 +26,7 @@ final class ToolStore {
     let wakeOnLAN   = WakeOnLanViewModel()
     let doctor      = NetworkDoctorViewModel()
     let pathMTU     = PathMTUViewModel()
+    let neighbors   = NeighborsViewModel()
     let statistics  = TrafficStatistics()
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()
