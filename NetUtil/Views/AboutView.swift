@@ -92,7 +92,9 @@ struct AboutView: View {
         ("arrow.triangle.branch",                  "Routes"),
         ("chart.line.uptrend.xyaxis",              "Statistics"),
         ("speedometer",                            "Speed Test"),
-        ("clock.arrow.circlepath",           "History"),
+        ("gauge.with.dots.needle.67percent",       "Net Quality"),
+        ("power.circle",                           "Wake on LAN"),
+        ("clock.arrow.circlepath",                 "History"),
         ("arrow.left.arrow.right",                 "Compare")
     ]
 

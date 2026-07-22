@@ -331,6 +331,20 @@ private let allSections: [HelpSection] = [
         ]
     ),
     HelpSection(
+        title: "Wake on LAN",
+        icon: "power.circle",
+        subtitle: "Wake sleeping machines remotely",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Sends a \"magic packet\" — a small UDP broadcast containing a machine's MAC address repeated 16 times. A network card configured for Wake on LAN listens for this pattern even while the machine sleeps, and powers it up.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Enter the target machine's MAC address (find it in the Interfaces tool, or on the device's network settings) and press Wake. The default broadcast address and port work for almost all setups on the local network.", tips: [
+                "The target must have Wake on LAN enabled — on Macs: System Settings > Battery/Energy > \"Wake for network access\".",
+                "Wired Ethernet is far more reliable than Wi-Fi for wake packets.",
+                "Use a subnet broadcast (e.g. 192.168.1.255) if 255.255.255.255 doesn't reach the device."
+            ]),
+            HelpTopic(heading: "When nothing wakes up", body: "The packet is fire-and-forget — there is no reply, so \"sent\" only confirms it left this Mac. If the machine stays asleep: verify the MAC address, check that the device is on the same network segment, and confirm its firmware/OS has wake-on-LAN enabled.", tips: nil)
+        ]
+    ),
+    HelpSection(
         title: "HTTP Latency",
         icon: "stopwatch",
         subtitle: "HTTP/HTTPS request phase timing",
@@ -483,6 +497,22 @@ private let allSections: [HelpSection] = [
             HelpTopic(heading: "Reading results", body: "Download/upload are in Mbps — higher is better. Ping is the round-trip time to the server and jitter its variability — lower is better for both. Gaming's P99 shows the worst 1% of latencies: a high P99 with a good median means occasional stutter.", tips: [
                 "Video calls need roughly 4 Mbps up/down; 4K streaming about 25 Mbps down.",
                 "If speed is fine but pages feel slow, compare with the Browsing test and DNS Lookup."
+            ])
+        ]
+    ),
+    HelpSection(
+        title: "Network Quality",
+        icon: "gauge.with.dots.needle.67percent",
+        subtitle: "Responsiveness under load (RPM)",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Runs Apple's built-in networkQuality test, which measures something a plain speed test misses: how responsive the connection stays while it is fully loaded. The result is RPM — round-trips per minute under working conditions. A connection can have fast downloads yet feel terrible on video calls; low RPM (bufferbloat) is usually why.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Press Start and wait about 20 seconds while the test saturates the connection against Apple's servers. Downloads and uploads run in parallel, mimicking a busy household.", tips: [
+                "Stop other heavy transfers first if you want a clean baseline — or run during them to see how bad it gets.",
+                "Results are logged to Session History, so you can Compare before/after router changes."
+            ]),
+            HelpTopic(heading: "Reading results", body: "Responsiveness: High (800+ RPM) means the connection stays snappy under load; Medium (300–799) is workable; Low (below 300) means calls and games will stutter whenever someone streams or uploads. Base RTT is idle latency; throughput values match what a speed test reports.", tips: [
+                "Low RPM with good speeds points at router buffering (bufferbloat) — Smart Queue Management (SQM/fq_codel) on the router is the usual fix.",
+                "Compare RPM on Wi-Fi vs Ethernet to isolate wireless-induced latency."
             ])
         ]
     ),

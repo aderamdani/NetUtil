@@ -19,6 +19,8 @@ enum Tool: String, CaseIterable, Identifiable {
     case routes         = "Routes"
     case statistics     = "Statistics"
     case speedTest       = "Speed Test"
+    case netQuality      = "Net Quality"
+    case wakeOnLAN       = "Wake on LAN"
     case sessionHistory  = "History"
     case compare         = "Compare"
     var id: String { rawValue }
@@ -42,6 +44,8 @@ enum Tool: String, CaseIterable, Identifiable {
         case .routes:         "arrow.triangle.branch"
         case .statistics:     "chart.line.uptrend.xyaxis"
         case .speedTest:      "speedometer"
+        case .netQuality:     "gauge.with.dots.needle.67percent"
+        case .wakeOnLAN:      "power.circle"
         case .sessionHistory: "clock.arrow.circlepath"
         case .compare:        "arrow.left.arrow.right"
         }
@@ -68,6 +72,8 @@ enum Tool: String, CaseIterable, Identifiable {
         case .speedTest:      "8"
         case .sessionHistory: "9"
         case .compare:        "0"
+        // Both ⌘ digit banks are full; the newest tools have no shortcut.
+        case .netQuality, .wakeOnLAN: nil
         }
     }
 
@@ -80,6 +86,8 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnetScan, .whois, .bandwidth, .interfaces, .wifi,
              .routes, .statistics, .speedTest, .sessionHistory, .compare:
             return [.command, .option]
+        case .netQuality, .wakeOnLAN:
+            return []
         }
     }
 }
@@ -178,6 +186,7 @@ struct ContentView: View {
                         Section("IP Toolbox") {
                             sidebarItem(.subnetScan)
                             sidebarItem(.subnet)
+                            sidebarItem(.wakeOnLAN)
                         }
                         
                         Section("Lookup & Security") {
@@ -190,6 +199,7 @@ struct ContentView: View {
                             sidebarItem(.bandwidth)
                             sidebarItem(.statistics)
                             sidebarItem(.speedTest)
+                            sidebarItem(.netQuality)
                         }
 
                         Section("Network Status") {
@@ -252,6 +262,7 @@ struct ContentView: View {
         case .portScan:    return tools.portScan.isRunning
         case .httpLatency: return tools.httpLatency.isRunning
         case .subnetScan:  return tools.subnetScan.isRunning
+        case .netQuality:  return tools.netQuality.isRunning
         default:           return false
         }
     }
@@ -281,6 +292,8 @@ struct ContentView: View {
         case .subnetScan:    SubnetScanView(viewModel: tools.subnetScan, selection: $selection)
         case .statistics:    StatisticsView()
         case .speedTest:     SpeedTestView(vm: tools.speedTest)
+        case .netQuality:    NetQualityView(vm: tools.netQuality)
+        case .wakeOnLAN:     WakeOnLanView(vm: tools.wakeOnLAN)
         case .sessionHistory: SessionHistoryView(selection: $selection)
         case .compare:       CompareView()
         }
