@@ -83,6 +83,7 @@ struct AboutView: View {
         ("checklist",                              "Port Scanner"),
         ("network.badge.shield.half.filled",       "Subnet Scanner"),
         ("stopwatch",                              "HTTP Latency"),
+        ("ruler",                                  "Path MTU"),
         ("number.square",                          "Subnet Calc"),
         ("globe",                                  "DNS Lookup"),
         ("lock.shield",                            "SSL/TLS"),

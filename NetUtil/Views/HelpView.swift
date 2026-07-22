@@ -378,6 +378,21 @@ private let allSections: [HelpSection] = [
         ]
     ),
     HelpSection(
+        title: "Path MTU",
+        icon: "ruler",
+        subtitle: "Largest unfragmented packet size",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Every network path has a maximum packet size (MTU). Packets larger than it get fragmented or silently dropped — a classic cause of \"some sites load, others hang\" on VPNs. This tool binary-searches with don't-fragment pings to find the exact MTU to a host.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Enter any reachable host (your router, a VPN server, a website) and press Measure. About ten probes later you get the path MTU in bytes, with an interpretation of what the number usually means.", tips: [
+                "1500 = clean Ethernet path. 1492 = PPPoE (DSL). 1420–1460 = typical VPN tunnel overhead.",
+                "The target must answer pings — if it blocks ICMP, measure to your VPN gateway or router instead."
+            ]),
+            HelpTopic(heading: "When it matters", body: "If large transfers stall on a VPN while small pages load fine, the tunnel's MTU is usually smaller than your interface believes. Set the interface or VPN MTU to the measured value to stop fragmentation.", tips: [
+                "Compare the measured MTU with your interface's MTU in the Interfaces tool."
+            ])
+        ]
+    ),
+    HelpSection(
         title: "Subnet Calculator",
         icon: "number.square",
         subtitle: "CIDR and IP Class calculations",
