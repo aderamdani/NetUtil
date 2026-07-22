@@ -52,6 +52,8 @@ SwiftUI, Swift Charts, Network.framework (TCP/UDP), CoreWLAN (Wi-Fi), Darwin API
 | Routes | — | `/usr/sbin/netstat -rn` |
 | Neighbors | NeighborsViewModel | `/usr/sbin/arp -an` |
 | Connections | ConnectionsViewModel | `/usr/sbin/lsof -i -n -P` |
+| IP Geolocation | IPGeolocationViewModel | ipinfo.io |
+| DNS Resolver | DNSResolverViewModel | `/usr/sbin/scutil --dns`, `/usr/bin/dig` |
 | History | — | `UserDefaults` |
 | Compare | — | Multi-resolver DNS |
 
@@ -98,6 +100,8 @@ Must match `ContentView.swift` Tool enum exactly:
 ("gauge.with.dots.needle.67percent",       "Net Quality"),
 ("power.circle",                           "Wake on LAN"),
 ("ear",                                    "Port Listener"),
+("mappin.and.ellipse",                     "IP Geolocation"),
+("server.rack",                            "DNS Resolver"),
 ("clock.arrow.circlepath",                 "History"),
 ("arrow.left.arrow.right",                 "Compare"),
 ```
@@ -221,4 +225,4 @@ Must match `ContentView.swift` Tool enum exactly:
 ---
 
 *See also: `docs/CHANGELOG.md` (history), `docs/ROADMAP.md` (planned features), `docs/TESTING.md` (test scenarios).*
-*Documentation Version: 4.10.0 (July 22, 2026)*
+*Documentation Version: 4.11.0 (July 23, 2026)*

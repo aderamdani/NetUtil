@@ -573,6 +573,32 @@ private let allSections: [HelpSection] = [
         ]
     ),
     HelpSection(
+        title: "IP Geolocation",
+        icon: "mappin.and.ellipse",
+        subtitle: "Country, city, and network owner for any IP",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Looks up the geographic location and network operator behind an IP address or hostname — country, region, city, ISP/organization name, ASN, and an approximate map position. Leave the field blank to locate this Mac's own public IP.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Type an IP address or hostname and press Return, or leave it blank for your own public IP. Results include a map pin and can be exported as PDF or CSV.", tips: [
+                "Geolocation is derived from IP registration data, not GPS — it's usually accurate to the city or ISP's regional hub, not the exact street.",
+                "A VPN or proxy will show the exit server's location, not your actual one — useful for confirming a VPN is actually routing traffic."
+            ]),
+            HelpTopic(heading: "Good to know", body: "The ASN (Autonomous System Number) identifies which network operator owns the address block — useful for telling apart residential ISPs, hosting providers, and CDNs when investigating traffic sources.", tips: nil)
+        ]
+    ),
+    HelpSection(
+        title: "DNS Resolver",
+        icon: "server.rack",
+        subtitle: "Which DNS servers macOS actually queries",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Reads this Mac's live DNS configuration (the same data `scutil --dns` reports) and shows every resolver macOS will use — general-purpose ones and any scoped to a specific interface (like a VPN's split-tunnel DNS) — along with each server's response latency.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Open the tool to see the current configuration; press Refresh after changing networks or VPN state to re-test. The Primary resolver in the status bar is the one used for ordinary lookups.", tips: [
+                "A VPN often adds a scoped resolver for its own domains while leaving your regular DNS in place for everything else — that's expected, not a leak.",
+                "A resolver marked Not Reachable or with no latency reading means lookups through it will fail or fall through to the next one."
+            ]),
+            HelpTopic(heading: "Good to know", body: "This reflects configuration, not enforcement — actual per-app DNS behavior can still differ under certain VPN or Private Relay setups. Use DNS Lookup to test resolution against a specific server directly.", tips: nil)
+        ]
+    ),
+    HelpSection(
         title: "Network Quality",
         icon: "gauge.with.dots.needle.67percent",
         subtitle: "Responsiveness under load (RPM)",

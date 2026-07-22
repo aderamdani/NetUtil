@@ -4,6 +4,19 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.11.0] — 2026-07-23
+
+### Added
+- **IP Geolocation**: looks up the country, region, city, ISP/organization, ASN, and approximate map position behind any IP address or hostname — or leave the field blank to locate this Mac's own public IP. Results export to PDF/CSV and the Dashboard shows a live card for your own location.
+- **DNS Resolver**: reads this Mac's live DNS configuration (`scutil --dns`) and shows every resolver macOS will actually query — general-purpose and any VPN/interface-scoped ones — along with each server's response latency and reachability. The Dashboard shows the primary resolver and its latency at a glance.
+
+### Changed
+- Subnet Scanner and Subnet Calculator now default their IP/CIDR field to whatever network this Mac is actually connected to, instead of a hardcoded `192.168.1.0/24` placeholder — applied once, so it never overwrites a value you've since typed.
+- ToolStore's public-IP fetch now also returns geolocation data in the same request (switched from api.ipify.org to ipinfo.io), avoiding a second network call for the new Dashboard card.
+- Tool count is now 28 (27 diagnostics + Dashboard), up from 26.
+
+---
+
 ## [4.10.0] — 2026-07-22
 
 ### Added

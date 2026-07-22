@@ -118,6 +118,26 @@ enum Exporter {
         return ([header] + rows).joined(separator: "\n")
     }
 
+    // MARK: - CSV: IP Geolocation
+    static func csvString(from result: IPGeoResult) -> String {
+        let header = "ip,hostname,city,region,country,isp,asn,postal,timezone"
+        let row = "\(result.ip),\(csvField(result.hostname ?? "")),\(csvField(result.city)),\(csvField(result.region)),\(result.country),\(csvField(result.ispName)),\(result.asn ?? ""),\(result.postal ?? ""),\(result.timezone ?? "")"
+        return header + "\n" + row
+    }
+
+    // MARK: - CSV: DNS Resolver
+    static func csvString(from resolvers: [DNSResolverEntry]) -> String {
+        let header = "scope,domain,nameserver,interface,reachable,latency_ms"
+        var rows: [String] = []
+        for r in resolvers {
+            for ns in r.nameservers {
+                let latency = r.latencyMs[ns].map { String(format: "%.0f", $0) } ?? ""
+                rows.append("\(r.scopeLabel),\(csvField(r.domain ?? "")),\(ns),\(r.interface ?? ""),\(r.isReachable),\(latency)")
+            }
+        }
+        return ([header] + rows).joined(separator: "\n")
+    }
+
     // MARK: - CSV: Speed Test
     static func csvString(from history: [SpeedTestResult]) -> String {
         let fmt = ISO8601DateFormatter()
@@ -447,6 +467,41 @@ enum Exporter {
             ("ARP Table", [["IP Address", "MAC Address", "Interface", "Type"]] + dataRows)
         ])
         savePDF(data: pdf, defaultName: "NetUtil-Neighbors-\(ts).pdf")
+    }
+
+    // MARK: - PDF: IP Geolocation
+    @MainActor static func saveIPGeolocationPDF(result: IPGeoResult) {
+        let ts = timestamp()
+        let metaRows: [[String]] = [
+            ["IP Address", result.ip],
+            ["Hostname", result.hostname ?? "—"],
+            ["City", result.city.isEmpty ? "—" : result.city],
+            ["Region", result.region.isEmpty ? "—" : result.region],
+            ["Country", result.country],
+            ["ISP / Org", result.ispName],
+            ["ASN", result.asn ?? "—"],
+            ["Postal Code", result.postal ?? "—"],
+            ["Timezone", result.timezone ?? "—"],
+        ]
+        let pdf = PDFReport.build(tool: "IP Geolocation", target: result.ip, sections: [
+            ("Location", metaRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-IPGeo-\(result.ip)-\(ts).pdf")
+    }
+
+    // MARK: - PDF: DNS Resolver
+    @MainActor static func saveDNSResolverPDF(resolvers: [DNSResolverEntry]) {
+        let ts = timestamp()
+        let dataRows: [[String]] = resolvers.flatMap { r -> [[String]] in
+            r.nameservers.map { ns in
+                let latency = r.latencyMs[ns].map { String(format: "%.0f ms", $0) } ?? "—"
+                return [r.scopeLabel, r.domain ?? "—", ns, r.isReachable ? "Reachable" : "Not Reachable", latency]
+            }
+        }
+        let pdf = PDFReport.build(tool: "DNS Resolver", target: "\(resolvers.count) resolvers", sections: [
+            ("Resolvers", [["Scope", "Domain", "Nameserver", "Status", "Latency"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-DNSResolver-\(ts).pdf")
     }
 
     // MARK: - PDF: Connections

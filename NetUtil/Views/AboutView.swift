@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.10.0"
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.11.0"
     private var updater = Updater.shared
 
     var body: some View {
@@ -99,6 +99,8 @@ struct AboutView: View {
         ("gauge.with.dots.needle.67percent",       "Net Quality"),
         ("power.circle",                           "Wake on LAN"),
         ("ear",                                    "Port Listener"),
+        ("mappin.and.ellipse",                     "IP Geolocation"),
+        ("server.rack",                            "DNS Resolver"),
         ("clock.arrow.circlepath",                 "History"),
         ("arrow.left.arrow.right",                 "Compare")
     ]

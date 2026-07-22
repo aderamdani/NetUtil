@@ -29,12 +29,15 @@ final class ToolStore {
     let neighbors   = NeighborsViewModel()
     let connections = ConnectionsViewModel()
     let portListener = PortListenerViewModel()
+    let ipGeolocation = IPGeolocationViewModel()
+    let dnsResolver   = DNSResolverViewModel()
     let statistics  = TrafficStatistics()
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()
     let sessionHistory = SessionHistory()
 
     private(set) var externalIP: String = "Checking..."
+    private(set) var externalIPGeo: IPGeoResult?
     private(set) var isVPNActive: Bool = false
     private(set) var primaryLocalIP: String = "—"
     private(set) var currentConnectionName: String = "Unknown"
@@ -51,6 +54,7 @@ final class ToolStore {
         bandwidth.start()
         wireSessionLogging()
         refreshGlobalStatus()
+        dnsResolver.start()
         observeActivationPolicy()
         observeOcclusion()
     }
@@ -127,6 +131,7 @@ final class ToolStore {
         netQuality.onSessionComplete  = log
         doctor.onSessionComplete      = log
         pathMTU.onSessionComplete     = log
+        ipGeolocation.onSessionComplete = log
     }
 
     /// Refreshes expensive cached properties.
@@ -216,13 +221,20 @@ final class ToolStore {
         }
     }
     
+    /// Fetches this Mac's public IP and its geolocation in a single call —
+    /// used for both the header's "Public" chip and the Dashboard's IP
+    /// Geolocation card (which seeds from `externalIPGeo` instead of making
+    /// its own request).
     private func fetchExternalIP() {
         Task {
-            guard let url = URL(string: "https://api.ipify.org") else { return }
+            guard let url = URL(string: "https://ipinfo.io/json") else { return }
             do {
                 let (data, _) = try await URLSession.shared.data(from: url)
-                if let ip = String(data: data, encoding: .utf8) {
-                    self.externalIP = ip.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let geo = IPGeoResult.parse(data) {
+                    self.externalIP = geo.ip
+                    self.externalIPGeo = geo
+                } else {
+                    self.externalIP = "Unknown"
                 }
             } catch {
                 self.externalIP = "Unknown"
