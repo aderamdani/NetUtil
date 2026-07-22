@@ -11,13 +11,11 @@ final class DNSViewModel {
     private(set) var lastQuery: String = ""
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
-    @ObservationIgnored nonisolated(unsafe) private var process: Process?
+    @ObservationIgnored private let subprocess = CancellableSubprocess()
 
     /// Generation token: bumped on cancel/lookup so output of a terminated
     /// dig can't populate the result of a newer query.
     private var runID = 0
-
-    deinit { process?.terminate() }
 
     func start(host: String, type: DNSRecordType, server: DNSServer) {
         stop()
@@ -29,44 +27,27 @@ final class DNSViewModel {
         runID += 1
         let id = runID
 
-        let p = Process()
-        let pipe = Pipe()
-        p.executableURL = URL(fileURLWithPath: "/usr/bin/dig")
-
         var args: [String] = ["+noall", "+answer", "+stats", "+comments"]
         if let addr = server.address { args.append("@\(addr)") }
         args += [host, type.rawValue]
-        p.arguments = args
-        p.standardOutput = pipe
-        p.standardError = pipe
-
-        process = p
 
         do {
-            try p.run()
+            try subprocess.launch(executable: "/usr/bin/dig", arguments: args)
         } catch {
             self.error = error.localizedDescription
-            process = nil
             isRunning = false
             return
         }
 
-        // Drain to EOF off-main, then parse the complete output in one shot —
-        // no incremental buffer means no readability/termination ordering race.
         let start = Date()
-        Task.detached { [weak self] in
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            p.waitUntilExit()
-            let output = String(data: data, encoding: .utf8) ?? ""
-            await MainActor.run { [weak self] in
-                guard let self, self.runID == id else { return }
-                self.rawOutput = output
-                let parsed = Self.parse(output: output, serverAddress: server.address)
-                self.result = parsed
-                self.process = nil
-                self.isRunning = false
-                self.logSession(parsed, host: host, type: type, started: start)
-            }
+        Task { [weak self] in
+            guard let output = await self?.subprocess.collectOutput() else { return }
+            guard let self, self.runID == id else { return }
+            self.rawOutput = output
+            let parsed = Self.parse(output: output, serverAddress: server.address)
+            self.result = parsed
+            self.isRunning = false
+            self.logSession(parsed, host: host, type: type, started: start)
         }
     }
 
@@ -83,8 +64,7 @@ final class DNSViewModel {
 
     func stop() {
         runID += 1
-        process?.terminate()
-        process = nil
+        subprocess.terminate()
         isRunning = false
     }
 

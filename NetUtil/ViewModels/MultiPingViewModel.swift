@@ -16,17 +16,11 @@ final class PingSlot: Identifiable {
     private(set) var isRunning = false
 
     private static let historyLimit = 120
-    @ObservationIgnored nonisolated(unsafe) private var process: Process?
-    private var pipe: Pipe?
+    @ObservationIgnored private let subprocess = StreamingSubprocess()
 
-    init(host: String) { 
-        self.host = host 
+    init(host: String) {
+        self.host = host
         self.customName = host
-    }
-
-    deinit {
-        // Safe because we are the only one holding reference to process
-        process?.terminate()
     }
 
     func start() {
@@ -36,36 +30,25 @@ final class PingSlot: Identifiable {
     }
 
     func stop() {
-        pipe?.fileHandleForReading.readabilityHandler = nil
-        process?.terminate()
-        process = nil
-        pipe = nil
+        subprocess.stop()
         isRunning = false
     }
 
     private func runPing() {
-        let p = Process()
-        let pipe = Pipe()
-        p.executableURL = URL(fileURLWithPath: "/sbin/ping")
-        p.arguments = ["-i", "1", host]
-        p.standardOutput = pipe
-        p.standardError = pipe
-
-        pipe.fileHandleForReading.readabilityHandler = { [weak self] fh in
-            let data = fh.availableData
-            guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
-            let lines = text.components(separatedBy: "\n").filter { !$0.isEmpty }
-            let parsed = lines.compactMap { Self.parseLine($0) }
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                for r in parsed { self.addResult(r) }
-            }
+        do {
+            try subprocess.run(executable: "/sbin/ping",
+                               arguments: ["-i", "1", host],
+                               onChunk: { [weak self] text in
+                let lines = text.components(separatedBy: "\n").filter { !$0.isEmpty }
+                let parsed = lines.compactMap { Self.parseLine($0) }
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    for r in parsed { self.addResult(r) }
+                }
+            }, onTerminate: {})
+        } catch {
+            isRunning = false
         }
-
-        self.process = p
-        self.pipe = pipe
-
-        do { try p.run() } catch { isRunning = false }
     }
 
     private func addResult(_ rtt: Double?) {

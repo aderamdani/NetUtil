@@ -66,3 +66,45 @@ final class StreamingSubprocess {
 
     deinit { process?.terminate() }
 }
+
+/// One-shot command whose in-flight run can be terminated (Stop buttons,
+/// owner deinit) — for `dig`, `whois`, and similar run-to-completion tools.
+/// `launch` throws synchronously so callers surface launch failures before
+/// any await; `collectOutput` drains stdout+stderr fully *before* waiting
+/// for exit, off the calling actor.
+final class CancellableSubprocess {
+    nonisolated(unsafe) private var process: Process?
+    nonisolated(unsafe) private var pipe: Pipe?
+
+    func launch(executable: String, arguments: [String]) throws {
+        let p = Process()
+        let pipe = Pipe()
+        p.executableURL = URL(fileURLWithPath: executable)
+        p.arguments = arguments
+        p.standardOutput = pipe
+        p.standardError = pipe
+        try p.run()
+        self.process = p
+        self.pipe = pipe
+    }
+
+    func collectOutput() async -> String {
+        guard let p = process, let pipe else { return "" }
+        let output = await Task.detached {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            p.waitUntilExit()
+            return String(data: data, encoding: .utf8) ?? ""
+        }.value
+        process = nil
+        self.pipe = nil
+        return output
+    }
+
+    func terminate() {
+        process?.terminate()
+        process = nil
+        pipe = nil
+    }
+
+    deinit { process?.terminate() }
+}
