@@ -4,6 +4,26 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.8.2] — 2026-07-22
+
+### Fixed
+- **Deadlock**: `RouteTableView`'s `netstat -rn` spawn waited on process exit before draining its output pipe — could hang forever on a large routing table. Reordered to drain-then-wait (matches the fix already applied elsewhere in 4.7.5).
+- **Route flags**: lowercase route flags (`c`, `m`, `r`, …) were shown raw instead of expanded — flag matching is now case-insensitive.
+- **Race condition**: Subnet Scanner lacked the run-generation-token guard every other Process-spawning ViewModel has; stopping and immediately restarting a scan could let the old run keep writing into the freshly-reset results.
+- **Battery**: Wi-Fi polling was excluded from window-occlusion pause/resume — it kept polling CoreWLAN every 2s while the window was minimized or hidden. Now pauses/resumes with everything else.
+- **Consistency**: the menu bar and main app computed "primary interface" via two independently-maintained predicates that had already diverged (one was missing the `tun`/`tap` exclusion) — unified into one shared helper.
+- Removed 2 force-unwraps, added `final` to the one ViewModel missing it, fixed 3 `Task` handles never cancelled in `deinit`, fixed 3 `ForEach` views keying off array index instead of a stable id, consolidated duplicated `isPrivateIP` and byte-formatting logic into single sources of truth.
+
+### Changed
+- **ViewModel standardization**: all 13 tool ViewModels now share one shape — `isRunning`/`error` as `private(set) var`, `start()`/`stop()`, `runID` generation tokens for anything spawning a `Process`. Previously a mix of `isScanning`/`isTesting`/`errorMessage`, `startScan`/`lookup`/`run`, and inconsistent access control across tools.
+- **Shared components**: extracted `MoodBar`, `ToolStateView` (empty/loading states), `ToolControlBar` + `HostHistoryMenu`, and a `SubprocessRunner` utility — removing roughly 700 lines of near-identical code that had been copy-pasted across 7-19 tools.
+- **Build**: release builds now target Apple Silicon only (`ARCHS=arm64`); the x86_64 slice has been dropped.
+
+### Docs
+- `docs/TESTING.md`'s stale open-items table (O1-O5, generated against v4.3.0) re-audited against current code and corrected — 4 of 5 were already resolved by earlier passes, the 5th (route flag case-sensitivity) is fixed in this release.
+
+---
+
 ## [4.8.1] — 2026-07-18
 
 ### Changed
