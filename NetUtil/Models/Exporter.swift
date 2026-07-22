@@ -109,6 +109,15 @@ enum Exporter {
         return ([header] + rows).joined(separator: "\n")
     }
 
+    // MARK: - CSV: Connections
+    static func csvString(from connections: [NetConnection]) -> String {
+        let header = "process,pid,proto,local,remote,state"
+        let rows = connections.map {
+            "\(csvField($0.command)),\($0.pid),\($0.proto),\($0.local),\($0.remote ?? ""),\($0.state ?? "")"
+        }
+        return ([header] + rows).joined(separator: "\n")
+    }
+
     // MARK: - CSV: Speed Test
     static func csvString(from history: [SpeedTestResult]) -> String {
         let fmt = ISO8601DateFormatter()
@@ -438,6 +447,18 @@ enum Exporter {
             ("ARP Table", [["IP Address", "MAC Address", "Interface", "Type"]] + dataRows)
         ])
         savePDF(data: pdf, defaultName: "NetUtil-Neighbors-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Connections
+    @MainActor static func saveConnectionsPDF(connections: [NetConnection]) {
+        let ts = timestamp()
+        let dataRows: [[String]] = connections.map {
+            [$0.command, "\($0.pid)", $0.proto, $0.local, $0.remote ?? "—", $0.state ?? "—"]
+        }
+        let pdf = PDFReport.build(tool: "Connections", target: "\(connections.count) sockets", sections: [
+            ("Open Sockets", [["Process", "PID", "Proto", "Local", "Remote", "State"]] + dataRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Connections-\(ts).pdf")
     }
 
     // MARK: - PDF: Routes

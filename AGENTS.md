@@ -50,6 +50,7 @@ SwiftUI, Swift Charts, Network.framework (TCP/UDP), CoreWLAN (Wi-Fi), Darwin API
 | Wi-Fi | — | `CoreWLAN.CWWiFiClient` |
 | Routes | — | `/usr/sbin/netstat -rn` |
 | Neighbors | NeighborsViewModel | `/usr/sbin/arp -an` |
+| Connections | ConnectionsViewModel | `/usr/sbin/lsof -i -n -P` |
 | History | — | `UserDefaults` |
 | Compare | — | Multi-resolver DNS |
 
@@ -90,6 +91,7 @@ Must match `ContentView.swift` Tool enum exactly:
 ("wifi",                                   "Wi-Fi"),
 ("arrow.triangle.branch",                  "Routes"),
 ("person.2.wave.2",                        "Neighbors"),
+("app.connected.to.app.below.fill",        "Connections"),
 ("chart.line.uptrend.xyaxis",              "Statistics"),
 ("speedometer",                            "Speed Test"),
 ("gauge.with.dots.needle.67percent",       "Net Quality"),
