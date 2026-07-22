@@ -76,6 +76,7 @@ struct AboutView: View {
 
     private let toolList: [(String, String)] = [
         ("square.grid.2x2",                       "Dashboard"),
+        ("stethoscope",                            "Doctor"),
         ("antenna.radiowaves.left.and.right",      "Ping"),
         ("point.3.connected.trianglepath.dotted",  "Traceroute"),
         ("dot.radiowaves.left.and.right",          "Multi-Ping"),

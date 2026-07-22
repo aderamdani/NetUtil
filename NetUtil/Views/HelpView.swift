@@ -235,6 +235,21 @@ private let allSections: [HelpSection] = [
         ]
     ),
     HelpSection(
+        title: "Connectivity Doctor",
+        icon: "stethoscope",
+        subtitle: "Find which layer is broken",
+        topics: [
+            HelpTopic(heading: "What it does", body: "When \"the internet doesn't work\", the cause is usually one of four layers: the router, DNS, the internet link itself, or encrypted web traffic. The Doctor checks each layer in order and tells you exactly which one failed — and what to do about it.", tips: nil),
+            HelpTopic(heading: "The four checks", body: "Router: can this Mac reach your gateway at all? DNS: can names like apple.com be turned into addresses? Internet: does plain web traffic actually get out (this also detects hotel/airport captive portals)? Secure Web: do https connections complete without interference?", tips: [
+                "A captive-portal result means the network wants you to sign in — open a browser and complete the login page.",
+                "If only DNS fails, switching to a public resolver (1.1.1.1 or 8.8.8.8) in System Settings usually fixes it immediately."
+            ]),
+            HelpTopic(heading: "Reading the verdict", body: "The summary bar states the first broken layer in plain language. Everything green means the path from your Mac to the encrypted web is healthy — if a specific site still fails, the problem is that site, not your network.", tips: [
+                "Results log to Session History, so you can show your ISP exactly what failed and when."
+            ])
+        ]
+    ),
+    HelpSection(
         title: "Ping",
         icon: "antenna.radiowaves.left.and.right",
         subtitle: "ICMP echo request latency",

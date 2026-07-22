@@ -190,6 +190,7 @@ struct SessionHistoryView: View {
         case "httpLatency": return .httpLatency
         case "speedTest":   return .speedTest
         case "netQuality":  return .netQuality
+        case "doctor":      return .doctor
         default:            return nil
         }
     }
@@ -212,6 +213,7 @@ enum SessionToolNames {
         case "httpLatency": return "HTTP Latency"
         case "speedTest":   return "Speed Test"
         case "netQuality":  return "Net Quality"
+        case "doctor":      return "Doctor"
         default:            return key
         }
     }
@@ -227,6 +229,7 @@ enum SessionToolNames {
         case "httpLatency": return "stopwatch"
         case "speedTest":   return "speedometer"
         case "netQuality":  return "gauge.with.dots.needle.67percent"
+        case "doctor":      return "stethoscope"
         default:            return "network"
         }
     }
