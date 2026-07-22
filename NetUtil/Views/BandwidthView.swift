@@ -38,15 +38,7 @@ struct BandwidthView: View {
             }
             return ("circle.fill", .secondary, "No active traffic detected")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(color == .secondary ? .secondary : .primary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     // MARK: - Control Bar

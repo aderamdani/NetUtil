@@ -6,19 +6,24 @@ struct MoodBar<Accessory: View>: View {
     let icon: String
     let color: Color
     let message: String
+    /// Message stays `.secondary` in the standard bar; Dashboard's health bar
+    /// tints it red/orange to escalate degraded states.
+    var messageColor: Color = .secondary
     @ViewBuilder var accessory: () -> Accessory
 
-    init(icon: String, color: Color, message: String, @ViewBuilder accessory: @escaping () -> Accessory = { EmptyView() }) {
+    init(icon: String, color: Color, message: String, messageColor: Color = .secondary,
+         @ViewBuilder accessory: @escaping () -> Accessory = { EmptyView() }) {
         self.icon = icon
         self.color = color
         self.message = message
+        self.messageColor = messageColor
         self.accessory = accessory
     }
 
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(message).font(.callout).foregroundColor(.secondary)
+            Text(message).font(.callout).foregroundColor(messageColor)
             Spacer()
             accessory()
         }

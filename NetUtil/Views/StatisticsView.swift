@@ -69,15 +69,7 @@ struct StatisticsView: View {
             let todayStr = NetworkMath.formatBytes(totalToday)
             return ("chart.line.uptrend.xyaxis", .accentColor, "Today: \(todayStr) total  —  \(days) day\(days == 1 ? "" : "s") of history")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     private var controlBar: some View {
@@ -383,6 +375,7 @@ struct StatisticsView: View {
         VStack(spacing: 12) {
             Text("No Historical Data")
                 .font(.headline)
+                .foregroundColor(.secondary)
             Text("Statistics are collected automatically while the app is running.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)

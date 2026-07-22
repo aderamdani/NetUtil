@@ -52,15 +52,7 @@ struct SpeedTestView: View {
                 return ("play.rectangle.fill", .orange, "Last streaming: \(r.streamTier)")
             }
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     // MARK: - Control Bar

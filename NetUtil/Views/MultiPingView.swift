@@ -70,15 +70,7 @@ struct MultiPingView: View {
             if avgLoss > 0  { return ("exclamationmark.triangle.fill", .orange, "Active: \(active)/\(total)  —  Avg loss: \(String(format: "%.1f", avgLoss))%") }
             return ("checkmark.circle.fill", .green, "Active: \(active)/\(total)  —  All hosts reachable")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     private var controlBar: some View {

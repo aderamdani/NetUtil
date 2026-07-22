@@ -131,14 +131,7 @@ struct SessionHistoryView: View {
     private var historyMoodBar: some View {
         let n = history.records.count
         let msg: String = n == 0 ? "No sessions recorded yet" : "\(n) session\(n == 1 ? "" : "s") recorded  —  \(filtered.count) shown"
-        return HStack(spacing: 8) {
-            Image(systemName: "clock.fill").foregroundColor(.accentColor).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24).padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: "clock.fill", color: .accentColor, message: msg)
     }
 
     private var recordsList: some View {
@@ -166,11 +159,9 @@ struct SessionHistoryView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
-            Text("No Sessions Recorded").font(.headline).foregroundColor(.secondary)
-            Text("Run any tool to start logging.").font(.subheadline).foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ToolStateView.empty(title: "No Sessions Recorded",
+                            subtitle: "Run any tool to start logging.")
+            .frame(maxHeight: .infinity)
     }
 
     private func navigate(to record: SessionRecord) {
