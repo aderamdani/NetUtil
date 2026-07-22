@@ -28,6 +28,7 @@ final class ToolStore {
     let pathMTU     = PathMTUViewModel()
     let neighbors   = NeighborsViewModel()
     let connections = ConnectionsViewModel()
+    let portListener = PortListenerViewModel()
     let statistics  = TrafficStatistics()
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()
