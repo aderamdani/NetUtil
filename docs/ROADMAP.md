@@ -28,10 +28,17 @@
 | Routes | netstat -rn, protocol matrix, flag legend | Optimized (v4.3.0) |
 | Session History | Auto-logged sessions (ping/traceroute/port scan), filters, PDF/CSV | Active |
 | Compare | Side-by-side comparison of logged sessions per tool | Active |
-| Net Quality | Apple networkQuality wrapper: RPM responsiveness/bufferbloat under load | New |
-| Wake on LAN | UDP magic-packet sender (BSD socket, broadcast) | New |
+| Net Quality | Apple networkQuality wrapper: RPM responsiveness/bufferbloat under load | New (v4.9.0) |
+| Wake on LAN | UDP magic-packet sender (BSD socket, broadcast) | New (v4.9.0) |
+| Doctor | Layered fault isolation: router → DNS → internet → TLS, captive-portal detection | New |
+| Path MTU | Don't-fragment ping binary search for effective MTU | New |
+| Neighbors | ARP table viewer (devices on the local network) | New |
+| Connections | Open TCP/UDP sockets per process (lsof) | New |
+| Port Listener | Inbound reachability test via NWListener | New |
 
-**Total: 21 tools (20 diagnostics + Dashboard)**
+**Total: 26 tools (25 diagnostics + Dashboard)**
+
+Multi-Ping additionally gained threshold-based latency alert notifications.
 
 ---
 

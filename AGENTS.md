@@ -46,6 +46,7 @@ SwiftUI, Swift Charts, Network.framework (TCP/UDP), CoreWLAN (Wi-Fi), Darwin API
 | Speed Test | SpeedTestViewModel | Cloudflare API |
 | Net Quality | NetQualityViewModel | `/usr/bin/networkQuality -c` |
 | Wake on LAN | WakeOnLanViewModel | UDP magic packet (BSD socket) |
+| Port Listener | PortListenerViewModel | `NWListener` (TCP/UDP) |
 | Interfaces | NetworkInterfaceViewModel | `getifaddrs()` |
 | Wi-Fi | — | `CoreWLAN.CWWiFiClient` |
 | Routes | — | `/usr/sbin/netstat -rn` |
@@ -96,6 +97,7 @@ Must match `ContentView.swift` Tool enum exactly:
 ("speedometer",                            "Speed Test"),
 ("gauge.with.dots.needle.67percent",       "Net Quality"),
 ("power.circle",                           "Wake on LAN"),
+("ear",                                    "Port Listener"),
 ("clock.arrow.circlepath",                 "History"),
 ("arrow.left.arrow.right",                 "Compare"),
 ```

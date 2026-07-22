@@ -98,6 +98,7 @@ struct AboutView: View {
         ("speedometer",                            "Speed Test"),
         ("gauge.with.dots.needle.67percent",       "Net Quality"),
         ("power.circle",                           "Wake on LAN"),
+        ("ear",                                    "Port Listener"),
         ("clock.arrow.circlepath",                 "History"),
         ("arrow.left.arrow.right",                 "Compare")
     ]

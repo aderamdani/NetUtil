@@ -25,6 +25,7 @@ enum Tool: String, CaseIterable, Identifiable {
     case speedTest       = "Speed Test"
     case netQuality      = "Net Quality"
     case wakeOnLAN       = "Wake on LAN"
+    case portListener    = "Port Listener"
     case sessionHistory  = "History"
     case compare         = "Compare"
     var id: String { rawValue }
@@ -54,6 +55,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .speedTest:      "speedometer"
         case .netQuality:     "gauge.with.dots.needle.67percent"
         case .wakeOnLAN:      "power.circle"
+        case .portListener:   "ear"
         case .sessionHistory: "clock.arrow.circlepath"
         case .compare:        "arrow.left.arrow.right"
         }
@@ -81,7 +83,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .sessionHistory: "9"
         case .compare:        "0"
         // Both ⌘ digit banks are full; the newest tools have no shortcut.
-        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections: nil
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections, .portListener: nil
         }
     }
 
@@ -94,7 +96,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnetScan, .whois, .bandwidth, .interfaces, .wifi,
              .routes, .statistics, .speedTest, .sessionHistory, .compare:
             return [.command, .option]
-        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections:
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections, .portListener:
             return []
         }
     }
@@ -197,6 +199,7 @@ struct ContentView: View {
                             sidebarItem(.subnetScan)
                             sidebarItem(.subnet)
                             sidebarItem(.wakeOnLAN)
+                            sidebarItem(.portListener)
                         }
                         
                         Section("Lookup & Security") {
@@ -277,6 +280,7 @@ struct ContentView: View {
         case .netQuality:  return tools.netQuality.isRunning
         case .doctor:      return tools.doctor.isRunning
         case .pathMTU:     return tools.pathMTU.isRunning
+        case .portListener: return tools.portListener.isRunning
         default:           return false
         }
     }
@@ -312,6 +316,7 @@ struct ContentView: View {
         case .speedTest:     SpeedTestView(vm: tools.speedTest)
         case .netQuality:    NetQualityView(vm: tools.netQuality)
         case .wakeOnLAN:     WakeOnLanView(vm: tools.wakeOnLAN)
+        case .portListener:  PortListenerView(vm: tools.portListener)
         case .sessionHistory: SessionHistoryView(selection: $selection)
         case .compare:       CompareView()
         }

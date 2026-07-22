@@ -559,6 +559,20 @@ private let allSections: [HelpSection] = [
         ]
     ),
     HelpSection(
+        title: "Port Listener",
+        icon: "ear",
+        subtitle: "Test inbound reachability",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Opens a TCP or UDP port on this Mac and logs every connection that arrives — the mirror image of the Port Scanner. Use it to verify that a firewall rule, port forward, or NAT configuration actually lets traffic in.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Pick a port and protocol, press Listen, then connect from another device — for example `nc <this-mac's-ip> 8080` from a terminal, or point a browser at the port. Each arrival shows its source address and how many bytes it sent.", tips: [
+                "macOS's own firewall may prompt to allow NetUtil to accept incoming connections — approve it or nothing will arrive.",
+                "Ports below 1024 are privileged and will fail to open without elevated rights — use 1024 or higher.",
+                "If a connection from outside your network never arrives, the router's port forwarding is the usual suspect."
+            ]),
+            HelpTopic(heading: "Good to know", body: "The listener accepts a connection, records the first data it sends, and closes it — it never responds with content. Stop the listener when you're done testing so the port isn't left open.", tips: nil)
+        ]
+    ),
+    HelpSection(
         title: "Network Quality",
         icon: "gauge.with.dots.needle.67percent",
         subtitle: "Responsiveness under load (RPM)",
