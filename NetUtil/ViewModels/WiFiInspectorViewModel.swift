@@ -11,14 +11,16 @@ struct SignalSample: Identifiable {
 
 @MainActor
 @Observable
-class WiFiInspectorViewModel {
-    var info: WiFiInfo?
-    var rssiSamples: [SignalSample] = []
-    var lastUpdated = Date()
+final class WiFiInspectorViewModel {
+    private(set) var info: WiFiInfo?
+    private(set) var rssiSamples: [SignalSample] = []
+    private(set) var lastUpdated = Date()
     
     private var timer: Timer?
     private let client = CWWiFiClient.shared()
     private static let rssiSamplesLimit = 100
+
+    var isRunning: Bool { timer != nil }
 
     func start() {
         guard timer == nil else { return }

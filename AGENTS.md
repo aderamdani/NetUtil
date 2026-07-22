@@ -154,7 +154,7 @@ Must match `ContentView.swift` Tool enum exactly:
 ### View Composition
 - Extract subviews when `body` exceeds 50 lines.
 - **Never** `AnyView`. Use `@ViewBuilder` or `some View`.
-- `.task {}` instead of `.onAppear { Task {} }`.
+- `.task {}` instead of `.onAppear { Task {} }`. Documented exception: `DashboardView`'s uptime ticker deliberately uses `.onAppear { Task { ... } }` (cancelled `onDisappear`) instead of `.task {}` — `.task {}` re-ran on every body recompute driven by live bandwidth rates, causing a ~101% idle-CPU regression (fixed in v4.7.4).
 
 ### State Management
 - `@State` for view-local transient state only.

@@ -222,7 +222,7 @@ struct TrafficCardsSection: View {
                     }
                 }
                 Spacer()
-                if tools.subnetScan.isScanning { PulsingIndicator(color: .purple) }
+                if tools.subnetScan.isRunning { PulsingIndicator(color: .purple) }
             }
         }
     }

@@ -181,7 +181,7 @@ final class TracerouteViewModel {
         let ipsNeeded = hops.compactMap { hop -> String? in
             guard let ip = hop.ip, hop.geo == nil,
                   geoInFlight[ip] == nil,
-                  !Self.isPrivateIP(ip) else { return nil }
+                  !NetworkMath.isPrivateIP(ip) else { return nil }
             return ip
         }
         for ip in ipsNeeded {
@@ -199,21 +199,6 @@ final class TracerouteViewModel {
                 }
             }
             geoInFlight[ip] = task
-        }
-    }
-
-    private nonisolated static func isPrivateIP(_ ip: String) -> Bool {
-        let parts = ip.components(separatedBy: ".").compactMap { Int($0) }
-        guard parts.count == 4 else {
-            return ip.hasPrefix("::") || ip.hasPrefix("fe80") || ip.hasPrefix("fc") || ip.hasPrefix("fd")
-        }
-        switch parts[0] {
-        case 10:  return true
-        case 127: return true
-        case 169: return parts[1] == 254
-        case 172: return (16...31).contains(parts[1])
-        case 192: return parts[1] == 168
-        default:  return false
         }
     }
 

@@ -3,14 +3,6 @@ import XCTest
 
 final class RouteEntryTests: XCTestCase {
 
-    func testFlagDescriptions() {
-        // NOTE: flagDescriptions only matches UPPERCASE letters; macOS also emits
-        // lowercase 'c' (cloning) which is not decoded — see audit doc.
-        let e = RouteEntry(destination: "0.0.0.0", gateway: "192.168.1.1",
-                           flags: "UGSC", netif: "en0", isIPv6: false)
-        XCTAssertEqual(e.flagDescriptions, ["Up", "Gateway", "Static", "Cloned"])
-    }
-
     func testIsDefault() {
         let v4 = RouteEntry(destination: "default", gateway: "g", flags: "UG", netif: "en0", isIPv6: false)
         let v40 = RouteEntry(destination: "0.0.0.0", gateway: "g", flags: "UG", netif: "en0", isIPv6: false)

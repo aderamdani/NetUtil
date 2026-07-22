@@ -125,7 +125,7 @@ struct MultiPingSlotRow: View {
 
         return ZStack(alignment: .topLeading) {
             Chart {
-                ForEach(Array(samples.enumerated()), id: \.offset) { idx, s in
+                ForEach(Array(samples.enumerated()), id: \.element.id) { idx, s in
                     if let rtt = s.rtt {
                         AreaMark(x: .value("P", idx), y: .value("R", rtt))
                             .foregroundStyle(LinearGradient(

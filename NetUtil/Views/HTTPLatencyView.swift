@@ -78,56 +78,15 @@ struct HTTPLatencyView: View {
             if ttfb > 500  { return ("exclamationmark.triangle.fill", .orange, "Slow TTFB: \(String(format: "%.0f", ttfb)) ms  —  Total: \(String(format: "%.0f", r.totalMs)) ms") }
             return ("checkmark.circle.fill", .green, "HTTP \(code)  —  TTFB: \(String(format: "%.0f", ttfb)) ms  —  Total: \(String(format: "%.0f", r.totalMs)) ms")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     private var controlBar: some View {
-        VStack(spacing: 0) {
+        ToolControlBar(icon: "stopwatch.fill", title: "HTTP Latency",
+                       host: $urlString, placeholder: "https://example.com", textFieldWidth: 280,
+                       history: history, onSubmit: startAction,
+                       onSelectHistory: { h in urlString = h.contains("://") ? h : "https://\(h)"; startAction() }) {
             HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "stopwatch.fill")
-                        .foregroundColor(.accentColor)
-                        .imageScale(.large)
-                    Text("HTTP Latency")
-                        .font(.headline)
-                }
-                
-                Divider().frame(height: 16).padding(.horizontal, 4)
-                
-                TextField("https://example.com", text: $urlString)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-                    .frame(width: 280)
-                    .onSubmit(startAction)
-                    .overlay(alignment: .trailing) {
-                        if !history.hosts.isEmpty {
-                            Menu {
-                                ForEach(history.hosts, id: \.self) { h in
-                                    Button(h) { urlString = h.contains("://") ? h : "https://\(h)"; startAction() }
-                                }
-                                Divider()
-                                Button("Clear History", role: .destructive) { history.clear() }
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.secondary)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 28)
-                            .padding(.trailing, 4)
-                        }
-                    }
-
-                Spacer()
-                
-                HStack(spacing: 12) {
                     HStack(spacing: 8) {
                         Picker("", selection: $method) {
                             ForEach(methods, id: \.self) { Text($0).tag($0) }
@@ -173,11 +132,6 @@ struct HTTPLatencyView: View {
                     }
                     .buttonStyle(.borderless)
                 }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-            
-            Divider()
         }
     }
 
@@ -186,8 +140,7 @@ struct HTTPLatencyView: View {
             StatCard(title: "Status Code", value: "\(r.statusCode ?? 0)", icon: "network", color: statusColor(r.statusCode))
             StatCard(title: "Total Latency", value: String(format: "%.0f", r.totalMs), unit: "ms", icon: "stopwatch.fill", color: totalColor(r.totalMs))
             if let bytes = r.bodyBytes {
-                let fmt = formatBytes(bytes)
-                StatCard(title: "Payload Size", value: fmt.value, unit: fmt.unit, icon: "shippingbox.fill")
+                StatCard(title: "Payload Size", value: NetworkMath.formatBytes(UInt64(bytes)), icon: "shippingbox.fill")
             }
         }
     }
@@ -325,31 +278,17 @@ struct HTTPLatencyView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Request Sent")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter a URL to analyze connection phases and TTFB latency.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No Request Sent",
+                            subtitle: "Enter a URL to analyze connection phases and TTFB latency.")
     }
 
     private var loadingState: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Analyzing Network Phases...")
-                .font(.headline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.loading(message: "Analyzing Network Phases...")
     }
 
     private func startAction() {
-        if vm.isRunning { vm.cancel() }
-        else { guard !urlString.isEmpty else { return }; history.record(urlString); vm.run(urlString: urlString, method: method, followRedirects: followRedirects) }
+        if vm.isRunning { vm.stop() }
+        else { guard !urlString.isEmpty else { return }; history.record(urlString); vm.start(urlString: urlString, method: method, followRedirects: followRedirects) }
     }
 
     private func exportCSV(_ history: [HTTPLatencyResult]) -> String {
@@ -365,11 +304,6 @@ struct HTTPLatencyView: View {
     private func totalColor(_ ms: Double) -> Color { ms < 200 ? .primary : ms < 1000 ? .orange : .red }
     private func phaseColor(_ p: HTTPPhase) -> Color { switch p { case .dns: .teal; case .tcp: .blue; case .tls: .purple; case .request: .orange; case .ttfb: .yellow; case .download: .green } }
 
-    private func formatBytes(_ b: Int64) -> (value: String, unit: String) {
-        let kb = Double(b) / 1024
-        if kb < 1024 { return (String(format: "%.1f", kb), "KB") }
-        return (String(format: "%.2f", kb / 1024), "MB")
-    }
 }
 
 private struct HTTPStatusBadge: View {

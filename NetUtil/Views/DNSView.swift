@@ -73,60 +73,15 @@ struct DNSView: View {
             if n == 0 { return ("questionmark.circle.fill", .orange, "No records found for \(vm.lastQuery)  —  \(ms)") }
             return ("checkmark.circle.fill", .green, "\(n) record\(n == 1 ? "" : "s") resolved  —  \(ms)  —  via \(result.server)")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     private var controlBar: some View {
-        VStack(spacing: 0) {
+        ToolControlBar(icon: "globe", title: "DNS Lookup",
+                       host: $host, placeholder: "Domain name or IP",
+                       textFieldAccessibilityLabel: "Target Host Input",
+                       history: history, onSubmit: startLookup) {
             HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "globe")
-                        .foregroundColor(.accentColor)
-                        .imageScale(.large)
-                    Text("DNS Lookup")
-                        .font(.headline)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("DNS Lookup Tool")
-                
-                Divider().frame(height: 16).padding(.horizontal, 4)
-                
-                TextField("Domain name or IP", text: $host)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-                    .frame(width: 250)
-                    .onSubmit(startLookup)
-                    .accessibilityLabel("Target Host Input")
-                    .overlay(alignment: .trailing) {
-                        if !history.hosts.isEmpty {
-                            Menu {
-                                ForEach(history.hosts, id: \.self) { h in
-                                    Button(h) { host = h; startLookup() }
-                                }
-                                Divider()
-                                Button("Clear History", role: .destructive) { history.clear() }
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.secondary)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 28)
-                            .padding(.trailing, 4)
-                            .accessibilityLabel("Host History")
-                        }
-                    }
-
-                Spacer()
-                
-                HStack(spacing: 12) {
                     HStack(spacing: 8) {
                         Picker("", selection: $recordType) {
                             ForEach(DNSRecordType.allCases, id: \.self) { Text($0.rawValue).tag($0) }
@@ -153,7 +108,7 @@ struct DNSView: View {
                         )
                     }
 
-                    Button(action: { vm.isRunning ? vm.cancel() : startLookup() }) {
+                    Button(action: { vm.isRunning ? vm.stop() : startLookup() }) {
                         Label(vm.isRunning ? "Stop" : "Lookup", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
                     }
@@ -177,11 +132,6 @@ struct DNSView: View {
                     .buttonStyle(.borderless)
                     .accessibilityLabel("Show Help Guide")
                 }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-            
-            Divider()
         }
     }
 
@@ -281,30 +231,16 @@ struct DNSView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Lookup Performed")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter a domain to resolve its global DNS resource records.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No Lookup Performed",
+                            subtitle: "Enter a domain to resolve its global DNS resource records.")
     }
 
     private var loadingState: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Querying Name Servers...")
-                .font(.headline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.loading(message: "Querying Name Servers...")
     }
 
     private func startLookup() {
-        guard !host.isEmpty, !vm.isRunning else { return }; history.record(host); vm.lookup(host: host, type: recordType, server: server)
+        guard !host.isEmpty, !vm.isRunning else { return }; history.record(host); vm.start(host: host, type: recordType, server: server)
     }
 
     private func exportCSV(_ result: DNSResult) -> String {

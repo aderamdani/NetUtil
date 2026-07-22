@@ -22,12 +22,7 @@ struct MenuBarView: View {
     // MARK: - Helpers
 
     private var primaryInterface: NetworkInterface? {
-        networkInterfaces.interfaces.first {
-            $0.isUp && !$0.isLoopback && !$0.ipv4.isEmpty &&
-            !$0.name.hasPrefix("utun") && !$0.name.hasPrefix("ipsec") &&
-            !$0.name.hasPrefix("awdl") && !$0.name.hasPrefix("llw") &&
-            !$0.name.hasPrefix("bridge")
-        }
+        NetworkInterface.primary(in: networkInterfaces.interfaces)
     }
 
     // MARK: - Status Header

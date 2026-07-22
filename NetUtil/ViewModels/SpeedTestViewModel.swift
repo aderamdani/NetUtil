@@ -40,20 +40,21 @@ final class SpeedTestViewModel: SpeedTestDelegate {
     private(set) var error: String?
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
-    private var isRunning = false
+    private(set) var isRunning = false
     private var pendingConnectionName: String?
     private var engine: SpeedTestEngine?
     private var engineFactory: @MainActor () -> SpeedTestEngine
+    @ObservationIgnored nonisolated(unsafe) private var currentTask: Task<Void, Never>?
 
     private static let historyDefaultsKey = "speedTestHistory"
     private static let historyLimit = 50
-
-    var isTesting: Bool { isRunning }
 
     init(engineFactory: @escaping @MainActor () -> SpeedTestEngine = { SpeedTestEngine() }) {
         self.engineFactory = engineFactory
         loadHistory()
     }
+
+    deinit { currentTask?.cancel() }
 
     // MARK: - History persistence + rename
 
@@ -98,11 +99,12 @@ final class SpeedTestViewModel: SpeedTestDelegate {
         let newEngine = engineFactory()
         newEngine.delegate = self
         self.engine = newEngine
-        
-        Task { await runTest() }
+
+        currentTask = Task { await runTest() }
     }
 
     func cancel() {
+        currentTask?.cancel()
         engine?.cancel()
         isRunning = false
         phase = .idle

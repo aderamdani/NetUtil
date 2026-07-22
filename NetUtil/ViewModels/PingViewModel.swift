@@ -19,9 +19,8 @@ final class PingViewModel {
     var quickLaunchHost: String? = nil
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
-    @ObservationIgnored nonisolated(unsafe) private var process: Process?
+    @ObservationIgnored private var subprocess = StreamingSubprocess()
     @ObservationIgnored private var sessionStartTime: Date = Date()
-    @ObservationIgnored private var outputPipe: Pipe?
 
     private static let rawLinesLimit = 500
     private static let resultsLimit  = 1000
@@ -52,10 +51,6 @@ final class PingViewModel {
         pattern: #"Request timeout for icmp(?:6)?_seq (\d+)"#
     )
 
-    deinit {
-        process?.terminate()
-    }
-
     func start(host: String, count: Int?, interval: Double, packetSize: Int? = nil) {
         stop()
         results.removeAll()
@@ -78,88 +73,72 @@ final class PingViewModel {
                 self?.flushBuffer()
             }
 
-        let p = Process()
-        let pipe = Pipe()
-
-        p.executableURL = URL(fileURLWithPath: "/sbin/ping")
         var args: [String] = []
         if let count { args += ["-c", "\(count)"] }
         if let packetSize { args += ["-s", "\(packetSize)"] }
         args += ["-i", "\(max(0.2, interval))", host]
-        p.arguments = args
-        p.standardOutput = pipe
-        p.standardError = pipe
-
-        pipe.fileHandleForReading.readabilityHandler = { [weak self] fh in
-            guard let self else { return }
-            let data = fh.availableData
-            guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
-
-            // Parse on background thread
-            let lines = text.components(separatedBy: "\n").filter { !$0.isEmpty }
-            
-            // Check for IP in header
-            var foundIP: String?
-            for line in lines {
-                if let ip = Self.parseHeader(line) {
-                    foundIP = ip
-                    break
-                }
-            }
-
-            let parsed = lines.compactMap { Self.parseLine($0, ip: foundIP) }
-            let timeouts = lines.compactMap { Self.parseTimeout($0) }
-            let resolved = foundIP
-
-            Task { @MainActor [weak self] in
-                guard let self, self.runID == id else { return }
-                if let resolved { self.resolvedIP = resolved }
-                
-                let newLogLines = lines.map { PingLogLine(text: $0) }
-                self.rawLines.append(contentsOf: newLogLines)
-                if self.rawLines.count > Self.rawLinesLimit {
-                    self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
-                }
-
-                // Buffer the results instead of direct append
-                for result in parsed {
-                    self.resultsBuffer.append(result)
-                }
-                for timeoutSeq in timeouts {
-                    if self.beepOnLoss {
-                        NSSound(named: "Tink")?.play()
-                    }
-                    
-                    self.resultsBuffer.append(PingResult(
-                        sequence: timeoutSeq,
-                        bytes: 0,
-                        host: host,
-                        ipAddress: self.resolvedIP,
-                        ttl: 0,
-                        rtt: 0,
-                        status: .timeout
-                    ))
-                }
-            }
-        }
-
-        p.terminationHandler = { [weak self] _ in
-            Task { @MainActor [weak self] in
-                guard let self, self.runID == id else { return }
-                self.flushBuffer() // Final flush
-                self.chartResults = self.results // Ensure chart gets last snapshot
-                self.batchTimer = nil
-                self.outputPipe?.fileHandleForReading.readabilityHandler = nil
-                self.isRunning = false
-                self.logSession() // Finite (-c) runs end here, not via stop()
-            }
-        }
-
-        process = p
-        outputPipe = pipe
 
         do {
-            try p.run()
+            try subprocess.run(executable: "/sbin/ping", arguments: args, onChunk: { [weak self] text in
+                guard let self else { return }
+
+                // Parse on background thread
+                let lines = text.components(separatedBy: "\n").filter { !$0.isEmpty }
+
+                // Check for IP in header
+                var foundIP: String?
+                for line in lines {
+                    if let ip = Self.parseHeader(line) {
+                        foundIP = ip
+                        break
+                    }
+                }
+
+                let parsed = lines.compactMap { Self.parseLine($0, ip: foundIP) }
+                let timeouts = lines.compactMap { Self.parseTimeout($0) }
+                let resolved = foundIP
+
+                Task { @MainActor [weak self] in
+                    guard let self, self.runID == id else { return }
+                    if let resolved { self.resolvedIP = resolved }
+
+                    let newLogLines = lines.map { PingLogLine(text: $0) }
+                    self.rawLines.append(contentsOf: newLogLines)
+                    if self.rawLines.count > Self.rawLinesLimit {
+                        self.rawLines.removeFirst(self.rawLines.count - Self.rawLinesLimit)
+                    }
+
+                    // Buffer the results instead of direct append
+                    for result in parsed {
+                        self.resultsBuffer.append(result)
+                    }
+                    for timeoutSeq in timeouts {
+                        if self.beepOnLoss {
+                            NSSound(named: "Tink")?.play()
+                        }
+
+                        self.resultsBuffer.append(PingResult(
+                            sequence: timeoutSeq,
+                            bytes: 0,
+                            host: host,
+                            ipAddress: self.resolvedIP,
+                            ttl: 0,
+                            rtt: 0,
+                            status: .timeout
+                        ))
+                    }
+                }
+            }, onTerminate: { [weak self] in
+                Task { @MainActor [weak self] in
+                    guard let self, self.runID == id else { return }
+                    self.flushBuffer() // Final flush
+                    self.chartResults = self.results // Ensure chart gets last snapshot
+                    self.batchTimer = nil
+                    self.subprocess.stop()
+                    self.isRunning = false
+                    self.logSession() // Finite (-c) runs end here, not via stop()
+                }
+            })
         } catch {
             self.error = error.localizedDescription
             self.batchTimer = nil
@@ -197,10 +176,7 @@ final class PingViewModel {
     func stop() {
         runID += 1
         batchTimer = nil
-        outputPipe?.fileHandleForReading.readabilityHandler = nil
-        process?.terminate()
-        process = nil
-        outputPipe = nil
+        subprocess.stop()
         isRunning = false
         logSession()
     }

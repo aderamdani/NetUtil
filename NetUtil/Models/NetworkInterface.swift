@@ -15,6 +15,23 @@ struct NetworkInterface: Identifiable {
     
     var ipAddress: String? { ipv4.first }
 
+    /// True for a real, user-facing IPv4 link — excludes loopback and the
+    /// virtual/tunnel interfaces (VPN, AWDL/AirDrop, low-latency Wi-Fi,
+    /// bridges) that shouldn't be surfaced as "the" primary interface.
+    var isPrimaryCandidate: Bool {
+        isUp && !isLoopback && !ipv4.isEmpty &&
+        !name.hasPrefix("utun") && !name.hasPrefix("ipsec") &&
+        !name.hasPrefix("awdl") && !name.hasPrefix("llw") &&
+        !name.hasPrefix("bridge") && !name.hasPrefix("tun") &&
+        !name.hasPrefix("tap")
+    }
+
+    /// The single interface the app treats as "primary" — first candidate,
+    /// in fetch order. Shared by ToolStore and MenuBarView so they can't diverge.
+    static func primary(in interfaces: [NetworkInterface]) -> NetworkInterface? {
+        interfaces.first { $0.isPrimaryCandidate }
+    }
+
     // VLAN Details
     var isVLAN: Bool { name.hasPrefix("vlan") }
     var vlanTag: Int?
@@ -145,36 +162,25 @@ struct NetworkInterfaceFetcher {
     }
 
     private static func fetchVLANDetails(for name: String) -> (tag: Int?, parent: String?) {
-        let p = Process()
-        let pipe = Pipe()
-        p.executableURL = URL(fileURLWithPath: "/sbin/ifconfig")
-        p.arguments = [name]
-        p.standardOutput = pipe
-        p.standardError = Pipe()
-        
-        do {
-            try p.run()
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            guard let output = String(data: data, encoding: .utf8) else { return (nil, nil) }
-            
-            // Expected line: "vlan: 10 parent interface: en0"
-            let lines = output.components(separatedBy: "\n")
-            for line in lines {
-                if line.contains("vlan:") && line.contains("parent interface:") {
-                    let parts = line.trimmingCharacters(in: .whitespaces).components(separatedBy: " ")
-                    var tag: Int? = nil
-                    var parent: String? = nil
-                    
-                    if let tagIdx = parts.firstIndex(of: "vlan:"), tagIdx + 1 < parts.count {
-                        tag = Int(parts[tagIdx + 1].trimmingCharacters(in: CharacterSet.decimalDigits.inverted))
-                    }
-                    if let parentIdx = parts.firstIndex(of: "interface:"), parentIdx + 1 < parts.count {
-                        parent = parts[parentIdx + 1]
-                    }
-                    return (tag, parent)
+        let output = SubprocessRunner.run(executable: "/sbin/ifconfig", arguments: [name])
+
+        // Expected line: "vlan: 10 parent interface: en0"
+        let lines = output.components(separatedBy: "\n")
+        for line in lines {
+            if line.contains("vlan:") && line.contains("parent interface:") {
+                let parts = line.trimmingCharacters(in: .whitespaces).components(separatedBy: " ")
+                var tag: Int? = nil
+                var parent: String? = nil
+
+                if let tagIdx = parts.firstIndex(of: "vlan:"), tagIdx + 1 < parts.count {
+                    tag = Int(parts[tagIdx + 1].trimmingCharacters(in: CharacterSet.decimalDigits.inverted))
                 }
+                if let parentIdx = parts.firstIndex(of: "interface:"), parentIdx + 1 < parts.count {
+                    parent = parts[parentIdx + 1]
+                }
+                return (tag, parent)
             }
-        } catch { }
+        }
         return (nil, nil)
     }
 

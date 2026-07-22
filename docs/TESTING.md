@@ -24,15 +24,15 @@ Two deliverables:
 | F2 | High | HTTP Latency | "Follow Redirects = off" was a no-op: it set `httpMaximumConnectionsPerHost = 1`, which does not stop redirects; 3xx were always followed. | `HTTPLatencyViewModel.swift`: implement `willPerformHTTPRedirection`, return `nil` when disabled. | manual (network) |
 | F3 | Medium | Multi-Ping | No-route replies never counted as packet loss — code matched lowercase `"no route"` but ping prints `No route to host` (capital N). | `MultiPingViewModel.swift`: case-insensitive match. | `testParseNoRouteCountsAsLoss` |
 
-### Open / minor (documented, not changed — cosmetic or low-impact)
+### Open / minor — re-audited 2026-07-22 against v4.8.1
 
-| # | Sev | Where | Note |
+| # | Sev | Where | Status |
 |---|-----|-------|------|
-| O1 | low | `RouteEntry.flagDescriptions` | Only UPPERCASE route flags decoded. macOS also emits lowercase `c` (cloning), `m`, `r` — shown raw, never expanded. |
-| O2 | low | `NetworkMath.detectClass` vs `IPAddressDetails.ipClass` | Two class detectors disagree on first-octet `0` (`A` vs `Unknown`). Pick one source of truth. |
-| O3 | low | `SystemMonitor.updateMemory` | `sysctlbyname("kern.memo_status_level")` is a non-existent key; its branch is dead code. Pressure is actually derived from the `host_statistics64` fallback (works). `memoryColor` returns `"blue"` for healthy while the rest of the app uses `"green"`. |
-| O4 | low | `TracerouteViewModel.isPrivateIP` / `TracerouteHop.isPrivateIP` | `169.254/16` (APIPA) not treated as private, so geo lookups can fire on link-local addresses. `IPAddressDetails` already handles APIPA — align them. |
-| O5 | trivial | `NetworkMath.formatBytes` | Inconsistent precision: 1 decimal for KB/MB, 2 for GB/TB. |
+| O1 | low | route flag decoding | **Fixed.** The live code path (`RouteTableView.flagDescription`, not the dead `RouteEntry.flagDescriptions` this row originally cited) now uppercases before matching, so lowercase flags (`c`, `m`, `r`, …) decode correctly. `RouteEntry.flagDescriptions` itself was unreferenced dead code and has been deleted. |
+| O2 | low | `NetworkMath.detectClass` vs `IPAddressDetails.ipClass` | **Moot.** `IPAddressDetails` was removed as dead code in v4.7.1 — `NetworkMath.detectClass` is the sole class detector. |
+| O3 | low | `SystemMonitor.updateMemory` | **Resolved** (prior pass) — dead `sysctlbyname` branch removed, `memoryColor` consistently green/orange/red. |
+| O4 | low | `TracerouteViewModel.isPrivateIP` / `TracerouteHop.isPrivateIP` | **Fixed.** Both call sites now share one `NetworkMath.isPrivateIP(_:)` helper (APIPA `169.254/16` included) instead of two independently-maintained copies that could drift. |
+| O5 | trivial | `NetworkMath.formatBytes` | **Resolved** (prior pass) — uniform `%.2f` across all tiers. A separate duplicate formatter in `HTTPLatencyView` (different precision rules) has also been removed in favor of `NetworkMath.formatBytes`. |
 
 ---
 

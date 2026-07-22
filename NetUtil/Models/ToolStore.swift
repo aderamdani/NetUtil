@@ -48,12 +48,19 @@ final class ToolStore {
         observeOcclusion()
     }
 
+    /// Wi-Fi is view-scoped (only polls while Dashboard/Wi-Fi Inspector is
+    /// shown), not an app-lifetime poller — remember whether it was actually
+    /// running so pause/resume doesn't start it for a view that isn't visible.
+    private var wifiWasActive = false
+
     /// Stops all app-lifetime pollers to save battery when no window is visible.
     func pauseMonitoring() {
         bandwidth.stop()
         system.stop()
         statistics.stop()
         interfaces.stop()
+        wifiWasActive = wifi.isRunning
+        wifi.stop()
     }
 
     /// Restarts pollers. Pass `reduced: true` for accessory/menu-bar mode.
@@ -70,6 +77,7 @@ final class ToolStore {
             system.start()
             statistics.start()
             interfaces.start()
+            if wifiWasActive { wifi.start() }
         }
     }
 
@@ -152,13 +160,7 @@ final class ToolStore {
     }
 
     private func updatePrimaryInterface() {
-        primaryInterface = interfaces.interfaces.first {
-            $0.isUp && !$0.isLoopback && !$0.ipv4.isEmpty &&
-            !$0.name.hasPrefix("utun") && !$0.name.hasPrefix("ipsec") &&
-            !$0.name.hasPrefix("awdl") && !$0.name.hasPrefix("llw") &&
-            !$0.name.hasPrefix("bridge") && !$0.name.hasPrefix("tun") &&
-            !$0.name.hasPrefix("tap")
-        }
+        primaryInterface = NetworkInterface.primary(in: interfaces.interfaces)
         primaryLocalIP = primaryInterface?.ipv4.first ?? "—"
     }
 
