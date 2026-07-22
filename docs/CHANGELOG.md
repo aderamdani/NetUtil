@@ -4,6 +4,24 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.9.0] — 2026-07-22
+
+### Added
+- **Net Quality**: new tool wrapping Apple's built-in `networkQuality` — measures responsiveness under working load in RPM (the bufferbloat signal a plain speed test misses), plus throughput and base RTT, with High/Medium/Low grading. Results log to Session History and are comparable in Compare.
+- **Wake on LAN**: new tool that wakes sleeping machines with a UDP magic-packet broadcast (BSD socket). Accepts colon/dash/bare-hex MAC formats; broadcast address and port configurable.
+- **Learning guide completed**: five tools had no help section at all (Subnet Scanner, Speed Test, Traffic Statistics, Session History, Compare) and their ?-buttons silently opened the Dashboard page; two more (Ping, SSL/TLS) opened the wrong page via stale titles. All 21 tools now have plain-language documentation that opens correctly.
+
+### Changed
+- **Swift 6 for real**: the project claimed Swift 6 but compiled as Swift 5 with minimal concurrency checking. Now `SWIFT_VERSION = 6.0` with `SWIFT_STRICT_CONCURRENCY = complete` — Sendable and actor isolation are compiler-enforced across app and tests.
+- **Component adoption completed**: the 8 remaining hand-rolled mood bars (Bandwidth, Multi-Ping, Compare, Session History, Statistics, Subnet Scanner, Speed Test, Dashboard) now use the shared `MoodBar`; remaining plain empty/loading states use `ToolStateView`.
+- **Subprocess consolidation completed**: DNS and WHOIS moved to a new cancellable one-shot runner, Traceroute and Multi-Ping to the shared streaming runner — no ViewModel hand-rolls Process/Pipe code anymore.
+- **Zero-warning build**: App Category set, AppIntents metadata extraction skipped.
+
+### Tests
+- 32 new tests (118 total): SubprocessRunner one-shot/cancellable/streaming (including a 220 KB drain-before-wait deadlock regression), primary-interface predicate, direct `isPrivateIP` boundaries, Wake-on-LAN MAC parsing and magic-packet layout, networkQuality JSON parsing and RPM grade bands.
+
+---
+
 ## [4.8.2] — 2026-07-22
 
 ### Fixed
