@@ -125,19 +125,10 @@ struct DashboardView: View {
     }
 
     private var healthSummaryBar: some View {
-        HStack(spacing: 8) {
-            Image(systemName: tools.healthIcon)
-                .foregroundColor(tools.healthColor == "red" ? .red : (tools.healthColor == "orange" ? .orange : .green))
-                .font(.system(.callout, weight: .semibold))
-            Text(tools.healthMessage)
-                .font(.callout)
-                .foregroundColor(tools.healthColor == "green" ? .secondary : (tools.healthColor == "red" ? .red : .orange))
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        MoodBar(icon: tools.healthIcon,
+                color: tools.healthColor == "red" ? .red : (tools.healthColor == "orange" ? .orange : .green),
+                message: tools.healthMessage,
+                messageColor: tools.healthColor == "green" ? .secondary : (tools.healthColor == "red" ? .red : .orange))
     }
 
     private func formatUptime(from date: Date) -> String {

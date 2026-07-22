@@ -135,10 +135,7 @@ struct SubnetScanView: View {
             }
             return ("exclamationmark.triangle.fill", .orange, "No hosts found — check CIDR")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
+        return MoodBar(icon: icon, color: color, message: msg) {
             if viewModel.isRunning {
                 ProgressView(value: viewModel.progress)
                     .progressViewStyle(.linear)
@@ -146,10 +143,6 @@ struct SubnetScanView: View {
                     .accessibilityLabel("Scan progress: \(Int(viewModel.progress * 100)) percent")
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
     }
 
     private func errorBanner(_ msg: String) -> some View {
@@ -226,26 +219,12 @@ struct SubnetScanView: View {
     }
     
     private var loadingState: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Scanning \(viewModel.cidrInput)...")
-                .font(.headline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.loading(message: "Scanning \(viewModel.cidrInput)...")
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Scan Performed")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter a CIDR block (e.g. 192.168.1.0/24) to discover live hosts on your network.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No Scan Performed",
+                            subtitle: "Enter a CIDR block (e.g. 192.168.1.0/24) to discover live hosts on your network.")
     }
 
     private func copy(_ string: String) {

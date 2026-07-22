@@ -168,22 +168,13 @@ struct CompareView: View {
             }
             return ("checkmark.circle.fill", .green, "Comparing \(toolLabel(toolFilter)) — \(a.target) vs \(b.target)")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24).padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     private var emptyCompareState: some View {
-        VStack(spacing: 8) {
-            Text("Select Two Sessions").font(.headline).foregroundColor(.secondary)
-            Text("Use the Session A and Session B menus above.").font(.subheadline).foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
+        ToolStateView.empty(title: "Select Two Sessions",
+                            subtitle: "Use the Session A and Session B menus above.",
+                            minHeight: 200)
     }
 
     private func truncate(_ s: String, _ n: Int) -> String {
