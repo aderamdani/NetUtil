@@ -4,19 +4,21 @@ import Observation
 @Observable
 @MainActor
 final class WhoisViewModel {
-    var lines: [WhoisLine] = []
-    var isRunning = false
-    var error: String?
-    var lastQuery: String = ""
+    private(set) var lines: [WhoisLine] = []
+    private(set) var isRunning = false
+    private(set) var error: String?
+    private(set) var lastQuery: String = ""
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
-    private var process: Process?
+    @ObservationIgnored nonisolated(unsafe) private var process: Process?
 
-    /// Generation token: bumped on cancel/lookup so output of a terminated
+    /// Generation token: bumped on stop/start so output of a terminated
     /// whois can't populate the result of a newer query.
     private var runID = 0
 
-    func lookup(_ query: String) {
-        cancel()
+    deinit { process?.terminate() }
+
+    func start(_ query: String) {
+        stop()
         isRunning = true; error = nil; lines = []; lastQuery = query
         runID += 1
         let id = runID
@@ -61,7 +63,7 @@ final class WhoisViewModel {
         }
     }
 
-    func cancel() {
+    func stop() {
         runID += 1
         process?.terminate()
         process = nil

@@ -124,15 +124,7 @@ struct PingView: View {
             }
             return ("checkmark.circle.fill", .green, String(format: "%d packets, %.1f%% loss  —  avg %.1f ms", s.transmitted, s.loss, s.avgRtt))
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     // MARK: - Components
@@ -186,26 +178,12 @@ struct PingView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Host Target")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter an IP or hostname to analyze network performance.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No Host Target",
+                            subtitle: "Enter an IP or hostname to analyze network performance.")
     }
 
     private var loadingState: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Waiting for ICMP sequence...")
-                .font(.headline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.loading(message: "Waiting for ICMP sequence...")
     }
 
     private var rawOutput: some View {

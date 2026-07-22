@@ -110,7 +110,9 @@ final class SSLInspectorViewModel {
     private(set) var error: String?
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
-    private var task: Task<Void, Never>?
+    @ObservationIgnored nonisolated(unsafe) private var task: Task<Void, Never>?
+
+    deinit { task?.cancel() }
 
     func inspect(host: String, port: Int) {
         task?.cancel()

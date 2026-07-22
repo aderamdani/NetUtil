@@ -13,7 +13,7 @@ struct SubnetScanView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
-                    if let err = viewModel.errorMessage {
+                    if let err = viewModel.error {
                         errorBanner(err)
                     }
 
@@ -29,7 +29,7 @@ struct SubnetScanView: View {
                         .padding(.horizontal, 12)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-                    } else if viewModel.isScanning {
+                    } else if viewModel.isRunning {
                         loadingState
                     } else {
                         emptyState
@@ -88,15 +88,15 @@ struct SubnetScanView: View {
                     }
 
                     Button {
-                        if viewModel.isScanning { viewModel.stopScan() }
-                        else { Task { await viewModel.startScan() } }
+                        if viewModel.isRunning { viewModel.stop() }
+                        else { Task { await viewModel.start() } }
                     } label: {
-                        Label(viewModel.isScanning ? "Stop" : "Scan", systemImage: viewModel.isScanning ? "stop.fill" : "play.fill")
+                        Label(viewModel.isRunning ? "Stop" : "Scan", systemImage: viewModel.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 70)
                     }
                     .buttonStyle(.glassProminent)
-                    .tint(viewModel.isScanning ? .red : .accentColor)
-                    .accessibilityLabel(viewModel.isScanning ? "Stop Scan" : "Start Scan")
+                    .tint(viewModel.isRunning ? .red : .accentColor)
+                    .accessibilityLabel(viewModel.isRunning ? "Stop Scan" : "Start Scan")
 
                     if !viewModel.cidrInput.isEmpty {
                         let isFav = tools.favorites.isFavorite(viewModel.cidrInput)
@@ -123,7 +123,7 @@ struct SubnetScanView: View {
     
     private var statusMoodBar: some View {
         let (icon, color, msg): (String, Color, String) = {
-            if viewModel.isScanning {
+            if viewModel.isRunning {
                 return ("hourglass", .secondary, "Scanning \(viewModel.cidrInput)...  \(Int(viewModel.progress * 100))%")
             }
             guard viewModel.scanStats.total > 0 else {
@@ -139,7 +139,7 @@ struct SubnetScanView: View {
             Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
             Text(msg).font(.callout).foregroundColor(.secondary)
             Spacer()
-            if viewModel.isScanning {
+            if viewModel.isRunning {
                 ProgressView(value: viewModel.progress)
                     .progressViewStyle(.linear)
                     .frame(width: 100)

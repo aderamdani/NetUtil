@@ -209,7 +209,7 @@ struct RouteTableView: View {
             ("D", "Dynamic"), ("M", "Modified"), ("C", "Cloning"), ("W", "WasCloned"),
             ("L", "Link"), ("R", "Reject"), ("B", "Blackhole"), ("I", "Interface")
         ]
-        let matched = flags.compactMap { ch in map.first { $0.0 == ch }.map { "\($0.0): \($0.1)" } }
+        let matched = flags.uppercased().compactMap { ch in map.first { $0.0 == ch }.map { "\($0.0): \($0.1)" } }
         return matched.isEmpty ? flags : matched.joined(separator: "\n")
     }
 
@@ -222,12 +222,7 @@ struct RouteTableView: View {
     }
 
     private static func fetchRoutes() async -> [RouteEntry] {
-        let p = Process(); let pipe = Pipe()
-        p.executableURL = URL(fileURLWithPath: "/usr/sbin/netstat"); p.arguments = ["-rn"]
-        p.standardOutput = pipe; p.standardError = Pipe()
-        do { try p.run(); p.waitUntilExit() } catch { return [] }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        guard let output = String(data: data, encoding: .utf8) else { return [] }
+        let output = SubprocessRunner.run(executable: "/usr/sbin/netstat", arguments: ["-rn"])
         var results: [RouteEntry] = []
         var isIPv6 = false
         for line in output.components(separatedBy: "\n") {

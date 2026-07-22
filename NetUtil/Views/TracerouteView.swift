@@ -109,15 +109,7 @@ struct TracerouteView: View {
             }
             return ("checkmark.circle.fill", .green, "\(vm.hops.count) hops  —  path avg \(avg)")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     // MARK: - Components
@@ -233,15 +225,8 @@ struct TracerouteView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Active Trace")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter a target to map the layer 3 network path.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No Active Trace",
+                            subtitle: "Enter a target to map the layer 3 network path.")
         .accessibilityElement(children: .combine)
     }
 

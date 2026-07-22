@@ -31,10 +31,12 @@ final class HTTPLatencyViewModel {
     private(set) var error: String?
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
-    private var currentTask: Task<Void, Never>?
+    @ObservationIgnored nonisolated(unsafe) private var currentTask: Task<Void, Never>?
 
-    func run(urlString: String, method: String, followRedirects: Bool) {
-        cancel()
+    deinit { currentTask?.cancel() }
+
+    func start(urlString: String, method: String, followRedirects: Bool) {
+        stop()
         error = nil
         result = nil
         isRunning = true
@@ -66,7 +68,7 @@ final class HTTPLatencyViewModel {
             duration: r.totalMs / 1000))
     }
 
-    func cancel() {
+    func stop() {
         currentTask?.cancel()
         currentTask = nil
         isRunning = false

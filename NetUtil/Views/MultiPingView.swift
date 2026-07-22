@@ -82,48 +82,9 @@ struct MultiPingView: View {
     }
 
     private var controlBar: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "dot.radiowaves.left.and.right")
-                        .foregroundColor(.accentColor)
-                        .imageScale(.large)
-                    Text("Multi-Ping")
-                        .font(.headline)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Multi-Ping Tool")
-                
-                Divider().frame(height: 16).padding(.horizontal, 4)
-                
-                TextField("Hostname or IP address", text: $newHost)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-                    .frame(width: 250)
-                    .onSubmit(addHost)
-                    .accessibilityLabel("Host Input")
-                    .overlay(alignment: .trailing) {
-                        if !history.hosts.isEmpty {
-                            Menu {
-                                ForEach(history.hosts, id: \.self) { h in
-                                    Button(h) { newHost = h; addHost() }
-                                }
-                                Divider()
-                                Button("Clear History", role: .destructive) { history.clear() }
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.secondary)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 28)
-                            .padding(.trailing, 4)
-                            .accessibilityLabel("Host History")
-                        }
-                    }
-
-                Spacer()
-                
-                GlassEffectContainer {
+        ToolControlBar(icon: "dot.radiowaves.left.and.right", title: "Multi-Ping",
+                       host: $newHost, history: history, onSubmit: addHost) {
+            GlassEffectContainer {
                     Button(action: { showImportSheet = true }) {
                         Label("Import", systemImage: "square.and.arrow.down")
                     }
@@ -177,11 +138,6 @@ struct MultiPingView: View {
                     .buttonStyle(.borderless)
                     .accessibilityLabel("Show Help Guide")
                 }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-            
-            Divider()
         }
     }
 
@@ -238,15 +194,8 @@ struct MultiPingView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Monitoring Targets")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Add multiple hosts to monitor global latency performance.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No Monitoring Targets",
+                            subtitle: "Add multiple hosts to monitor global latency performance.")
         .accessibilityElement(children: .combine)
     }
 

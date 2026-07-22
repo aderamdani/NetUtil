@@ -19,8 +19,8 @@ final class DNSViewModel {
 
     deinit { process?.terminate() }
 
-    func lookup(host: String, type: DNSRecordType, server: DNSServer) {
-        cancel()
+    func start(host: String, type: DNSRecordType, server: DNSServer) {
+        stop()
         result = nil
         rawOutput = ""
         error = nil
@@ -81,7 +81,7 @@ final class DNSViewModel {
         onSessionComplete?(record)
     }
 
-    func cancel() {
+    func stop() {
         runID += 1
         process?.terminate()
         process = nil

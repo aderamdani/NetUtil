@@ -251,7 +251,7 @@ struct ContentView: View {
         case .multiPing:   return tools.multiPing.slots.contains { $0.isRunning }
         case .portScan:    return tools.portScan.isRunning
         case .httpLatency: return tools.httpLatency.isRunning
-        case .subnetScan:  return tools.subnetScan.isScanning
+        case .subnetScan:  return tools.subnetScan.isRunning
         default:           return false
         }
     }

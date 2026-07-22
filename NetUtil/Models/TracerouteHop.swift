@@ -41,18 +41,7 @@ struct TracerouteHop: Identifiable {
 
     var isPrivateIP: Bool {
         guard let ip else { return true }
-        let parts = ip.components(separatedBy: ".").compactMap { Int($0) }
-        guard parts.count == 4 else {
-            return ip.hasPrefix("::") || ip.hasPrefix("fe80") || ip.hasPrefix("fc") || ip.hasPrefix("fd")
-        }
-        switch parts[0] {
-        case 10:  return true
-        case 127: return true
-        case 169: return parts[1] == 254
-        case 172: return (16...31).contains(parts[1])
-        case 192: return parts[1] == 168
-        default:  return false
-        }
+        return NetworkMath.isPrivateIP(ip)
     }
 
     var displayHost: String {

@@ -77,103 +77,54 @@ struct WhoisView: View {
             }
             return ("checkmark.circle.fill", .green, "\(fields) field\(fields == 1 ? "" : "s") parsed  —  \(vm.lastQuery)")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     // MARK: - Components
 
     private var controlBar: some View {
-        VStack(spacing: 0) {
+        ToolControlBar(icon: "magnifyingglass.circle.fill", title: "WHOIS",
+                       host: $query, placeholder: "Domain or IP address",
+                       textFieldAccessibilityLabel: "Query Input",
+                       accessibilityToolName: "WHOIS Lookup Tool",
+                       history: history, onSubmit: lookup) {
             HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "magnifyingglass.circle.fill")
-                        .foregroundColor(.accentColor)
-                        .imageScale(.large)
-                    Text("WHOIS")
-                        .font(.headline)
+                if !vm.lines.isEmpty {
+                    ReportMenuButton(
+                        onExportPDF: { Exporter.saveWhoisPDF(lines: vm.lines, query: query) },
+                        onExportCSV: {
+                            let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                            Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"),
+                                          defaultName: "NetUtil-Whois-\(query)-\(ts.string(from: Date())).csv",
+                                          ext: "csv")
+                        }
+                    )
                 }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("WHOIS Lookup Tool")
-                
-                Divider().frame(height: 16).padding(.horizontal, 4)
-                
-                TextField("Domain or IP address", text: $query)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-                    .frame(width: 250)
-                    .onSubmit(lookup)
-                    .accessibilityLabel("Query Input")
-                    .overlay(alignment: .trailing) {
-                        if !history.hosts.isEmpty {
-                            Menu {
-                                ForEach(history.hosts, id: \.self) { h in
-                                    Button(h) { query = h; lookup() }
-                                }
-                                Divider()
-                                Button("Clear History", role: .destructive) { history.clear() }
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.secondary)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 28)
-                            .padding(.trailing, 4)
-                            .accessibilityLabel("Host History")
-                        }
-                    }
 
-                Spacer()
-                
-                HStack(spacing: 12) {
-                    if !vm.lines.isEmpty {
-                        ReportMenuButton(
-                            onExportPDF: { Exporter.saveWhoisPDF(lines: vm.lines, query: query) },
-                            onExportCSV: {
-                                let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
-                                Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"),
-                                              defaultName: "NetUtil-Whois-\(query)-\(ts.string(from: Date())).csv",
-                                              ext: "csv")
-                            }
-                        )
-                    }
+                Button(action: { vm.isRunning ? vm.stop() : lookup() }) {
+                    Label(vm.isRunning ? "Stop" : "Lookup", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
+                        .frame(minWidth: 80)
+                }
+                .buttonStyle(.glassProminent)
+                .tint(vm.isRunning ? .red : .accentColor)
+                .disabled(!vm.isRunning && query.isEmpty)
+                .accessibilityLabel(vm.isRunning ? "Stop Lookup" : "Start Lookup")
 
-                    Button(action: { vm.isRunning ? vm.cancel() : lookup() }) {
-                        Label(vm.isRunning ? "Stop" : "Lookup", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
-                            .frame(minWidth: 80)
-                    }
-                    .buttonStyle(.glassProminent)
-                    .tint(vm.isRunning ? .red : .accentColor)
-                    .disabled(!vm.isRunning && query.isEmpty)
-                    .accessibilityLabel(vm.isRunning ? "Stop Lookup" : "Start Lookup")
-                    
-                    if !query.isEmpty {
-                        let isFav = tools.favorites.isFavorite(query)
-                        Button { tools.favorites.toggle(host: query) } label: {
-                            Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
-                        }
-                        .buttonStyle(.borderless)
-                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
-                    }
-
-                    Button { showLearningGuide = true } label: {
-                        Image(systemName: "questionmark.circle")
+                if !query.isEmpty {
+                    let isFav = tools.favorites.isFavorite(query)
+                    Button { tools.favorites.toggle(host: query) } label: {
+                        Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
                     }
                     .buttonStyle(.borderless)
-                    .accessibilityLabel("Show Help Guide")
+                    .help(isFav ? "Remove from Favorites" : "Add to Favorites")
                 }
+
+                Button { showLearningGuide = true } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-            
-            Divider()
         }
     }
     
@@ -273,31 +224,17 @@ struct WhoisView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Query Executed")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter a domain or IP to query its registration database.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No Query Executed",
+                            subtitle: "Enter a domain or IP to query its registration database.")
     }
 
     private var loadingState: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Querying WHOIS Database...")
-                .font(.headline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.loading(message: "Querying WHOIS Database...")
     }
 
     private func lookup() {
         let q = query.trimmingCharacters(in: .whitespaces)
-        guard !q.isEmpty else { return }; history.record(q); vm.lookup(q)
+        guard !q.isEmpty else { return }; history.record(q); vm.start(q)
     }
     
     // MARK: - Helpers

@@ -16,9 +16,9 @@ struct SpeedTestView: View {
                 VStack(spacing: 24) {
                     if let err = vm.error { errorBanner(err) }
 
-                    if vm.isTesting || vm.lastResult != nil {
+                    if vm.isRunning || vm.lastResult != nil {
                         liveMetricsSection
-                        if vm.isTesting { progressSection }
+                        if vm.isRunning { progressSection }
                     } else {
                         emptyState
                     }
@@ -37,7 +37,7 @@ struct SpeedTestView: View {
 
     private var speedMoodBar: some View {
         let (icon, color, msg): (String, Color, String) = {
-            if vm.isTesting { return ("hourglass", .accentColor, "Running \(vm.kind.rawValue) test...") }
+            if vm.isRunning { return ("hourglass", .accentColor, "Running \(vm.kind.rawValue) test...") }
             guard let r = vm.lastResult else {
                 return ("speedometer", .secondary, "No test results yet — select a test type and tap Start")
             }
@@ -87,7 +87,7 @@ struct SpeedTestView: View {
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 340)
-                .disabled(vm.isTesting)
+                .disabled(vm.isRunning)
                 .accessibilityLabel("Test Kind")
 
                 Spacer()
@@ -105,14 +105,14 @@ struct SpeedTestView: View {
                         )
                     }
 
-                    Button(action: { if vm.isTesting { vm.cancel() } else { vm.start() } }) {
-                        Label(vm.isTesting ? "Stop" : "Start",
-                              systemImage: vm.isTesting ? "stop.fill" : "play.fill")
+                    Button(action: { if vm.isRunning { vm.cancel() } else { vm.start() } }) {
+                        Label(vm.isRunning ? "Stop" : "Start",
+                              systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 70)
                     }
                     .buttonStyle(.glassProminent)
-                    .tint(vm.isTesting ? .red : .accentColor)
-                    .accessibilityLabel(vm.isTesting ? "Stop Speed Test" : "Start Speed Test")
+                    .tint(vm.isRunning ? .red : .accentColor)
+                    .accessibilityLabel(vm.isRunning ? "Stop Speed Test" : "Start Speed Test")
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
@@ -416,7 +416,7 @@ struct SpeedTestView: View {
                         lineWidth: vm.kind == kind ? 1 : 0.5)
         }
         .contentShape(RoundedRectangle(cornerRadius: 10))
-        .onTapGesture { if !vm.isTesting { vm.kind = kind } }
+        .onTapGesture { if !vm.isRunning { vm.kind = kind } }
         .accessibilityLabel("\(kind.rawValue): \(kind.subtitle)")
         .accessibilityAddTraits(vm.kind == kind ? [.isButton, .isSelected] : .isButton)
     }

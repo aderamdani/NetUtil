@@ -23,15 +23,15 @@ final class SubnetScanTests: XCTestCase {
     }
 
     /// REGRESSION: /31 and /32 produced a host count of 0 and the `1...0`
-    /// range in generateIPs crashed. startScan must now reject them cleanly.
+    /// range in generateIPs crashed. start() must now reject them cleanly.
     @MainActor
     func testHostlessPrefixIsRejectedWithoutCrash() async {
         let vm = SubnetScanViewModel()
         for cidr in ["10.0.0.0/31", "10.0.0.1/32"] {
             vm.cidrInput = cidr
-            await vm.startScan()
-            XCTAssertFalse(vm.isScanning, "scan must not start for \(cidr)")
-            XCTAssertNotNil(vm.errorMessage, "expected validation error for \(cidr)")
+            await vm.start()
+            XCTAssertFalse(vm.isRunning, "scan must not start for \(cidr)")
+            XCTAssertNotNil(vm.error, "expected validation error for \(cidr)")
         }
     }
 
@@ -39,9 +39,9 @@ final class SubnetScanTests: XCTestCase {
     func testTooWidePrefixIsRejected() async {
         let vm = SubnetScanViewModel()
         vm.cidrInput = "10.0.0.0/8"
-        await vm.startScan()
-        XCTAssertFalse(vm.isScanning)
-        XCTAssertNotNil(vm.errorMessage)
+        await vm.start()
+        XCTAssertFalse(vm.isRunning)
+        XCTAssertNotNil(vm.error)
         XCTAssertTrue(vm.results.isEmpty)
     }
 
@@ -50,8 +50,8 @@ final class SubnetScanTests: XCTestCase {
         let vm = SubnetScanViewModel()
         for cidr in ["not-a-cidr", "10.0.0.0", "10.0.0.0/x", "10.0.0.0/33"] {
             vm.cidrInput = cidr
-            await vm.startScan()
-            XCTAssertNotNil(vm.errorMessage, "expected error for \(cidr)")
+            await vm.start()
+            XCTAssertNotNil(vm.error, "expected error for \(cidr)")
         }
     }
 }

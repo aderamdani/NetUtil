@@ -111,15 +111,7 @@ struct PortScanView: View {
             }
             return ("lock.shield.fill", .green, "No open ports  —  \(vm.scanned) scanned on \(vm.currentHost)")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     // MARK: - Components
@@ -169,15 +161,8 @@ struct PortScanView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Target Audited")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter a host and select a port range to begin discovery.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No Target Audited",
+                            subtitle: "Enter a host and select a port range to begin discovery.")
         .accessibilityElement(children: .combine)
     }
 

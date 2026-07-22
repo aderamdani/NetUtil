@@ -123,8 +123,10 @@ final class BandwidthMonitor {
             // Only update detailed history if UI is watching
             if isUIActive {
                 let sample = BandwidthSample(timestamp: now, rxBps: rxDelta, txBps: txDelta, totalRx: cur.rx, totalTx: cur.tx)
-                history[name, default: []].append(sample)
-                if history[name]!.count > Self.historyLimit { history[name]!.removeFirst() }
+                var samples = history[name] ?? []
+                samples.append(sample)
+                if samples.count > Self.historyLimit { samples.removeFirst() }
+                history[name] = samples
             }
         }
 

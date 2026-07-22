@@ -39,48 +39,12 @@ struct SubnetCalculatorView: View {
     // MARK: - Components
 
     private var controlBar: some View {
-        VStack(spacing: 0) {
+        ToolControlBar(icon: "number.square", title: "Subnet Calculator",
+                       host: $vm.ipAddress, placeholder: "IP Address",
+                       textFieldAccessibilityLabel: "IP Address Input",
+                       history: history, onSubmit: { vm.calculate() },
+                       onSelectHistory: { h in vm.updateIP(h) }) {
             HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "number.square")
-                        .foregroundColor(.accentColor)
-                        .imageScale(.large)
-                    Text("Subnet Calculator")
-                        .font(.headline)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Subnet Calculator Tool")
-                
-                Divider().frame(height: 16).padding(.horizontal, 4)
-                
-                TextField("IP Address", text: $vm.ipAddress)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-                    .frame(width: 250)
-                    .onSubmit { vm.calculate() }
-                    .accessibilityLabel("IP Address Input")
-                    .overlay(alignment: .trailing) {
-                        if !history.hosts.isEmpty {
-                            Menu {
-                                ForEach(history.hosts, id: \.self) { h in
-                                    Button(h) { vm.updateIP(h) }
-                                }
-                                Divider()
-                                Button("Clear History", role: .destructive) { history.clear() }
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.secondary)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 28)
-                            .padding(.trailing, 4)
-                            .accessibilityLabel("Host History")
-                        }
-                    }
-
-                Spacer()
-                
-                HStack(spacing: 12) {
                 GlassEffectContainer {
                     HStack(spacing: 4) {
                         Text("Prefix")
@@ -130,12 +94,7 @@ struct SubnetCalculatorView: View {
                 }
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
-                }
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-            
-            Divider()
         }
     }
     
@@ -220,15 +179,8 @@ struct SubnetCalculatorView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No IP Address Provided")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter an IPv4 address to analyze its subnet topology and host range.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
+        ToolStateView.empty(title: "No IP Address Provided",
+                            subtitle: "Enter an IPv4 address to analyze its subnet topology and host range.")
     }
 }
 

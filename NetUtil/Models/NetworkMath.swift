@@ -77,6 +77,23 @@ struct NetworkMath {
         return "Unknown"
     }
     
+    /// True for RFC 1918 / loopback / link-local (APIPA) addresses, or their
+    /// IPv6 equivalents (`fe80::`/`fc..`/`fd..` unique-local, `::` prefix).
+    static func isPrivateIP(_ ip: String) -> Bool {
+        let parts = ip.components(separatedBy: ".").compactMap { Int($0) }
+        guard parts.count == 4 else {
+            return ip.hasPrefix("::") || ip.hasPrefix("fe80") || ip.hasPrefix("fc") || ip.hasPrefix("fd")
+        }
+        switch parts[0] {
+        case 10:  return true
+        case 127: return true
+        case 169: return parts[1] == 254
+        case 172: return (16...31).contains(parts[1])
+        case 192: return parts[1] == 168
+        default:  return false
+        }
+    }
+
     static func formatRate(_ bps: Double) -> String {
         if bps < 1024 { return String(format: "%.0f B/s", bps) }
         if bps < 1_048_576 { return String(format: "%.1f K", bps / 1024) }

@@ -163,10 +163,10 @@ struct CompareView: View {
                 return ("arrow.left.arrow.right", .secondary,
                         "Need \(need) more \(toolLabel(toolFilter)) session\(need == 1 ? "" : "s")\(suffix)")
             }
-            if sessionA == nil || sessionB == nil {
+            guard let a = sessionA, let b = sessionB else {
                 return ("arrow.left.arrow.right", .secondary, "Select Session A and Session B to compare")
             }
-            return ("checkmark.circle.fill", .green, "Comparing \(toolLabel(toolFilter)) — \(sessionA!.target) vs \(sessionB!.target)")
+            return ("checkmark.circle.fill", .green, "Comparing \(toolLabel(toolFilter)) — \(a.target) vs \(b.target)")
         }()
         return HStack(spacing: 8) {
             Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
@@ -389,7 +389,7 @@ struct CompareView: View {
 
                 Divider()
 
-                ForEach(Array(rows.enumerated()), id: \.offset) { idx, row in
+                ForEach(Array(rows.enumerated()), id: \.element.0) { idx, row in
                     HStack(spacing: 0) {
                         Text(row.0).font(.system(.caption, design: .monospaced)).frame(maxWidth: .infinity, alignment: .leading)
                         Text(row.1).font(.system(.caption, design: .monospaced)).foregroundColor(row.3 == .red ? .primary : .primary).frame(width: 160, alignment: .leading)

@@ -63,62 +63,17 @@ struct SSLInspectorView: View {
             }
             return ("checkmark.shield.fill", .green, "Valid  —  expires in \(days) days, chain of \(result.chain.count)")
         }()
-        return HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
-            Text(msg).font(.callout).foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 9)
-        .background(.regularMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     // MARK: - Components
 
     private var controlBar: some View {
-        VStack(spacing: 0) {
+        ToolControlBar(icon: "lock.shield.fill", title: "SSL/TLS Inspector",
+                       host: $host, placeholder: "hostname or URL", textFieldWidth: 280,
+                       textFieldAccessibilityLabel: "Target Host Input",
+                       history: history, onSubmit: startInspection) {
             HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "lock.shield.fill")
-                        .foregroundColor(.accentColor)
-                        .imageScale(.large)
-                    Text("SSL/TLS Inspector")
-                        .font(.headline)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("SSL/TLS Inspector Tool")
-                
-                Divider().frame(height: 16).padding(.horizontal, 4)
-                
-                TextField("hostname or URL", text: $host)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-                    .frame(width: 280)
-                    .onSubmit(startInspection)
-                    .accessibilityLabel("Target Host Input")
-                    .overlay(alignment: .trailing) {
-                        if !history.hosts.isEmpty {
-                            Menu {
-                                ForEach(history.hosts, id: \.self) { h in
-                                    Button(h) { host = h; startInspection() }
-                                }
-                                Divider()
-                                Button("Clear History", role: .destructive) { history.clear() }
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundColor(.secondary)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .frame(width: 28)
-                            .padding(.trailing, 4)
-                            .accessibilityLabel("Host History")
-                        }
-                    }
-
-                Spacer()
-                
-                HStack(spacing: 12) {
                     HStack(spacing: 4) {
                         Text("Port")
                             .font(.caption2.weight(.bold))
@@ -185,11 +140,6 @@ struct SSLInspectorView: View {
                     .buttonStyle(.borderless)
                     .accessibilityLabel("Show Help Guide")
                 }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-
-            Divider()
         }
     }
 
@@ -240,8 +190,7 @@ struct SSLInspectorView: View {
                 .foregroundColor(.secondary)
             
             HStack(spacing: 0) {
-                ForEach(result.chain.indices, id: \.self) { i in
-                    let cert = result.chain[i]
+                ForEach(Array(result.chain.enumerated()), id: \.element.id) { i, cert in
                     Button {
                         selectedCertIndex = i
                     } label: {
@@ -362,26 +311,13 @@ struct SSLInspectorView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text("No Target Inspected")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            Text("Enter a domain to audit its SSL/TLS certificate chain.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 300)
+        ToolStateView.empty(title: "No Target Inspected",
+                            subtitle: "Enter a domain to audit its SSL/TLS certificate chain.",
+                            minHeight: 300)
     }
 
     private var loadingState: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Inspecting Security Chain...")
-                .font(.headline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 300)
+        ToolStateView.loading(message: "Inspecting Security Chain...", minHeight: 300)
     }
 
     private func startInspection() {
