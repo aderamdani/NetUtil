@@ -26,6 +26,8 @@ enum Tool: String, CaseIterable, Identifiable {
     case netQuality      = "Net Quality"
     case wakeOnLAN       = "Wake on LAN"
     case portListener    = "Port Listener"
+    case ipGeolocation   = "IP Geolocation"
+    case dnsResolver     = "DNS Resolver"
     case sessionHistory  = "History"
     case compare         = "Compare"
     var id: String { rawValue }
@@ -56,6 +58,8 @@ enum Tool: String, CaseIterable, Identifiable {
         case .netQuality:     "gauge.with.dots.needle.67percent"
         case .wakeOnLAN:      "power.circle"
         case .portListener:   "ear"
+        case .ipGeolocation:  "mappin.and.ellipse"
+        case .dnsResolver:    "server.rack"
         case .sessionHistory: "clock.arrow.circlepath"
         case .compare:        "arrow.left.arrow.right"
         }
@@ -83,7 +87,8 @@ enum Tool: String, CaseIterable, Identifiable {
         case .sessionHistory: "9"
         case .compare:        "0"
         // Both ⌘ digit banks are full; the newest tools have no shortcut.
-        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections, .portListener: nil
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections,
+             .portListener, .ipGeolocation, .dnsResolver: nil
         }
     }
 
@@ -96,7 +101,8 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnetScan, .whois, .bandwidth, .interfaces, .wifi,
              .routes, .statistics, .speedTest, .sessionHistory, .compare:
             return [.command, .option]
-        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections, .portListener:
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections,
+             .portListener, .ipGeolocation, .dnsResolver:
             return []
         }
     }
@@ -200,10 +206,12 @@ struct ContentView: View {
                             sidebarItem(.subnet)
                             sidebarItem(.wakeOnLAN)
                             sidebarItem(.portListener)
+                            sidebarItem(.ipGeolocation)
                         }
-                        
+
                         Section("Lookup & Security") {
                             sidebarItem(.dns)
+                            sidebarItem(.dnsResolver)
                             sidebarItem(.ssl)
                             sidebarItem(.whois)
                         }
@@ -281,6 +289,8 @@ struct ContentView: View {
         case .doctor:      return tools.doctor.isRunning
         case .pathMTU:     return tools.pathMTU.isRunning
         case .portListener: return tools.portListener.isRunning
+        case .ipGeolocation: return tools.ipGeolocation.isRunning
+        case .dnsResolver:   return tools.dnsResolver.isRunning
         default:           return false
         }
     }
@@ -317,6 +327,8 @@ struct ContentView: View {
         case .netQuality:    NetQualityView(vm: tools.netQuality)
         case .wakeOnLAN:     WakeOnLanView(vm: tools.wakeOnLAN)
         case .portListener:  PortListenerView(vm: tools.portListener)
+        case .ipGeolocation: IPGeolocationView(vm: tools.ipGeolocation)
+        case .dnsResolver:   DNSResolverView(vm: tools.dnsResolver)
         case .sessionHistory: SessionHistoryView(selection: $selection)
         case .compare:       CompareView()
         }

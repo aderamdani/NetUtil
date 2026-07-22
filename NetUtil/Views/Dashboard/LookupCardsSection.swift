@@ -12,6 +12,8 @@ struct LookupCardsSection: View {
                 HStack(spacing: 12) {
                     whoisCard
                     subnetCard
+                    ipGeolocationCard
+                    dnsResolverCard
                 }
             }
         }
@@ -42,6 +44,33 @@ struct LookupCardsSection: View {
             color: .green,
             status: "CIDR Toolbox",
             action: { selection = .subnet }
+        )
+    }
+
+    private var ipGeolocationCard: some View {
+        BentoStatusCard(
+            title: "IP Geolocation",
+            icon: "mappin.and.ellipse",
+            color: .pink,
+            status: tools.externalIPGeo.map { "\($0.shortLabel)" } ?? "Locate Any IP",
+            action: { selection = .ipGeolocation }
+        )
+    }
+
+    private var dnsResolverCard: some View {
+        let primary = tools.dnsResolver.primaryResolver
+        let ns = primary?.nameservers.first
+        let status: String = {
+            guard let ns else { return "Checking..." }
+            if let ms = primary?.latencyMs[ns] { return "\(ns) · \(Int(ms))ms" }
+            return ns
+        }()
+        return BentoStatusCard(
+            title: "DNS Resolver",
+            icon: "server.rack",
+            color: .indigo,
+            status: status,
+            action: { selection = .dnsResolver }
         )
     }
 }

@@ -35,8 +35,10 @@
 | Neighbors | ARP table viewer (devices on the local network) | New |
 | Connections | Open TCP/UDP sockets per process (lsof) | New |
 | Port Listener | Inbound reachability test via NWListener | New |
+| IP Geolocation | Country/city/ISP/ASN lookup for any IP, with map | New |
+| DNS Resolver | Live `scutil --dns` resolver list with per-server latency | New |
 
-**Total: 26 tools (25 diagnostics + Dashboard)**
+**Total: 28 tools (27 diagnostics + Dashboard)**
 
 Multi-Ping additionally gained threshold-based latency alert notifications.
 
