@@ -18,6 +18,19 @@ final class SubnetScanViewModel {
     /// allocate millions of result rows and ping for hours.
     static let minPrefix = 16
 
+    /// True once the current network's own CIDR has replaced the generic
+    /// placeholder — applied at most once, so it never clobbers a value the
+    /// user has since typed or a completed scan's input.
+    private(set) var didApplyDetectedDefault = false
+
+    /// Replaces the placeholder CIDR with the network this Mac is actually
+    /// on, the first time a primary interface becomes available.
+    func applyDetectedDefault(from interface: NetworkInterface?) {
+        guard !didApplyDetectedDefault, let cidr = interface?.defaultScanCIDR else { return }
+        didApplyDetectedDefault = true
+        cidrInput = cidr
+    }
+
     enum FilterMode: String, CaseIterable {
         case all = "All", aliveOnly = "Alive Only", unreachableOnly = "Unreachable Only"
     }

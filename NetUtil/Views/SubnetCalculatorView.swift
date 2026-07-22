@@ -3,6 +3,7 @@ import Observation
 
 struct SubnetCalculatorView: View {
     @Bindable var vm: SubnetViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var showLearningGuide = false
     
@@ -34,6 +35,7 @@ struct SubnetCalculatorView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Subnet Calculator") }
+        .onAppear { vm.applyDetectedDefault(from: tools.primaryInterface) }
     }
 
     // MARK: - Components

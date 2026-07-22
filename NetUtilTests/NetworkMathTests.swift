@@ -127,6 +127,22 @@ final class NetworkMathTests: XCTestCase {
         XCTAssertEqual(NetworkMath.formatRate(1_073_741_824), "1.00 G")
     }
 
+    // MARK: - Netmask -> prefix length
+
+    func testPrefixLengthCommonMasks() {
+        XCTAssertEqual(NetworkMath.prefixLength(fromNetmask: "255.255.255.0"), 24)
+        XCTAssertEqual(NetworkMath.prefixLength(fromNetmask: "255.255.0.0"), 16)
+        XCTAssertEqual(NetworkMath.prefixLength(fromNetmask: "255.0.0.0"), 8)
+        XCTAssertEqual(NetworkMath.prefixLength(fromNetmask: "255.255.255.252"), 30)
+        XCTAssertEqual(NetworkMath.prefixLength(fromNetmask: "255.255.255.255"), 32)
+        XCTAssertEqual(NetworkMath.prefixLength(fromNetmask: "0.0.0.0"), 0)
+    }
+
+    func testPrefixLengthRejectsNonContiguousMask() {
+        XCTAssertNil(NetworkMath.prefixLength(fromNetmask: "255.0.255.0"))
+        XCTAssertNil(NetworkMath.prefixLength(fromNetmask: "not-a-mask"))
+    }
+
     func testFormatBytes() {
         XCTAssertEqual(NetworkMath.formatBytes(500), "500 B")
         XCTAssertEqual(NetworkMath.formatBytes(1024), "1.00 KB")
