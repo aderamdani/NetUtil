@@ -36,8 +36,8 @@ final class StreamingSubprocess {
     private var pipe: Pipe?
 
     func run(executable: String, arguments: [String],
-             onChunk: @escaping (String) -> Void,
-             onTerminate: @escaping () -> Void) throws {
+             onChunk: @escaping @Sendable (String) -> Void,
+             onTerminate: @escaping @Sendable () -> Void) throws {
         let p = Process()
         let pipe = Pipe()
         p.executableURL = URL(fileURLWithPath: executable)

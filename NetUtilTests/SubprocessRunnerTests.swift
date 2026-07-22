@@ -1,6 +1,7 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class SubprocessRunnerTests: XCTestCase {
 
     func testRunCapturesOutput() {
@@ -67,6 +68,7 @@ final class SubprocessRunnerTests: XCTestCase {
     }
 }
 
+@MainActor
 final class PrimaryInterfaceTests: XCTestCase {
 
     private func iface(_ name: String, up: Bool = true, loopback: Bool = false,
@@ -100,6 +102,7 @@ final class PrimaryInterfaceTests: XCTestCase {
     }
 }
 
+@MainActor
 final class PrivateIPTests: XCTestCase {
 
     func testRFC1918AndSpecialRangesArePrivate() {

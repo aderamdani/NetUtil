@@ -188,6 +188,7 @@ Must match `ContentView.swift` Tool enum exactly:
 
 ## Xcode Optimization
 
+- `SWIFT_VERSION = 6.0`, `SWIFT_STRICT_CONCURRENCY = complete` — the compiler enforces Sendable/actor isolation; do not downgrade.
 - `SWIFT_COMPILATION_CACHING = YES`, `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES`.
 - `SWIFT_COMPILATION_MODE`: `singlefile` (Debug), `wholemodule` (Release).
 - Break complex type inference into typed `let` bindings.

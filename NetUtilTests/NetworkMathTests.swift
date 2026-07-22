@@ -1,6 +1,7 @@
 import XCTest
 @testable import NetUtil
 
+@MainActor
 final class NetworkMathTests: XCTestCase {
 
     // MARK: - IPv4Address parsing / formatting
