@@ -20,6 +20,7 @@ enum Tool: String, CaseIterable, Identifiable {
     case wifi        = "Wi-Fi"
     case routes         = "Routes"
     case neighbors      = "Neighbors"
+    case connections    = "Connections"
     case statistics     = "Statistics"
     case speedTest       = "Speed Test"
     case netQuality      = "Net Quality"
@@ -48,6 +49,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .wifi:         "wifi"
         case .routes:         "arrow.triangle.branch"
         case .neighbors:      "person.2.wave.2"
+        case .connections:    "app.connected.to.app.below.fill"
         case .statistics:     "chart.line.uptrend.xyaxis"
         case .speedTest:      "speedometer"
         case .netQuality:     "gauge.with.dots.needle.67percent"
@@ -79,7 +81,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .sessionHistory: "9"
         case .compare:        "0"
         // Both ⌘ digit banks are full; the newest tools have no shortcut.
-        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors: nil
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections: nil
         }
     }
 
@@ -92,7 +94,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnetScan, .whois, .bandwidth, .interfaces, .wifi,
              .routes, .statistics, .speedTest, .sessionHistory, .compare:
             return [.command, .option]
-        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors:
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors, .connections:
             return []
         }
     }
@@ -215,6 +217,7 @@ struct ContentView: View {
                             sidebarItem(.wifi)
                             sidebarItem(.routes)
                             sidebarItem(.neighbors)
+                            sidebarItem(.connections)
                         }
 
                     }
@@ -299,6 +302,7 @@ struct ContentView: View {
         case .wifi:        WiFiInspectorView(vm: tools.wifi)
         case .routes:      RouteTableView()
         case .neighbors:   NeighborsView(vm: tools.neighbors)
+        case .connections: ConnectionsView(vm: tools.connections)
         case .ssl:         SSLInspectorView(vm: tools.ssl)
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()

@@ -27,6 +27,7 @@ final class ToolStore {
     let doctor      = NetworkDoctorViewModel()
     let pathMTU     = PathMTUViewModel()
     let neighbors   = NeighborsViewModel()
+    let connections = ConnectionsViewModel()
     let statistics  = TrafficStatistics()
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()

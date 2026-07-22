@@ -93,6 +93,7 @@ struct AboutView: View {
         ("wifi",                                   "Wi-Fi"),
         ("arrow.triangle.branch",                  "Routes"),
         ("person.2.wave.2",                        "Neighbors"),
+        ("app.connected.to.app.below.fill",        "Connections"),
         ("chart.line.uptrend.xyaxis",              "Statistics"),
         ("speedometer",                            "Speed Test"),
         ("gauge.with.dots.needle.67percent",       "Net Quality"),

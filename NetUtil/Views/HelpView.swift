@@ -517,6 +517,19 @@ private let allSections: [HelpSection] = [
         ]
     ),
     HelpSection(
+        title: "Connections",
+        icon: "app.connected.to.app.below.fill",
+        subtitle: "Which app talks to which host",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Lists every open network socket on this Mac — which application, talking to which remote address, over which protocol. Answers \"what is using my network right now?\" without installing a firewall.", tips: nil),
+            HelpTopic(heading: "Reading the list", body: "Established rows are live conversations with a remote host. Listening rows are servers on this Mac waiting for incoming connections — each one is a potential entry point worth recognizing. Stateless UDP rows show neither.", tips: [
+                "Filter by process name or address to chase a specific app's traffic.",
+                "An unfamiliar process with an established connection to an unknown host is worth investigating — note the PID and check it in Activity Monitor.",
+                "Ports shown as *:port mean the listener accepts connections on every interface, including from other machines."
+            ])
+        ]
+    ),
+    HelpSection(
         title: "Traffic Statistics",
         icon: "chart.line.uptrend.xyaxis",
         subtitle: "Daily usage history",
