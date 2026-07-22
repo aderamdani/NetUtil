@@ -16,7 +16,13 @@ final class PingSlot: Identifiable {
     private(set) var isRunning = false
 
     private static let historyLimit = 120
+    /// Minimum samples before threshold alerts can fire — avoids a single
+    /// early timeout reading as "100% loss".
+    private static let alertMinSamples = 10
+    private static let alertCooldown: TimeInterval = 300
+
     @ObservationIgnored private let subprocess = StreamingSubprocess()
+    @ObservationIgnored private var lastAlert: Date?
 
     init(host: String) {
         self.host = host
@@ -63,6 +69,31 @@ final class PingSlot: Identifiable {
         avgRtt = valid.isEmpty ? nil : valid.reduce(0, +) / Double(valid.count)
         let timeouts = samples.filter { $0.rtt == nil }.count
         loss = Double(timeouts) / Double(samples.count) * 100
+        maybeAlert()
+    }
+
+    /// Fires a notification when loss or average RTT crosses the thresholds
+    /// from Settings > Thresholds, at most once per cooldown per host.
+    private func maybeAlert() {
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: "multiPingAlerts"),
+              samples.count >= Self.alertMinSamples else { return }
+        if let lastAlert, Date().timeIntervalSince(lastAlert) < Self.alertCooldown { return }
+
+        let lossLimit = defaults.object(forKey: "lossAlertThreshold") as? Double ?? 10
+        let rttCrit   = defaults.object(forKey: "rttCritThreshold") as? Double ?? 100
+
+        if loss >= lossLimit {
+            lastAlert = Date()
+            Notifier.post(title: "Packet loss: \(customName)",
+                          body: String(format: "%.0f%% of the last %d pings to %@ were lost.",
+                                       loss, samples.count, host))
+        } else if let avgRtt, avgRtt >= rttCrit {
+            lastAlert = Date()
+            Notifier.post(title: "High latency: \(customName)",
+                          body: String(format: "Average RTT to %@ is %.0f ms (critical threshold %.0f ms).",
+                                       host, avgRtt, rttCrit))
+        }
     }
 
     nonisolated static func parseLine(_ line: String) -> Double?? {

@@ -12,6 +12,7 @@ struct MultiPingView: View {
     @State private var showImportSheet = false
     @AppStorage("rttWarnThreshold") private var rttWarn: Double = 20.0
     @AppStorage("rttCritThreshold") private var rttCrit: Double = 100.0
+    @AppStorage("multiPingAlerts") private var alertsEnabled = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -95,6 +96,14 @@ struct MultiPingView: View {
                         .frame(width: 120)
                         .accessibilityLabel("Sort Mode")
                     }
+
+                    Toggle(isOn: $alertsEnabled) {
+                        Image(systemName: alertsEnabled ? "bell.fill" : "bell.slash")
+                            .font(.caption)
+                    }
+                    .toggleStyle(.button)
+                    .help("Notify when a host's packet loss or average RTT crosses the thresholds set in Settings > Thresholds (at most one alert per host every 5 minutes).")
+                    .accessibilityLabel("Latency Alerts")
 
                     if !vm.slots.isEmpty {
                         ReportMenuButton(

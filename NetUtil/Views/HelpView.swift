@@ -310,7 +310,10 @@ private let allSections: [HelpSection] = [
                 "Red bars in the sparkline = timed-out packets.",
                 "Sessions keep running when you navigate to another tool."
             ]),
-            HelpTopic(heading: "Row color coding", body: "Row background and status dot reflect loss: green = 0%, orange = 1–49%, red = 50%+. RTT values use the same warn/critical thresholds as Ping.", tips: nil)
+            HelpTopic(heading: "Row color coding", body: "Row background and status dot reflect loss: green = 0%, orange = 1–49%, red = 50%+. RTT values use the same warn/critical thresholds as Ping.", tips: nil),
+            HelpTopic(heading: "Latency alerts", body: "Enable the bell in the toolbar to get a macOS notification when a monitored host's packet loss or average RTT crosses your thresholds (Settings > Thresholds). Alerts wait for at least 10 samples and fire at most once per host every 5 minutes, so a single dropped packet never pages you.", tips: [
+                "Great for watching a flaky link in the background while you work in another app."
+            ])
         ]
     ),
     HelpSection(
