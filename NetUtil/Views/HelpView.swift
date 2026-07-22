@@ -505,6 +505,18 @@ private let allSections: [HelpSection] = [
         ]
     ),
     HelpSection(
+        title: "Neighbors",
+        icon: "person.2.wave.2",
+        subtitle: "Devices your Mac has talked to",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Shows the system's ARP table — the kernel's map of which IP address belongs to which physical network card (MAC address) on your local network. Every device this Mac has recently exchanged packets with appears here, refreshed every 5 seconds.", tips: nil),
+            HelpTopic(heading: "Reading the table", body: "Device rows are real neighbors. Unresolved means the Mac tried to reach that IP but nothing answered — often a sign of a device that just left the network. The filter hides broadcast and multicast bookkeeping entries that aren't actual devices.", tips: [
+                "The table only contains devices this Mac has communicated with — run a Subnet Scan to populate it with everything on the network.",
+                "Two IPs sharing one MAC address can indicate a router, a VM host — or ARP spoofing worth investigating."
+            ])
+        ]
+    ),
+    HelpSection(
         title: "Traffic Statistics",
         icon: "chart.line.uptrend.xyaxis",
         subtitle: "Daily usage history",

@@ -19,6 +19,7 @@ enum Tool: String, CaseIterable, Identifiable {
     case interfaces  = "Interfaces"
     case wifi        = "Wi-Fi"
     case routes         = "Routes"
+    case neighbors      = "Neighbors"
     case statistics     = "Statistics"
     case speedTest       = "Speed Test"
     case netQuality      = "Net Quality"
@@ -46,6 +47,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .interfaces:   "network"
         case .wifi:         "wifi"
         case .routes:         "arrow.triangle.branch"
+        case .neighbors:      "person.2.wave.2"
         case .statistics:     "chart.line.uptrend.xyaxis"
         case .speedTest:      "speedometer"
         case .netQuality:     "gauge.with.dots.needle.67percent"
@@ -77,7 +79,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .sessionHistory: "9"
         case .compare:        "0"
         // Both ⌘ digit banks are full; the newest tools have no shortcut.
-        case .netQuality, .wakeOnLAN, .doctor, .pathMTU: nil
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors: nil
         }
     }
 
@@ -90,7 +92,7 @@ enum Tool: String, CaseIterable, Identifiable {
         case .subnetScan, .whois, .bandwidth, .interfaces, .wifi,
              .routes, .statistics, .speedTest, .sessionHistory, .compare:
             return [.command, .option]
-        case .netQuality, .wakeOnLAN, .doctor, .pathMTU:
+        case .netQuality, .wakeOnLAN, .doctor, .pathMTU, .neighbors:
             return []
         }
     }
@@ -212,6 +214,7 @@ struct ContentView: View {
                             sidebarItem(.interfaces)
                             sidebarItem(.wifi)
                             sidebarItem(.routes)
+                            sidebarItem(.neighbors)
                         }
 
                     }
@@ -295,6 +298,7 @@ struct ContentView: View {
         case .multiPing:   MultiPingView(vm: tools.multiPing)
         case .wifi:        WiFiInspectorView(vm: tools.wifi)
         case .routes:      RouteTableView()
+        case .neighbors:   NeighborsView(vm: tools.neighbors)
         case .ssl:         SSLInspectorView(vm: tools.ssl)
         case .whois:       WhoisView(vm: tools.whois)
         case .bandwidth:   BandwidthView()
