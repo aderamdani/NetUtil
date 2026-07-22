@@ -100,7 +100,7 @@ struct PingView: View {
                 .padding(24)
             }
         }
-        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Advanced Ping") }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Ping") }
         .onAppear {
             if let h = vm.quickLaunchHost {
                 host = h

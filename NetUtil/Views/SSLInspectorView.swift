@@ -41,7 +41,7 @@ struct SSLInspectorView: View {
                 .padding(24)
             }
         }
-        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "SSL/TLS Inspector") }
+        .sheet(isPresented: $showLearningGuide) { HelpView(topic: "SSL/TLS") }
     }
 
     private var sslMoodBar: some View {

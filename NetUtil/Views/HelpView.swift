@@ -315,6 +315,22 @@ private let allSections: [HelpSection] = [
         ]
     ),
     HelpSection(
+        title: "Subnet Scanner",
+        icon: "network.badge.shield.half.filled",
+        subtitle: "Discover live hosts on your network",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Sweeps every address in a CIDR block (e.g. 192.168.1.0/24) with a single ping each, then enriches responding hosts with their hostname and MAC address from the system's ARP table. The result is a live map of every device on your local network.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Enter your network in CIDR form and press Scan. Most home networks are 192.168.0.0/24 or 192.168.1.0/24 — check the Interfaces tool if unsure. Blocks wider than /16 are rejected to keep scans fast and safe.", tips: [
+                "Right-click a live host to Ping, Port Scan, or Traceroute it directly.",
+                "A /24 block (254 hosts) typically finishes in under a minute."
+            ]),
+            HelpTopic(heading: "Reading results", body: "Alive means the host answered a ping. Unreachable means no reply — the address is either unused or the device blocks ping (common for phones and printers in power-saving mode). The MAC address identifies the hardware vendor.", tips: [
+                "Fewer hosts than expected? Some devices sleep or firewall ping — try scanning again while they're active.",
+                "An unfamiliar Alive host is worth investigating: it may be a guest device or something misconfigured."
+            ])
+        ]
+    ),
+    HelpSection(
         title: "HTTP Latency",
         icon: "stopwatch",
         subtitle: "HTTP/HTTPS request phase timing",
@@ -438,6 +454,59 @@ private let allSections: [HelpSection] = [
                 "Peak rate is session-only — resets when you navigate away or relaunch.",
                 "lo0 traffic is local inter-process communication, not internet usage.",
                 "Use alongside Wi-Fi Inspector to correlate signal quality with throughput."
+            ])
+        ]
+    ),
+    HelpSection(
+        title: "Traffic Statistics",
+        icon: "chart.line.uptrend.xyaxis",
+        subtitle: "Daily usage history",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Records how much data your Mac sends and receives each day while NetUtil is running, keeping up to 90 days of history. Nothing leaves your machine — the totals live in local preferences.", tips: nil),
+            HelpTopic(heading: "Reading the chart", body: "Each bar is one day's combined download + upload total. Today's counters update live. Session counters show traffic since the app launched; daily totals persist across restarts.", tips: [
+                "Totals only accumulate while NetUtil is running — they are not a full accounting of the Mac's traffic.",
+                "Use Reset to clear history if you want to start a fresh measurement period.",
+                "Export CSV to analyze usage trends in a spreadsheet."
+            ])
+        ]
+    ),
+    HelpSection(
+        title: "Speed Test",
+        icon: "speedometer",
+        subtitle: "Connection speed and quality",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Measures your internet connection against Cloudflare's global test servers. Four test types focus on different questions: Speed (raw download/upload throughput), Browsing (page-load responsiveness), Gaming (latency stability and packet loss), and Streaming (sustained video bitrate).", tips: nil),
+            HelpTopic(heading: "How to use", body: "Pick a test type and press Start. Values update live as the test runs; results are saved to the history table below, where rows can be renamed or deleted.", tips: [
+                "Close other bandwidth-heavy apps (backups, video calls) for a representative reading.",
+                "Run tests at different times of day — evening congestion is common on shared links."
+            ]),
+            HelpTopic(heading: "Reading results", body: "Download/upload are in Mbps — higher is better. Ping is the round-trip time to the server and jitter its variability — lower is better for both. Gaming's P99 shows the worst 1% of latencies: a high P99 with a good median means occasional stutter.", tips: [
+                "Video calls need roughly 4 Mbps up/down; 4K streaming about 25 Mbps down.",
+                "If speed is fine but pages feel slow, compare with the Browsing test and DNS Lookup."
+            ])
+        ]
+    ),
+    HelpSection(
+        title: "Session History",
+        icon: "clock.arrow.circlepath",
+        subtitle: "Log of completed diagnostics",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Automatically records every completed run from the diagnostic tools — Ping, Traceroute, Port Scan, DNS, WHOIS, SSL/TLS, HTTP Latency, and Speed Test — with its target, a one-line summary, status, and duration.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Filter by tool using the picker, click a row to inspect its summary, and export the log as PDF or CSV. Sessions marked green succeeded, orange completed partially, red failed.", tips: [
+                "History feeds the Compare tool — the more sessions you log, the more you can compare.",
+                "Clear the log any time; it only exists on this Mac."
+            ])
+        ]
+    ),
+    HelpSection(
+        title: "Compare",
+        icon: "arrow.left.arrow.right",
+        subtitle: "Side-by-side session comparison",
+        topics: [
+            HelpTopic(heading: "What it does", body: "Puts two logged sessions of the same tool side by side, so you can see whether the network got better or worse between runs — for example, ping to the same host from home versus office, or before and after a router change.", tips: nil),
+            HelpTopic(heading: "How to use", body: "Pick a tool, then choose Session A and Session B from the menus. Ping, Traceroute, and Port Scan compare in full metric detail; other tools compare status, duration, and summary.", tips: [
+                "Compare needs at least two logged sessions of the chosen tool — run the tool twice first.",
+                "Green/red deltas mark which session performed better on each metric."
             ])
         ]
     ),
