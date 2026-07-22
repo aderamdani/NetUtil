@@ -15,7 +15,7 @@ struct GeneralPane: View {
             Section {
                 LabeledContent("Default Count") {
                     Stepper("\(pingCount) pkts", value: $pingCount, in: 1...9999)
-                        .frame(width: 130)
+                        .frame(width: Metrics.settingsColumnWidth)
                 }
                 .help("Number of ICMP echo packets sent per session. Can be overridden directly in the Ping tool.")
                 .accessibilityLabel("Default Ping Count")
@@ -48,7 +48,7 @@ struct GeneralPane: View {
             Section {
                 LabeledContent("Max Hops") {
                     Stepper("\(maxHops) hops", value: $maxHops, in: 1...255)
-                        .frame(width: 130)
+                        .frame(width: Metrics.settingsColumnWidth)
                 }
                 .help("Maximum TTL value passed to traceroute via the -m flag. Controls how far the trace extends across the network.")
                 .accessibilityLabel("Traceroute Max Hops")
@@ -65,7 +65,7 @@ struct GeneralPane: View {
             Section {
                 LabeledContent("Max Raw Output Lines") {
                     Stepper("\(maxRawLines)", value: $maxRawLines, in: 100...5000, step: 100)
-                        .frame(width: 130)
+                        .frame(width: Metrics.settingsColumnWidth)
                 }
                 .help("Maximum number of raw log lines kept in memory per tool. Older lines are dropped when this limit is reached to prevent high memory usage.")
                 .accessibilityLabel("Max Raw Output Buffer Size")
