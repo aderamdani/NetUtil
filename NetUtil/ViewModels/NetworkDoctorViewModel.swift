@@ -49,6 +49,10 @@ final class NetworkDoctorViewModel {
     private(set) var lastRun: Date?
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
+    /// Populated once the gateway step resolves — lets the view offer a
+    /// "Ping Router" action on failure without re-resolving it itself.
+    private(set) var gatewayIP: String?
+
     /// Generation token: bumped on stop/start so a cancelled diagnosis
     /// can't keep mutating the checks of a newer one.
     private var runID = 0
@@ -57,6 +61,7 @@ final class NetworkDoctorViewModel {
         stop()
         checks = DoctorStepID.allCases.map { DoctorCheck(id: $0) }
         captivePortal = false
+        gatewayIP = nil
         isRunning = true
         runID += 1
         let id = runID
@@ -68,6 +73,9 @@ final class NetworkDoctorViewModel {
                 self.setState(.running, for: step)
                 let result = await Self.run(step: step)
                 guard self.runID == id else { return }
+                if step == .gateway {
+                    self.gatewayIP = await Self.resolvedGatewayIP()
+                }
                 if case .failed(let why) = result, why.contains("Captive portal") {
                     self.captivePortal = true
                 }
@@ -106,24 +114,51 @@ final class NetworkDoctorViewModel {
         }
     }
 
+    /// A single dropped packet shouldn't be enough to blame the router —
+    /// try twice before declaring the layer down. The common case (first
+    /// probe succeeds) pays no extra latency for this.
+    private nonisolated static func pingOnce(_ gateway: String) -> Bool {
+        SubprocessRunner.run(executable: "/sbin/ping", arguments: ["-c", "1", "-t", "2", gateway])
+            .contains("bytes from")
+    }
+
     private nonisolated static func checkGateway() async -> DoctorStepState {
         guard let (gateway, iface) = GatewayParser.anyDefaultGateway() else {
             return .failed("No default route — this Mac is not connected to any network. Check Wi-Fi or the Ethernet cable.")
         }
-        let output = SubprocessRunner.run(executable: "/sbin/ping",
-                                          arguments: ["-c", "1", "-t", "2", gateway])
-        if output.contains("bytes from") {
+        if pingOnce(gateway) || pingOnce(gateway) {
             return .passed("Router \(gateway) answered on \(iface)")
         }
-        return .failed("Router \(gateway) did not answer. The link is up but the router is unreachable — try restarting it.")
+        return .failed("Router \(gateway) did not answer after 2 attempts. The link is up but the router is unreachable — try restarting it.")
     }
 
-    private nonisolated static func checkDNS() async -> DoctorStepState {
+    private nonisolated static func resolvedGatewayIP() async -> String? {
+        GatewayParser.anyDefaultGateway()?.gateway
+    }
+
+    private nonisolated static func digOnce() -> String? {
         let output = SubprocessRunner.run(executable: "/usr/bin/dig",
                                           arguments: ["+time=2", "+tries=1", "+short", "apple.com"])
         let answer = output.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !answer.isEmpty, answer.contains(".") {
+        return (!answer.isEmpty && answer.contains(".")) ? answer : nil
+    }
+
+    /// The resolver macOS actually uses for ordinary lookups, so a DNS
+    /// failure can name the specific server that didn't answer instead of
+    /// a generic "DNS is broken".
+    private nonisolated static func primaryNameserver() -> String? {
+        let output = SubprocessRunner.run(executable: "/usr/sbin/scutil", arguments: ["--dns"])
+        return DNSResolverEntry.parse(output)
+            .first(where: { !$0.isScoped && !$0.nameservers.isEmpty })?
+            .nameservers.first
+    }
+
+    private nonisolated static func checkDNS() async -> DoctorStepState {
+        if let answer = digOnce() ?? digOnce() {
             return .passed("apple.com resolved to \(answer.components(separatedBy: "\n").first ?? answer)")
+        }
+        if let server = primaryNameserver() {
+            return .failed("Name lookup failed against your configured resolver \(server). Open DNS Resolver to see the full picture, or try a public resolver like 1.1.1.1 or 8.8.8.8 in System Settings > Network > DNS.")
         }
         return .failed("Name lookup failed. The network is up but DNS is not answering — try a public resolver like 1.1.1.1 or 8.8.8.8 in System Settings > Network > DNS.")
     }
