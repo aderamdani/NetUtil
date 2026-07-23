@@ -1,7 +1,10 @@
 import SwiftUI
+import AppKit
 
 struct NetworkDoctorView: View {
     @Bindable var vm: NetworkDoctorViewModel
+    @Binding var selection: Tool?
+    @Environment(ToolStore.self) private var tools
     @State private var showLearningGuide = false
 
     var body: some View {
@@ -102,6 +105,14 @@ struct NetworkDoctorView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                if let action = failureAction(for: check) {
+                    Button(action: action.perform) {
+                        Label(action.label, systemImage: action.icon)
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption.weight(.semibold))
+                    .padding(.top, 2)
+                }
             }
 
             Spacer()
@@ -112,6 +123,37 @@ struct NetworkDoctorView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(check.id.rawValue) check")
         .accessibilityValue(detailText(for: check))
+    }
+
+    private struct FailureAction {
+        let label: String
+        let icon: String
+        let perform: () -> Void
+    }
+
+    /// One-click follow-up per failed layer — turns the advice text into
+    /// an action instead of leaving the user to act on it manually.
+    private func failureAction(for check: DoctorCheck) -> FailureAction? {
+        guard case .failed = check.state else { return nil }
+        switch check.id {
+        case .gateway:
+            guard let gateway = vm.gatewayIP else { return nil }
+            return FailureAction(label: "Ping Router", icon: "antenna.radiowaves.left.and.right") {
+                tools.ping.quickLaunchHost = gateway
+                selection = .ping
+            }
+        case .dns:
+            return FailureAction(label: "Open DNS Resolver", icon: "server.rack") {
+                selection = .dnsResolver
+            }
+        case .http:
+            guard vm.captivePortal, let url = URL(string: "http://captive.apple.com/hotspot-detect.html") else { return nil }
+            return FailureAction(label: "Open in Browser", icon: "safari") {
+                NSWorkspace.shared.open(url)
+            }
+        case .tls:
+            return nil
+        }
     }
 
     private func detailText(for check: DoctorCheck) -> String {

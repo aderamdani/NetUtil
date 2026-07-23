@@ -304,7 +304,7 @@ struct ContentView: View {
     private func toolView(_ tool: Tool) -> some View {
         switch tool {
         case .dashboard:   DashboardView(selection: $selection)
-        case .doctor:      NetworkDoctorView(vm: tools.doctor)
+        case .doctor:      NetworkDoctorView(vm: tools.doctor, selection: $selection)
         case .ping:        PingView(vm: tools.ping)
         case .traceroute:  TracerouteView(vm: tools.traceroute)
         case .dns:         DNSView(vm: tools.dns)
