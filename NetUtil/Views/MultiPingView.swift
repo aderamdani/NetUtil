@@ -76,7 +76,7 @@ struct MultiPingView: View {
 
     private var controlBar: some View {
         ToolControlBar(icon: "dot.radiowaves.left.and.right", title: "Multi-Ping",
-                       host: $newHost, history: history, onSubmit: addHost) {
+                       host: $newHost, textFieldWidth: 180, history: history, onSubmit: addHost) {
             GlassEffectContainer {
                     Button(action: { showImportSheet = true }) {
                         Label("Import", systemImage: "square.and.arrow.down")

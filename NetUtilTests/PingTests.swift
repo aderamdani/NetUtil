@@ -38,6 +38,23 @@ final class PingStatsTests: XCTestCase {
         XCTAssertEqual(s.loss, 0)
     }
 
+    func testRecentAvgMatchesOverallWithinWindow() {
+        var s = PingStats()
+        s.record(rtt: 10)
+        s.record(rtt: 30)
+        XCTAssertEqual(s.recentAvgRtt, 20, accuracy: 0.0001)
+    }
+
+    func testRecentAvgOnlyReflectsLastWindow() {
+        var s = PingStats()
+        for _ in 0..<20 { s.record(rtt: 100) }
+        for _ in 0..<20 { s.record(rtt: 10) }
+        // Overall average is dragged toward the old high-latency samples...
+        XCTAssertEqual(s.avgRtt, 55, accuracy: 0.0001)
+        // ...but the recent average reflects only the last 20 packets.
+        XCTAssertEqual(s.recentAvgRtt, 10, accuracy: 0.0001)
+    }
+
     func testDistributionBuckets() {
         var s = PingStats()
         s.record(rtt: 5)     // low   (<20)
@@ -48,6 +65,24 @@ final class PingStatsTests: XCTestCase {
         XCTAssertEqual(s.bucketMedium, 1)
         XCTAssertEqual(s.bucketHigh, 1)
         XCTAssertEqual(s.bucketCritical, 1)
+    }
+
+    func testRecentLossReflectsWindowNotLifetime() {
+        var s = PingStats()
+        for _ in 0..<18 { s.record(rtt: 10) }
+        s.recordTimeout()   // 19th → 1/19 ≈ 5.3%
+        s.recordTimeout()   // 20th → 2/20 = 10%
+        XCTAssertEqual(s.recentLoss, 10, accuracy: 0.0001)
+        // After a 20-timeout burst, the window forgets the earlier successes.
+        for _ in 0..<20 { s.recordTimeout() }
+        XCTAssertEqual(s.recentLoss, 100)
+        XCTAssertEqual(s.recentCount, 20)
+    }
+
+    func testRecentLossZeroInitially() {
+        let s = PingStats()
+        XCTAssertEqual(s.recentLoss, 0)
+        XCTAssertEqual(s.recentCount, 0)
     }
 }
 

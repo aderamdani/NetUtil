@@ -121,9 +121,12 @@ final class SpeedTestViewModel: SpeedTestDelegate {
         guard let currentEngine = engine else { return }
         do {
             let result = try await currentEngine.runTest(kind: kind)
+            guard !Task.isCancelled else { return }
             phase = .done
             progress = 1.0
             recordResult(result)
+        } catch is CancellationError {
+            // cancel() already reset the UI state for the new run.
         } catch {
             self.error = (error as NSError).localizedDescription
             phase = .failed

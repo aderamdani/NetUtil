@@ -169,7 +169,8 @@ final class SSLInspectorViewModel {
         delegate.port = port
 
         let config = URLSessionConfiguration.ephemeral
-        config.timeoutIntervalForRequest = 10
+        let configuredTimeout = UserDefaults.standard.double(forKey: "sslTimeout")
+        config.timeoutIntervalForRequest = configuredTimeout > 0 ? configuredTimeout : 10
         let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
         defer { session.invalidateAndCancel() }
 

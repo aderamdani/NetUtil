@@ -105,11 +105,13 @@ struct StatisticsView: View {
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
-            
+
             Divider()
         }
     }

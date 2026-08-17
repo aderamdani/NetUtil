@@ -5,10 +5,12 @@ struct GeneralPane: View {
     @AppStorage("defaultPingInterval")   private var pingInterval   = 1.0
     @AppStorage("pingAutoStopLimit")     private var autoStopLimit  = 5
     @AppStorage("pingBeepOnLoss")        private var beepOnLoss     = false
+    @AppStorage("pingAlerts")            private var alertsEnabled  = false
     @AppStorage("defaultMaxHops")        private var maxHops        = 30
     @AppStorage("defaultTraceInterval")  private var traceInterval  = 5.0
     @AppStorage("maxRawLines")           private var maxRawLines    = 500
     @AppStorage("backgroundOnClose")     private var backgroundOnClose = false
+    @AppStorage("menuBarShowTraffic")    private var menuBarTraffic   = false
 
     var body: some View {
         Form {
@@ -41,6 +43,14 @@ struct GeneralPane: View {
                 }
                 .help("Play a system sound each time a ping packet is lost. Useful for passive monitoring without watching the screen.")
                 .accessibilityLabel("Enable Beep on Packet Loss")
+
+                LabeledContent("Notify on Loss or High Latency") {
+                    Toggle("", isOn: $alertsEnabled)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
+                .help("Post a notification when a ping run finishes, or when recent packet loss or average RTT crosses the thresholds in Settings > Thresholds. Mirrors the bell toggle in the Ping control bar.")
+                .accessibilityLabel("Enable Ping Notifications")
             } header: {
                 Text("Ping")
             }
@@ -77,6 +87,10 @@ struct GeneralPane: View {
                 Toggle("Keep running in menu bar when window closed", isOn: $backgroundOnClose)
                     .help("When enabled, closing the main window hides NetUtil from the Dock but keeps the menu bar item active. Click the menu bar icon and the window button to bring NetUtil back to the Dock. When disabled, closing the window quits the app.")
                     .accessibilityLabel("Keep Running in Background")
+
+                Toggle("Show live traffic in menu bar icon", isOn: $menuBarTraffic)
+                    .help("Append current download/upload rates to the menu bar icon (e.g. ↓1.2M ↑300K). Disabled by default to keep the icon compact.")
+                    .accessibilityLabel("Show Traffic in Menu Bar Icon")
             } header: {
                 Text("Menu Bar")
             }

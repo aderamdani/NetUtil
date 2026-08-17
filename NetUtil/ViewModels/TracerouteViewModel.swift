@@ -28,7 +28,11 @@ final class TracerouteViewModel {
     @ObservationIgnored private var subprocess = StreamingSubprocess()
     private var pendingHops: [TracerouteHop] = []
 
-    private static let rawLinesLimit = 500
+    /// Configurable in Settings > General > Performance (default 500).
+    private static var rawLinesLimit: Int {
+        let limit = UserDefaults.standard.integer(forKey: "maxRawLines")
+        return limit > 0 ? limit : 500
+    }
     private var geoCache: [String: GeoInfo] = [:]
     private var geoInFlight: [String: Task<Void, Never>] = [:]
 

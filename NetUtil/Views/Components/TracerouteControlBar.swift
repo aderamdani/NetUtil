@@ -12,6 +12,7 @@ struct TracerouteControlBar: View {
     let hasHops: Bool
     let onExportPDF: () -> Void
     let onExportCSV: () -> Void
+    var onCopySummary: (() -> Void)? = nil
     var isFavorite: Bool = false
     var onToggleFavorite: (() -> Void)? = nil
     
@@ -31,7 +32,7 @@ struct TracerouteControlBar: View {
                 }
 
                 if hasHops {
-                    ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV)
+                    ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV, onCopySummary: onCopySummary)
                 }
 
                 Button(action: onStart) {

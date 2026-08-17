@@ -53,6 +53,7 @@ struct NetUtilApp: App {
                 .environment(tools.interfaces)
         } label: {
             MenuBarLabel()
+                .environment(tools)
         }
         .menuBarExtraStyle(.window)
     }

@@ -14,7 +14,6 @@ final class PingViewModel {
     private(set) var rawLines: [PingLogLine] = []
     private(set) var error: String?
     private(set) var resolvedIP: String?
-    private(set) var beepOnLoss: Bool = false
     private(set) var currentHost: String = ""
     var quickLaunchHost: String? = nil
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
@@ -22,12 +21,25 @@ final class PingViewModel {
     @ObservationIgnored private var subprocess = StreamingSubprocess()
     @ObservationIgnored private var sessionStartTime: Date = Date()
 
-    private static let rawLinesLimit = 500
     private static let resultsLimit  = 1000
+
+    /// Configurable in Settings > General > Performance (default 500).
+    private static var rawLinesLimit: Int {
+        let limit = UserDefaults.standard.integer(forKey: "maxRawLines")
+        return limit > 0 ? limit : 500
+    }
+
+    /// Threshold-alert tuning shared with Multi-Ping's identical mechanism.
+    private static let alertMinSamples = 10
+    private static let alertCooldown: TimeInterval = 300
 
     @ObservationIgnored private var resultsBuffer: [PingResult] = []
     @ObservationIgnored private var batchTimer: AnyCancellable?
     @ObservationIgnored private var lastChartFlush: Date = .distantPast
+    @ObservationIgnored private var lastAlert: Date?
+    @ObservationIgnored private var isFiniteRun = false
+    /// Counts consecutive timeouts for the "auto-stop on loss" setting.
+    @ObservationIgnored private var consecutiveTimeouts = 0
 
     /// Generation token: bumped on every stop/start so a terminated process's
     /// pending handlers can't tear down or pollute a newer run.
@@ -63,6 +75,8 @@ final class PingViewModel {
         isRunning = true
         sessionStartTime = Date()
         sessionLogged = false
+        isFiniteRun = count != nil
+        lastAlert = nil
         runID += 1
         let id = runID
 
@@ -110,10 +124,11 @@ final class PingViewModel {
 
                     // Buffer the results instead of direct append
                     for result in parsed {
+                        if result.status == .success { self.consecutiveTimeouts = 0 }
                         self.resultsBuffer.append(result)
                     }
                     for timeoutSeq in timeouts {
-                        if self.beepOnLoss {
+                        if UserDefaults.standard.bool(forKey: "pingBeepOnLoss") {
                             NSSound(named: "Tink")?.play()
                         }
 
@@ -126,6 +141,14 @@ final class PingViewModel {
                             rtt: 0,
                             status: .timeout
                         ))
+                        self.consecutiveTimeouts += 1
+                    }
+                    // Auto-Stop on Loss (Settings > General > Ping): stop the run
+                    // after N consecutive timeouts. 0 disables the feature.
+                    let autoStopLimit = UserDefaults.standard.integer(forKey: "pingAutoStopLimit")
+                    if autoStopLimit > 0, self.consecutiveTimeouts >= autoStopLimit {
+                        self.stop()
+                        self.isRunning = false
                     }
                 }
             }, onTerminate: { [weak self] in
@@ -136,6 +159,19 @@ final class PingViewModel {
                     self.batchTimer = nil
                     self.subprocess.stop()
                     self.isRunning = false
+                    // Nothing was ever transmitted — the process died before
+                    // sending a single packet (unresolvable host, bad args,
+                    // permission error). Surface whatever it printed instead
+                    // of silently reverting to an empty, "nothing happened" state.
+                    if self.stats.transmitted == 0,
+                       let lastLine = self.rawLines.last(where: { !$0.text.trimmingCharacters(in: .whitespaces).isEmpty }) {
+                        self.error = lastLine.text
+                    }
+                    if self.isFiniteRun, self.error == nil, UserDefaults.standard.bool(forKey: "pingAlerts") {
+                        Notifier.post(title: "Ping complete: \(host)",
+                                      body: String(format: "%d packets, %.1f%% loss, avg %.1f ms",
+                                                   self.stats.transmitted, self.stats.loss, self.stats.avgRtt))
+                    }
                     self.logSession() // Finite (-c) runs end here, not via stop()
                 }
             })
@@ -170,6 +206,35 @@ final class PingViewModel {
         if now.timeIntervalSince(lastChartFlush) >= 0.2 {
             chartResults = results
             lastChartFlush = now
+        }
+
+        maybeAlert()
+    }
+
+    /// Fires a notification when recent-window loss or latency crosses the
+    /// thresholds from Settings > Thresholds, at most once per cooldown — for
+    /// long or infinite runs where you're not watching the tab. Uses the
+    /// rolling recent window, not lifetime stats, so a run that recovers stops
+    /// nagging and a transient burst still trips promptly.
+    private func maybeAlert() {
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: "pingAlerts"),
+              stats.transmitted >= Self.alertMinSamples else { return }
+        if let lastAlert, Date().timeIntervalSince(lastAlert) < Self.alertCooldown { return }
+
+        let lossLimit = defaults.object(forKey: "lossAlertThreshold") as? Double ?? 10
+        let rttCrit   = defaults.object(forKey: "rttCritThreshold") as? Double ?? 100
+
+        if stats.recentLoss >= lossLimit {
+            lastAlert = Date()
+            Notifier.post(title: "Packet loss: \(currentHost)",
+                          body: String(format: "%.0f%% of the last %d pings to %@ were lost.",
+                                       stats.recentLoss, stats.recentCount, currentHost))
+        } else if stats.recentAvgRtt >= rttCrit, stats.recentAvgRtt > 0 {
+            lastAlert = Date()
+            Notifier.post(title: "High latency: \(currentHost)",
+                          body: String(format: "Average RTT over the last %d pings is %.0f ms (critical threshold %.0f ms).",
+                                       stats.recentCount, stats.recentAvgRtt, rttCrit))
         }
     }
 

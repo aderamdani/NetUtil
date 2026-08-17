@@ -113,6 +113,14 @@ struct NetworkMath {
         return String(format: "%.2f G", bps / 1_073_741_824)
     }
 
+    /// Compact rate for tight UI (menu bar icon): "1.2K", "3.5M", "1.0G".
+    static func shortRate(_ bps: Double) -> String {
+        if bps < 1_024 { return String(format: "%.0f", bps) }
+        if bps < 1_048_576 { return String(format: "%.1fK", bps / 1_024) }
+        if bps < 1_073_741_824 { return String(format: "%.1fM", bps / 1_048_576) }
+        return String(format: "%.1fG", bps / 1_073_741_824)
+    }
+
     static func formatBytes(_ bytes: UInt64) -> String {
         if bytes < 1024 { return "\(bytes) B" }
         if bytes < 1_048_576 { return String(format: "%.2f KB", Double(bytes) / 1024) }

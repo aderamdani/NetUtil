@@ -66,7 +66,13 @@ final class BandwidthMonitor {
 
     private func restartTimer() {
         timer?.invalidate()
-        let interval: TimeInterval = isUIActive ? 1.0 : backgroundInterval
+        // Foreground sampling rate is user-configurable
+        // (Settings > Tools > Bandwidth); background cadence stays fixed.
+        let uiInterval: TimeInterval = {
+            let setting = UserDefaults.standard.double(forKey: "bandwidthInterval")
+            return setting > 0 ? setting : 1.0
+        }()
+        let interval: TimeInterval = isUIActive ? uiInterval : backgroundInterval
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in self?.tick() }
         }

@@ -9,6 +9,8 @@ struct MenuBarView: View {
         VStack(alignment: .leading, spacing: 0) {
             statusHeader
             Divider()
+            bandwidthSection
+            Divider()
             footerSection
         }
         .frame(width: 280)
@@ -35,6 +37,9 @@ struct MenuBarView: View {
                 ipRow(label: "Local",
                       value: primaryInterface?.ipv4.first ?? "—",
                       faded: primaryInterface == nil)
+                if !tools.currentConnectionName.isEmpty {
+                    ipRow(label: "Network", value: tools.currentConnectionName, faded: false)
+                }
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 6) {
@@ -61,11 +66,37 @@ struct MenuBarView: View {
             Text(label)
                 .font(.caption2.weight(.medium))
                 .foregroundColor(.secondary)
-                .frame(width: 44, alignment: .leading)
+                .frame(width: 52, alignment: .leading)
             Text(value)
                 .font(.system(.caption, design: .monospaced).weight(.semibold))
                 .foregroundColor(faded ? .secondary : .primary)
+                .lineLimit(1)
+                .truncationMode(.middle)
         }
+    }
+
+    // MARK: - Live Bandwidth
+
+    private var bandwidthSection: some View {
+        HStack(spacing: 12) {
+            bandwidthStat(label: "Download", value: tools.bandwidth.totalRxBps, icon: "arrow.down", color: .green)
+            bandwidthStat(label: "Upload", value: tools.bandwidth.totalTxBps, icon: "arrow.up", color: .blue)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+    }
+
+    private func bandwidthStat(label: String, value: Double, icon: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 4) {
+                Image(systemName: icon).font(.caption2.weight(.bold)).foregroundColor(color)
+                Text(label).font(.caption2.weight(.medium)).foregroundColor(.secondary)
+            }
+            Text(NetworkMath.formatRate(value))
+                .font(.system(.caption, design: .monospaced).weight(.semibold))
+                .accessibilityLabel("\(label) \(NetworkMath.formatRate(value))")
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Footer
@@ -123,9 +154,26 @@ struct MenuBarView: View {
 // MARK: - Menu Bar Label
 
 struct MenuBarLabel: View {
+    @Environment(ToolStore.self) private var tools
+
     var body: some View {
-        Image(systemName: "network")
-            .imageScale(.medium)
-            .fontWeight(.regular)
+        if UserDefaults.standard.bool(forKey: "menuBarShowTraffic") {
+            HStack(spacing: 3) {
+                Image(systemName: "network")
+                    .imageScale(.small)
+                VStack(alignment: .trailing, spacing: 0) {
+                    Text("↓\(NetworkMath.shortRate(tools.bandwidth.totalRxBps))")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .foregroundColor(.green)
+                    Text("↑\(NetworkMath.shortRate(tools.bandwidth.totalTxBps))")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .foregroundColor(.blue)
+                }
+            }
+        } else {
+            Image(systemName: "network")
+                .imageScale(.medium)
+                .fontWeight(.regular)
+        }
     }
 }

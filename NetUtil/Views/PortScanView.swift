@@ -38,6 +38,12 @@ struct PortScanView: View {
                 onExportCSV: { exportCSV(displayResults) },
                 hasResults: !vm.results.isEmpty,
                 history: history,
+                onCopySummary: {
+                    let open = displayResults.filter { $0.status == .open }
+                    let summary = "Host: \(host)\nScanned: \(vm.total)\nOpen: \(open.count) \(vm.total > 0 ? String(format: "(%.0f%%)", Double(open.count) / Double(vm.total) * 100) : "")"
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(summary, forType: .string)
+                },
                 isFavorite: tools.favorites.isFavorite(host),
                 onToggleFavorite: { tools.favorites.toggle(host: host) }
             )
