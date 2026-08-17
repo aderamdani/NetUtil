@@ -4,6 +4,27 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.11.1] — 2026-08-18
+
+### Added
+- **Dashboard "System & Security" section**: new cards for Connectivity Doctor (layer pass/fail verdict), Net Quality (throughput + RPM grade), Port Listener, Connections (established count), Neighbors (on-LAN devices), and Session History.
+- **Menu-bar traffic label**: optional `↓` / `↑` live rate readout in the status-bar menu (toggle under Settings > General > `menuBarShowTraffic`), backed by a new compact rate formatter.
+- **Ping RTT-high alerts**: the loss alert now also fires when the rolling 20-ping average RTT exceeds the threshold in Settings > Thresholds — parity with the latency-alert behavior that already existed in Multi-Ping.
+- **Copy-to-clipboard summaries** (Report menu → Copy Summary) for Traceroute, Port Scanner, DNS Lookup, WHOIS, HTTP Latency, and SSL/TLS.
+
+### Changed
+- **Ping**: loss/RTT alerts now evaluate a rolling recent window instead of lifetime averages; optional auto-stop on a high-loss spike (`pingAutoStopLimit`) is applied while running.
+- **Menu-bar popover** now shows live down/up bandwidth and the current network name alongside the existing IP and interface rows.
+- **Settings**: previously dead preferences are now actually read — `pingAutoStopLimit`, `maxRawLines`, HTTP timeout (`httpTimeout`), SSL timeout (`sslTimeout`), and the bandwidth sampling interval (`bandwidthInterval`). A General-pane toggle wires the loss/high-latency notification to the Ping trigger.
+- **Speed Test**: gaming-stats (median/P99/jitter/loss) are computed once at the end of the run instead of re-sorting after every probe; cancelling now also aborts between the download and upload phases; speed-test cancellation no longer surfaces a spurious error state.
+- Dashboard and menu-bar views carry accessibility labels/values on every interactive element.
+
+### Fixed
+- Menu-bar traffic label could render with an ambiguous icon-only state when the toggle changed at runtime.
+- SSL Inspector settings row referenced a hardcoded timeout instead of the user-configurable value.
+
+---
+
 ## [4.11.0] — 2026-07-23
 
 ### Added
