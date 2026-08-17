@@ -11,12 +11,13 @@ struct PortScanControlBar: View {
     let onExportCSV: () -> Void
     let hasResults: Bool
     let history: HostHistory
+    var onCopySummary: (() -> Void)? = nil
     var isFavorite: Bool = false
     var onToggleFavorite: (() -> Void)? = nil
     
     var body: some View {
         ToolControlBar(icon: "checklist", title: "Port Scanner",
-                       host: $host, history: history, onSubmit: onStart) {
+                       host: $host, textFieldWidth: 180, history: history, onSubmit: onStart) {
             HStack(spacing: 12) {
                 Picker("", selection: $portRangeType) {
                     ForEach(PortPreset.allCases, id: \.self) { type in
@@ -35,7 +36,7 @@ struct PortScanControlBar: View {
                 }
 
                 if hasResults {
-                    ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV)
+                    ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV, onCopySummary: onCopySummary)
                 }
 
                 Button(action: onStart) {

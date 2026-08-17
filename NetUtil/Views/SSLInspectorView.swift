@@ -70,19 +70,14 @@ struct SSLInspectorView: View {
 
     private var controlBar: some View {
         ToolControlBar(icon: "lock.shield.fill", title: "SSL/TLS Inspector",
-                       host: $host, placeholder: "hostname or URL", textFieldWidth: 280,
+                       host: $host, placeholder: "hostname or URL", textFieldWidth: 220,
                        textFieldAccessibilityLabel: "Target Host Input",
                        history: history, onSubmit: startInspection) {
             HStack(spacing: 12) {
-                    HStack(spacing: 4) {
-                        Text("Port")
-                            .font(.caption2.weight(.bold))
-                            .foregroundColor(.secondary)
-                        TextField("", text: $portText)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 50)
-                            .accessibilityLabel("Connection Port")
-                    }
+                    TextField("Port", text: $portText)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 46)
+                        .accessibilityLabel("Connection Port")
 
                     if let result = vm.result {
                         let isWatched = tools.sslWatchlist.items.contains { $0.domain == host }
@@ -97,6 +92,14 @@ struct SSLInspectorView: View {
                                 Exporter.save(string: "subject,notAfter,status\n\(content)",
                                               defaultName: "NetUtil-SSL-\(host)-\(ts.string(from: Date())).csv",
                                               ext: "csv")
+                            },
+                            onCopySummary: {
+                                let leaf = result.chain.first
+                                let days = leaf?.daysRemaining
+                                let status = days.map { $0 < 0 ? "Expired \(-$0)d ago" : "Valid, \($0)d remaining" } ?? "Unknown"
+                                let summary = "Host: \(host)\nLeaf: \(leaf?.subject ?? "—")\nIssuer: \(leaf?.issuer ?? "—")\nExpiry: \(status)\nChain depth: \(result.chain.count)"
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(summary, forType: .string)
                             }
                         )
 

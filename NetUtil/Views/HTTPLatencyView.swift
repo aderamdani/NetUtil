@@ -105,6 +105,12 @@ struct HTTPLatencyView: View {
                             onExportCSV: {
                                 let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
                                 Exporter.save(string: exportCSV(vm.history), defaultName: "NetUtil-HTTPLatency-\(date.string(from: Date())).csv", ext: "csv")
+                            },
+                            onCopySummary: {
+                                let code = res.statusCode.map { String($0) } ?? "—"
+                                let summary = "URL: \(res.url)\nMethod: \(res.method)\nStatus: \(code)\nTotal: \(String(format: "%.0f ms", res.totalMs))\nBody: \(NetworkMath.formatBytes(UInt64(res.bodyBytes ?? 0)))"
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(summary, forType: .string)
                             }
                         )
                     }

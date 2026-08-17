@@ -73,11 +73,13 @@ final class SpeedTestEngine {
         delegate?.phase = .download
         let dl = try await measureDownload(parallel: 4, duration: 10, progressStart: 0.1, progressEnd: 0.55)
         delegate?.downloadMbps = dl
+        guard !cancelTransfer else { throw CancellationError() }
 
         // Phase 3: upload (10s sustained)
         delegate?.phase = .upload
         let ul = try await measureUpload(duration: 10, progressStart: 0.55, progressEnd: 1.0)
         delegate?.uploadMbps = ul
+        guard !cancelTransfer else { throw CancellationError() }
 
         var result = SpeedTestResult(timestamp: Date(), kind: .speed, provider: "Cloudflare")
         result.downloadMbps = dl
@@ -173,24 +175,23 @@ final class SpeedTestEngine {
             // 50 ms between probes — burst pattern that mimics real game traffic
             try? await Task.sleep(nanoseconds: 50_000_000)
 
-            if !samples.isEmpty {
-                let sorted = samples.sorted()
-                let gameMedianMs = sorted[sorted.count / 2]
-                let p99idx = min(sorted.count - 1, Int(Double(sorted.count) * 0.99))
-                let gameP99Ms = sorted[p99idx]
-                let mean = samples.reduce(0, +) / Double(samples.count)
-                let variance = samples.map { pow($0 - mean, 2) }.reduce(0, +) / Double(samples.count)
-                let gameJitterMs = sqrt(variance)
-                
-                delegate?.gameMedianMs = gameMedianMs
-                delegate?.gameP99Ms = gameP99Ms
-                delegate?.gameJitterMs = gameJitterMs
-            }
-            let gameLossPct = Double(failures) / Double(i + 1) * 100
-            delegate?.gameLossPct = gameLossPct
+            delegate?.gameLossPct = Double(failures) / Double(i + 1) * 100
             delegate?.progress = Double(i + 1) / Double(probeCount)
         }
         session.invalidateAndCancel()
+
+        // Stats computed once at the end — no need to re-sort on every probe.
+        if !samples.isEmpty {
+            let sorted = samples.sorted()
+            let medianVal = sorted[sorted.count / 2]
+            let p99idx = min(sorted.count - 1, Int(Double(sorted.count) * 0.99))
+            let p99 = sorted[p99idx]
+            let mean = samples.reduce(0, +) / Double(samples.count)
+            let variance = samples.map { pow($0 - mean, 2) }.reduce(0, +) / Double(samples.count)
+            delegate?.gameMedianMs = medianVal
+            delegate?.gameP99Ms = p99
+            delegate?.gameJitterMs = sqrt(variance)
+        }
 
         var result = SpeedTestResult(timestamp: Date(), kind: .gaming, provider: "1.1.1.1 HTTP probe")
         result.gameMedianMs = delegate?.gameMedianMs ?? 0

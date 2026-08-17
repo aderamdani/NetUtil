@@ -127,6 +127,13 @@ final class NetworkMathTests: XCTestCase {
         XCTAssertEqual(NetworkMath.formatRate(1_073_741_824), "1.00 G")
     }
 
+    func testShortRate() {
+        XCTAssertEqual(NetworkMath.shortRate(512), "512")
+        XCTAssertEqual(NetworkMath.shortRate(2048), "2.0K")
+        XCTAssertEqual(NetworkMath.shortRate(1_572_864), "1.5M")
+        XCTAssertEqual(NetworkMath.shortRate(1_073_741_824), "1.0G")
+    }
+
     // MARK: - Netmask -> prefix length
 
     func testPrefixLengthCommonMasks() {

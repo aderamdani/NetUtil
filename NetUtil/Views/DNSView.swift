@@ -78,7 +78,7 @@ struct DNSView: View {
 
     private var controlBar: some View {
         ToolControlBar(icon: "globe", title: "DNS Lookup",
-                       host: $host, placeholder: "Domain name or IP",
+                       host: $host, placeholder: "Domain name or IP", textFieldWidth: 190,
                        textFieldAccessibilityLabel: "Target Host Input",
                        history: history, onSubmit: startLookup) {
             HStack(spacing: 12) {
@@ -104,6 +104,12 @@ struct DNSView: View {
                             onExportCSV: {
                                 let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
                                 Exporter.save(string: exportCSV(result), defaultName: "NetUtil-DNS-\(host)-\(ts.string(from: Date())).csv", ext: "csv")
+                            },
+                            onCopySummary: {
+                                let n = result.records.count
+                                let summary = "Query: \(host)\nType: \(recordType.rawValue)\nServer: \(result.server)\nRecords: \(n)"
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(summary, forType: .string)
                             }
                         )
                     }

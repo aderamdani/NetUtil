@@ -40,6 +40,12 @@ struct TracerouteView: View {
                     let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
                     Exporter.save(string: Exporter.csvString(from: vm.hops), defaultName: "NetUtil-Traceroute-\(host)-\(date.string(from: Date())).csv", ext: "csv")
                 },
+                onCopySummary: {
+                    let avg = vm.pathAvgRtt.map { String(format: "%.1f ms", $0) } ?? "—"
+                    let summary = "Host: \(host)\nHops: \(vm.hops.count)\nAvg RTT: \(avg)\nMax loss: \(String(format: "%.0f%%", vm.pathLoss))"
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(summary, forType: .string)
+                },
                 isFavorite: tools.favorites.isFavorite(host),
                 onToggleFavorite: { tools.favorites.toggle(host: host) }
             )

@@ -87,7 +87,8 @@ final class HTTPLatencyViewModel {
         let delegate = MetricsDelegate()
         delegate.followRedirects = followRedirects
         let config = URLSessionConfiguration.ephemeral
-        config.timeoutIntervalForRequest = 15
+        let configuredTimeout = UserDefaults.standard.double(forKey: "httpTimeout")
+        config.timeoutIntervalForRequest = configuredTimeout > 0 ? configuredTimeout : 15
         let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
         defer { session.invalidateAndCancel() }
 

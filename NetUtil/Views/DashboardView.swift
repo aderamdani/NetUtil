@@ -20,6 +20,7 @@ struct DashboardView: View {
                     DiagnosticsCardsSection(selection: $selection)
                     TrafficCardsSection(selection: $selection)
                     LookupCardsSection(selection: $selection)
+                    SystemSecurityCardsSection(selection: $selection)
                 }
                 .padding(24)
             }

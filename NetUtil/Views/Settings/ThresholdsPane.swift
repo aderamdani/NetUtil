@@ -49,7 +49,7 @@ struct ThresholdsPane: View {
                 LabeledContent("Alert Threshold") {
                     CompactSlider(value: $lossAlert, range: 1...100, step: 1, format: "%.0f%%", tint: .red)
                 }
-                .help("Packet loss percentage above this value turns the loss indicator red in all stats bars and the dashboard.")
+                .help("Packet loss percentage above this value turns the loss indicator red and, when alerts are enabled, triggers a notification.")
                 .accessibilityLabel("Packet Loss Alert Threshold")
             } header: {
                 Text("Packet Loss")

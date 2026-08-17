@@ -97,6 +97,12 @@ struct WhoisView: View {
                             Exporter.save(string: vm.lines.map(\.raw).joined(separator: "\n"),
                                           defaultName: "NetUtil-Whois-\(query)-\(ts.string(from: Date())).csv",
                                           ext: "csv")
+                        },
+                        onCopySummary: {
+                            let fields = vm.lines.filter { $0.label != nil }
+                            let summary = "Query: \(query)\nParsed fields: \(fields.count)\nFirst: \(fields.prefix(1).compactMap(\.value).first ?? "—")"
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(summary, forType: .string)
                         }
                     )
                 }

@@ -74,20 +74,13 @@ struct SubnetCalculatorView: View {
                             onExportCSV: {
                                 let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
                                 Exporter.save(string: Exporter.csvString(from: result), defaultName: "NetUtil-SubnetCalc-\(date.string(from: Date())).csv", ext: "csv")
+                            },
+                            onCopySummary: {
+                                let summary = "Network: \(result.networkAddress)\nBroadcast: \(result.broadcastAddress)\nRange: \(result.firstHost) - \(result.lastHost)\nTotal Hosts: \(result.totalHosts)"
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(summary, forType: .string)
                             }
                         )
-                    }
-
-                    if let result = vm.result {
-                        Button {
-                            let summary = "Network: \(result.networkAddress)\nBroadcast: \(result.broadcastAddress)\nRange: \(result.firstHost) - \(result.lastHost)\nTotal Hosts: \(result.totalHosts)"
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(summary, forType: .string)
-                        } label: {
-                            Label("Copy Info", systemImage: "doc.on.clipboard")
-                        }
-                        .buttonStyle(.borderless)
-                        .accessibilityLabel("Copy result summary to clipboard")
                     }
                 }
 

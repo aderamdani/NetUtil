@@ -10,7 +10,7 @@ struct PingView: View {
     @AppStorage("defaultPingInterval") private var defaultInterval: Double = 1.0
     @AppStorage("rttWarnThreshold")    private var rttWarn: Double = 20.0
     @AppStorage("rttCritThreshold")    private var rttCrit: Double = 100.0
-    @AppStorage("pingBeepOnLoss")      private var beepOnLoss: Bool = false
+    @AppStorage("pingAlerts")          private var alertsEnabled: Bool = false
     @State private var countText = ""
     @State private var intervalText = ""
     @State private var packetSizeText = ""
@@ -33,7 +33,7 @@ struct PingView: View {
                 intervalText: $intervalText,
                 packetSizeText: $packetSizeText,
                 infinite: $infinite,
-                beepOnLoss: $beepOnLoss,
+                alertsEnabled: $alertsEnabled,
                 vm: vm,
                 history: history,
                 onStartStop: startAction,
@@ -141,6 +141,9 @@ struct PingView: View {
             StatCard(title: "Average RTT", value: String(format: "%.1f", vm.stats.avgRtt), unit: "ms", icon: "equal", color: rttColor(vm.stats.avgRtt))
                 .accessibilityElement(children: .combine)
                 .accessibilityValue("\(Int(vm.stats.avgRtt)) milliseconds")
+            StatCard(title: "Recent Avg", value: String(format: "%.1f", vm.stats.recentAvgRtt), unit: "ms", icon: "clock.arrow.circlepath", color: rttColor(vm.stats.recentAvgRtt))
+                .accessibilityElement(children: .combine)
+                .accessibilityValue("\(Int(vm.stats.recentAvgRtt)) milliseconds, last 20 packets")
             StatCard(title: "Jitter", value: String(format: "%.1f", vm.stats.jitter), unit: "ms", icon: "waveform.path.ecg", color: vm.stats.jitter > 10 ? .orange : .primary)
                 .accessibilityElement(children: .combine)
                 .accessibilityValue("\(Int(vm.stats.jitter)) milliseconds")

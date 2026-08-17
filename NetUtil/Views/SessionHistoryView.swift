@@ -79,7 +79,7 @@ struct SessionHistoryView: View {
                     TextField("Filter by host...", text: $searchText)
                         .textFieldStyle(.plain)
                         .font(.subheadline)
-                        .frame(width: 180)
+                        .frame(width: 140)
                 }
                 .padding(.horizontal, 8).padding(.vertical, 5)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
