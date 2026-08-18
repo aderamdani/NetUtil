@@ -7,11 +7,11 @@ struct PortScanTable: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                tHeader("Port", width: 80)
-                tHeader("Status", width: 100)
-                tHeader("Service", width: 150)
-                tHeader("Latency", width: 100)
-                tHeader("Target IP", flexible: true)
+                TableHeader("Port", width: 80)
+                TableHeader("Status", width: 100)
+                TableHeader("Service", width: 150)
+                TableHeader("Latency", width: 100)
+                TableHeader("Target IP", flexible: true)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
             .background(.regularMaterial)
@@ -59,14 +59,6 @@ struct PortScanTable: View {
         }
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-    }
-
-    private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
-            .foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
     }
 
     private func accessibilityLabel(for r: PortResult) -> String {

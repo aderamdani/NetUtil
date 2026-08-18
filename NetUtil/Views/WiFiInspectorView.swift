@@ -10,7 +10,8 @@ struct WiFiInspectorView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            moodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let info = vm.info {
@@ -23,7 +24,7 @@ struct WiFiInspectorView: View {
                         }
                         
                         VStack(alignment: .leading, spacing: 16) {
-                            sectionHeader("Infrastructure Details", icon: "antenna.radiowaves.left.and.right")
+                            SectionHeader(title: "Infrastructure Details", icon: "antenna.radiowaves.left.and.right")
                             detailGrid(info)
                         }
                     } else {
@@ -47,7 +48,7 @@ struct WiFiInspectorView: View {
                     Image(systemName: "wifi")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
-                    Text(vm.info?.ssid ?? "Searching...")
+                    Text("Wi-Fi")
                         .font(.headline)
                 }
                 .accessibilityElement(children: .combine)
@@ -98,12 +99,17 @@ struct WiFiInspectorView: View {
         }
     }
     
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
-        }
-        .accessibilityAddTraits(.isHeader)
+    private var moodBar: some View {
+        let (icon, color, msg): (String, Color, String) = {
+            guard let info = vm.info else {
+                return ("wifi.slash", .secondary, "No Wi-Fi connection detected")
+            }
+            let rssi = info.rssi ?? 0
+            if rssi >= -60 { return ("wifi", .green, "\(info.ssid ?? "Connected") — excellent signal (\(rssi) dBm)") }
+            if rssi >= -75 { return ("wifi", .orange, "\(info.ssid ?? "Connected") — acceptable signal (\(rssi) dBm)") }
+            return ("wifi.exclamationmark", .red, "\(info.ssid ?? "Connected") — weak signal (\(rssi) dBm)")
+        }()
+        return MoodBar(icon: icon, color: color, message: msg)
     }
 
     private func interpretationSection(_ info: WiFiInfo) -> some View {
@@ -165,7 +171,7 @@ struct WiFiInspectorView: View {
 
     private var signalStabilitySection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            sectionHeader("Signal Stability (RSSI)", icon: "chart.line.uptrend.xyaxis")
+            SectionHeader(title: "Signal Stability (RSSI)", icon: "chart.line.uptrend.xyaxis")
             
             Chart {
                 ForEach(vm.rssiSamples) { sample in
@@ -211,7 +217,7 @@ struct WiFiInspectorView: View {
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             ForEach(items, id: \.0) { label, value, icon in
                 if let value {
-                    WiFiDetailCard(label: label, value: value, icon: icon)
+                    DetailCard(label: label, value: value, icon: icon)
                 }
             }
         }
@@ -243,31 +249,3 @@ struct WiFiInspectorView: View {
     }
 }
 
-struct WiFiDetailCard: View {
-    let label: String
-    let value: String
-    let icon: String
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.caption2.weight(.bold))
-                .foregroundColor(.accentColor)
-                Text(label)
-                    .font(.system(.caption2, design: .default).weight(.bold))
-                    .foregroundColor(.secondary)
-            }
-            
-            Text(value)
-                .font(.system(.subheadline, design: .monospaced).weight(.medium))
-                .lineLimit(1)
-                .textSelection(.enabled)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(label): \(value)")
-    }
-}

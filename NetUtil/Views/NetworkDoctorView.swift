@@ -43,6 +43,34 @@ struct NetworkDoctorView: View {
 
                 Spacer()
 
+                if vm.lastRun != nil {
+                    ReportMenuButton(
+                        onExportPDF: { Exporter.saveDoctorPDF(checks: vm.checks, captivePortal: vm.captivePortal) },
+                        onExportCSV: {
+                            let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                            var lines = ["layer,result"]
+                            for check in vm.checks {
+                                let stateStr: String
+                                switch check.state {
+                                case .pending:  stateStr = "Pending"
+                                case .running:  stateStr = "Running"
+                                case .passed(let why):  stateStr = "Passed — \(why)"
+                                case .failed(let why):  stateStr = "Failed — \(why)"
+                                }
+                                lines.append("\(check.id.rawValue),\(Exporter.csvField(stateStr))")
+                            }
+                            Exporter.save(string: lines.joined(separator: "\n"),
+                                          defaultName: "NetUtil-Doctor-\(ts.string(from: Date())).csv",
+                                          ext: "csv")
+                        },
+                        onCopySummary: {
+                            let v = NetworkDoctorViewModel.verdict(for: vm.checks, captivePortal: vm.captivePortal)
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(v.message, forType: .string)
+                        }
+                    )
+                }
+
                 Button(action: { vm.isRunning ? vm.stop() : vm.start() }) {
                     Label(vm.isRunning ? "Stop" : "Diagnose", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                         .frame(minWidth: 90)

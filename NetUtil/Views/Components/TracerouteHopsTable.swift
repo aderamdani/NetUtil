@@ -12,13 +12,13 @@ struct TracerouteHopsTable: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                tHeader("#", width: 40)
-                tHeader("Host/Endpoint", flexible: true)
-                tHeader("Loss%", width: 60)
-                tHeader("Average", width: 80)
-                tHeader("Jitter", width: 80)
-                tHeader("History", width: 120)
-                tHeader("", width: 40)
+                TableHeader("#", width: 40)
+                TableHeader("Host/Endpoint", flexible: true)
+                TableHeader("Loss%", width: 60)
+                TableHeader("Average", width: 80)
+                TableHeader("Jitter", width: 80)
+                TableHeader("History", width: 120)
+                TableHeader("", width: 40)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
             .background(.regularMaterial)
@@ -44,14 +44,6 @@ struct TracerouteHopsTable: View {
                 }
             }
         }
-    }
-
-    private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
-            .foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
     }
 }
 

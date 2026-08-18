@@ -123,19 +123,17 @@ struct ConnectionsView: View {
     }
 
     private var headerRow: some View {
-        HStack {
-            Text("Process").frame(width: 140, alignment: .leading)
-            Text("PID").frame(width: 60, alignment: .leading)
-            Text("Proto").frame(width: 50, alignment: .leading)
-            Text("Local").frame(width: 180, alignment: .leading)
-            Text("Remote").frame(width: 180, alignment: .leading)
-            Text("State").frame(width: 110, alignment: .leading)
+        HStack(spacing: 0) {
+            TableHeader("Process", width: 140)
+            TableHeader("PID", width: 60)
+            TableHeader("Proto", width: 50)
+            TableHeader("Local", width: 180)
+            TableHeader("Remote", width: 180)
+            TableHeader("State", width: 110)
             Spacer()
         }
-        .font(.caption.weight(.medium))
-        .foregroundColor(.secondary)
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.vertical, 10)
     }
 
     private func connectionRow(_ conn: NetConnection) -> some View {

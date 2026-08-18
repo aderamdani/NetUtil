@@ -578,6 +578,46 @@ enum Exporter {
         savePDF(data: pdf, defaultName: "NetUtil-Compare-\(ts).pdf")
     }
 
+    // MARK: - PDF: Net Quality
+    @MainActor static func saveNetQualityPDF(result: NetQualityResult) {
+        let ts = timestamp()
+        let grade = result.rpmGrade
+        let metaRows: [[String]] = [
+            ["Interface", result.interfaceName ?? "—"],
+            ["Test Server", result.endpoint ?? "—"],
+            ["Download", String(format: "%.2f Mbps", result.downloadMbps)],
+            ["Upload", String(format: "%.2f Mbps", result.uploadMbps)],
+            ["Responsiveness", "\(result.responsivenessRPM) RPM (\(grade.label))"],
+            ["Base RTT", result.baseRttMs.map { String(format: "%.0f ms", $0) } ?? "—"],
+            ["Measured", result.timestamp.formatted(date: .abbreviated, time: .shortened)],
+        ]
+        let pdf = PDFReport.build(tool: "Net Quality", target: result.endpoint ?? "networkQuality", sections: [
+            ("Summary", metaRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-NetQuality-\(ts).pdf")
+    }
+
+    // MARK: - PDF: Doctor
+    @MainActor static func saveDoctorPDF(checks: [DoctorCheck], captivePortal: Bool) {
+        let ts = timestamp()
+        let verdict = NetworkDoctorViewModel.verdict(for: checks, captivePortal: captivePortal)
+        let stepRows: [[String]] = checks.map { c in
+            let stateStr: String
+            switch c.state {
+            case .pending:  stateStr = "Pending"
+            case .running:  stateStr = "Running"
+            case .passed(let why):  stateStr = "Passed — \(why)"
+            case .failed(let why):  stateStr = "Failed — \(why)"
+            }
+            return [c.id.rawValue, stateStr]
+        }
+        let pdf = PDFReport.build(tool: "Connectivity Doctor", target: "connectivity", sections: [
+            ("Verdict", [["Status", verdict.message]]),
+            ("Checks", [["Layer", "Result"]] + stepRows)
+        ])
+        savePDF(data: pdf, defaultName: "NetUtil-Doctor-\(ts).pdf")
+    }
+
     // MARK: - Internal
 
     @MainActor private static func savePDF(data: Data, defaultName: String) {

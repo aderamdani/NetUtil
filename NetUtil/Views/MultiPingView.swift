@@ -172,26 +172,18 @@ struct MultiPingView: View {
 
     private var slotsTableHeader: some View {
         HStack(spacing: 0) {
-            tHeader("Alias", width: 140)
-            tHeader("Endpoint", flexible: true)
-            tHeader("Sent", width: 60)
-            tHeader("Loss", width: 70)
-            tHeader("Last", width: 80)
-            tHeader("Average", width: 80)
-            tHeader("Health (60s)", width: 140)
-            tHeader("", width: 60)
+            TableHeader("Alias", width: 140)
+            TableHeader("Endpoint", flexible: true)
+            TableHeader("Sent", width: 60)
+            TableHeader("Loss", width: 70)
+            TableHeader("Last", width: 80)
+            TableHeader("Average", width: 80)
+            TableHeader("Health (60s)", width: 140)
+            TableHeader("", width: 60)
         }
         .padding(.vertical, 10).padding(.horizontal, 16)
         .background(.regularMaterial)
         .accessibilityElement(children: .ignore)
-    }
-
-    private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
-            .foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
     }
 
     private var emptyState: some View {

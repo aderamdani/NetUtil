@@ -76,7 +76,8 @@ struct PingLatencyChartView: View {
                 }
             }
             .padding(20)
-            .glassEffect(in: .rect(cornerRadius: 12))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 

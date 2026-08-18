@@ -6,7 +6,7 @@ struct DiagnosticsCardsSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            sectionHeader("Core Diagnostics", icon: "bolt.shield.fill")
+            SectionHeader(title: "Core Diagnostics", icon: "bolt.shield.fill")
 
             GlassEffectContainer {
                 HStack(spacing: 12) {
@@ -19,14 +19,6 @@ struct DiagnosticsCardsSection: View {
                 }
             }
         }
-    }
-
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
-        }
-        .accessibilityAddTraits(.isHeader)
     }
 
     private var pingCard: some View {

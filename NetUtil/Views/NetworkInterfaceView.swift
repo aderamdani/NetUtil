@@ -12,7 +12,8 @@ struct NetworkInterfaceView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            moodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     gatewaySection
@@ -22,7 +23,7 @@ struct NetworkInterfaceView: View {
                     statsBarSection
                     
                     VStack(alignment: .leading, spacing: 16) {
-                        sectionHeader("Active Adapters", icon: "arrow.up.circle.fill")
+                        SectionHeader(title: "Active Adapters", icon: "arrow.up.circle.fill")
                         
                         if active.isEmpty {
                             emptyState(msg: "No Active Interfaces Found")
@@ -37,7 +38,7 @@ struct NetworkInterfaceView: View {
                     
                     if showAll && !inactive.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
-                            sectionHeader("Inactive Adapters", icon: "arrow.down.circle.fill")
+                            SectionHeader(title: "Inactive Adapters", icon: "arrow.down.circle.fill")
                             
                             LazyVStack(spacing: 12) {
                                 ForEach(inactive) { iface in
@@ -56,7 +57,7 @@ struct NetworkInterfaceView: View {
 
     private var gatewaySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("Gateway Quick Actions", icon: "arrow.triangle.branch")
+            SectionHeader(title: "Gateway Quick Actions", icon: "arrow.triangle.branch")
             
             HStack(spacing: 16) {
                 if let gateway = vm.defaultGateway {
@@ -143,12 +144,14 @@ struct NetworkInterfaceView: View {
         }
     }
     
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
+    private var moodBar: some View {
+        if let gw = vm.defaultGateway {
+            return MoodBar(icon: "antenna.radiowaves.left.and.right", color: .green,
+                           message: "\(active.count) active / \(inactive.count) standby interfaces · gateway \(gw)")
+        } else {
+            return MoodBar(icon: "network.slash", color: .secondary,
+                           message: "\(active.count) active / \(inactive.count) standby interfaces · no default gateway")
         }
-        .accessibilityAddTraits(.isHeader)
     }
 
     private var interpretationSection: some View {
