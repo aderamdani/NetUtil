@@ -6,7 +6,7 @@ struct TrafficCardsSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            sectionHeader("Network & Traffic", icon: "wifi.router.fill")
+            SectionHeader(title: "Network & Traffic", icon: "wifi.router.fill")
 
             GlassEffectContainer {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -36,14 +36,6 @@ struct TrafficCardsSection: View {
                 }
             }
         }
-    }
-
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
-        }
-        .accessibilityAddTraits(.isHeader)
     }
 
     private var bandwidthCard: some View {

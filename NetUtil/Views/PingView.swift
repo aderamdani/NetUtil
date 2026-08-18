@@ -50,7 +50,7 @@ struct PingView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
-                        errorBanner(err)
+                        ErrorBanner(message: err)
                     }
 
                     if !vm.results.isEmpty {
@@ -150,19 +150,6 @@ struct PingView: View {
         }
     }
 
-    private func errorBanner(_ msg: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.red)
-            Text(msg)
-                .font(.subheadline.weight(.medium))
-            Spacer()
-        }
-        .padding(12)
-        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
-    }
-
     private func rttColor(_ rtt: Double) -> Color {
         if rtt < rttWarn { return .primary }
         if rtt < rttCrit { return .orange }
@@ -201,7 +188,8 @@ struct PingView: View {
         .frame(minHeight: 400)
         .scrollContentBackground(.hidden)
         .scrollPosition(id: .constant(vm.rawLines.last?.id))
-        .glassEffect(in: .rect(cornerRadius: 12))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private func startAction() {

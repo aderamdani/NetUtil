@@ -55,7 +55,7 @@ struct TracerouteView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
-                        errorBanner(err)
+                        ErrorBanner(message: err)
                     }
                     
                     if !vm.hops.isEmpty {
@@ -216,20 +216,6 @@ struct TracerouteView: View {
         .accessibilityAddTraits(.isHeader)
     }
 
-    private func errorBanner(_ msg: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.red)
-            Text(msg)
-                .font(.subheadline.weight(.medium))
-            Spacer()
-        }
-        .padding(12)
-        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
-        .accessibilityLabel("Error: \(msg)")
-    }
-
     private var emptyState: some View {
         ToolStateView.empty(title: "No Active Trace",
                             subtitle: "Enter a target to map the layer 3 network path.")
@@ -237,15 +223,8 @@ struct TracerouteView: View {
     }
 
     private var loadingState: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Discovering Network Hops...")
-                .font(.headline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 400)
-        .accessibilityLabel("Discovering network hops, please wait")
+        ToolStateView.loading(message: "Discovering Network Hops...")
+            .accessibilityLabel("Discovering network hops, please wait")
     }
 
     private func startAction() {

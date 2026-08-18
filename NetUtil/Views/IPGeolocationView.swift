@@ -15,7 +15,7 @@ struct IPGeolocationView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
-                        errorBanner(err)
+                        ErrorBanner(message: err)
                     }
                     if let result = vm.result {
                         summarySection(result)
@@ -131,12 +131,12 @@ struct IPGeolocationView: View {
 
     private func statsGrid(_ r: IPGeoResult) -> some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            SubnetDetailCard(label: "ISP / Org", value: r.ispName, icon: "building.2")
-            SubnetDetailCard(label: "ASN", value: r.asn ?? "—", icon: "number")
-            SubnetDetailCard(label: "Hostname", value: r.hostname ?? "—", icon: "textformat")
-            SubnetDetailCard(label: "Postal Code", value: r.postal ?? "—", icon: "envelope")
-            SubnetDetailCard(label: "Timezone", value: r.timezone ?? "—", icon: "clock")
-            SubnetDetailCard(label: "Region", value: r.region.isEmpty ? "—" : r.region, icon: "map")
+            DetailCard(label: "ISP / Org", value: r.ispName, icon: "building.2")
+            DetailCard(label: "ASN", value: r.asn ?? "—", icon: "number")
+            DetailCard(label: "Hostname", value: r.hostname ?? "—", icon: "textformat")
+            DetailCard(label: "Postal Code", value: r.postal ?? "—", icon: "envelope")
+            DetailCard(label: "Timezone", value: r.timezone ?? "—", icon: "clock")
+            DetailCard(label: "Region", value: r.region.isEmpty ? "—" : r.region, icon: "map")
         }
     }
 
@@ -166,16 +166,5 @@ struct IPGeolocationView: View {
             position = .region(MKCoordinateRegion(center: coordinate,
                                                    span: MKCoordinateSpan(latitudeDelta: 8, longitudeDelta: 8)))
         }
-    }
-
-    private func errorBanner(_ msg: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.red)
-            Text(msg).font(.callout)
-            Spacer()
-        }
-        .padding(12)
-        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
     }
 }

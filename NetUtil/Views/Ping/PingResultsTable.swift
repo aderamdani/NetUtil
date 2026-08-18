@@ -9,11 +9,11 @@ struct PingResultsTable: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                tHeader("Sequence", width: 80)
-                tHeader("Status", width: 100)
-                tHeader("Latency", width: 120)
-                tHeader("Target IP", flexible: true)
-                tHeader("Timestamp", width: 120)
+                TableHeader("Sequence", width: 80)
+                TableHeader("Status", width: 100)
+                TableHeader("Latency", width: 120)
+                TableHeader("Target IP", flexible: true)
+                TableHeader("Timestamp", width: 120)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
             .background(.regularMaterial)
@@ -57,15 +57,8 @@ struct PingResultsTable: View {
             .scrollContentBackground(.hidden)
             .scrollPosition(id: .constant(results.last?.id))
         }
-        .glassEffect(in: .rect(cornerRadius: 12))
-    }
-
-    private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
-            .foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private func rttColor(_ rtt: Double) -> Color {

@@ -82,6 +82,8 @@ struct StatisticsView: View {
                     Text("Traffic Statistics")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Traffic Statistics Tool")
                 
                 Spacer()
                 
@@ -93,6 +95,7 @@ struct StatisticsView: View {
                     }
                     .buttonStyle(.borderless)
                     .disabled(stats.dailyTotals.isEmpty)
+                    .accessibilityLabel("Reset traffic statistics data")
                     
                     Divider().frame(height: 16)
                     

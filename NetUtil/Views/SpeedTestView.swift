@@ -14,7 +14,7 @@ struct SpeedTestView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
-                    if let err = vm.error { errorBanner(err) }
+                    if let err = vm.error { ErrorBanner(message: err) }
 
                     if vm.isRunning || vm.lastResult != nil {
                         liveMetricsSection
@@ -283,12 +283,12 @@ struct SpeedTestView: View {
 
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    tHeader("Time",      width: 80)
-                    tHeader("Kind",      width: 90)
-                    tHeader("Label",     flexible: true)
-                    tHeader("Primary",   width: 180)
-                    tHeader("Secondary", width: 170)
-                    tHeader("",          width: 32)
+                    TableHeader("Time",      width: 80)
+                    TableHeader("Kind",      width: 90)
+                    TableHeader("Label",     flexible: true)
+                    TableHeader("Primary",   width: 180)
+                    TableHeader("Secondary", width: 170)
+                    TableHeader("",          width: 32)
                 }
                 .padding(.vertical, 10).padding(.horizontal, 16)
                 .background(.regularMaterial)
@@ -415,27 +415,7 @@ struct SpeedTestView: View {
 
     // MARK: - Error Banner
 
-    private func errorBanner(_ msg: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.red)
-            Text(msg).font(.subheadline.weight(.medium))
-            Spacer()
-        }
-        .padding(12)
-        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
-        .accessibilityLabel("Error: \(msg)")
-    }
-
     // MARK: - Helpers
-
-    private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
-            .foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
-    }
 
     private func primaryMetric(_ r: SpeedTestResult) -> String {
         switch r.kind {

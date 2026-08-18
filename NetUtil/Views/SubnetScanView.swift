@@ -14,7 +14,7 @@ struct SubnetScanView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = viewModel.error {
-                        errorBanner(err)
+                        ErrorBanner(message: err)
                     }
 
                     if viewModel.scanStats.total > 0 {
@@ -144,19 +144,6 @@ struct SubnetScanView: View {
                     .accessibilityLabel("Scan progress: \(Int(viewModel.progress * 100)) percent")
             }
         }
-    }
-
-    private func errorBanner(_ msg: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.red)
-            Text(msg)
-                .font(.subheadline.weight(.medium))
-            Spacer()
-        }
-        .padding(12)
-        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
     }
 
     private var statsHeader: some View {

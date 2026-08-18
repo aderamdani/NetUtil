@@ -54,6 +54,8 @@ struct CompareView: View {
                     Text("Compare Sessions")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Compare Sessions Tool")
 
                 Divider().frame(height: 16).padding(.horizontal, 4)
 
@@ -62,6 +64,7 @@ struct CompareView: View {
                 }
                 .pickerStyle(.menu)
                 .frame(width: 120)
+                .accessibilityLabel("Tool to compare")
                 .onChange(of: toolFilter) { _, _ in sessionA = nil; sessionB = nil }
 
                 Divider().frame(height: 16)
@@ -99,6 +102,7 @@ struct CompareView: View {
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
+                .accessibilityLabel("Select Session A")
 
                 Image(systemName: "arrow.left.arrow.right").foregroundColor(.secondary).font(.caption2)
 
@@ -135,6 +139,7 @@ struct CompareView: View {
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
+                .accessibilityLabel("Select Session B")
 
                 Spacer()
 
@@ -149,6 +154,7 @@ struct CompareView: View {
                     Image(systemName: "questionmark.circle")
                 }
                 .buttonStyle(.borderless)
+                .accessibilityLabel("Show Help Guide")
             }
             .padding(.horizontal, 24).padding(.vertical, 14)
             Divider()

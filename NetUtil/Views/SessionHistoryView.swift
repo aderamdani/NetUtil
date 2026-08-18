@@ -71,6 +71,8 @@ struct SessionHistoryView: View {
                     Text("Session History")
                         .font(.headline)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Session History Tool")
 
                 Divider().frame(height: 16).padding(.horizontal, 4)
 
@@ -80,6 +82,7 @@ struct SessionHistoryView: View {
                         .textFieldStyle(.plain)
                         .font(.subheadline)
                         .frame(width: 140)
+                        .accessibilityLabel("Filter by host")
                 }
                 .padding(.horizontal, 8).padding(.vertical, 5)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
@@ -93,12 +96,14 @@ struct SessionHistoryView: View {
                     }
                     .pickerStyle(.menu)
                     .frame(width: 120)
+                    .accessibilityLabel("Filter by tool")
 
                     Picker("Date", selection: $filterDate) {
                         ForEach(DateFilter.allCases) { Text($0.rawValue).tag($0) }
                     }
                     .pickerStyle(.segmented)
                     .frame(width: 160)
+                    .accessibilityLabel("Filter by date range")
 
                     ReportMenuButton(
                         onExportPDF: { Exporter.saveSessionHistoryPDF(records: history.records) },
@@ -116,11 +121,13 @@ struct SessionHistoryView: View {
                     .buttonStyle(.borderless)
                     .foregroundColor(.secondary)
                     .disabled(history.records.isEmpty)
+                    .accessibilityLabel("Clear all session history")
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
             }
             .padding(.horizontal, 24).padding(.vertical, 14)

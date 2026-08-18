@@ -10,7 +10,8 @@ struct SubnetCalculatorView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
-            
+            moodBar
+
             ScrollView {
                 VStack(spacing: 24) {
                     if let result = vm.result {
@@ -19,12 +20,12 @@ struct SubnetCalculatorView: View {
                         statsBarSection(result)
                         
                         VStack(alignment: .leading, spacing: 16) {
-                            sectionHeader("Network Parameters", icon: "network")
+                            SectionHeader(title: "Network Parameters", icon: "network")
                             resultsGrid(result)
                         }
                         
                         VStack(alignment: .leading, spacing: 16) {
-                            sectionHeader("Bitwise Representation", icon: "number.square")
+                            SectionHeader(title: "Bitwise Representation", icon: "number.square")
                             binarySection(result)
                         }
                     } else {
@@ -93,12 +94,14 @@ struct SubnetCalculatorView: View {
         }
     }
     
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
+    private var moodBar: some View {
+        if let r = vm.result {
+            return MoodBar(icon: "number.square", color: .green,
+                           message: "\(r.address)/\(r.prefix) · class \(r.ipClass) · \(r.usableHosts) usable hosts · \(r.mask)")
+        } else {
+            return MoodBar(icon: "number.square", color: .secondary,
+                           message: "Enter an IPv4 address to calculate subnet topology")
         }
-        .accessibilityAddTraits(.isHeader)
     }
 
     private func interpretationSection(_ r: SubnetResult) -> some View {
@@ -145,7 +148,7 @@ struct SubnetCalculatorView: View {
         ]
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             ForEach(items, id: \.0) { label, value, icon in
-                SubnetDetailCard(label: label, value: value, icon: icon)
+                DetailCard(label: label, value: value, icon: icon)
             }
         }
     }
@@ -179,31 +182,3 @@ struct SubnetCalculatorView: View {
     }
 }
 
-struct SubnetDetailCard: View {
-    let label: String
-    let value: String
-    let icon: String
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.caption2.weight(.bold))
-                .foregroundColor(.accentColor)
-                Text(label)
-                    .font(.system(.caption2, design: .default).weight(.bold))
-                    .foregroundColor(.secondary)
-            }
-            
-            Text(value)
-                .font(.system(.subheadline, design: .monospaced).weight(.medium))
-                .lineLimit(1)
-                .textSelection(.enabled)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(label): \(value)")
-    }
-}

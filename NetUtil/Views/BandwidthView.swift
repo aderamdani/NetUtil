@@ -257,12 +257,12 @@ struct BandwidthView: View {
             } else {
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
-                        tHeader("Interface", width: 100)
-                        tHeader("Type",      width: 90)
-                        tHeader("IP",        width: 120)
-                        tHeader("Download",  width: 110)
-                        tHeader("Upload",    width: 110)
-                        tHeader("Sparkline", flexible: true)
+                        TableHeader("Interface", width: 100)
+                        TableHeader("Type",      width: 90)
+                        TableHeader("IP",        width: 120)
+                        TableHeader("Download",  width: 110)
+                        TableHeader("Upload",    width: 110)
+                        TableHeader("Sparkline", flexible: true)
                     }
                     .padding(.vertical, 10).padding(.horizontal, 16)
                     .background(.regularMaterial)
@@ -368,14 +368,6 @@ struct BandwidthView: View {
             Circle().fill(color).frame(width: 6, height: 6)
             Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
         }
-    }
-
-    private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
-            .foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
     }
 
     private func formatBps(_ bps: Double) -> (value: String, unit: String) {

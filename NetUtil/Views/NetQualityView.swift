@@ -11,7 +11,7 @@ struct NetQualityView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
-                        errorBanner(err)
+                        ErrorBanner(message: err)
                     }
                     if let r = vm.result {
                         resultCards(r)
@@ -45,6 +45,26 @@ struct NetQualityView: View {
                 .accessibilityLabel("Network Quality Tool")
 
                 Spacer()
+
+                if let r = vm.result {
+                    ReportMenuButton(
+                        onExportPDF: { Exporter.saveNetQualityPDF(result: r) },
+                        onExportCSV: {
+                            let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
+                            let csv = "timestamp,interface,server,download_mbps,upload_mbps,responsiveness_rpm,base_rtt_ms\n" +
+                                "\(r.timestamp.ISO8601Format()),\(r.interfaceName ?? ""),\(r.endpoint ?? ""),\(r.downloadMbps),\(r.uploadMbps),\(r.responsivenessRPM),\(r.baseRttMs ?? 0)"
+                            Exporter.save(string: csv,
+                                          defaultName: "NetUtil-NetQuality-\(ts.string(from: Date())).csv",
+                                          ext: "csv")
+                        },
+                        onCopySummary: {
+                            let grade = r.rpmGrade
+                            let summary = "↓ \(String(format: "%.0f", r.downloadMbps)) / ↑ \(String(format: "%.0f", r.uploadMbps)) Mbps  —  \(r.responsivenessRPM) RPM (\(grade.label))"
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(summary, forType: .string)
+                        }
+                    )
+                }
 
                 Button(action: { vm.isRunning ? vm.stop() : vm.start() }) {
                     Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
@@ -113,16 +133,5 @@ struct NetQualityView: View {
             Spacer()
             Text(value).font(.system(.subheadline, design: .monospaced))
         }
-    }
-
-    private func errorBanner(_ msg: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.red)
-            Text(msg).font(.callout)
-            Spacer()
-        }
-        .padding(12)
-        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
     }
 }

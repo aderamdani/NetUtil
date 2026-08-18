@@ -18,6 +18,7 @@ struct RouteTableView: View {
     var body: some View {
         VStack(spacing: 0) {
             controlBar
+            moodBar
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -26,7 +27,7 @@ struct RouteTableView: View {
                     statsBarSection
                     
                     VStack(alignment: .leading, spacing: 16) {
-                        sectionHeader("Routing Entries", icon: "list.bullet.rectangle")
+                        SectionHeader(title: "Routing Entries", icon: "list.bullet.rectangle")
                         
                         routeTable
                             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
@@ -112,12 +113,16 @@ struct RouteTableView: View {
         }
     }
     
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
+    private var moodBar: some View {
+        let active = entries.filter { $0.isIPv6 == showIPv6 }
+        let defaultGW = active.first { $0.isDefault }
+        if let gw = defaultGW {
+            return MoodBar(icon: "arrow.triangle.branch", color: .green,
+                           message: "\(active.count) active \(showIPv6 ? "IPv6" : "IPv4") routes via \(gw.gateway)")
+        } else {
+            return MoodBar(icon: "arrow.triangle.branch", color: .secondary,
+                           message: "\(active.count) active \(showIPv6 ? "IPv6" : "IPv4") routes — no default gateway")
         }
-        .accessibilityAddTraits(.isHeader)
     }
 
     private var interpretationSection: some View {

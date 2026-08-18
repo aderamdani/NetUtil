@@ -113,17 +113,15 @@ struct NeighborsView: View {
     }
 
     private var headerRow: some View {
-        HStack {
-            Text("IP Address").frame(width: 140, alignment: .leading)
-            Text("MAC Address").frame(width: 160, alignment: .leading)
-            Text("Interface").frame(width: 80, alignment: .leading)
-            Text("Type").frame(width: 90, alignment: .leading)
+        HStack(spacing: 0) {
+            TableHeader("IP Address", width: 140)
+            TableHeader("MAC Address", width: 160)
+            TableHeader("Interface", width: 80)
+            TableHeader("Type", width: 90)
             Spacer()
         }
-        .font(.caption.weight(.medium))
-        .foregroundColor(.secondary)
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.vertical, 10)
     }
 
     private func entryRow(_ entry: ARPEntry) -> some View {

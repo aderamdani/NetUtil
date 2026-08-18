@@ -19,7 +19,7 @@ struct DNSView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     if let err = vm.error {
-                        errorBanner(err)
+                        ErrorBanner(message: err)
                     }
                     
                     if let result = vm.result {
@@ -154,10 +154,10 @@ struct DNSView: View {
     private var recordsTable: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                tHeader("Resource Name", flexible: true)
-                tHeader("TTL", width: 80)
-                tHeader("Type", width: 80)
-                tHeader("Record Value", flexible: true)
+                TableHeader("Resource Name", flexible: true)
+                TableHeader("TTL", width: 80)
+                TableHeader("Type", width: 80)
+                TableHeader("Record Value", flexible: true)
             }
             .padding(.vertical, 10).padding(.horizontal, 16)
             .background(.regularMaterial)
@@ -213,27 +213,6 @@ struct DNSView: View {
         .frame(minHeight: 300)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-    }
-
-    private func tHeader(_ title: String, width: CGFloat? = nil, flexible: Bool = false) -> some View {
-        Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
-            .foregroundColor(.secondary)
-            .frame(width: width, alignment: .leading)
-            .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)
-    }
-
-    private func errorBanner(_ msg: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.red)
-            Text(msg)
-                .font(.subheadline.weight(.medium))
-            Spacer()
-        }
-        .padding(12)
-        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
     }
 
     private var emptyState: some View {

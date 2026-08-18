@@ -6,7 +6,7 @@ struct SystemSecurityCardsSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            sectionHeader("System & Security", icon: "lock.shield.fill")
+            SectionHeader(title: "System & Security", icon: "lock.shield.fill")
 
             GlassEffectContainer {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -23,14 +23,6 @@ struct SystemSecurityCardsSection: View {
                 }
             }
         }
-    }
-
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
-        }
-        .accessibilityAddTraits(.isHeader)
     }
 
     private var doctorCard: some View {
