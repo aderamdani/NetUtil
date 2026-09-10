@@ -15,7 +15,7 @@ struct PingResultsTable: View {
                 TableHeader("Target IP", flexible: true)
                 TableHeader("Timestamp", width: 120)
             }
-            .padding(.vertical, 10).padding(.horizontal, 16)
+            .padding(.vertical, 8).padding(.horizontal, 16)
             .background(.regularMaterial)
 
             Divider()
@@ -24,7 +24,7 @@ struct PingResultsTable: View {
                 ForEach(results) { r in
                     HStack(spacing: 0) {
                         Text("\(r.sequence)")
-                            .font(.system(.caption, design: .monospaced))
+                            .font(.caption.monospaced())
                             .frame(width: 80, alignment: .leading)
                             .foregroundColor(.secondary)
 
@@ -33,18 +33,18 @@ struct PingResultsTable: View {
 
                         let rttString = r.status == .success ? String(format: "%.2f ms", r.rtt) : "\u{2014}"
                         Text(rttString)
-                            .font(.system(.caption, design: .monospaced).weight(.bold))
+                            .font(.caption.monospaced().weight(.bold))
                             .frame(width: 120, alignment: .leading)
                             .foregroundColor(rttColor(r.rtt))
 
                         let ipString = r.ipAddress ?? resolvedIP ?? "\u{2014}"
                         Text(ipString)
-                            .font(.system(.caption, design: .monospaced))
+                            .font(.caption.monospaced())
                             .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                         Text(r.timestamp, format: .dateTime.hour().minute().second())
-                            .font(.system(.caption, design: .monospaced))
+                            .font(.caption.monospaced())
                             .foregroundColor(.secondary)
                             .frame(width: 120, alignment: .trailing)
                     }
@@ -74,8 +74,8 @@ private struct StatusBadge: View {
         Text(isSuccess ? "Success" : "Timeout")
             .font(.caption2.weight(.bold))
             .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(isSuccess ? Color.green.opacity(0.15) : Color.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
+            .padding(.vertical, 3)
+            .background(isSuccess ? Color.green.opacity(0.15) : Color.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 6))
             .foregroundColor(isSuccess ? .green : .red)
     }
 }

@@ -22,13 +22,13 @@ struct MoodBar<Accessory: View>: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.system(.callout, weight: .semibold))
+            Image(systemName: icon).foregroundColor(color).font(.callout.weight(.semibold))
             Text(message).font(.callout).foregroundColor(messageColor)
             Spacer()
             accessory()
         }
         .padding(.horizontal, 24)
-        .padding(.vertical, 9)
+        .padding(.vertical, 8)
         .background(.regularMaterial)
         .overlay(Divider(), alignment: .bottom)
     }

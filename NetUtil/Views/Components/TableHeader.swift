@@ -15,7 +15,7 @@ struct TableHeader: View {
 
     var body: some View {
         Text(title)
-            .font(.system(.caption2, design: .default).weight(.bold))
+            .font(.caption2.weight(.bold))
             .foregroundColor(.secondary)
             .frame(width: width, alignment: .leading)
             .frame(maxWidth: flexible ? .infinity : nil, alignment: .leading)

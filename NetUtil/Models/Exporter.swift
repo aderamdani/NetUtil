@@ -643,13 +643,20 @@ private enum PDFReport {
     static let pageH:  CGFloat = 842
     static let margin: CGFloat = 48
     static let lineH:  CGFloat = 14
+    static let sectionSpacing: CGFloat = 24
+    static let cellPadding: CGFloat = 8
+    static let headerRowHeight: CGFloat = 20
+    static let dataRowHeight: CGFloat = 16
 
-    // Explicit light-mode colors — never use semantic NSColor in PDF drawing
-    static let cText:      NSColor = .black
-    static let cSubtext:   NSColor = NSColor(white: 0.35, alpha: 1)
-    static let cFooter:    NSColor = NSColor(white: 0.55, alpha: 1)
-    static let cSeparator: NSColor = NSColor(white: 0.78, alpha: 1)
-    static let cStripe:    NSColor = NSColor(white: 0, alpha: 0.04)
+    // Apple HIG-aligned colors for light mode
+    static let cText:       NSColor = .black
+    static let cSubtext:    NSColor = NSColor(white: 0.45, alpha: 1)
+    static let cHeader:     NSColor = NSColor(white: 0.93, alpha: 1)
+    static let cFooter:     NSColor = NSColor(white: 0.55, alpha: 1)
+    static let cSeparator:  NSColor = NSColor(white: 0.82, alpha: 1)
+    static let cStripe:     NSColor = NSColor(white: 0, alpha: 0.025)
+    static let cAccent:     NSColor = NSColor.controlAccentColor.withAlphaComponent(0.12)
+    static let cBorder:     NSColor = NSColor(white: 0.88, alpha: 1)
 
     static func build(tool: String, target: String, sections: [(title: String, rows: [[String]])]) -> Data {
         var result = Data()
@@ -665,6 +672,7 @@ private enum PDFReport {
             for section in sections {
                 if y < margin + 60 { y = newPage(ctx) }
                 y = drawSection(ctx, title: section.title, rows: section.rows, y: y)
+                y -= sectionSpacing
             }
             drawFooter(ctx)
             ctx.endPDFPage()
@@ -677,61 +685,170 @@ private enum PDFReport {
     @discardableResult
     private static func drawHeader(_ ctx: CGContext, tool: String, target: String, y: CGFloat) -> CGFloat {
         var cy = y
-        draw(ctx, "NetUtil — \(tool) Report", x: margin, y: cy, font: .boldSystemFont(ofSize: 16), color: cText)
-        cy -= 22
 
-        let dateFmt = DateFormatter(); dateFmt.dateStyle = .medium; dateFmt.timeStyle = .medium
-        draw(ctx, "Target: \(target)   |   \(dateFmt.string(from: Date()))",
-             x: margin, y: cy, font: .systemFont(ofSize: 10), color: cSubtext)
+        // Tool name
+        draw(ctx, tool, x: margin, y: cy, font: .boldSystemFont(ofSize: 22), color: cText)
+        cy -= 30
+
+        // Date subtitle
+        let dateFmt = DateFormatter(); dateFmt.dateStyle = .medium; dateFmt.timeStyle = .short
+        draw(ctx, "Report  —  \(dateFmt.string(from: Date()))",
+             x: margin, y: cy, font: .systemFont(ofSize: 11), color: cSubtext)
         cy -= 18
 
-        ctx.setStrokeColor(cSeparator.cgColor)
-        ctx.setLineWidth(0.5)
-        ctx.move(to: CGPoint(x: margin, y: cy))
-        ctx.addLine(to: CGPoint(x: pageW - margin, y: cy))
-        ctx.strokePath()
-        cy -= 16
+        // Target chip
+        let targetText = "Target:  \(target)"
+        let chipAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 10, weight: .medium),
+            .foregroundColor: cText
+        ]
+        let chipSize = (targetText as NSString).size(withAttributes: chipAttrs)
+        let chipH = chipSize.height + 8
+        let chipW = chipSize.width + 16
+        let chipY = cy - 4
+        let chipPath = CGPath(roundedRect: CGRect(x: margin, y: chipY, width: chipW, height: chipH),
+                              cornerWidth: 4, cornerHeight: 4, transform: nil)
+        ctx.setFillColor(cAccent.cgColor)
+        ctx.addPath(chipPath)
+        ctx.fillPath()
+        draw(ctx, targetText, x: margin + 8, y: cy, font: .systemFont(ofSize: 10, weight: .medium), color: cText)
+        cy -= chipH + 10
+
+        // Separator
+        drawSeparator(ctx, y: cy)
+        cy -= 30
         return cy
     }
 
     private static func drawSection(_ ctx: CGContext, title: String, rows: [[String]], y: CGFloat) -> CGFloat {
         var cy = y
-        draw(ctx, title, x: margin, y: cy, font: .boldSystemFont(ofSize: 11), color: cText)
-        cy -= lineH + 4
-
         let contentW = pageW - 2 * margin
-        for (idx, row) in rows.enumerated() {
+
+        // Section title — baseline at cy
+        draw(ctx, title.uppercased(), x: margin, y: cy, font: .systemFont(ofSize: 9, weight: .semibold), color: cSubtext)
+        cy -= 20
+
+        // Calculate optimal column widths
+        let colWidths = calculateColumnWidths(for: rows, availableWidth: contentW)
+        let headerRow = rows.first
+        let dataRows = rows.dropFirst()
+
+        // Draw header row background
+        if let header = headerRow {
+            let bgH = headerRowHeight
+            ctx.setFillColor(cHeader.cgColor)
+            ctx.fill(CGRect(x: margin, y: cy, width: contentW, height: bgH))
+
+            // Header bottom border
+            ctx.setStrokeColor(cBorder.cgColor)
+            ctx.setLineWidth(0.5)
+            ctx.move(to: CGPoint(x: margin, y: cy))
+            ctx.addLine(to: CGPoint(x: margin + contentW, y: cy))
+            ctx.strokePath()
+
+            // Header text — vertically centered in the background
+            let textY = cy + (bgH - lineH) / 2
+            for (col, cell) in header.enumerated() {
+                guard col < colWidths.count else { continue }
+                let x = margin + colWidths.prefix(col).reduce(0, +) + cellPadding
+                draw(ctx, cell.uppercased(), x: x, y: textY, font: .systemFont(ofSize: 9, weight: .semibold), color: cSubtext)
+            }
+            cy -= bgH
+        }
+
+        // Draw data rows
+        for (idx, row) in dataRows.enumerated() {
             guard !row.isEmpty else { continue }
-            let colW = contentW / CGFloat(row.count)
-            let isHeader = idx == 0
-            let font: NSFont = isHeader ? .boldSystemFont(ofSize: 10) : .monospacedSystemFont(ofSize: 10, weight: .regular)
-            let color: NSColor = isHeader ? cSubtext : cText
 
-            if !isHeader && idx % 2 == 0 {
+            // Alternating row stripe
+            if idx % 2 == 0 {
                 ctx.setFillColor(cStripe.cgColor)
-                ctx.fill(CGRect(x: margin, y: cy - 2, width: contentW, height: lineH + 2))
+                ctx.fill(CGRect(x: margin, y: cy, width: contentW, height: dataRowHeight))
             }
 
+            // Row content — vertically centered in the row
+            let textY = cy + (dataRowHeight - lineH) / 2
             for (col, cell) in row.enumerated() {
-                let clipped = cell.count > 42 ? String(cell.prefix(40)) + "…" : cell
-                draw(ctx, clipped, x: margin + CGFloat(col) * colW, y: cy, font: font, color: color)
+                guard col < colWidths.count else { continue }
+                let x = margin + colWidths.prefix(col).reduce(0, +) + cellPadding
+                let maxTextW = colWidths[col] - cellPadding * 2
+                let truncated = truncateText(cell, maxWidth: maxTextW)
+                draw(ctx, truncated, x: x, y: textY, font: .monospacedSystemFont(ofSize: 10, weight: .regular), color: cText)
             }
-            cy -= lineH
+
+            // Row bottom border
+            ctx.setStrokeColor(cBorder.cgColor)
+            ctx.setLineWidth(0.25)
+            ctx.move(to: CGPoint(x: margin, y: cy))
+            ctx.addLine(to: CGPoint(x: margin + contentW, y: cy))
+            ctx.strokePath()
+
+            cy -= dataRowHeight
 
             if cy < margin + 40 { cy = newPage(ctx) }
         }
-        return cy - 10
+
+        // Final bottom border
+        ctx.setStrokeColor(cBorder.cgColor)
+        ctx.setLineWidth(0.5)
+        ctx.move(to: CGPoint(x: margin, y: cy))
+        ctx.addLine(to: CGPoint(x: margin + contentW, y: cy))
+        ctx.strokePath()
+
+        return cy - 8
     }
 
     private static func drawFooter(_ ctx: CGContext) {
-        draw(ctx, "Generated by NetUtil v4.6.0",
-             x: margin, y: margin - 18, font: .systemFont(ofSize: 10), color: cFooter)
+        draw(ctx, "NetUtil — Network Diagnostics Toolkit",
+             x: margin, y: margin - 18, font: .systemFont(ofSize: 9), color: cFooter)
     }
 
     private static func newPage(_ ctx: CGContext) -> CGFloat {
         ctx.endPDFPage()
         ctx.beginPDFPage(nil)
         return pageH - margin
+    }
+
+    private static func drawSeparator(_ ctx: CGContext, y: CGFloat) {
+        ctx.setStrokeColor(cSeparator.cgColor)
+        ctx.setLineWidth(0.5)
+        ctx.move(to: CGPoint(x: margin, y: y))
+        ctx.addLine(to: CGPoint(x: pageW - margin, y: y))
+        ctx.strokePath()
+    }
+
+    private static func calculateColumnWidths(for rows: [[String]], availableWidth: CGFloat) -> [CGFloat] {
+        guard let maxCols = rows.map(\.count).max(), maxCols > 0 else { return [availableWidth] }
+
+        let charWidth: CGFloat = 6.0
+        let sample = Array(rows.prefix(20))
+        var maxCharWidths = Array(repeating: CGFloat(0), count: maxCols)
+
+        for row in sample {
+            for (col, cell) in row.enumerated() where col < maxCols {
+                let charCount = CGFloat(min(cell.count, 60))
+                maxCharWidths[col] = max(maxCharWidths[col], charCount)
+            }
+        }
+
+        let rawWidths = maxCharWidths.map { $0 * charWidth + cellPadding * 2 }
+        let minColWidth: CGFloat = 60
+        let clampedWidths = rawWidths.map { max(minColWidth, $0) }
+
+        let totalRaw = clampedWidths.reduce(0, +)
+        if totalRaw <= availableWidth {
+            return clampedWidths
+        }
+
+        let scale = availableWidth / totalRaw
+        return clampedWidths.map { $0 * scale }
+    }
+
+    private static func truncateText(_ text: String, maxWidth: CGFloat) -> String {
+        let charWidth: CGFloat = 6.0
+        let maxChars = Int(maxWidth / charWidth)
+        guard maxChars > 3, text.count > maxChars else { return text }
+        return String(text.prefix(maxChars - 1)) + "…"
     }
 
     private static func draw(_ ctx: CGContext, _ text: String, x: CGFloat, y: CGFloat, font: NSFont, color: NSColor = .black) {

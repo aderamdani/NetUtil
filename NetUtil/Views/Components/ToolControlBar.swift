@@ -38,23 +38,22 @@ struct ToolControlBar<Trailing: View>: View {
                     .frame(width: textFieldWidth)
                     .onSubmit(onSubmit)
                     .accessibilityLabel(textFieldAccessibilityLabel)
-                    .overlay(alignment: .trailing) {
-                        HostHistoryMenu(history: history) { h in
-                            if let onSelectHistory {
-                                onSelectHistory(h)
-                            } else {
-                                host = h
-                                onSubmit()
-                            }
-                        }
+
+                HostHistoryMenu(history: history) { h in
+                    if let onSelectHistory {
+                        onSelectHistory(h)
+                    } else {
+                        host = h
+                        onSubmit()
                     }
+                }
 
                 Spacer()
 
                 trailing()
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
 
             Divider()
         }

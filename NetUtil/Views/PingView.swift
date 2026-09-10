@@ -20,6 +20,7 @@ struct PingView: View {
     @State private var hoveredPoint: PingResult? = nil
     @State private var hoverLocation: CGPoint = .zero
     @State private var chartWidth: CGFloat = Metrics.chartDefaultWidth
+    @State private var selectedProfile: LinkProfile? = nil
 
     private var resolvedCount: String { countText.isEmpty ? "\(defaultCount)" : countText }
     private var resolvedInterval: String { intervalText.isEmpty ? String(format: "%.1f", defaultInterval) : intervalText }
@@ -55,6 +56,8 @@ struct PingView: View {
 
                     if !vm.results.isEmpty {
                         statsBarSection
+
+                        qualityCard
 
                         PingLatencyChartView(
                             results: vm.results,
@@ -102,6 +105,8 @@ struct PingView: View {
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Ping") }
         .onAppear {
+            tools.interfaces.refresh()
+            tools.refreshGlobalStatus()
             if let h = vm.quickLaunchHost {
                 host = h
                 vm.quickLaunchHost = nil
@@ -156,6 +161,146 @@ struct PingView: View {
         return .red
     }
 
+    // MARK: - Quality & Link Classification
+
+    /// Plain-language verdict card: a rating anyone can understand, which
+    /// local link carried the packets, and an explorable estimate of the
+    /// internet link type (LAN / fiber / mobile / satellite).
+    private var qualityCard: some View {
+        let verdict = quality
+        let matched = LinkProfile.match(avgMs: vm.stats.avgRtt)
+        let shown = selectedProfile ?? matched
+        let link = measuredLink
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Image(systemName: verdict.icon)
+                    .font(.title2.weight(.semibold))
+                    .foregroundColor(verdict.color)
+                    .frame(width: 36)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text("Connection Quality")
+                            .font(.caption.weight(.bold))
+                            .foregroundColor(.secondary)
+                        Text(verdict.title)
+                            .font(.caption2.weight(.bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(verdict.color.opacity(0.15), in: RoundedRectangle(cornerRadius: 6))
+                            .foregroundColor(verdict.color)
+                    }
+                    Text(verdict.message)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            Divider().opacity(0.5)
+
+            HStack(spacing: 8) {
+                Text("Measured over")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(.secondary)
+                    .frame(width: 96, alignment: .leading)
+                Image(systemName: link.icon)
+                    .foregroundColor(.accentColor)
+                Text(link.detail)
+                    .font(.subheadline.monospaced())
+                    .lineLimit(1)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Measured over \(link.detail)")
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Link type — tap a type to learn what it means")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(.secondary)
+                HStack(spacing: 8) {
+                    ForEach(LinkProfile.allCases, id: \.self) { profile in
+                        let isShown = profile == shown
+                        Button {
+                            selectedProfile = (selectedProfile == profile) ? nil : profile
+                        } label: {
+                            Text(profile.shortLabel)
+                                .font(.caption2.weight(.bold))
+                                .foregroundColor(isShown ? .white : .secondary)
+                                .padding(.vertical, 6)
+                                .frame(maxWidth: .infinity)
+                                .background((isShown ? Color.accentColor : Color.secondary.opacity(0.12)), in: RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("\(profile.title), typical latency \(profile.typical)")
+                        .accessibilityHint(isShown ? "Showing details below" : "Tap to learn about this link type")
+                    }
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(selectedProfile == nil ? "Likely match: " : "")\(shown.title) · typical \(shown.typical)")
+                        .font(.caption.monospaced().weight(.semibold))
+                    Text(shown.blurb)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Link type details. \(shown.title), typical latency \(shown.typical). \(shown.blurb)")
+            }
+        }
+        .padding(16)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+    }
+
+    private var quality: QualityVerdict {
+        let s = vm.stats
+        let profile = LinkProfile.match(avgMs: s.avgRtt)
+        if s.loss >= 20 {
+            return QualityVerdict(title: "Unstable", icon: "xmark.circle.fill", color: .red,
+                message: "About 1 in 5 packets never arrives. Check your Wi-Fi signal, move closer to the router, or plug in a cable.")
+        }
+        if profile == .satellite {
+            if s.loss > 5 {
+                return QualityVerdict(title: "Fair", icon: "exclamationmark.triangle.fill", color: .orange,
+                    message: "Satellite links are slow by nature, but packets are also being lost — bad weather or dish alignment may be the cause.")
+            }
+            return QualityVerdict(title: "Normal for satellite", icon: "checkmark.circle.fill", color: .green,
+                message: "Around half a second of delay is expected on satellite (VSAT) — fine for browsing, weak for gaming and video calls.")
+        }
+        if s.loss > 5 {
+            return QualityVerdict(title: "Fair", icon: "exclamationmark.triangle.fill", color: .orange,
+                message: "Some packets are lost. Browsing still works, but calls and gaming may stutter.")
+        }
+        if s.avgRtt < rttWarn && s.jitter <= 10 {
+            return QualityVerdict(title: "Excellent", icon: "checkmark.circle.fill", color: .green,
+                message: "Great for video calls, online gaming, and browsing.")
+        }
+        if s.avgRtt < rttCrit {
+            return QualityVerdict(title: "Good", icon: "checkmark.circle", color: .green,
+                message: "Fine for calls and streaming. Fast-paced gaming may feel slightly delayed.")
+        }
+        return QualityVerdict(title: "Slow", icon: "xmark.circle.fill", color: .red,
+            message: "Latency is high — video calls and gaming will suffer. Try a closer server or a wired connection.")
+    }
+
+    /// The factual local link carrying the packets, from the primary interface.
+    private var measuredLink: (icon: String, detail: String) {
+        if let iface = tools.primaryInterface {
+            switch iface.ifType {
+            case 161:
+                var parts = [tools.currentConnectionName]
+                if let rssi = tools.wifi.info?.rssi { parts.append("\(rssi) dBm") }
+                return ("wifi", "Wi-Fi · " + parts.joined(separator: " · "))
+            case 6:
+                return ("cable.connector", "Ethernet · \(tools.currentConnectionName)")
+            case 23, 150:
+                return ("antenna.radiowaves.left.and.right", "Cellular · \(tools.currentConnectionName)")
+            default:
+                return (iface.typeIcon, "\(iface.typeName) · \(tools.currentConnectionName)")
+            }
+        }
+        return ("network", "Unknown link")
+    }
+
     private var rttLegend: some View {
         HStack(spacing: 16) {
             ForEach([("Normal", Color.green), ("High", Color.orange), ("Critical", Color.red), ("Loss", Color.purple)], id: \.0) { item in
@@ -180,7 +325,7 @@ struct PingView: View {
         List {
             ForEach(vm.rawLines) { line in
                 Text(line.text)
-                    .font(.system(.caption, design: .monospaced))
+                    .font(.caption.monospaced())
                     .foregroundColor(.secondary)
             }
         }
@@ -194,6 +339,70 @@ struct PingView: View {
 
     private func startAction() {
         if vm.isRunning { vm.stop() }
-        else { guard !host.isEmpty else { return }; history.record(host); vm.start(host: host, count: infinite ? nil : Int(resolvedCount), interval: Double(resolvedInterval) ?? defaultInterval, packetSize: resolvedPacketSize) }
+        else { guard !host.isEmpty else { return }; selectedProfile = nil; history.record(host); vm.start(host: host, count: infinite ? nil : Int(resolvedCount), interval: Double(resolvedInterval) ?? defaultInterval, packetSize: resolvedPacketSize) }
+    }
+}
+
+// MARK: - Link Quality Model
+
+private struct QualityVerdict {
+    let title: String
+    let icon: String
+    let color: Color
+    let message: String
+}
+
+/// Internet link-type estimate from measured latency. Bands are typical
+/// values, surfaced as "likely" — not a detection, so the UI must keep the
+/// "Likely match" wording and let users explore every type.
+private enum LinkProfile: String, CaseIterable, Hashable {
+    case lan, fiber, mobile, distant, satellite
+
+    var shortLabel: String {
+        switch self {
+        case .lan: return "LAN"
+        case .fiber: return "Fiber"
+        case .mobile: return "4G"
+        case .distant: return "Far"
+        case .satellite: return "Sat"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .lan: return "Local network (LAN)"
+        case .fiber: return "Fiber (FO)"
+        case .mobile: return "Mobile (4G/5G)"
+        case .distant: return "Distant route"
+        case .satellite: return "Satellite (VSAT)"
+        }
+    }
+
+    var typical: String {
+        switch self {
+        case .lan: return "< 3 ms"
+        case .fiber: return "5–45 ms"
+        case .mobile: return "45–130 ms"
+        case .distant: return "130–450 ms"
+        case .satellite: return "500–700 ms"
+        }
+    }
+
+    var blurb: String {
+        switch self {
+        case .lan: return "The target is on your own network — just your Wi-Fi or cable to the router."
+        case .fiber: return "Fast landline such as fiber optic — great for everything, including gaming."
+        case .mobile: return "Mobile data or a far-away server — fine for browsing and streaming."
+        case .distant: return "A very distant or busy route — calls and gaming may lag."
+        case .satellite: return "The signal travels to space and back, so a long delay is normal here."
+        }
+    }
+
+    static func match(avgMs: Double) -> LinkProfile {
+        if avgMs < 3 { return .lan }
+        if avgMs < 45 { return .fiber }
+        if avgMs < 130 { return .mobile }
+        if avgMs < 450 { return .distant }
+        return .satellite
     }
 }

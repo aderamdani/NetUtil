@@ -24,6 +24,7 @@ NetUtil is a native macOS diagnostics toolkit built with SwiftUI and Swift 6. 28
 ## Documentation & Links
 
 - **[AGENTS.md](./AGENTS.md)** — Architecture, coding standards, release workflow, HIG rules.
+- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — Full codebase map: structure, ToolStore, all 28 tools, subprocess patterns, concurrency, data models, export system.
 - **[docs/CHANGELOG.md](./docs/CHANGELOG.md)** — Version history.
 - **[docs/ROADMAP.md](./docs/ROADMAP.md)** — Planned features.
 - **[docs/TESTING.md](./docs/TESTING.md)** — QA test scenarios and bug ledger.

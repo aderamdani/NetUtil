@@ -85,8 +85,8 @@ struct SessionHistoryView: View {
                         .accessibilityLabel("Filter by host")
                 }
                 .padding(.horizontal, 8).padding(.vertical, 5)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
-                .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
 
                 Spacer()
 
@@ -102,6 +102,7 @@ struct SessionHistoryView: View {
                         ForEach(DateFilter.allCases) { Text($0.rawValue).tag($0) }
                     }
                     .pickerStyle(.segmented)
+                    .labelsHidden()
                     .frame(width: 160)
                     .accessibilityLabel("Filter by date range")
 
@@ -130,7 +131,7 @@ struct SessionHistoryView: View {
                     .accessibilityLabel("Show Help Guide")
                 }
             }
-            .padding(.horizontal, 24).padding(.vertical, 14)
+            .padding(.horizontal, 24).padding(.vertical, 16)
             Divider()
         }
     }
@@ -158,7 +159,7 @@ struct SessionHistoryView: View {
                     }
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, 16)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .padding(24)
@@ -260,21 +261,20 @@ private struct SessionRecordRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 8) {
                     Text(toolLabel(record.tool)).font(.caption2.weight(.bold)).foregroundColor(.secondary)
-                    Text(record.target).font(.system(.subheadline, design: .monospaced)).lineLimit(1)
+                    Text(record.target).font(.subheadline.monospaced()).lineLimit(1)
                 }
-                Text(record.summary).font(.system(.caption2, design: .monospaced)).foregroundColor(.secondary).lineLimit(1)
+                Text(record.summary).font(.caption2.monospaced()).foregroundColor(.secondary).lineLimit(1)
             }
 
             Spacer()
 
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(record.timestamp, style: .time).font(.system(.caption2, design: .monospaced)).foregroundColor(.secondary)
-                Text(record.timestamp, style: .date).font(.system(.caption2, design: .monospaced)).foregroundColor(.secondary)
+            HStack(spacing: 2) {
+                Text(record.timestamp, style: .time).font(.caption2.monospaced()).foregroundColor(.secondary).lineLimit(1)
             }
 
             statusBadge
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 8)
     }
 
     private var statusColor: Color {
@@ -288,8 +288,8 @@ private struct SessionRecordRow: View {
     private var statusBadge: some View {
         Text(record.status.rawValue.capitalized)
             .font(.caption2.weight(.bold))
-            .padding(.horizontal, 5).padding(.vertical, 2)
-            .background(statusColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
+            .padding(.horizontal, 6).padding(.vertical, 3)
+            .background(statusColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 6))
             .foregroundColor(statusColor)
     }
 

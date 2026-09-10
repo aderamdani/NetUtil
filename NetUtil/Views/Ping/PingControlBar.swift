@@ -28,7 +28,7 @@ struct PingControlBar: View {
 
             Toggle(isOn: $alertsEnabled) {
                 Image(systemName: alertsEnabled ? "bell.fill" : "bell.slash")
-                    .font(.caption)
+                    .font(.caption.weight(.bold))
             }
             .toggleStyle(.button)
             .help("Notify when this ping finishes, or when recent loss or latency crosses the Settings > Thresholds alert level")
@@ -37,7 +37,7 @@ struct PingControlBar: View {
             if !infinite {
                 TextField("Count", text: $countText)
                     .textFieldStyle(.roundedBorder)
-                    .frame(width: 46)
+                    .frame(width: 48)
                     .help("Packet count")
                     .accessibilityLabel("Packet Count")
             }
@@ -50,7 +50,7 @@ struct PingControlBar: View {
 
             TextField("Bytes", text: $packetSizeText)
                 .textFieldStyle(.roundedBorder)
-                .frame(width: 46)
+                .frame(width: 48)
                 .help("Payload size, in bytes")
                 .accessibilityLabel("Payload Size")
 

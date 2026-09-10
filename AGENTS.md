@@ -2,6 +2,11 @@
 
 Native macOS network diagnostics toolkit. SwiftUI, Swift 6, macOS 26+. Zero third-party dependencies.
 
+> **New here?** Read `docs/ARCHITECTURE.md` first — it maps the entire codebase:
+> directory structure, ToolStore, all 28 tools, subprocess patterns, concurrency,
+> data models, persistence, export system, Darwin APIs, and conventions for adding
+> new code. This file (AGENTS.md) covers coding rules and release workflow.
+
 ## Build & Run
 
 ```bash
@@ -224,5 +229,5 @@ Must match `ContentView.swift` Tool enum exactly:
 
 ---
 
-*See also: `docs/CHANGELOG.md` (history), `docs/ROADMAP.md` (planned features), `docs/TESTING.md` (test scenarios).*
-*Documentation Version: 4.11.1 (August 18, 2026)*
+*See also: `docs/ARCHITECTURE.md` (full codebase map), `docs/CHANGELOG.md` (history), `docs/ROADMAP.md` (planned features), `docs/TESTING.md` (test scenarios).*
+*Documentation Version: 4.11.1 (September 11, 2026)*

@@ -65,6 +65,7 @@ struct CompareView: View {
                 .pickerStyle(.menu)
                 .frame(width: 120)
                 .accessibilityLabel("Tool to compare")
+                .help(Text("Choose which tool to compare."))
                 .onChange(of: toolFilter) { _, _ in sessionA = nil; sessionB = nil }
 
                 Divider().frame(height: 16)
@@ -97,12 +98,13 @@ struct CompareView: View {
                         Image(systemName: "chevron.down").font(.caption2).foregroundColor(.secondary)
                     }
                     .padding(.horizontal, 8).padding(.vertical, 5)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
-                    .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
                 .accessibilityLabel("Select Session A")
+                .help(Text("Select the first session to compare (Session A)."))
 
                 Image(systemName: "arrow.left.arrow.right").foregroundColor(.secondary).font(.caption2)
 
@@ -134,12 +136,13 @@ struct CompareView: View {
                         Image(systemName: "chevron.down").font(.caption2).foregroundColor(.secondary)
                     }
                     .padding(.horizontal, 8).padding(.vertical, 5)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 7))
-                    .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
                 .accessibilityLabel("Select Session B")
+                .help(Text("Select the second session to compare (Session B)."))
 
                 Spacer()
 
@@ -179,7 +182,7 @@ struct CompareView: View {
 
     private var emptyCompareState: some View {
         ToolStateView.empty(title: "Select Two Sessions",
-                            subtitle: "Use the Session A and Session B menus above.",
+                            subtitle: "Pick Session A and Session B from the menus above, then compare results side by side.",
                             minHeight: 200)
     }
 
@@ -377,9 +380,20 @@ struct CompareView: View {
 
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    Text("Metric").font(.caption2.weight(.bold)).foregroundColor(.secondary).frame(maxWidth: .infinity, alignment: .leading)
-                    Text(headers.0).font(.caption2.weight(.bold)).foregroundColor(.secondary).frame(width: 160, alignment: .leading).lineLimit(1)
-                    Text(headers.1).font(.caption2.weight(.bold)).foregroundColor(.secondary).frame(width: 160, alignment: .leading).lineLimit(1)
+                    Text("Metric")
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(headers.0)
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineLimit(1)
+                    Text(headers.1)
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineLimit(1)
                 }
                 .padding(.horizontal, 16).padding(.vertical, 10)
                 .background(.regularMaterial)
@@ -388,9 +402,17 @@ struct CompareView: View {
 
                 ForEach(Array(rows.enumerated()), id: \.element.0) { idx, row in
                     HStack(spacing: 0) {
-                        Text(row.0).font(.system(.caption, design: .monospaced)).frame(maxWidth: .infinity, alignment: .leading)
-                        Text(row.1).font(.system(.caption, design: .monospaced)).foregroundColor(row.3 == .red ? .primary : .primary).frame(width: 160, alignment: .leading)
-                        Text(row.2).font(.system(.caption, design: .monospaced)).foregroundColor(row.3 ?? .primary).frame(width: 160, alignment: .leading)
+                        Text(row.0)
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(row.1)
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .foregroundColor(row.3 ?? .primary)
+                        Text(row.2)
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .foregroundColor(row.3 ?? .primary)
                     }
                     .padding(.horizontal, 16).padding(.vertical, 8)
                     .background(idx % 2 == 0 ? Color.clear : Color.secondary.opacity(0.03))
@@ -401,7 +423,9 @@ struct CompareView: View {
                 Divider()
 
                 HStack {
-                    Text(summary).font(.system(.caption2, design: .monospaced)).foregroundColor(.secondary)
+                    Text(summary)
+                        .font(.system(.caption2, design: .monospaced))
+                        .foregroundColor(.secondary)
                     Spacer()
                 }
                 .padding(.horizontal, 16).padding(.vertical, 8)

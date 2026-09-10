@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Recent-hosts dropdown shown as a trailing overlay on a tool's host field.
+/// Recent-hosts dropdown shown next to a tool's host field.
 struct HostHistoryMenu: View {
     let history: HostHistory
     let onSelect: (String) -> Void
@@ -19,7 +19,6 @@ struct HostHistoryMenu: View {
             }
             .menuStyle(.borderlessButton)
             .frame(width: 28)
-            .padding(.trailing, 4)
             .accessibilityLabel("Host History")
         }
     }

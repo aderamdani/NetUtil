@@ -4,6 +4,15 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.11.2] — 2026-09-11
+
+### Added
+- **Architecture documentation** (`docs/ARCHITECTURE.md`): comprehensive codebase reference covering directory structure, ToolStore, all 28 tools, subprocess patterns, concurrency, data models, persistence, export system, Darwin APIs, and conventions for adding new code.
+- **Expanded contributing guide** (`docs/CONTRIBUTING.md`): added architecture context, code style rules, PR checklist, and testing requirements.
+- **Agent instructions updated** (`AGENTS.md`): added ARCHITECTURE.md reference for new agents/devs.
+
+---
+
 ## [4.11.1] — 2026-08-18
 
 ### Added

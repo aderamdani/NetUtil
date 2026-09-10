@@ -53,7 +53,7 @@ struct DashboardView: View {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(localHostName)
-                        .font(.system(.title3, design: .default).bold())
+                        .font(.title3.bold())
                         .tracking(-0.2)
 
                     HStack(spacing: 12) {
@@ -62,7 +62,7 @@ struct DashboardView: View {
                                 .foregroundColor(tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps > 0 ? .green : .secondary)
                                 .font(.caption2)
                             Text(tools.currentConnectionName)
-                                .font(.system(.caption, design: .default).weight(.semibold))
+                                .font(.caption.weight(.semibold))
                         }
 
                         Divider().frame(height: 10)
@@ -72,7 +72,7 @@ struct DashboardView: View {
 
                         if tools.isVPNActive {
                             Text("VPN")
-                                .font(.system(.caption2, design: .default).weight(.bold))
+                                .font(.caption2.weight(.bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Color.green.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
@@ -82,7 +82,7 @@ struct DashboardView: View {
                         Divider().frame(height: 10)
 
                         Text("Uptime: \(uptimeString)")
-                            .font(.system(.caption, design: .monospaced))
+                            .font(.caption.monospaced())
                             .foregroundColor(.secondary)
                     }
                 }
@@ -118,7 +118,7 @@ struct DashboardView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
 
             Divider()
         }
@@ -142,7 +142,7 @@ struct DashboardView: View {
     private func gatewayChip(label: String, value: String) -> some View {
         HStack(spacing: 4) {
             Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
-            Text(value).font(.system(.caption2, design: .monospaced).weight(.medium))
+            Text(value).font(.caption2.monospaced().weight(.medium))
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(label) IP address")
@@ -155,11 +155,11 @@ struct DashboardView: View {
             HStack(spacing: 8) {
                 VStack(alignment: .trailing, spacing: 0) {
                     Text(value)
-                        .font(.system(.subheadline, design: .monospaced).weight(.bold))
+                        .font(.subheadline.monospaced().weight(.bold))
                         .foregroundColor(.primary)
                     if let subtitle {
                         Text(subtitle)
-                            .font(.system(.caption2, design: .monospaced))
+                            .font(.caption2.monospaced())
                             .foregroundColor(.secondary)
                     }
                 }

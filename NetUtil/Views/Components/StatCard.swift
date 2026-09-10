@@ -15,17 +15,17 @@ struct StatCard: View {
             
             HStack(alignment: .lastTextBaseline, spacing: 2) {
                 Text(value)
-                    .font(.system(.title3, design: .monospaced).weight(.semibold))
+                    .font(.title3.monospaced().weight(.semibold))
                     .foregroundColor(color)
                 if let unit {
                     Text(unit)
-                        .font(.system(.caption, design: .monospaced))
+                        .font(.caption.monospaced())
                         .foregroundColor(.secondary)
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))

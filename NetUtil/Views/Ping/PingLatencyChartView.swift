@@ -39,26 +39,26 @@ struct PingLatencyChartView: View {
                     if let point = hoveredPoint {
                         let tooltipEst: CGFloat = Metrics.tooltipEstimate
                         let clampedX = max(0, min(hoverLocation.x - tooltipEst / 2, chartWidth - tooltipEst))
-                        HStack(spacing: 5) {
+                        HStack(spacing: 4) {
                             Circle()
                                 .fill(point.status == .success ? rttColor(point.rtt) : Color.red)
                                 .frame(width: 6, height: 6)
                             Text(verbatim: "#\(point.sequence)")
-                                .font(.system(.caption2, design: .monospaced))
+                                .font(.caption2.monospaced())
                                 .foregroundColor(.secondary)
                             if point.status == .success {
                                 Text(verbatim: String(format: "%.1f ms", point.rtt))
-                                    .font(.system(.caption, design: .monospaced).weight(.semibold))
+                                    .font(.caption.monospaced().weight(.semibold))
                                     .foregroundColor(rttColor(point.rtt))
                             } else {
                                 Text(verbatim: "Timeout")
-                                    .font(.system(.caption, design: .monospaced).weight(.semibold))
+                                    .font(.caption.monospaced().weight(.semibold))
                                     .foregroundColor(.red)
                             }
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
                         .offset(x: clampedX, y: 4)
                         .allowsHitTesting(false)
                         .transition(.opacity)
@@ -69,7 +69,7 @@ struct PingLatencyChartView: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Quality Distribution")
-                        .font(.system(.caption2, design: .default).weight(.bold))
+                        .font(.caption2.weight(.bold))
                         .foregroundColor(.secondary)
                     distributionBar
                         .accessibilityLabel("RTT distribution bar")
@@ -137,7 +137,7 @@ struct PingLatencyChartView: View {
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
                         Text(verbatim: "\(Int(v)) ms")
-                            .font(.system(.caption2, design: .monospaced))
+                            .font(.caption2.monospaced())
                     }
                 }
             }
@@ -148,7 +148,7 @@ struct PingLatencyChartView: View {
                 AxisValueLabel {
                     if let seq = value.as(Double.self) {
                         Text(verbatim: "#\(Int(seq))")
-                            .font(.system(.caption2, design: .monospaced))
+                            .font(.caption2.monospaced())
                     }
                 }
             }
