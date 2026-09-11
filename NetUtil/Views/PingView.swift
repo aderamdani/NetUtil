@@ -145,13 +145,13 @@ struct PingView: View {
                 .accessibilityValue(String(format: "%.1f percent", vm.stats.loss))
             StatCard(title: "Average RTT", value: String(format: "%.1f", vm.stats.avgRtt), unit: "ms", icon: "equal", color: rttColor(vm.stats.avgRtt))
                 .accessibilityElement(children: .combine)
-                .accessibilityValue("\(Int(vm.stats.avgRtt)) milliseconds")
+                .accessibilityValue(Self.spokenMilliseconds(vm.stats.avgRtt))
             StatCard(title: "Recent Avg", value: String(format: "%.1f", vm.stats.recentAvgRtt), unit: "ms", icon: "clock.arrow.circlepath", color: rttColor(vm.stats.recentAvgRtt))
                 .accessibilityElement(children: .combine)
-                .accessibilityValue("\(Int(vm.stats.recentAvgRtt)) milliseconds, last 20 packets")
+                .accessibilityValue(Self.spokenMilliseconds(vm.stats.recentAvgRtt) + ", last 20 packets")
             StatCard(title: "Jitter", value: String(format: "%.1f", vm.stats.jitter), unit: "ms", icon: "waveform.path.ecg", color: vm.stats.jitter > 10 ? .orange : .primary)
                 .accessibilityElement(children: .combine)
-                .accessibilityValue("\(Int(vm.stats.jitter)) milliseconds")
+                .accessibilityValue(Self.spokenMilliseconds(vm.stats.jitter))
         }
     }
 
@@ -159,6 +159,31 @@ struct PingView: View {
         if rtt < rttWarn { return .primary }
         if rtt < rttCrit { return .orange }
         return .red
+    }
+
+    /// Pure VoiceOver/display strings — testable without rendering the view.
+    static func spokenMilliseconds(_ ms: Double) -> String {
+        "\(Int(ms)) milliseconds"
+    }
+
+    static func linkTypeAccessibilityLabel(title: String, typical: String) -> String {
+        "\(title), typical latency \(typical)"
+    }
+
+    static func linkTypeMatchText(prefix: String, title: String, typical: String) -> String {
+        "\(prefix)\(title) · typical \(typical)"
+    }
+
+    static func linkTypeDetailsLabel(title: String, typical: String, blurb: String) -> String {
+        "Link type details. \(title), typical latency \(typical). \(blurb)"
+    }
+
+    static func signalStrengthText(rssi: Int) -> String {
+        "\(rssi) dBm"
+    }
+
+    static func wifiSummary(parts: [String]) -> String {
+        "Wi-Fi · " + parts.joined(separator: " · ")
     }
 
     // MARK: - Quality & Link Classification
@@ -231,19 +256,19 @@ struct PingView: View {
                                 .background((isShown ? Color.accentColor : Color.secondary.opacity(0.12)), in: RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("\(profile.title), typical latency \(profile.typical)")
+                        .accessibilityLabel(Self.linkTypeAccessibilityLabel(title: profile.title, typical: profile.typical))
                         .accessibilityHint(isShown ? "Showing details below" : "Tap to learn about this link type")
                     }
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(selectedProfile == nil ? "Likely match: " : "")\(shown.title) · typical \(shown.typical)")
+                    Text(Self.linkTypeMatchText(prefix: selectedProfile == nil ? "Likely match: " : "", title: shown.title, typical: shown.typical))
                         .font(.caption.monospaced().weight(.semibold))
                     Text(shown.blurb)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Link type details. \(shown.title), typical latency \(shown.typical). \(shown.blurb)")
+                .accessibilityLabel(Self.linkTypeDetailsLabel(title: shown.title, typical: shown.typical, blurb: shown.blurb))
             }
         }
         .padding(16)
@@ -288,8 +313,8 @@ struct PingView: View {
             switch iface.ifType {
             case 161:
                 var parts = [tools.currentConnectionName]
-                if let rssi = tools.wifi.info?.rssi { parts.append("\(rssi) dBm") }
-                return ("wifi", "Wi-Fi · " + parts.joined(separator: " · "))
+                if let rssi = tools.wifi.info?.rssi { parts.append(Self.signalStrengthText(rssi: rssi)) }
+                return ("wifi", Self.wifiSummary(parts: parts))
             case 6:
                 return ("cable.connector", "Ethernet · \(tools.currentConnectionName)")
             case 23, 150:

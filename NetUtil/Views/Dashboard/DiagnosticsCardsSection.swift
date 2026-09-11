@@ -76,7 +76,7 @@ struct DiagnosticsCardsSection: View {
                         Label("\(tools.ping.stats.loss, specifier: "%.1f")% loss", systemImage: "exclamationmark.triangle")
                             .font(.caption2.monospaced())
                             .foregroundColor(tools.ping.stats.loss > 0 ? .orange : .green)
-                        Label("Jitter ±\(tools.ping.stats.jitter, specifier: "%.1f")ms", systemImage: "waveform.path")
+                        Label("Jitter ±\(tools.ping.stats.jitter, specifier: "%.1f") ms", systemImage: "waveform.path")
                             .font(.caption2.monospaced())
                             .foregroundColor(.secondary)
                         Label("\(tools.ping.results.count) samples", systemImage: "number")

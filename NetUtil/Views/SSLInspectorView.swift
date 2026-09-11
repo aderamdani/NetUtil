@@ -44,6 +44,13 @@ struct SSLInspectorView: View {
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "SSL/TLS") }
     }
 
+    /// Pure copy-summary expiry status — testable without rendering the view.
+    static func expiryCopyStatus(days: Int?) -> String {
+        guard let days else { return "Unknown" }
+        if days < 0 { return "Expired \(-days) day\(-days == 1 ? "" : "s") ago" }
+        return "Valid, \(days) day\(days == 1 ? "" : "s") remaining"
+    }
+
     private var sslMoodBar: some View {
         let (icon, color, msg): (String, Color, String) = {
             if vm.isRunning {
@@ -96,7 +103,7 @@ struct SSLInspectorView: View {
                             onCopySummary: {
                                 let leaf = result.chain.first
                                 let days = leaf?.daysRemaining
-                                let status = days.map { $0 < 0 ? "Expired \(-$0)d ago" : "Valid, \($0)d remaining" } ?? "Unknown"
+                                let status = Self.expiryCopyStatus(days: days)
                                 let summary = "Host: \(host)\nLeaf: \(leaf?.subject ?? "—")\nIssuer: \(leaf?.issuer ?? "—")\nExpiry: \(status)\nChain depth: \(result.chain.count)"
                                 NSPasteboard.general.clearContents()
                                 NSPasteboard.general.setString(summary, forType: .string)

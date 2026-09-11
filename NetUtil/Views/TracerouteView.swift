@@ -104,20 +104,43 @@ struct TracerouteView: View {
     }
 
     private var traceMoodBar: some View {
-        let (icon, color, msg): (String, Color, String) = {
+        let (icon, color): (String, Color) = {
+            if vm.isRunning { return ("hourglass", .secondary) }
+            if vm.hops.isEmpty { return ("point.3.connected.trianglepath.dotted", .secondary) }
+            if vm.pathLoss > 0 { return ("exclamationmark.triangle.fill", .orange) }
+            return ("checkmark.circle.fill", .green)
+        }()
+        let msg: String = {
             if vm.isRunning {
-                return ("hourglass", .secondary, "Tracing \(vm.currentHost)  —  round \(vm.round + 1), \(vm.hops.count) hops")
+                return Self.tracingMessage(host: vm.currentHost, round: vm.round, hopCount: vm.hops.count)
             }
-            guard !vm.hops.isEmpty else {
-                return ("point.3.connected.trianglepath.dotted", .secondary, "Enter a host to map the network path")
+            if vm.hops.isEmpty {
+                return "Enter a host to map the network path"
             }
             let avg = vm.pathAvgRtt.map { String(format: "%.1f ms", $0) } ?? "—"
             if vm.pathLoss > 0 {
-                return ("exclamationmark.triangle.fill", .orange, String(format: "%.1f%% loss on path  —  %d hops, avg %@", vm.pathLoss, vm.hops.count, avg))
+                return Self.pathLossMessage(loss: vm.pathLoss, hopCount: vm.hops.count, avg: avg)
             }
-            return ("checkmark.circle.fill", .green, "\(vm.hops.count) hops  —  path avg \(avg)")
+            return Self.pathCleanMessage(hopCount: vm.hops.count, avg: avg)
         }()
         return MoodBar(icon: icon, color: color, message: msg)
+    }
+
+    /// Pure MoodBar/VoiceOver messages — testable without rendering the view.
+    static func tracingMessage(host: String, round: Int, hopCount: Int) -> String {
+        "Tracing \(host) — round \(round + 1), \(hopCount) hops"
+    }
+
+    static func pathLossMessage(loss: Double, hopCount: Int, avg: String) -> String {
+        String(format: "%.1f%% loss on path — %d hops, avg %@", loss, hopCount, avg)
+    }
+
+    static func pathCleanMessage(hopCount: Int, avg: String) -> String {
+        "\(hopCount) hops — path avg \(avg)"
+    }
+
+    static func spokenMilliseconds(_ ms: Double) -> String {
+        "\(Int(ms)) milliseconds"
     }
 
     // MARK: - Components
@@ -132,7 +155,7 @@ struct TracerouteView: View {
             if let avg = vm.pathAvgRtt {
                 StatCard(title: "Avg Latency", value: String(format: "%.1f", avg), unit: "ms", icon: "timer", color: avg < rttWarn ? .primary : .orange)
                     .accessibilityElement(children: .combine)
-                    .accessibilityValue("\(Int(avg)) milliseconds")
+                    .accessibilityValue(Self.spokenMilliseconds(avg))
             }
             if let last = vm.hops.last?.displayHost {
                 StatCard(title: "Target Host", value: last, icon: "target")

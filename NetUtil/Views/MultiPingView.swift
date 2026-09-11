@@ -65,14 +65,25 @@ struct MultiPingView: View {
         let active = vm.slots.filter { $0.isRunning }.count
         let total  = vm.slots.count
         let avgLoss = total > 0 ? vm.slots.map { $0.loss }.reduce(0, +) / Double(total) : 0
-        let (icon, color, msg): (String, Color, String) = {
-            if total == 0 { return ("dot.radiowaves.left.and.right", .secondary, "No hosts added") }
-            if active == 0 { return ("pause.circle", .secondary, "Monitoring stopped — \(total) host\(total == 1 ? "" : "s") configured") }
-            if avgLoss > 10 { return ("exclamationmark.triangle.fill", .red, "Active: \(active)/\(total)  —  Avg loss: \(String(format: "%.1f", avgLoss))%") }
-            if avgLoss > 0  { return ("exclamationmark.triangle.fill", .orange, "Active: \(active)/\(total)  —  Avg loss: \(String(format: "%.1f", avgLoss))%") }
-            return ("checkmark.circle.fill", .green, "Active: \(active)/\(total)  —  All hosts reachable")
+        let (icon, color): (String, Color) = {
+            if total == 0 { return ("dot.radiowaves.left.and.right", .secondary) }
+            if active == 0 { return ("pause.circle", .secondary) }
+            if avgLoss > 10 { return ("exclamationmark.triangle.fill", .red) }
+            if avgLoss > 0 { return ("exclamationmark.triangle.fill", .orange) }
+            return ("checkmark.circle.fill", .green)
         }()
-        return MoodBar(icon: icon, color: color, message: msg)
+        return MoodBar(icon: icon, color: color,
+                       message: Self.moodMessage(active: active, total: total, avgLoss: avgLoss))
+    }
+
+    /// Pure MoodBar message — testable without rendering the view.
+    static func moodMessage(active: Int, total: Int, avgLoss: Double) -> String {
+        if total == 0 { return "No hosts added" }
+        if active == 0 { return "Monitoring stopped — \(total) host\(total == 1 ? "" : "s") configured" }
+        if avgLoss > 0 {
+            return "Active: \(active)/\(total) — Avg loss: \(String(format: "%.1f", avgLoss))%"
+        }
+        return "Active: \(active)/\(total) — All hosts reachable"
     }
 
     private var controlBar: some View {
