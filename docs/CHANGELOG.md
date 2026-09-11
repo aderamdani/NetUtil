@@ -4,6 +4,21 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.12.0] — 2026-09-11
+
+### Added
+- **Connection Quality card (Ping)**: plain-language rating (Excellent → Unstable, satellite-aware), factual "Measured over" link (Wi-Fi SSID/RSSI, Ethernet, Cellular), and an explorable LAN / Fiber (FO) / 4G / Far / Satellite (VSAT) link-type classifier with typical latency ranges.
+- **Path Verdict card (Traceroute)**: bottleneck detection (biggest per-hop latency jump), lossy-path and incomplete-trace states, plus layperson hop roles ("Your router", "Your destination", carrier routers) and a "Slowest jump" highlight in the hops table.
+- **Verdict cards (Speed Test, Net Quality, HTTP Latency)**: activity suitability (4K, calls, gaming), RPM responsiveness explained with bufferbloat advice, TTFB/total rating with per-phase bottleneck insights.
+- **Layperson explanations (Wi-Fi, DNS Resolver, Interfaces)**: signal rating with channel advice, resolver descriptions in plain language, interface descriptions for non-experts.
+
+### Changed
+- **Apple HIG standardization pass** over Dashboard, Doctor, Ping, Traceroute, and Session History: semantic typography, 8pt-grid spacing, consistent corner radii and badges; shared `ToolControlBar`/`TableHeader` fixes apply to every tool.
+- **PDF report tables rebuilt**: dynamic content-based column widths, proper header rows with borders, no title overlap.
+- **Host history button** moved out of the input-field overlay into the control bar — no longer covers typed text.
+
+---
+
 ## [4.11.2] — 2026-09-11
 
 ### Added
