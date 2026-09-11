@@ -57,6 +57,11 @@ final class ToolStore {
         dnsResolver.start()
         observeActivationPolicy()
         observeOcclusion()
+        observeMenuBarPreference()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     /// Wi-Fi is view-scoped (only polls while Dashboard/Wi-Fi Inspector is
@@ -64,6 +69,16 @@ final class ToolStore {
     /// running so pause/resume doesn't start it for a view that isn't visible.
     private var wifiWasActive = false
 
+    /// Current monitoring tier. `.suspended` leaves every poller stopped —
+    /// zero idle cost — until a window, the dock policy, or the menu-bar
+    /// readout needs sampling again.
+    private var monitoring = MonitoringStateController()
+    var currentMonitoringState: MonitoringState { monitoring.current }
+
+    /// Known limitation: traffic that flows while suspended across midnight
+    /// is attributed to the resume day. Raw totals stay exact via
+    /// lump-capture; only the per-day split can misattribute. A midnight
+    /// wakeup would fix the split but defeat zero idle cost.
     /// Stops all app-lifetime pollers to save battery when no window is visible.
     func pauseMonitoring() {
         bandwidth.stop()
@@ -95,7 +110,7 @@ final class ToolStore {
     private func observeActivationPolicy() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(updateMonitoringState),
+            selector: #selector(handleMonitoringStateChange),
             name: .init("netutil.activationPolicyChanged"),
             object: nil
         )
@@ -106,16 +121,63 @@ final class ToolStore {
     private func observeOcclusion() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(updateMonitoringState),
+            selector: #selector(handleMonitoringStateChange),
             name: NSApplication.didChangeOcclusionStateNotification,
             object: nil
         )
     }
 
-    @objc private func updateMonitoringState() {
+    /// Re-tier when the menu-bar traffic readout is toggled while hidden —
+    /// it is the only background-visible live consumer.
+    private func observeMenuBarPreference() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleMonitoringStateChange),
+            name: UserDefaults.didChangeNotification,
+            object: nil
+        )
+    }
+
+    /// Notification trampoline: posts can arrive before NSApplication exists
+    /// or off the main thread (notably `UserDefaults.didChangeNotification`),
+    /// so hop to the main actor before touching pollers.
+    @objc private nonisolated func handleMonitoringStateChange() {
+        Task { @MainActor [weak self] in self?.updateMonitoringState() }
+    }
+
+    /// Pre-launch posts carry no usable state — dropping them is safe; later
+    /// occlusion/policy posts re-tier correctly once the app is up.
+    private func updateMonitoringState() {
+        guard NSApp != nil else { return }
+        let visible = NSApp.occlusionState.contains(.visible)
+        let regular = NSApp.activationPolicy() == .regular
+        let target = MonitoringState.targetState(
+            visible: visible, regular: regular,
+            hasLiveConsumer: hasLiveMenuBarConsumer
+        )
+        applyMonitoringState(target)
+    }
+
+    /// Applies a tier transition; repeats of the current tier are a no-op.
+    /// `.suspended` intentionally resumes nothing — pollers stay stopped.
+    func applyMonitoringState(_ next: MonitoringState) {
+        guard monitoring.transition(to: next) else { return }
         pauseMonitoring()
-        let occluded = !NSApp.occlusionState.contains(.visible)
-        resumeMonitoring(reduced: occluded || NSApp.activationPolicy() != .regular)
+        switch next {
+        case .active:
+            resumeMonitoring(reduced: false)
+        case .reduced:
+            resumeMonitoring(reduced: true)
+        case .suspended:
+            break
+        }
+    }
+
+    /// Background-visible live consumer: the menu-bar label renders live ↓/↑
+    /// rates only when `menuBarShowTraffic` is on (MenuBarLabel). The popover
+    /// itself samples on open, so it needs no background polling.
+    private var hasLiveMenuBarConsumer: Bool {
+        UserDefaults.standard.bool(forKey: "menuBarShowTraffic")
     }
 
     private func wireSessionLogging() {

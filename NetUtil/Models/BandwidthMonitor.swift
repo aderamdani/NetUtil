@@ -70,6 +70,14 @@ final class BandwidthMonitor {
         timer = nil
     }
 
+    /// Re-anchors the byte baseline to this instant, discarding gap traffic
+    /// from future deltas. The default resume path deliberately does NOT call
+    /// this — lump-capture keeps daily totals exact.
+    func resetBaseline() {
+        prevBytes = fetchRawBytes()
+        prevTime = Date()
+    }
+
     private func restartTimer() {
         timer?.invalidate()
         // Foreground sampling rate is user-configurable
