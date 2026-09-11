@@ -124,11 +124,12 @@ NetUtil/
 │   │   ├── PingResultsTable.swift
 │   │   └── PingLatencyChartView.swift
 │   │
-│   └── Settings/                 # 4 settings panes
+│   └── Settings/                 # 5 settings panes
 │       ├── GeneralPane.swift
 │       ├── ThresholdsPane.swift
 │       ├── ToolsPane.swift
-│       └── PrivacyPane.swift
+│       ├── PrivacyPane.swift
+│       └── BackupPane.swift        # Export/import settings JSON (SettingsBackup model)
 │
 └── NetUtilTests/                 # 25 test files
     ├── PingTests.swift
@@ -472,6 +473,8 @@ Every parser is a `nonisolated static func` on the model struct — runs off Mai
 | `HostHistory` | `hostHistory` | `[String]` | 20 entries |
 | `SSLWatchlist` | `sslWatchlist` | `[SSLWatchItem]` (Codable) | Unlimited |
 | Settings | Various keys | Primitives via `@AppStorage` | — |
+
+Settings backup (`Models/SettingsBackup.swift`, Settings > Backup tab): versioned JSON (`schemaVersion`, `BackupValue` primitives) covering an explicit whitelist — 20 prefs, tool availability, favorites, SSL watchlist; session/traffic/host history opt-in only. Import validates schema, ignores foreign keys, and re-applies via `ToolStore.reapplyImportedSettings()` with a destructive-confirm alert.
 
 ---
 

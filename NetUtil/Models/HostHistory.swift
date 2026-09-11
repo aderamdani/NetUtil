@@ -33,4 +33,9 @@ final class HostHistory {
         hosts = []
         UserDefaults.standard.removeObject(forKey: key)
     }
+
+    /// Re-reads the store (e.g. after a settings import).
+    func reload() {
+        hosts = UserDefaults.standard.stringArray(forKey: key) ?? []
+    }
 }

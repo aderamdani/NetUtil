@@ -51,6 +51,21 @@ final class ToolCatalog {
         Tool.allCases.filter { $0.group == group && isAvailable($0) }
     }
 
+    /// Re-reads the store (e.g. after a settings import) and notifies for
+    /// changed tools so `ToolStore` can start/stop matching monitors.
+    func reload() {
+        let known = Set(Tool.allCases.map(\.persistenceKey))
+        let fresh = Set(store.stringArray(forKey: key) ?? [])
+            .intersection(known)
+            .filter { Tool(persistenceKey: $0)?.canBeDisabled ?? false }
+        let changed = disabledKeys.symmetricDifference(fresh)
+        disabledKeys = fresh
+        for changedKey in changed {
+            guard let tool = Tool(persistenceKey: changedKey) else { continue }
+            onAvailabilityChange?(tool, !fresh.contains(changedKey))
+        }
+    }
+
     private func save() {
         store.set(Array(disabledKeys), forKey: key)
     }

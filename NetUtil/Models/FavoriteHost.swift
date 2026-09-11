@@ -46,6 +46,9 @@ final class FavoritesManager {
 
     func move(from: IndexSet, to: Int) { favorites.move(fromOffsets: from, toOffset: to) }
 
+    /// Re-reads the store (e.g. after a settings import).
+    func reload() { load() }
+
     private func save() {
         guard let encoded = try? JSONEncoder().encode(favorites) else { return }
         UserDefaults.standard.set(encoded, forKey: key)

@@ -76,6 +76,15 @@ final class TrafficStatistics {
         UserDefaults.standard.removeObject(forKey: Self.storeKey)
     }
 
+    /// Re-reads the store (e.g. after a settings import) and restarts the
+    /// live session counters from a clean baseline.
+    func reload() {
+        load()
+        sessionRxBytes = 0
+        sessionTxBytes = 0
+        sessionStart = Date()
+    }
+
     private func periodicSave() {
         guard isDirty else { return }
         save()

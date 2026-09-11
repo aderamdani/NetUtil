@@ -86,6 +86,9 @@ final class SessionHistory {
     func remove(id: UUID) { records.removeAll { $0.id == id }; save() }
     func clear() { records.removeAll(); save() }
 
+    /// Re-reads the store (e.g. after a settings import).
+    func reload() { load() }
+
     func records(forTool tool: String) -> [SessionRecord] {
         records.filter { $0.tool == tool }
     }

@@ -66,6 +66,9 @@ final class SSLWatchlist {
     func remove(id: UUID) {
         items.removeAll { $0.id == id }
     }
+
+    /// Re-reads the store (e.g. after a settings import).
+    func reload() { load() }
     
 
     func calculateStatus(expiryDate: Date) -> ExpiryStatus {

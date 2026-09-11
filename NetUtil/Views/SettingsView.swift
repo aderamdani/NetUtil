@@ -14,6 +14,8 @@ struct SettingsView: View {
                 .tabItem { Label("Tools", systemImage: "wrench.and.screwdriver") }
             PrivacyPane()
                 .tabItem { Label("Privacy", systemImage: "hand.raised") }
+            BackupPane()
+                .tabItem { Label("Backup", systemImage: "externaldrive") }
         }
         .frame(width: 480, height: 420)
     }

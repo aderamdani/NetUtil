@@ -216,6 +216,18 @@ final class ToolStore {
         ipGeolocation.onSessionComplete = log
     }
 
+    /// Re-applies imported settings to live state — availability tiers,
+    /// favorites, watchlist, history, and global status — no restart needed.
+    func reapplyImportedSettings() {
+        catalog.reload()
+        favorites.reload()
+        sslWatchlist.reload()
+        sessionHistory.reload()
+        statistics.reload()
+        HostHistory.shared.reload()
+        refreshGlobalStatus()
+    }
+
     /// Refreshes expensive cached properties.
     func refreshGlobalStatus() {
         updatePrimaryInterface()
