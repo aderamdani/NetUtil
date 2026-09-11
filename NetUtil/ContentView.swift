@@ -185,50 +185,11 @@ struct ContentView: View {
                             }
                         }
 
-                        Section {
-                            sidebarItem(.dashboard)
-                            sidebarItem(.doctor)
-                            sidebarItem(.sessionHistory)
-                            sidebarItem(.compare)
-                        }
-
-                        Section("Active Probing") {
-                            sidebarItem(.ping)
-                            sidebarItem(.traceroute)
-                            sidebarItem(.multiPing)
-                            sidebarItem(.portScan)
-                            sidebarItem(.httpLatency)
-                            sidebarItem(.pathMTU)
-                        }
-
-                        Section("IP Toolbox") {
-                            sidebarItem(.subnetScan)
-                            sidebarItem(.subnet)
-                            sidebarItem(.wakeOnLAN)
-                            sidebarItem(.portListener)
-                            sidebarItem(.ipGeolocation)
-                        }
-
-                        Section("Lookup & Security") {
-                            sidebarItem(.dns)
-                            sidebarItem(.dnsResolver)
-                            sidebarItem(.ssl)
-                            sidebarItem(.whois)
-                        }
-                        
-                        Section("Bandwidth") {
-                            sidebarItem(.bandwidth)
-                            sidebarItem(.statistics)
-                            sidebarItem(.speedTest)
-                            sidebarItem(.netQuality)
-                        }
-
-                        Section("Network Status") {
-                            sidebarItem(.interfaces)
-                            sidebarItem(.wifi)
-                            sidebarItem(.routes)
-                            sidebarItem(.neighbors)
-                            sidebarItem(.connections)
+                        ForEach(ToolGroup.allCases, id: \.self) { group in
+                            let items = tools.catalog.availableTools(in: group)
+                            if !items.isEmpty {
+                                toolSection(group: group, items: items)
+                            }
                         }
 
                     }
@@ -237,9 +198,9 @@ struct ContentView: View {
             .listStyle(.sidebar)
             .navigationSplitViewColumnWidth(min: 175, ideal: 200, max: 240)
         } detail: {
-            if let selection {
+            if let selection, tools.catalog.isAvailable(selection) {
                 toolView(selection)
-                    .navigationTitle(selection == .dashboard ? "NetUtil" : "NetUtil — \(selection.rawValue)")
+                    .navigationTitle(selection == .dashboard ? "NetUtil" : "NetUtil — \(selection.displayName)")
                     .transition(.opacity)
                     .id(selection)
             } else {
@@ -248,9 +209,13 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 1000, minHeight: 650)
+        .onChange(of: tools.catalog.disabledKeys) { _, _ in
+            selection = Tool.fallbackSelection(current: selection,
+                                               availableKeys: tools.catalog.availableKeys)
+        }
         .background {
-            // Invisible buttons for keyboard shortcuts
-            ForEach(Tool.allCases) { tool in
+            // Invisible buttons for keyboard shortcuts (available tools only)
+            ForEach(tools.catalog.availableTools) { tool in
                 if let key = tool.shortcut {
                     Button("") { selection = tool }
                         .keyboardShortcut(key, modifiers: tool.shortcutModifiers)
@@ -266,9 +231,22 @@ struct ContentView: View {
     }
     
     @ViewBuilder
+    private func toolSection(group: ToolGroup, items: [Tool]) -> some View {
+        if let title = group.title {
+            Section(title) {
+                ForEach(items) { tool in sidebarItem(tool) }
+            }
+        } else {
+            Section {
+                ForEach(items) { tool in sidebarItem(tool) }
+            }
+        }
+    }
+
+    @ViewBuilder
     private func sidebarItem(_ tool: Tool) -> some View {
         HStack(spacing: 8) {
-            Label(tool.rawValue, systemImage: tool.icon)
+            Label(tool.displayName, systemImage: tool.icon)
             Spacer()
             if isToolActive(tool) {
                 SidebarActivityIndicator()
@@ -360,12 +338,12 @@ struct FavoriteSidebarItem: View {
                     .padding(.horizontal, 12)
                     .padding(.top, 8)
                 Divider()
-                ForEach(favToolActions, id: \.0.rawValue) { tool, label in
+                ForEach(availableFavTools, id: \.rawValue) { tool in
                     Button {
                         showPopover = false
                         launchFavorite(tool: tool)
                     } label: {
-                        Label(label, systemImage: tool.icon)
+                        Label(tool.displayName, systemImage: tool.icon)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.plain)
@@ -390,14 +368,13 @@ struct FavoriteSidebarItem: View {
         }
     }
 
-    private let favToolActions: [(Tool, String)] = [
-        (.ping,        "Ping"),
-        (.traceroute,  "Traceroute"),
-        (.portScan,    "Port Scanner"),
-        (.dns,         "DNS Lookup"),
-        (.httpLatency, "HTTP Latency"),
-        (.ssl,         "SSL/TLS"),
-    ]
+    private let favTools: [Tool] = [.ping, .traceroute, .portScan, .dns, .httpLatency, .ssl]
+
+    /// Favorite quick actions honor tool availability — disabled tools
+    /// offer no launch target.
+    private var availableFavTools: [Tool] {
+        favTools.filter { tools.catalog.isAvailable($0) }
+    }
 
     private func launchFavorite(tool: Tool) {
         switch tool {

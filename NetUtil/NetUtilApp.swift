@@ -45,6 +45,7 @@ struct NetUtilApp: App {
 
         Settings {
             SettingsView()
+                .environment(tools)
         }
 
         MenuBarExtra {

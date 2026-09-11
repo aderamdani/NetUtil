@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ToolsPane: View {
+    @Environment(ToolStore.self) private var tools
     @AppStorage("portScanTimeout")     private var portScanTimeout = 1.5
     @AppStorage("portScanConcurrency") private var portScanConc    = 50
     @AppStorage("httpTimeout")         private var httpTimeout     = 15.0
@@ -9,6 +10,7 @@ struct ToolsPane: View {
 
     var body: some View {
         Form {
+            ToolAvailabilitySection(catalog: tools.catalog)
             Section {
                 LabeledContent("Connection Timeout") {
                     CompactSlider(value: $portScanTimeout, range: 0.5...10, step: 0.5, format: "%.1f s")
@@ -57,5 +59,35 @@ struct ToolsPane: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+/// Per-group tool availability toggles. Extracted to keep
+/// `ToolsPane.body` small. Disabling a tool also stops its pollers.
+private struct ToolAvailabilitySection: View {
+    let catalog: ToolCatalog
+
+    var body: some View {
+        ForEach(ToolGroup.allCases, id: \.self) { group in
+            Section {
+                ForEach(group.tools) { tool in
+                    Toggle(tool.displayName, isOn: binding(for: tool))
+                        .disabled(!tool.canBeDisabled)
+                }
+            } header: {
+                Text(group.title ?? "Core")
+            } footer: {
+                if group == .core {
+                    Text("Core tools power the dashboard, statistics, and history. They stay enabled.")
+                }
+            }
+        }
+    }
+
+    private func binding(for tool: Tool) -> Binding<Bool> {
+        Binding(
+            get: { catalog.isAvailable(tool) },
+            set: { catalog.setAvailable(tool, $0) }
+        )
     }
 }

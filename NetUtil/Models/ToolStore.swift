@@ -35,6 +35,7 @@ final class ToolStore {
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()
     let sessionHistory = SessionHistory()
+    let catalog       = ToolCatalog()
 
     private(set) var externalIP: String = "Checking..."
     private(set) var externalIPGeo: IPGeoResult?
@@ -51,10 +52,13 @@ final class ToolStore {
         bandwidth.onAggregateDelta = { [weak self] rx, tx in
             self?.statistics.record(rxDelta: rx, txDelta: tx)
         }
-        bandwidth.start()
+        catalog.onAvailabilityChange = { [weak self] tool, available in
+            self?.applyToolAvailability(tool: tool, available: available)
+        }
+        if catalog.isAvailable(.bandwidth) { bandwidth.start() }
         wireSessionLogging()
         refreshGlobalStatus()
-        dnsResolver.start()
+        if catalog.isAvailable(.dnsResolver) { dnsResolver.start() }
         observeActivationPolicy()
         observeOcclusion()
         observeMenuBarPreference()
@@ -90,20 +94,36 @@ final class ToolStore {
     }
 
     /// Restarts pollers. Pass `reduced: true` for accessory/menu-bar mode.
+    /// Pollers for disabled tools stay stopped under every tier.
     func resumeMonitoring(reduced: Bool = false) {
         if reduced {
             bandwidth.backgroundInterval = 10.0
-            bandwidth.start()
+            if catalog.isAvailable(.bandwidth) { bandwidth.start() }
             system.start(interval: 10)
             statistics.start()
-            interfaces.start(interval: 15)
+            if catalog.isAvailable(.interfaces) { interfaces.start(interval: 15) }
         } else {
             bandwidth.backgroundInterval = 5.0
-            bandwidth.start()
+            if catalog.isAvailable(.bandwidth) { bandwidth.start() }
             system.start()
             statistics.start()
-            interfaces.start()
+            if catalog.isAvailable(.interfaces) { interfaces.start() }
             if wifiWasActive { wifi.start() }
+        }
+    }
+
+    /// Stops a monitor the moment its tool is disabled; re-tiers when
+    /// re-enabled so it restarts under the current monitoring tier.
+    private func applyToolAvailability(tool: Tool, available: Bool) {
+        switch tool {
+        case .bandwidth:
+            if available { updateMonitoringState() } else { bandwidth.stop() }
+        case .interfaces:
+            if available { updateMonitoringState() } else { interfaces.stop() }
+        case .dnsResolver:
+            if available { dnsResolver.start() } else { dnsResolver.stop() }
+        default:
+            break
         }
     }
 

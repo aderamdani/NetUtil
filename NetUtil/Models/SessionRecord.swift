@@ -43,7 +43,7 @@ struct PingStatsSnapshot: Codable {
 
 struct SessionRecord: Codable, Identifiable {
     let id: UUID
-    let tool: String
+    var tool: String
     let target: String
     let timestamp: Date
     var duration: TimeInterval
@@ -119,7 +119,16 @@ final class SessionHistory {
 
     private func load() {
         guard let data = UserDefaults.standard.data(forKey: key),
-              let decoded = try? JSONDecoder().decode([SessionRecord].self, from: data) else { return }
+              var decoded = try? JSONDecoder().decode([SessionRecord].self, from: data) else { return }
+        var migrated = false
+        for i in decoded.indices {
+            let fixed = Tool.migratedSessionKey(decoded[i].tool)
+            if fixed != decoded[i].tool {
+                decoded[i].tool = fixed
+                migrated = true
+            }
+        }
         records = decoded
+        if migrated { save() }
     }
 }

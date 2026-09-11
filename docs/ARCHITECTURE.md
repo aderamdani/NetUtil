@@ -183,8 +183,15 @@ NetUtilApp (@main)
 
 28 cases, each providing:
 - `rawValue` — display name (e.g. `"Ping"`)
+- `persistenceKey` — stable token (e.g. `"portScan"`), independent of the label; see `Models/ToolMetadata.swift`
+- `group` — `ToolGroup` sidebar section (Core, Active Probing, IP Toolbox, Lookup & Security, Bandwidth, Network Status)
+- `canBeDisabled` — false for core tools (Dashboard, Statistics, History)
 - `icon` — SF Symbol name
 - `shortcut` / `shortcutModifiers` — keyboard navigation (two banks: `Cmd+1-9`, `Opt+Cmd+1-9`)
+
+Sidebar sections are generated data-driven from `ToolGroup.allCases` + `ToolCatalog.availableTools(in:)` (disabled tools hidden, empty sections skipped). A selection pointing at a newly-disabled tool falls back to `.dashboard` via `Tool.fallbackSelection`. Keyboard shortcuts register for available tools only.
+
+**Tool availability** — `Models/ToolCatalog.swift` (`@MainActor @Observable`): persists disabled `persistenceKey`s in UserDefaults (`com.netutil.disabledTools`, default all available). Toggled per group in Settings > Tools. `ToolStore` owns the catalog and stops/starts the matching pollers (`BandwidthMonitor`, interface polling, `DNSResolverViewModel`) so a disabled tool costs zero CPU.
 
 Sidebar sections (in order):
 1. **Favorites** — dynamic, from `tools.favorites`

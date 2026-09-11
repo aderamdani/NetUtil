@@ -173,7 +173,7 @@ struct SessionHistoryView: View {
     }
 
     private func navigate(to record: SessionRecord) {
-        guard let tool = Tool(rawValue: record.tool) ?? toolFromKey(record.tool) else { return }
+        guard let tool = Tool(persistenceKey: record.tool) else { return }
         setQuickLaunch(host: record.target, tool: tool)
         selection = tool
     }
@@ -187,62 +187,20 @@ struct SessionHistoryView: View {
         }
     }
 
-    private func toolFromKey(_ key: String) -> Tool? {
-        switch key {
-        case "ping":        return .ping
-        case "traceroute":  return .traceroute
-        case "portScan":    return .portScan
-        case "dns":         return .dns
-        case "whois":       return .whois
-        case "ssl":         return .ssl
-        case "httpLatency": return .httpLatency
-        case "speedTest":   return .speedTest
-        case "netQuality":  return .netQuality
-        case "doctor":      return .doctor
-        case "pathMTU":     return .pathMTU
-        default:            return nil
-        }
-    }
-
     private func toolLabel(_ key: String) -> String {
         key == "All" ? "All Tools" : SessionToolNames.label(key)
     }
 }
 
 /// Shared mapping from SessionRecord.tool keys to display metadata.
+/// Keys are `Tool.persistenceKey`; unknown keys pass through untouched.
 enum SessionToolNames {
     static func label(_ key: String) -> String {
-        switch key {
-        case "ping":        return "Ping"
-        case "traceroute":  return "Traceroute"
-        case "portScan":    return "Port Scanner"
-        case "dns":         return "DNS Lookup"
-        case "whois":       return "WHOIS"
-        case "ssl":         return "SSL/TLS"
-        case "httpLatency": return "HTTP Latency"
-        case "speedTest":   return "Speed Test"
-        case "netQuality":  return "Net Quality"
-        case "doctor":      return "Doctor"
-        case "pathMTU":     return "Path MTU"
-        default:            return key
-        }
+        Tool(persistenceKey: key)?.displayName ?? key
     }
 
     static func icon(_ key: String) -> String {
-        switch key {
-        case "ping":        return "antenna.radiowaves.left.and.right"
-        case "traceroute":  return "point.3.connected.trianglepath.dotted"
-        case "portScan":    return "checklist"
-        case "dns":         return "globe"
-        case "whois":       return "magnifyingglass.circle"
-        case "ssl":         return "lock.shield"
-        case "httpLatency": return "stopwatch"
-        case "speedTest":   return "speedometer"
-        case "netQuality":  return "gauge.with.dots.needle.67percent"
-        case "doctor":      return "stethoscope"
-        case "pathMTU":     return "ruler"
-        default:            return "network"
-        }
+        Tool(persistenceKey: key)?.icon ?? "network"
     }
 }
 

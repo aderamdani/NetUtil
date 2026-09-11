@@ -41,7 +41,7 @@ final class IPGeolocationViewModel {
                 if let fetched {
                     self.result = fetched
                     self.onSessionComplete?(SessionRecord(
-                        tool: "IP Geolocation", target: label,
+                        tool: Tool.ipGeolocation.persistenceKey, target: label,
                         summary: "\(fetched.shortLabel) — \(fetched.ispName)",
                         status: .success, duration: Date().timeIntervalSince(began)
                     ))
