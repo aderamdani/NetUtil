@@ -60,7 +60,9 @@ struct TracerouteView: View {
                     
                     if !vm.hops.isEmpty {
                         pathSummarySection
-                        
+
+                        pathVerdictCard
+
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 SectionHeader(title: "Path Visualization", icon: "map.fill")
@@ -137,6 +139,80 @@ struct TracerouteView: View {
                     .accessibilityElement(children: .combine)
             }
         }
+    }
+
+    // MARK: - Path Verdict
+
+    /// Plain-language verdict: where the path slows down most (bottleneck),
+    /// whether packets are lost, or whether the trace looks clean.
+    private var pathVerdictCard: some View {
+        let verdict = pathVerdict
+        return HStack(spacing: 12) {
+            Image(systemName: verdict.icon)
+                .font(.title2.weight(.semibold))
+                .foregroundColor(verdict.color)
+                .frame(width: 36)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text("Path Verdict")
+                        .font(.caption.weight(.bold))
+                        .foregroundColor(.secondary)
+                    Text(verdict.title)
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(verdict.color.opacity(0.15), in: RoundedRectangle(cornerRadius: 6))
+                        .foregroundColor(verdict.color)
+                }
+                Text(verdict.message)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(16)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+    }
+
+    private var pathVerdict: PathVerdict {
+        if vm.pathLoss >= 20 {
+            return PathVerdict(title: "Lossy path", icon: "xmark.circle.fill", color: .red,
+                message: "Packets are being dropped along the way (\(String(format: "%.0f", vm.pathLoss))% at the worst hop). Streaming and calls may stutter.")
+        }
+        if let slow = bottleneck {
+            return PathVerdict(title: "Bottleneck at hop \(slow.hop.hop)", icon: "exclamationmark.triangle.fill", color: .orange,
+                message: "Delay jumps +\(String(format: "%.0f", slow.addedMs)) ms at \(slow.hop.displayHost). Everything past this hop inherits the wait — the slowdown is here, not at your target.")
+        }
+        if vm.hops.last?.avgRtt == nil {
+            return PathVerdict(title: "Incomplete trace", icon: "questionmark.circle.fill", color: .orange,
+                message: "The final target never answered. It may block traceroute probes, or the path breaks near the end.")
+        }
+        return PathVerdict(title: "Clean path", icon: "checkmark.circle.fill", color: .green,
+            message: "Each hop hands off smoothly to the next — no single slowdown point on this route.")
+    }
+
+    /// The hop adding the most latency versus the previous hop — a jump of
+    /// at least the warn threshold counts as significant.
+    private var bottleneck: (hop: TracerouteHop, addedMs: Double)? {
+        let timed = vm.hops.compactMap { hop -> (TracerouteHop, Double)? in
+            guard let avg = hop.avgRtt else { return nil }
+            return (hop, avg)
+        }
+        guard timed.count >= 2 else { return nil }
+        var best: (hop: TracerouteHop, addedMs: Double)? = nil
+        for i in 1..<timed.count {
+            let added = timed[i].1 - timed[i - 1].1
+            if added >= rttWarn {
+                if let current = best {
+                    if added > current.addedMs { best = (timed[i].0, added) }
+                } else {
+                    best = (timed[i].0, added)
+                }
+            }
+        }
+        return best
     }
 
     @ViewBuilder
@@ -231,6 +307,13 @@ struct TracerouteView: View {
         if rtt < rttCrit { return .orange }
         return .red
     }
+}
+
+private struct PathVerdict {
+    let title: String
+    let icon: String
+    let color: Color
+    let message: String
 }
 
 private struct StatCardMini: View {
