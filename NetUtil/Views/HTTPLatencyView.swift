@@ -26,6 +26,7 @@ struct HTTPLatencyView: View {
 
                     if let result = vm.result {
                         statsBarSection(result)
+                        latencyVerdictSection(result)
                         
                         latencyWaterfallSection(result)
                         
@@ -148,6 +149,115 @@ struct HTTPLatencyView: View {
             if let bytes = r.bodyBytes {
                 StatCard(title: "Payload Size", value: NetworkMath.formatBytes(UInt64(bytes)), icon: "shippingbox.fill")
             }
+        }
+    }
+
+    // MARK: - Latency Verdict
+
+    private func latencyVerdictSection(_ r: HTTPLatencyResult) -> some View {
+        let ttfbMs = r.phases.first(where: { $0.phase == .ttfb })?.durationMs
+        let phaseDict = Dictionary(uniqueKeysWithValues: r.phases.map { ($0.phase.rawValue, $0.durationMs) })
+        let verdict = PerformanceVerdict.HTTPLatencyVerdict(
+            totalMs: r.totalMs,
+            ttfbMs: ttfbMs,
+            statusCode: r.statusCode,
+            phases: phaseDict
+        )
+        let ratingColor: Color = verdict.rating.color == "green" ? .green : verdict.rating.color == "orange" ? .orange : .red
+
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "stopwatch.fill")
+                            .foregroundColor(ratingColor)
+                        Text("Latency Verdict")
+                            .font(.headline)
+                    }
+                    Text(verdict.explanation)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(verdict.rating.label)
+                        .font(.subheadline.weight(.bold))
+                        .foregroundColor(ratingColor)
+                    Text("Rating")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Divider().opacity(0.5)
+
+            // Phase insights
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Phase Analysis")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(verdict.phaseInsights, id: \.self) { insight in
+                        Label(insight, systemImage: "magnifyingglass")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+
+            // Key metrics summary
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Key Metrics")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(.secondary)
+                VStack(spacing: 4) {
+                    if let ttfb = ttfbMs {
+                        HStack {
+                            Text("TTFB")
+                                .font(.caption.monospaced())
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(String(format: "%.1f ms", ttfb))
+                                .font(.caption.weight(.medium))
+                                .foregroundColor(ttfbColor(ttfb))
+                        }
+                    }
+                    HStack {
+                        Text("Total")
+                            .font(.caption.monospaced())
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text(String(format: "%.1f ms", r.totalMs))
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(totalColor(r.totalMs))
+                    }
+                    if let code = r.statusCode {
+                        HStack {
+                            Text("Status")
+                                .font(.caption.monospaced())
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text("\(code)")
+                                .font(.caption.weight(.medium))
+                                .foregroundColor(statusColor(code))
+                        }
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ratingColor.opacity(0.3), lineWidth: 1))
+    }
+
+    private func ttfbColor(_ ms: Double) -> Color {
+        switch ms {
+        case 0..<100: return .green
+        case 100..<200: return .primary
+        case 200..<500: return .orange
+        case 500..<1000: return .orange
+        default: return .red
         }
     }
 
