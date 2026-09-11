@@ -24,19 +24,12 @@ struct DashboardHeroSection: View {
     var body: some View {
         Button { selection = .bandwidth } label: {
             VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Network Activity")
-                            .font(.headline)
-                        Text("Live aggregate throughput")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    HStack(spacing: 16) {
-                        heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
-                        heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
-                    }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Network Activity")
+                        .font(.headline)
+                    Text("Live aggregate throughput")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
 
                 if window.isEmpty {
@@ -66,6 +59,12 @@ struct DashboardHeroSection: View {
                             .allowsHitTesting(false)
                         }
                     }
+                }
+
+                HStack(spacing: 24) {
+                    heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
+                    heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
+                    Spacer()
                 }
             }
             .padding(20)
@@ -144,7 +143,7 @@ struct DashboardHeroSection: View {
     }
 
     private func heroRateMetric(label: String, value: Double, color: Color) -> some View {
-        VStack(alignment: .trailing, spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 4) {
                 Circle().fill(color).frame(width: 6, height: 6)
                 Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
