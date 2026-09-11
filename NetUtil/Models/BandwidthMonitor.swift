@@ -2,7 +2,7 @@ import Foundation
 import Darwin
 import Observation
 
-struct BandwidthSample: Identifiable {
+struct BandwidthSample: Identifiable, Sendable {
     let id = UUID()
     let timestamp: Date
     let rxBps: Double
@@ -15,12 +15,11 @@ struct BandwidthSample: Identifiable {
 @Observable
 final class BandwidthMonitor {
     // MARK: - Layer 1: Background Collection (Always on, low freq)
-    
     private var timer: Timer?
     @ObservationIgnored private var prevBytes: [String: (rx: UInt64, tx: UInt64)] = [:]
     @ObservationIgnored private var prevTime: Date = Date()
     @ObservationIgnored private var tickCount: Int = 0
-    
+
     private static let historyLimit = 60
     private static let totalHistoryLimit = 600 // 10 min
 
@@ -28,7 +27,6 @@ final class BandwidthMonitor {
     var onAggregateDelta: ((UInt64, UInt64) -> Void)?
 
     // MARK: - Layer 2: UI Observation (Only when visible, high freq)
-
     var isUIActive: Bool = false {
         didSet {
             if isUIActive != oldValue {
@@ -38,19 +36,27 @@ final class BandwidthMonitor {
     }
 
     private(set) var interfaces: [NetworkInterface] = []
-    private(set) var history: [String: [BandwidthSample]] = [:]
-    private(set) var totalHistory: [BandwidthSample] = []
+
+    // Ring-buffer backing store; mutating push() keeps @Observable tracking.
+    private var historyBuffers: [String: MetricHistory<BandwidthSample>] = [:]
+    private var totalHistoryBuffer = MetricHistory<BandwidthSample>(capacity: totalHistoryLimit)
+
+    /// Per-interface sample history (oldest → newest).
+    var history: [String: [BandwidthSample]] { historyBuffers.mapValues(\.values) }
+    /// Aggregate sample history for the Dashboard/Statistics charts.
+    var totalHistory: [BandwidthSample] { totalHistoryBuffer.values }
+
     private(set) var lastUpdated = Date()
     private(set) var peakRx: Double = 0
     private(set) var peakTx: Double = 0
-    
+
     var isPaused = false
     var showActiveOnly = true
     var backgroundInterval: TimeInterval = 5.0
 
     /// Aggregate current rates (sum across active non-loopback adapters).
-    var totalRxBps: Double { totalHistory.last?.rxBps ?? 0 }
-    var totalTxBps: Double { totalHistory.last?.txBps ?? 0 }
+    var totalRxBps: Double { totalHistoryBuffer.last?.rxBps ?? 0 }
+    var totalTxBps: Double { totalHistoryBuffer.last?.txBps ?? 0 }
 
     func start() {
         guard timer == nil else { return }
@@ -79,8 +85,8 @@ final class BandwidthMonitor {
     }
 
     func hasTraffic(_ name: String) -> Bool {
-        guard let samples = history[name] else { return false }
-        return samples.suffix(5).contains { $0.rxBps > 0 || $0.txBps > 0 }
+        guard let buffer = historyBuffers[name] else { return false }
+        return buffer.suffix(5).contains { $0.rxBps > 0 || $0.txBps > 0 }
     }
 
     func resetPeaks() {
@@ -93,7 +99,6 @@ final class BandwidthMonitor {
             prevTime = Date() // Reset baseline
             return
         }
-        
         let now = Date()
         let dt = now.timeIntervalSince(prevTime)
         guard dt > 0 else { return }
@@ -128,11 +133,9 @@ final class BandwidthMonitor {
 
             // Only update detailed history if UI is watching
             if isUIActive {
-                let sample = BandwidthSample(timestamp: now, rxBps: rxDelta, txBps: txDelta, totalRx: cur.rx, totalTx: cur.tx)
-                var samples = history[name] ?? []
-                samples.append(sample)
-                if samples.count > Self.historyLimit { samples.removeFirst() }
-                history[name] = samples
+                let sample = BandwidthSample(timestamp: now, rxBps: rxDelta, txBps: txDelta,
+                                             totalRx: cur.rx, totalTx: cur.tx)
+                historyBuffers[name, default: MetricHistory(capacity: Self.historyLimit)].push(sample)
             }
         }
 
@@ -144,9 +147,8 @@ final class BandwidthMonitor {
         if prevTime != now {
             let agg = BandwidthSample(timestamp: now, rxBps: aggRx, txBps: aggTx,
                                       totalRx: totalRxBytes, totalTx: totalTxBytes)
-            totalHistory.append(agg)
-            if totalHistory.count > Self.totalHistoryLimit { totalHistory.removeFirst() }
-            
+            totalHistoryBuffer.push(agg)
+
             // Update peaks
             if aggRx > peakRx { peakRx = aggRx }
             if aggTx > peakTx { peakTx = aggTx }
@@ -177,7 +179,6 @@ final class BandwidthMonitor {
             guard let addr = ifa.pointee.ifa_addr,
                   Int32(addr.pointee.sa_family) == AF_LINK,
                   let data = ifa.pointee.ifa_data else { continue }
-            
             let ifdata = data.assumingMemoryBound(to: if_data.self).pointee
             let name = String(cString: ifa.pointee.ifa_name)
             result[name] = (rx: UInt64(ifdata.ifi_ibytes), tx: UInt64(ifdata.ifi_obytes))
