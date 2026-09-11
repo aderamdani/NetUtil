@@ -4,6 +4,19 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.13.0] — 2026-09-11
+
+### Added
+- **Zero-idle monitoring tier**: an occluded app with no live consumer now stops all app-lifetime pollers instead of slowing down. Resume lump-captures raw byte deltas so daily totals stay exact (`MonitoringState`, `currentMonitoringState`, idempotent `applyMonitoringState`).
+- **Modular tool catalog**: stable `persistenceKey` per tool, `ToolGroup` sections with a data-driven sidebar, and `ToolCatalog` availability (Settings > Tools) with dashboard fallback. `ToolStore` stops pollers for disabled tools; one legacy session key migrated on load.
+- **Permission transparency**: audited `Tool.networkUsage` (host, purpose, local/remote scope) per tool. Settings > Privacy shows a remote-connections table and local-only list derived from enabled tools, plus the manual-only update-check note.
+- **Export/Import Settings** (Settings > Backup): versioned JSON backup of an explicit preference whitelist plus tool availability, favorites, and SSL watchlist. History and statistics opt-in only (default off); schema validation, foreign-key rejection, destructive-confirm, and no-restart re-apply.
+
+### Changed
+- **Statistics cleanup**: VoiceOver and MoodBar strings extracted to testable pure functions; remaining raw spacing tokens adopted to `Metrics`.
+
+---
+
 ## [4.12.0] — 2026-09-11
 
 ### Added
