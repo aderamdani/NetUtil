@@ -63,7 +63,7 @@ struct TracerouteView: View {
                         
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
-                                sectionHeader("Path Visualization", icon: "map.fill")
+                                SectionHeader(title: "Path Visualization", icon: "map.fill")
                                 Spacer()
                                 Picker("", selection: $viewMode) {
                                     ForEach(ViewMode.allCases, id: \.self) { mode in
@@ -157,7 +157,7 @@ struct TracerouteView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Hop \(hop.hop) Detail")
-                    .font(.system(.caption, design: .default).weight(.bold))
+                    .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
                 Spacer()
                 Button { selectedHopID = nil } label: { Image(systemName: "xmark").font(.caption2) }.buttonStyle(.plain).foregroundColor(.secondary)
@@ -167,7 +167,7 @@ struct TracerouteView: View {
             HStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Host / IP").font(.caption2.bold()).foregroundColor(.secondary)
-                    Text(hop.displayHost).font(.system(.subheadline, design: .monospaced).weight(.bold))
+                    Text(hop.displayHost).font(.subheadline.monospaced().weight(.bold))
                 }
                 .accessibilityElement(children: .combine)
                 
@@ -199,7 +199,7 @@ struct TracerouteView: View {
             LazyVStack(alignment: .leading, spacing: 4) {
                 ForEach(vm.rawLines) { line in
                     Text(line.text)
-                        .font(.system(.caption, design: .monospaced))
+                        .font(.caption.monospaced())
                         .foregroundColor(.secondary)
                 }
             }
@@ -208,13 +208,7 @@ struct TracerouteView: View {
         .accessibilityLabel("Raw traceroute output")
     }
 
-    private func sectionHeader(_ title: String, icon: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
-        }
-        .accessibilityAddTraits(.isHeader)
-    }
+
 
     private var emptyState: some View {
         ToolStateView.empty(title: "No Active Trace",
@@ -245,9 +239,9 @@ private struct StatCardMini: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
-            Text(value).font(.system(.caption, design: .monospaced).weight(.bold))
+            Text(value).font(.caption.monospaced().weight(.bold))
         }
-        .padding(.horizontal, 10).padding(.vertical, 6)
+        .padding(.horizontal, 12).padding(.vertical, 8)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(label): \(value)")
@@ -287,15 +281,15 @@ private struct TracerouteIPInfoSheet: View {
             
             Spacer()
         }
-        .padding(32)
+        .padding(24)
         .frame(width: 400, height: 450)
-        .background(Color(.windowBackgroundColor))
+        .background(.regularMaterial)
     }
     
     private func infoRow(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label).font(.caption2.bold()).foregroundColor(.secondary)
-            Text(value).font(.system(.subheadline, design: .monospaced)).textSelection(.enabled)
+            Text(value).font(.subheadline.monospaced()).textSelection(.enabled)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(label): \(value)")

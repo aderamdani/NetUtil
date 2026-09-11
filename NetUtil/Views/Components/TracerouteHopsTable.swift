@@ -20,7 +20,7 @@ struct TracerouteHopsTable: View {
                 TableHeader("History", width: 120)
                 TableHeader("", width: 40)
             }
-            .padding(.vertical, 10).padding(.horizontal, 16)
+            .padding(.vertical, 8).padding(.horizontal, 16)
             .background(.regularMaterial)
             
             Divider()
@@ -57,7 +57,7 @@ private struct HopRowView: View {
     var body: some View {
         HStack(spacing: 0) {
             Text("\(hop.hop)")
-                .font(.system(.caption, design: .monospaced))
+                .font(.caption.monospaced())
                 .foregroundColor(.secondary)
                 .frame(width: 40, alignment: .leading)
             
@@ -67,24 +67,24 @@ private struct HopRowView: View {
                     .lineLimit(1)
                 if let ip = hop.ip, ip != hop.displayHost {
                     Text(ip)
-                        .font(.system(.caption2, design: .monospaced))
+                        .font(.caption2.monospaced())
                         .foregroundColor(.secondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
             Text(String(format: "%.0f%%", hop.loss))
-                .font(.system(.caption, design: .monospaced).weight(.bold))
+                .font(.caption.monospaced().weight(.bold))
                 .foregroundColor(hop.loss > 0 ? .red : .primary)
                 .frame(width: 60, alignment: .leading)
-            
+
             Text(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "—")
-                .font(.system(.caption, design: .monospaced).weight(.bold))
+                .font(.caption.monospaced().weight(.bold))
                 .foregroundColor(avgColor)
                 .frame(width: 80, alignment: .leading)
-            
+
             Text(hop.jitter.map { String(format: "%.1f ms", $0) } ?? "—")
-                .font(.system(.caption, design: .monospaced))
+                .font(.caption.monospaced())
                 .foregroundColor(.secondary)
                 .frame(width: 80, alignment: .leading)
             
@@ -98,7 +98,7 @@ private struct HopRowView: View {
             .frame(width: 40)
             .accessibilityLabel("Show IP Geolocation Info")
         }
-        .padding(.vertical, 10).padding(.horizontal, 16)
+        .padding(.vertical, 8).padding(.horizontal, 16)
         .background(isSelected ? Color.accentColor.opacity(0.05) : Color.clear)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Hop \(hop.hop): \(hop.displayHost). Latency: \(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "Timeout")")

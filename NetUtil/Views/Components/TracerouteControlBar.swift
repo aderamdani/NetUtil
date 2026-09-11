@@ -23,11 +23,11 @@ struct TracerouteControlBar: View {
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Text("Hops").font(.caption2.weight(.bold)).foregroundColor(.secondary)
-                        TextField("", value: $maxHops, format: .number).textFieldStyle(.roundedBorder).frame(width: 45)
+                        TextField("", value: $maxHops, format: .number).textFieldStyle(.roundedBorder).frame(width: 48)
                     }
                     HStack(spacing: 4) {
                         Text("Interval").font(.caption2.weight(.bold)).foregroundColor(.secondary)
-                        TextField("", value: $traceInterval, format: .number).textFieldStyle(.roundedBorder).frame(width: 45)
+                        TextField("", value: $traceInterval, format: .number).textFieldStyle(.roundedBorder).frame(width: 48)
                     }
                 }
 

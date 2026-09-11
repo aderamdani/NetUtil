@@ -40,7 +40,7 @@ private struct TimelineHopRow: View {
     var body: some View {
         HStack(spacing: 16) {
             Text("\(hop.hop)")
-                .font(.system(.caption2, design: .monospaced))
+                .font(.caption2.monospaced())
                 .foregroundColor(.secondary)
                 .frame(width: 24, alignment: .trailing)
             
@@ -49,7 +49,7 @@ private struct TimelineHopRow: View {
                     .font(.caption.weight(.semibold))
                     .lineLimit(1)
                 Text(hop.ip ?? "—")
-                    .font(.system(.caption2, design: .monospaced))
+                    .font(.caption2.monospaced())
                     .foregroundColor(.secondary)
             }
             .frame(width: 140, alignment: .leading)
@@ -72,7 +72,7 @@ private struct TimelineHopRow: View {
             .frame(maxWidth: .infinity, minHeight: 24)
             
             Text(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "—")
-                .font(.system(.caption2, design: .monospaced))
+                .font(.caption2.monospaced())
                 .foregroundColor(.secondary)
                 .frame(width: 60, alignment: .trailing)
         }
