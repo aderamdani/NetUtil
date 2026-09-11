@@ -15,23 +15,11 @@ struct DashboardHeroSection: View {
         Array(tools.bandwidth.totalHistory.suffix(Metrics.sparklineWindow))
     }
 
-    /// Nice round Y-axis values (e.g. 0 / 10 / 20 Mbps) per Apple's axis
-    /// guidance: pass exact values instead of relying on automatic picks.
-    private var yAxisValues: [Double] {
+    private var yDomainMax: Double {
         let peak = window.map { $0.rxBps + $0.txBps }.max() ?? 0
         let target = peak * 1.25
-        if target <= 1024 { return [0, 512, 1024] }
-        let top = niceCeiling(target)
-        return [0, top / 2, top]
-    }
-
-    private var yGridValues: [Double] {
-        let top = yAxisValues.last ?? 1024
-        return [0, top / 4, top / 2, top * 3 / 4, top]
-    }
-
-    private var yDomainMax: Double {
-        yAxisValues.last ?? 1024
+        if target <= 1024 { return 1024 }
+        return niceCeiling(target)
     }
 
     private func niceCeiling(_ value: Double) -> Double {
@@ -138,20 +126,7 @@ struct DashboardHeroSection: View {
         .chartLegend(.hidden)
         .chartXAxis(.hidden)
         .chartXSelection(value: $selectedTime)
-        .chartYAxis {
-            AxisMarks(values: yAxisValues) { value in
-                AxisValueLabel {
-                    if let v = value.as(Double.self) {
-                        Text(verbatim: NetworkMath.formatRate(v))
-                            .font(.caption2.monospaced())
-                    }
-                }
-                AxisTick()
-            }
-            AxisMarks(values: yGridValues) {
-                AxisGridLine()
-            }
-        }
+        .chartYAxis(.hidden)
         .chartYScale(domain: 0...yDomainMax)
         .drawingGroup()
         .accessibilityLabel("Stacked throughput chart of download and upload rates")
