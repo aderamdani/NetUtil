@@ -16,6 +16,7 @@ struct NetworkInterfaceView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
+                    explanationCard
                     gatewaySection
                     
                     interpretationSection
@@ -53,6 +54,19 @@ struct NetworkInterfaceView: View {
         }
         .onAppear { vm.refresh() }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Network Interfaces") }
+    }
+
+    private var explanationCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionHeader(title: "Apa Itu Interface?", icon: "questionmark.circle")
+            Text("Interface jaringan adalah 'pintu' komputer ke dunia luar. Setiap adapter (Wi-Fi, Ethernet) punya alamat sendiri. Status 'Up' berarti aktif dan siap digunakan.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .lineLimit(0)
+        }
+        .padding(16)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private var gatewaySection: some View {
