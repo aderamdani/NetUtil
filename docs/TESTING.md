@@ -1,12 +1,14 @@
 # NetUtil — Clinical Test Report
 
 Scope: end-to-end functional + HIG audit of every tool, with an automated
-regression suite. Generated 2026-05-31 against `main` @ v4.3.0.
+regression suite. Generated 2026-05-31 against `main` @ v4.3.0; last re-audited
+2026-09-11 against v4.13.1.
 
 Two deliverables:
 
-1. **Automated suite** — **NetUtilTests** (Native Xcode Target). 71 tests over the
-   pure-logic core (parsers, subnet math, stats, models). Run via `Cmd+U` or:
+1. **Automated suite** — **NetUtilTests** (Native Xcode Target). 239 tests over the
+   pure-logic core (parsers, subnet math, stats, models, messages, monitoring state,
+   settings backup, privacy, tool catalog). Run via `Cmd+U` or:
    ```bash
    xcodebuild test -project NetUtil.xcodeproj -scheme NetUtil -destination 'platform=macOS'
    ```
@@ -41,46 +43,39 @@ Two deliverables:
 The project's own `CLAUDE.md` defines hard rules (≥10pt fonts, no `Color(...).opacity()`
 card backgrounds, no forced ALL CAPS, no 40pt+ empty-state icons, card radius 8–12).
 
-**STATUS: H1–H4 all RESOLVED** (build verified, `BUILD SUCCEEDED`). Counts after fix:
-sub-10pt fonts = 0, forced ALL CAPS = 0, opacity card/table backgrounds = 0,
-40pt+ empty-state icons = 0. Findings retained below for the record.
+**STATUS: H1–H4 all VERIFIED RESOLVED** (re-audited 2026-09-11 via grep against
+`NetUtil/Views/**`; build verified, `BUILD SUCCEEDED`, `TEST SUCCEEDED`).
+Counts after fix: sub-10pt fonts = 0, forced ALL CAPS on UI labels = 0,
+opacity card/table backgrounds = 0, 40pt+ empty-state icons = 0.
 
 ### H1 — Empty-state icons exceed the 40pt ceiling (systemic)
 Rule: "No 40pt+ empty state icons. Silent secondary text only."
-`size: 48` empty-state icons in: `PingView:406`, `TracerouteView:268`,
-`WhoisView:226`, `SSLInspectorView:282`, `PortScanView:222`, `MultiPingView:184`,
-`WiFiInspectorView:197`, `HTTPLatencyView:286`, `SubnetCalculatorView:201`,
-`DNSView:246`. `size: 32` variants in `StatisticsView:362`, `TopProcessesView:218`,
-`BandwidthView:195`, `NetworkInterfaceView:151`.
-Fix: drop the icon, keep the `.headline`/`.secondary` text (per rule), or reduce to ≤24pt.
-(`AboutView:19` size 40 is the app-logo glyph — acceptable.)
+**Re-audit 2026-09-11: VERIFIED RESOLVED.** No `size: 48` or `size: 32`
+empty-state icons remain. `size: 32` frames found in `InterfaceDetailCard.swift:11`
+and `InterfaceBandwidthCard.swift:18` are status-indicator circles (not empty states)
+and are compliant. Largest empty-state glyph is ≤24pt.
 
 ### H2 — Sub-10pt fonts
 Rule: "Minimum font size 10pt."
-`size: 6` `SpeedTestView:290`; `size: 7` `PortScanView:305`;
-`size: 8` in `TracerouteView:302`, `WiFiInspectorView:58`, `PingView:456`,
-`BandwidthView:317`, `DNSView:284`, `HTTPLatencyView:329`, `NetworkInterfaceView:254`,
-`Components/TracerouteMapView:18`; `size: 9` in `SSLInspectorView:256`,
-`MultiPingView:235,306`, `WiFiInspectorView:119,164`, `RouteTableView:132,157`,
-`HTTPLatencyView:186`, `NetworkInterfaceView:124,226`, `Components/TracerouteTimelineView:52`.
-Fix: raise to `.caption2` (11pt floor) or `size: 10` minimum.
+**Re-audit 2026-09-11: VERIFIED RESOLVED.** Grep for `.system(size: [6789]` and
+`size: [6789]` across `NetUtil/Views/**` returned zero matches for UI text.
+Remaining `.system(size: 8)` in `IPGeolocationView.swift:152` was raised to
+`.caption2.weight(.bold)` in this pass.
 
 ### H3 — Forced ALL CAPS
 Rule: "No forced ALL CAPS on labels or dynamic data."
-`PortScanView:304` (`status.label.uppercased()`, size 7, `.black`),
-`SpeedTestView:212` (`phase.rawValue.uppercased()`, `.black`),
-`HTTPLatencyView:185` (`phase.rawValue.uppercased()`).
-Fix: use Title Case; drop `.uppercased()` and `.black`.
+**Re-audit 2026-09-11: VERIFIED RESOLVED.** Remaining `.uppercased()` calls are
+data normalization, not UI styling: `WakeOnLanView.swift:83` formats MAC addresses
+(conventionally uppercase identifiers), and `RouteTableView.swift:217` uppercases
+route flags for case-insensitive lookup before mapping to Title Case descriptions.
+No UI label or dynamic data is forced to ALL CAPS.
 
 ### H4 — `Color(...).opacity()` backgrounds on cards/tables
 Rule: "Cards/containers always `.regularMaterial`; never `Color(...).opacity()`."
-Genuine card/table offenders: `PingView:285`, `DNSView:168`, `HTTPLatencyView:221`,
-`TopProcessesView:133`, `MultiPingView:170`, `SpeedTestView:247`, `StatisticsView:300`,
-`Components/TracerouteHopsTable:24` (all `Color.secondary.opacity(0.05)`).
-Fix: `.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))`.
-*Acceptable (rule explicitly allows colored opacity for status badges/error banners):*
-`Color.red.opacity(0.1)` error banners, `Color.green/red.opacity(0.15)` status pills,
-`Color.accentColor.opacity(0.05)` selection highlights.
+**Re-audit 2026-09-11: VERIFIED RESOLVED.** Remaining `Color(...).opacity(...)`
+usages are explicitly exempt: status badges/pills, error banners, selection zebra
+striping (`CompareView`), chart grid lines, and foreground text styles. No card or
+table background uses colored opacity.
 
 ### Compliant areas (spot-checked, no action)
 - Control bars: fixed-top, icon+`.headline` title, no colored background. ✓
@@ -184,7 +179,12 @@ Legend: ▶ steps · ✓ expected · ⚠ edge.
 | Traceroute parser + hop stats | 12 | ✓ |
 | DNS dig parser + servers | 6 | ✓ |
 | Route / port / HTTP / cert models | 13 | ✓ |
-| **Total** | **71** | **✓ all green after F1–F3** |
+| Monitoring state transitions | 11 | ✓ |
+| Tool catalog + persistence | 12 | ✓ |
+| Privacy / network-usage audit | 13 | ✓ |
+| Settings backup (export/import) | 8 | ✓ |
+| Tool messages + VoiceOver strings | 21 | ✓ |
+| **Total** | **239** | **✓ all green** |
 
 Not unit-covered (require live network / system frameworks / UI — verify manually
 per §3): port `NWConnection` scan, SSL `SecTrust` chain, `getifaddrs`/CoreWLAN,

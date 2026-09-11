@@ -1,7 +1,7 @@
 # NetUtil — Roadmap & Development Plan
 
-> Last updated: 2026-07-22
-> Current version: 4.8.2
+> Last updated: 2026-09-11
+> Current version: 4.13.1
 
 ---
 
@@ -46,95 +46,72 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 
 ## Recent Milestones
 
-### Version 4.8.0 — Session Coverage & Tool Parity (2026-07-18)
-- Session History logging extended to DNS, WHOIS, SSL/TLS, HTTP Latency, Speed Test (all 8 runnable tools now log)
-- Compare supports all logged tools (generic session-overview comparison for summary-only tools) + PDF/CSV export
-- Mood bars added to Ping, Traceroute, Port Scanner, SSL/TLS, WHOIS — every diagnostic tool now has one
-- Keyboard shortcuts for all 19 tools (⌘1–⌘9 + ⌥⌘1–⌥⌘0)
+### Version 4.13.1 — Control Bar + String Polish (2026-09-11)
+- Multi-Ping control bar standardized to the Ping/Traceroute pattern: new `MultiPingControlBar` (host input + Add Host + favorite + report + help), with sort/import/alert controls in a secondary row.
+- String-fusion sweep across all tool views: fixed glued units in dashboard jitter card and SSL copy summary; audited interpolations for VoiceOver-safe spacing.
+- VoiceOver/MoodBar strings for Multi-Ping, Traceroute, Ping, and SSL extracted to testable pure functions.
 
-### Version 4.7.5 — Stability, CPU & Consistency Audit (2026-07-18)
-- Crash fixes: `/32` boundary-IP overflow in `NetworkMath`, `/31`–`/32` range trap in Subnet Scanner (`generateIPs`), CIDR prefix validation with visible error banner (`/16` minimum)
-- Concurrency fixes: run-generation tokens in Ping/Traceroute/DNS/WHOIS/PortScan/SSL — restart no longer leaks orphan processes or lets stale handlers pollute the new run
-- Session History: sessions now logged exactly once (no duplicate on restart; finite runs and completed scans log on natural completion)
-- Subprocess hygiene: read-before-wait everywhere (pipe-deadlock fix in Subnet Scanner helpers), WHOIS drains stdout/stderr during run
-- CPU: `netstat` gateway lookup moved off the main thread; monitoring drops to reduced cadence when all windows are minimized/occluded; dead `sysctl` removed from `SystemMonitor`
-- UI: DNS/WHOIS/SSL Stop buttons actually cancel; 6 dead "Export PDF" stubs implemented (Wi-Fi, Interfaces, Bandwidth, Routes, Statistics, Session History); CSV filenames unified to `NetUtil-[Tool]-[target]-yyyyMMdd-HHmmss`; RFC 4180 CSV escaping; Subnet Scanner aligned to standard layout (shared VM, mood bar, progress, empty state)
+### Version 4.13.0 — Zero-Idle Monitoring + Tool Catalog + Privacy + Backup (2026-09-11)
+- Zero-idle monitoring tier: an occluded app with no live consumer stops all app-lifetime pollers; resume lump-captures raw byte deltas so daily totals stay exact.
+- Modular tool catalog: stable `persistenceKey` per tool, `ToolGroup` sections, `ToolCatalog` availability in Settings > Tools with dashboard fallback; legacy session key migrated on load.
+- Permission transparency: audited `Tool.networkUsage` per tool; Settings > Privacy shows remote-connections table and local-only list.
+- Export/Import Settings: versioned JSON backup of preference whitelist plus tool availability, favorites, and SSL watchlist.
 
-### Version 4.5.0 — Polish & Consistency (2026-05-31)
-- 153-check UX audit: 19 tools × 9 criteria, 14 fixes, zero remaining violations
-- Mood bars added to 6 missing tools (Multi-Ping, HTTP Latency, DNS, Bandwidth, Statistics, Speed Test)
-- Report menus (CSV export) added to 4 missing tools (Top Processes, Interfaces, Wi-Fi, Routes)
-- StatisticsView charts: `drawingGroup()` + explicit `chartYScale` headroom
-- Multi-Ping expanded sparkline: index-based X-axis with #N sequence labels
+### Version 4.12.0 — Verdict Cards + HIG Standardization (2026-09-11)
+- Verdict/rating cards across Ping (Connection Quality), Traceroute (Path Verdict), Speed Test, Net Quality, and HTTP Latency with plain-language suitability advice.
+- Layperson explanations for Wi-Fi (signal rating + channel advice), DNS Resolver, and Interfaces.
+- Apple HIG standardization pass over Dashboard, Doctor, Ping, Traceroute, and Session History: semantic typography, 8pt-grid spacing, consistent corner radii and badges.
+- PDF report tables rebuilt with dynamic column widths and proper header rows.
 
-### Version 4.4.0 — Dashboard Enhancement & Quality Fixes (2026-05-31)
-- Dashboard: live data in Traceroute, SSL, HTTP Latency, DNS, WHOIS cards
-- Dashboard: Speed Test + Subnet Scanner cards added (with sparklines)
-- Dashboard: Network Health Summary Bar (SSL/Ping/Wi-Fi status)
-- Dashboard: RAM GB subtitle + CPU/RAM `.help()` tooltips + app uptime counter
-- Ping chart: external tooltip (no clipping), tight X scale, sequence X-axis labels
-- PDF export: fixed blank output in dark mode (explicit colors + forced aqua appearance)
-- `SSLWatchlist` centralized in ToolStore; DNS/WHOIS VMs track `lastQuery`
+### Version 4.11.2 — Docs & Architecture (2026-09-11)
+- `docs/ARCHITECTURE.md`: comprehensive codebase reference (directory structure, ToolStore, 28 tools, subprocess patterns, concurrency, persistence, export).
+- `docs/CONTRIBUTING.md`: expanded with architecture context, code style rules, PR checklist, testing requirements.
+- `AGENTS.md` updated with ARCHITECTURE.md reference.
 
-### Version 4.3.0 — Bug Fixes & Bandwidth Monitor (2026-05-31)
-- Bandwidth Monitor: full live UI replacing placeholder (60s chart, per-interface sparklines, pause/resume)
-- Traceroute: host history dropdown added (matches Ping/DNS/HTTP Latency pattern)
-- Chart Y-axis label clipping: fixed across all charts via explicit `chartYScale(domain:)` headroom
-- Port Scanner + WHOIS PDF exports implemented
-- Release build: zero warnings, zero errors (Swift 6 concurrency fixes)
+### Version 4.11.1 — Dashboard System Cards + Settings Resurrection (2026-08-18)
+- Dashboard "System & Security" section: Connectivity Doctor, Net Quality, Port Listener, Connections, Neighbors, Session History cards.
+- Menu-bar traffic label toggle (`↓`/`↑` live rate).
+- Previously dead preferences now read: `pingAutoStopLimit`, `maxRawLines`, HTTP/SSL timeouts, `bandwidthInterval`.
+- Ping RTT-high alerts use rolling 20-ping window.
 
-### Version 4.2.0 — Subnet Scanner Quick Actions (2026-05-31)
-- Subnet Scanner context menu: right-click Alive host → Ping, Port Scan, or Traceroute
-- Navigates to target tool with scan already running
+### Version 4.11.0 — IP Geolocation + DNS Resolver (2026-07-23)
+- IP Geolocation: country/city/ISP/ASN/map position for any IP, Dashboard live card.
+- DNS Resolver: live `scutil --dns` resolver list with per-server latency.
+- Tool count: 28 (27 diagnostics + Dashboard).
 
-### Version 4.1.0 — Speed Test Full UI (2026-05-31)
-- Speed Test: complete implementation replacing the placeholder view
-- 4-kind segmented selector, live metric cards, progress, history table, PDF/CSV export
+### Version 4.10.0 — Six New Tools (2026-07-22)
+- Connectivity Doctor, Path MTU, Neighbors, Connections, Port Listener, Wake on LAN.
+- Multi-Ping latency alerts (macOS notifications, rate-limited).
+- 32 new tests (118 total at this release).
 
-### Version 4.0.1 — Export Implementation & HIG Fixes (2026-05-31)
-- All PDF/CSV export stubs implemented (7 PDF methods, 4 CSV functions)
-- SSLInspectorView watchlist @State bug fixed
-- SubnetScanView force unwrap fixed
-- Anti-Slop: regularMaterial applied to remaining fake-opacity containers
-
-### Version 4.0.0 — Tier 1 Feature Drop (2026-05-31)
-- Subnet Scanner (Tier 2): concurrent CIDR sweep, ARP, hostname, MAC, CSV/PDF
-- DNS Server Comparison (T1-1): parallel 4-resolver comparison
-- SSL Expiry Watchlist (T1-2): background monitoring + macOS notifications
-- Bulk Host Import (T1-4): paste/import lists into Multi-Ping
-- Default Gateway Actions (T1-5): Ping/Traceroute from Interfaces view
-
-### Version 3.5.1 (2026-05-31)
-- Documentation & Wiki sync; QA clinical test cases refinement
-
-### Version 3.5.0 — Performance & Accessibility (2026-05-31)
-- @Observable migration, view decomposition, GPU chart rendering
-- VoiceOver audit, native Xcode test target, Swift 6 strict concurrency
+### Version 4.9.0 — Net Quality + Wake on LAN + Swift 6 Real (2026-07-22)
+- Net Quality: `networkQuality` wrapper for RPM/bufferbloat grading.
+- Wake on LAN: UDP magic-packet broadcast.
+- Learning guide completed for all 21 tools.
+- Swift 6 strict concurrency enforced (`SWIFT_STRICT_CONCURRENCY = complete`).
+- Component adoption: shared `MoodBar`, `ToolStateView`, `ToolControlBar`, `SubprocessRunner`.
 
 ---
 
-## Tier 1 — Feature Enhancements
+## Forward Roadmap (from docs/IMPROVEMENTS.md)
 
-| # | Task | Tool | Status |
-|---|------|------|--------|
-| T1-1 | DNS Server Comparison | DNS | Done (v4.0.0) |
-| T1-2 | SSL Expiry Notifications | SSL | Done (v4.0.0) |
-| T1-3 | Traceroute Code Split | Traceroute | Done (v3.0.0) |
-| T1-4 | Bulk Host Import | Multi-Ping | Done (v4.0.0) |
-| T1-5 | Default Gateway Actions | Interfaces | Done (v4.0.0) |
+### v4.14.0 — HIG Hardening & Accessibility (Q4 2026)
+- Automated HIG regression tests + CI gate (P0-1).
+- Chart accessibility labels for VoiceOver (P1-1).
+- Unified `ClinicalErrorBanner` component (P1-2).
+- Live-filter on Ping / Traceroute result tables (P1-3).
 
----
+### v4.15.0 — Export & Settings Polish (Q4 2026)
+- PDF table header repeat on every page (P1-4).
+- Settings search (P1-5).
+- Batch export (PDF + CSV) (P1-6).
+- Exporter unit tests (P1-7).
 
-## Tier 2 — New Tools & Advanced Logic
-
-### Subnet Scanner
-**Status:** Done (v4.0.0)
-- CIDR notation input, concurrent ping sweep
-- ARP enrichment, hostname resolution, MAC address detection
-- CSV/PDF export, context menu quick actions (v4.2.0)
-
-### mDNS / Bonjour Browser
-**Tool ID:** `mdns` | **Status:** Removed — out of scope for core diagnostics
+### v5.0.0 — Platform Expansion (2027)
+- CLI companion tool (`netutil ping <host>`, `netutil speed`) (P2-5).
+- Menu-bar only mode via `MenuBarExtra` (P2-6).
+- Refactor `Exporter` + subprocess runners into reusable `NetUtilCore` framework.
+- Evaluate SPM distribution for the core framework.
 
 ---
 
@@ -152,9 +129,27 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 
 | Version | Milestone |
 |---------|-----------|
-| **v4.5.0** | Full 153-check UX audit: mood bars (6 tools), report menus (4 tools), chart fixes, Multi-Ping sparkline index labels |
-| **v4.4.0** | Dashboard live data cards, health summary bar, gauge enhancements, uptime counter, Ping chart fixes, PDF dark mode fix |
-| **v4.3.0** | Bandwidth Monitor full UI, Traceroute history, chart fixes, Swift 6 clean |
+| **v4.13.1** | Multi-Ping control bar, string-fusion sweep, VoiceOver pure functions |
+| **v4.13.0** | Zero-idle monitoring, modular tool catalog, privacy pane, settings backup |
+| **v4.12.0** | Verdict cards (Ping/Traceroute/Speed/HTTP/NetQuality), layperson explanations, HIG standardization, PDF table rebuild |
+| **v4.11.2** | Architecture docs, contributing guide, agent instructions update |
+| **v4.11.1** | Dashboard system cards, menu-bar traffic label, settings resurrection, rolling RTT alerts |
+| **v4.11.0** | IP Geolocation, DNS Resolver |
+| **v4.10.0** | Connectivity Doctor, Path MTU, Neighbors, Connections, Port Listener, Wake on LAN |
+| **v4.9.0** | Net Quality, Wake on LAN, learning guide completed, Swift 6 strict concurrency, component adoption |
+| **v4.8.2** | Deadlock fix, route flag case, race fix, battery fix, ViewModel standardization, shared components |
+| **v4.8.1** | App icon redesign |
+| **v4.8.0** | Session History everywhere, Compare for all tools, mood bars everywhere, keyboard shortcuts |
+| **v4.7.5** | Stability, CPU, consistency audit: subprocess hygiene, export stubs, CSV unification |
+| **v4.7.4** | Idle CPU fixes (Dashboard ticker, Speed Test streaming) |
+| **v4.7.3** | Ping-infinite CPU fix |
+| **v4.7.2** | Battery optimization: window-occlusion pause/resume |
+| **v4.7.1** | Dead code removal, Liquid Glass final migration |
+| **v4.7.0** | Liquid Glass design system adoption, Metrics extraction |
+| **v4.6.x** | Performance sweeps (CPU, memory, timers) |
+| **v4.5.0** | Full 153-check UX audit: mood bars, report menus, chart fixes |
+| **v4.4.0** | Dashboard live data cards, health summary bar, gauge enhancements |
+| **v4.3.0** | Bandwidth Monitor full UI, Traceroute history, chart fixes |
 | **v4.2.0** | Subnet Scanner context menu quick actions |
 | **v4.1.0** | Speed Test full UI implementation |
 | **v4.0.1** | Export implementation, HIG/Anti-Slop fixes |
