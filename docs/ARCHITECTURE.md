@@ -193,6 +193,8 @@ Sidebar sections are generated data-driven from `ToolGroup.allCases` + `ToolCata
 
 **Tool availability** — `Models/ToolCatalog.swift` (`@MainActor @Observable`): persists disabled `persistenceKey`s in UserDefaults (`com.netutil.disabledTools`, default all available). Toggled per group in Settings > Tools. `ToolStore` owns the catalog and stops/starts the matching pollers (`BandwidthMonitor`, interface polling, `DNSResolverViewModel`) so a disabled tool costs zero CPU.
 
+**Permission transparency** — `Models/ToolNetworkUsage.swift`: audited `Tool.networkUsage` (`host`, `purpose`, `scope: .localOnly | .remote`) per tool, derived from the actual ViewModel/subprocess code. Settings > Privacy renders the remote-destination table and the local-only list from `PrivacyRow.remoteRows(for:)` / `localOnlyTools(from:)`, filtered to currently enabled tools. Only entitlement: `com.apple.security.network.client`.
+
 Sidebar sections (in order):
 1. **Favorites** — dynamic, from `tools.favorites`
 2. **General** — Dashboard, Doctor, History, Compare
