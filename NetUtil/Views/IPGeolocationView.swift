@@ -146,10 +146,10 @@ struct IPGeolocationView: View {
                 ZStack {
                     Circle()
                         .fill(Color.accentColor)
-                        .frame(width: 14, height: 14)
+                        .frame(width: 18, height: 18)
                         .shadow(radius: 2)
                     Image(systemName: "mappin")
-                        .font(.system(size: 8, weight: .bold))
+                        .font(.caption2.weight(.bold))
                         .foregroundColor(.white)
                 }
             }

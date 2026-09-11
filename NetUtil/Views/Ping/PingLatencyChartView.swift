@@ -75,7 +75,7 @@ struct PingLatencyChartView: View {
                         .accessibilityLabel("RTT distribution bar")
                 }
             }
-            .padding(20)
+            .padding(Metrics.spacingXL)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }

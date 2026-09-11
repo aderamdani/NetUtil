@@ -242,7 +242,7 @@ struct WiFiInspectorView: View {
             .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
             .drawingGroup()
             .frame(height: 120)
-            .padding(20)
+            .padding(Metrics.spacingXL)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .accessibilityLabel("Signal stability chart showing RSSI in dBm")

@@ -246,7 +246,7 @@ struct HTTPLatencyView: View {
                 }
             }
         }
-        .padding(20)
+        .padding(Metrics.spacingXL)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(ratingColor.opacity(0.3), lineWidth: 1))
     }
@@ -314,7 +314,7 @@ struct HTTPLatencyView: View {
                     .accessibilityLabel("\(phase.phase.rawValue) Phase: \(Int(phase.durationMs)) milliseconds")
                 }
             }
-            .padding(20)
+            .padding(Metrics.spacingXL)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }

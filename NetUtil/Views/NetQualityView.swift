@@ -191,7 +191,7 @@ struct NetQualityView: View {
                 }
             }
         }
-        .padding(20)
+        .padding(Metrics.spacingXL)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(gradeColor.opacity(0.3), lineWidth: 1))
     }

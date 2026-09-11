@@ -251,7 +251,7 @@ struct SpeedTestView: View {
                 .progressViewStyle(.linear)
                 .tint(.accentColor)
         }
-        .padding(20)
+        .padding(Metrics.spacingXL)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         .accessibilityElement(children: .combine)
@@ -349,7 +349,7 @@ struct SpeedTestView: View {
                 }
             }
         }
-        .padding(20)
+        .padding(Metrics.spacingXL)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(ratingColor.opacity(0.3), lineWidth: 1))
     }

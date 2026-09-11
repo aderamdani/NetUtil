@@ -168,7 +168,7 @@ struct SubnetCalculatorView: View {
             Text(r.binaryMask)
                 .font(.system(.title3, design: .monospaced).weight(.bold))
                 .foregroundColor(.primary)
-                .padding(20)
+                .padding(Metrics.spacingXL)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
