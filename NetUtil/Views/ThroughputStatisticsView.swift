@@ -308,12 +308,6 @@ private struct ThroughputChartDescriptor: AXChartDescriptorRepresentable {
     let yTop: Double
     let summary: String
 
-    static func spoken(_ bps: Double) -> String {
-        if bps >= 1_048_576 { return String(format: "%.0f megabits per second", bps / 1_048_576) }
-        if bps >= 1_024 { return String(format: "%.0f kilobits per second", bps / 1_024) }
-        return String(format: "%.0f bits per second", bps)
-    }
-
     func makeChartDescriptor() -> AXChartDescriptor {
         let timeFormatter: DateFormatter = {
             let formatter = DateFormatter()
@@ -335,7 +329,7 @@ private struct ThroughputChartDescriptor: AXChartDescriptorRepresentable {
                 title: "Throughput",
                 range: 0...yTop,
                 gridlinePositions: [0, yTop / 2, yTop],
-                valueDescriptionProvider: { Self.spoken($0) }
+                valueDescriptionProvider: { NetworkMath.spokenRate($0) }
             ),
             series: [
                 AXDataSeriesDescriptor(
@@ -345,7 +339,7 @@ private struct ThroughputChartDescriptor: AXChartDescriptorRepresentable {
                         AXDataPoint(
                             x: timeFormatter.string(from: $0.time),
                             y: $0.download,
-                            label: "Download at \(timeFormatter.string(from: $0.time)), \(Self.spoken($0.download))")
+                            label: "Download at \(timeFormatter.string(from: $0.time)), \(NetworkMath.spokenRate($0.download))")
                     }
                 ),
                 AXDataSeriesDescriptor(
@@ -355,7 +349,7 @@ private struct ThroughputChartDescriptor: AXChartDescriptorRepresentable {
                         AXDataPoint(
                             x: timeFormatter.string(from: $0.time),
                             y: $0.upload,
-                            label: "Upload at \(timeFormatter.string(from: $0.time)), \(Self.spoken($0.upload))")
+                            label: "Upload at \(timeFormatter.string(from: $0.time)), \(NetworkMath.spokenRate($0.upload))")
                     }
                 )
             ]

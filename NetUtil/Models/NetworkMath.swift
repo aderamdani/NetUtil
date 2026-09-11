@@ -113,6 +113,23 @@ struct NetworkMath {
         return String(format: "%.2f G", bps / 1_073_741_824)
     }
 
+    /// Spoken rate for VoiceOver ("34 megabits per second"). Binary divisors
+    /// match formatRate so the words agree with the visible numbers.
+    static func spokenRate(_ bps: Double) -> String {
+        if bps >= 1_048_576 { return String(format: "%.0f megabits per second", bps / 1_048_576) }
+        if bps >= 1_024 { return String(format: "%.0f kilobits per second", bps / 1_024) }
+        return String(format: "%.0f bits per second", bps)
+    }
+
+    /// Spoken bytes for VoiceOver ("1.2 gigabytes").
+    static func spokenBytes(_ bytes: UInt64) -> String {
+        let value = Double(bytes)
+        if bytes >= 1_073_741_824 { return String(format: "%.1f gigabytes", value / 1_073_741_824) }
+        if bytes >= 1_048_576 { return String(format: "%.1f megabytes", value / 1_048_576) }
+        if bytes >= 1_024 { return String(format: "%.0f kilobytes", value / 1_024) }
+        return "\(bytes) bytes"
+    }
+
     /// Compact rate for tight UI (menu bar icon): "1.2K", "3.5M", "1.0G".
     static func shortRate(_ bps: Double) -> String {
         if bps < 1_024 { return String(format: "%.0f", bps) }
