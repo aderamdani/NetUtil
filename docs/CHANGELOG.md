@@ -4,6 +4,15 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.13.1] — 2026-09-11
+
+### Changed
+- **Multi-Ping control bar standardized** to the Ping/Traceroute pattern: new `MultiPingControlBar` (host input + Add Host + favorite + report + help), with sort (segmented), import, and alert controls moved to a secondary row by the slots table.
+- **String-fusion sweep** across all tool views (HIG/anti-slop): fixed glued units in the dashboard jitter card and SSL copy summary; audited every interpolation for VoiceOver-safe spacing.
+- **VoiceOver/MoodBar strings** for Multi-Ping, Traceroute, Ping, and SSL extracted to testable pure functions with anti-fusion coverage.
+
+---
+
 ## [4.13.0] — 2026-09-11
 
 ### Added
