@@ -82,7 +82,7 @@ struct StatisticsView: View {
         let (icon, color, msg): (String, Color, String) = {
             if days == 0 { return ("chart.line.uptrend.xyaxis", .secondary, "No historical data yet — collecting...") }
             let todayStr = NetworkMath.formatBytes(totalToday)
-            return ("chart.line.uptrend.xyaxis", .accentColor, "Today: \(todayStr) total — \(days) day\(days == 1 ? "" : "s") of history")
+            return ("chart.line.uptrend.xyaxis", .accentColor, Self.moodBarMessage(todayBytes: todayStr, days: days))
         }()
         return MoodBar(icon: icon, color: color, message: msg)
     }
@@ -254,7 +254,7 @@ struct StatisticsView: View {
                 ))
                 .accessibilityLabel("Line chart of live throughput over the last 10 minutes")
             }
-            .padding(20)
+            .padding(Metrics.spacingXL)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
             .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
@@ -278,7 +278,9 @@ struct StatisticsView: View {
 
     private var liveDescriptorSummary: String {
         let peak = bw.totalHistory.map { max($0.rxBps, $0.txBps) }.max() ?? 0
-        return "Line chart. Time on the X axis, throughput on the Y axis from 0 to \(NetworkMath.formatRate(liveDomainTop)). Peak \(NetworkMath.formatRate(peak)) over \(bw.totalHistory.count) samples."
+        return Self.liveSummary(peak: NetworkMath.formatRate(peak),
+                                top: NetworkMath.formatRate(liveDomainTop),
+                                sampleCount: bw.totalHistory.count)
     }
 
     private func valueTooltip(title: String, rx: String, tx: String) -> some View {
@@ -306,9 +308,9 @@ struct StatisticsView: View {
     }
 
     private var dailySection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Daily Totals")
                         .font(.headline)
                     Text("Cumulative traffic per calendar day")
@@ -318,7 +320,7 @@ struct StatisticsView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     Picker("", selection: $timeRange) {
                         ForEach(TimeRange.allCases) { range in
                             Text(range.rawValue).tag(range)
@@ -419,11 +421,11 @@ struct StatisticsView: View {
                     .accessibilityChartDescriptor(DailyTotalsDescriptor(
                         days: dated.map { ($0.date, $0.day.rxBytes, $0.day.txBytes) },
                         yTop: top,
-                        summary: "Stacked bar chart. Date on the X axis, bytes on the Y axis from 0 to \(NetworkMath.formatBytes(UInt64(top))). \(dated.count) days."
+                        summary: Self.dailySummary(top: NetworkMath.formatBytes(UInt64(top)), dayCount: dated.count)
                     ))
                     .accessibilityLabel("Stacked bar chart of traffic per day for download and upload")
                 }
-                .padding(20)
+                .padding(Metrics.spacingXL)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
                 .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             }
@@ -499,6 +501,20 @@ struct StatisticsView: View {
     }
 
     // MARK: - Helpers
+
+    /// Pure builders for spoken/displayed summary strings — testable
+    /// without rendering the view. Inputs are pre-formatted values.
+    static func moodBarMessage(todayBytes: String, days: Int) -> String {
+        "Today: \(todayBytes) total — \(days) day\(days == 1 ? "" : "s") of history"
+    }
+
+    static func liveSummary(peak: String, top: String, sampleCount: Int) -> String {
+        "Line chart. Time on the X axis, throughput on the Y axis from 0 to \(top). Peak \(peak) over \(sampleCount) samples."
+    }
+
+    static func dailySummary(top: String, dayCount: Int) -> String {
+        "Stacked bar chart. Date on the X axis, bytes on the Y axis from 0 to \(top). \(dayCount) days."
+    }
 
     /// Days with parsed dates, so the X axis uses real positions and
     /// missing days render as gaps instead of collapsing together.
