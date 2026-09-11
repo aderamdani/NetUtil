@@ -16,6 +16,7 @@ struct WiFiInspectorView: View {
                 VStack(spacing: 24) {
                     if let info = vm.info {
                         interpretationSection(info)
+                        recommendationSection(info)
                         
                         statsBarSection(info)
                         
@@ -153,6 +154,49 @@ struct WiFiInspectorView: View {
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Last polled at \(vm.lastUpdated.formatted(date: .omitted, time: .standard))")
+        }
+    }
+
+    private func recommendationSection(_ info: WiFiInfo) -> some View {
+        let rssi = info.rssi ?? -100
+        let (grade, advice): (String, String) = {
+            if rssi >= -60 {
+                return ("A", "Sinyal sangat kuat — cocok untuk streaming 4K, video call, atau gaming. Pertahankan jarak dekat dengan router.")
+            } else if rssi >= -75 {
+                return ("B", "Sinyal cukup baik untuk Zoom atau pekerjaan sehari-hari. Coba pindah ke channel yang lebih sepi jika sering putus.")
+            } else {
+                return ("C", "Sinyal lemah — pertimbangkan pindah lebih dekat ke router atau ganti ke band 5/6 GHz.")
+            }
+        }()
+        
+        return VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(title: "Penilaian & Saran", icon: "lightbulb")
+            HStack(alignment: .top, spacing: 12) {
+                ZStack {
+                    Circle().fill(.green.opacity(0.1)).frame(width: 44, height: 44)
+                    Text(grade)
+                        .font(.system(.title2, design: .rounded).weight(.bold))
+                        .foregroundColor(.green)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Rating Sinyal Wi-Fi")
+                        .font(.headline)
+                    Text(advice)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                    if let ch = info.channel {
+                        Text("Saran channel: gunakan channel \(ch) saat ini — jika sering terganggu, coba pindah ke channel 1, 6, atau 11 (2.4 GHz) atau 36/40 (5 GHz).")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 2)
+                    }
+                }
+                Spacer()
+            }
+            .padding(16)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 
