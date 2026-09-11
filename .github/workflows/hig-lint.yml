@@ -1,0 +1,14 @@
+name: HIG Lint
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  hig-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run HIG anti-slop lint
+        run: |
+          chmod +x scripts/hig-lint.sh
+          ./scripts/hig-lint.sh
