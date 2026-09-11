@@ -15,9 +15,42 @@ struct DashboardHeroSection: View {
         Array(tools.bandwidth.totalHistory.suffix(Metrics.sparklineWindow))
     }
 
-    private var maxTotal: Double {
+    /// Nice round Y-axis values (e.g. 0 / 10 / 20 Mbps) per Apple's axis
+    /// guidance: pass exact values instead of relying on automatic picks.
+    private var yAxisValues: [Double] {
         let peak = window.map { $0.rxBps + $0.txBps }.max() ?? 0
-        return max(peak * 1.25, 1024)
+        let target = peak * 1.25
+        if target <= 1024 { return [0, 512, 1024] }
+        let top = niceCeiling(target)
+        return [0, top / 2, top]
+    }
+
+    private var yGridValues: [Double] {
+        let top = yAxisValues.last ?? 1024
+        return [0, top / 4, top / 2, top * 3 / 4, top]
+    }
+
+    private var yDomainMax: Double {
+        yAxisValues.last ?? 1024
+    }
+
+    private func niceCeiling(_ value: Double) -> Double {
+        guard value > 0 else { return 1 }
+        let exponent = floor(log10(value))
+        let fraction = value / pow(10, exponent)
+        let niceFraction: Double
+        if fraction <= 1 {
+            niceFraction = 1
+        } else if fraction <= 2 {
+            niceFraction = 2
+        } else if fraction <= 2.5 {
+            niceFraction = 2.5
+        } else if fraction <= 5 {
+            niceFraction = 5
+        } else {
+            niceFraction = 10
+        }
+        return niceFraction * pow(10, exponent)
     }
 
     private var selectedSample: BandwidthSample? {
@@ -49,12 +82,8 @@ struct DashboardHeroSection: View {
                 }
 
                 HStack(spacing: 24) {
-                    if showRx {
-                        heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
-                    }
-                    if showTx {
-                        heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
-                    }
+                    heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
+                    heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
                     Spacer()
                 }
             }
@@ -110,7 +139,7 @@ struct DashboardHeroSection: View {
         .chartXAxis(.hidden)
         .chartXSelection(value: $selectedTime)
         .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 3)) { value in
+            AxisMarks(values: yAxisValues) { value in
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
                         Text(verbatim: NetworkMath.formatRate(v))
@@ -119,23 +148,13 @@ struct DashboardHeroSection: View {
                 }
                 AxisTick()
             }
-            AxisMarks(values: .automatic(desiredCount: 6)) {
+            AxisMarks(values: yGridValues) {
                 AxisGridLine()
             }
         }
-        .chartYScale(domain: 0...maxTotal)
+        .chartYScale(domain: 0...yDomainMax)
         .drawingGroup()
         .accessibilityLabel("Stacked throughput chart of download and upload rates")
-    }
-
-    /// Legend entries with no traffic are hidden — except when fully idle,
-    /// where both zero values honestly report the idle state.
-    private var showRx: Bool {
-        tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps == 0
-    }
-
-    private var showTx: Bool {
-        tools.bandwidth.totalTxBps > 0 || tools.bandwidth.totalRxBps == 0
     }
 
     private func heroRateMetric(label: String, value: Double, color: Color) -> some View {
