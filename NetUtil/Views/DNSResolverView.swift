@@ -19,6 +19,7 @@ struct DNSResolverView: View {
                                                 subtitle: "macOS reports the DNS servers it will actually query — press Refresh to read the current configuration.")
                         }
                     } else {
+                        explanationCard
                         resolverList
                     }
                 }
@@ -77,6 +78,19 @@ struct DNSResolverView: View {
 
             Divider()
         }
+    }
+
+    private var explanationCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionHeader(title: "Apa Itu Resolver?", icon: "questionmark.circle")
+            Text("Resolver DNS adalah 'penerjemah' internet. Saat kamu mengetik nama situs (misal google.com), resolver mengubahnya menjadi alamat angka (IP) agar komputer bisa menemukan server tersebut. Tanpa resolver yang cepat dan tepat, akses internet bisa lambat atau gagal.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .lineLimit(0)
+        }
+        .padding(16)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private var moodBar: some View {
