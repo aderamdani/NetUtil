@@ -21,6 +21,16 @@ struct DashboardHeroSection: View {
         return max(peak * 1.25, 1024)
     }
 
+    /// Legend entries with no traffic are hidden — except when fully idle,
+    /// where both zero values honestly report the idle state.
+    private var showRx: Bool {
+        tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps == 0
+    }
+
+    private var showTx: Bool {
+        tools.bandwidth.totalTxBps > 0 || tools.bandwidth.totalRxBps == 0
+    }
+
     var body: some View {
         Button { selection = .bandwidth } label: {
             VStack(alignment: .leading, spacing: 16) {
@@ -62,8 +72,12 @@ struct DashboardHeroSection: View {
                 }
 
                 HStack(spacing: 24) {
-                    heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
-                    heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
+                    if showRx {
+                        heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
+                    }
+                    if showTx {
+                        heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
+                    }
                     Spacer()
                 }
             }
