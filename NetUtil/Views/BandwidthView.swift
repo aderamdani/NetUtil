@@ -4,8 +4,9 @@ import Observation
 
 struct BandwidthView: View {
     @Environment(ToolStore.self) private var tools
-    private var vm: BandwidthMonitor { tools.bandwidth }
+    private     var vm: BandwidthMonitor { tools.bandwidth }
     @State private var showLearningGuide = false
+    @State private var selectedTime: Date? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -94,7 +95,7 @@ struct BandwidthView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
             Divider()
         }
     }
@@ -107,7 +108,7 @@ struct BandwidthView: View {
                      value: formatBps(vm.totalRxBps).value,
                      unit: formatBps(vm.totalRxBps).unit,
                      icon: "arrow.down.circle.fill",
-                     color: vm.totalRxBps > 0 ? .green : .primary)
+                     color: vm.totalRxBps > 0 ? .blue : .primary)
                 .accessibilityElement(children: .combine)
                 .accessibilityValue("\(formatBps(vm.totalRxBps).value) \(formatBps(vm.totalRxBps).unit) download")
 
@@ -115,7 +116,7 @@ struct BandwidthView: View {
                      value: formatBps(vm.totalTxBps).value,
                      unit: formatBps(vm.totalTxBps).unit,
                      icon: "arrow.up.circle.fill",
-                     color: vm.totalTxBps > 0 ? .blue : .primary)
+                     color: vm.totalTxBps > 0 ? .orange : .primary)
                 .accessibilityElement(children: .combine)
                 .accessibilityValue("\(formatBps(vm.totalTxBps).value) \(formatBps(vm.totalTxBps).unit) upload")
 
@@ -150,81 +151,102 @@ struct BandwidthView: View {
 
     // MARK: - Aggregate Chart
 
+    private var aggregateWindow: [BandwidthSample] {
+        Array(vm.totalHistory.suffix(Metrics.healthStripWindow))
+    }
+
+    private var aggregateSelectedSample: BandwidthSample? {
+        guard let selectedTime else { return nil }
+        return aggregateWindow.min(by: {
+            abs($0.timestamp.timeIntervalSince(selectedTime)) < abs($1.timestamp.timeIntervalSince(selectedTime))
+        })
+    }
+
     private var aggregateChartSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Aggregate Throughput")
                         .font(.headline)
-                    Text("All non-loopback interfaces combined — 60 second window")
+                    Text("Combined download and upload across all connections — last 60 seconds")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
                 Spacer()
                 if vm.isPaused {
                     Text("Paused")
-                        .font(.caption.bold())
+                        .font(.caption2.weight(.bold))
                         .foregroundColor(.orange)
-                        .padding(.horizontal, 8).padding(.vertical, 3)
-                        .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 4))
+                        .padding(.horizontal, 6).padding(.vertical, 3)
+                        .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
                 }
             }
 
-            let samples = vm.totalHistory.suffix(Metrics.healthStripWindow)
-            let maxRX = samples.map(\.rxBps).max() ?? 1
-            let maxTX = samples.map(\.txBps).max() ?? 1
-            let domainTop    = max(maxRX, 1024) * 1.25
-            let domainBottom = -max(maxTX, 1024) * 1.25
+            let peak = aggregateWindow.map { $0.rxBps + $0.txBps }.max() ?? 0
+            let domainTop = peak <= 0 ? 1024 : Metrics.niceCeiling(peak * 1.25)
             Chart {
-                ForEach(Array(samples), id: \.id) { s in
-                    AreaMark(x: .value("Time", s.timestamp),
-                             y: .value("RX", s.rxBps))
-                        .foregroundStyle(LinearGradient(colors: [Color.green.opacity(0.4), .clear],
-                                                        startPoint: .top, endPoint: .bottom))
-                        .interpolationMethod(.monotone)
-                    LineMark(x: .value("Time", s.timestamp),
-                             y: .value("RX", s.rxBps))
-                        .foregroundStyle(Color.green)
-                        .lineStyle(StrokeStyle(lineWidth: 1.5))
-                        .interpolationMethod(.monotone)
-                    AreaMark(x: .value("Time", s.timestamp),
-                             y: .value("TX", -s.txBps))
-                        .foregroundStyle(LinearGradient(colors: [Color.blue.opacity(0.4), .clear],
-                                                        startPoint: .bottom, endPoint: .top))
-                        .interpolationMethod(.monotone)
-                    LineMark(x: .value("Time", s.timestamp),
-                             y: .value("TX", -s.txBps))
-                        .foregroundStyle(Color.blue)
-                        .lineStyle(StrokeStyle(lineWidth: 1.5))
-                        .interpolationMethod(.monotone)
+                ForEach(aggregateWindow) { s in
+                    AreaMark(
+                        x: .value("Time", s.timestamp),
+                        y: .value("Rate", s.rxBps),
+                        stacking: .standard
+                    )
+                    .foregroundStyle(by: .value("Direction", "Download"))
+                    .interpolationMethod(.monotone)
+                    AreaMark(
+                        x: .value("Time", s.timestamp),
+                        y: .value("Rate", s.txBps),
+                        stacking: .standard
+                    )
+                    .foregroundStyle(by: .value("Direction", "Upload"))
+                    .interpolationMethod(.monotone)
                 }
-            }
-            .chartYScale(domain: domainBottom...domainTop)
-            .chartYAxis {
-                AxisMarks(position: .leading, values: .automatic(desiredCount: 5)) { value in
-                    AxisGridLine().foregroundStyle(Color.secondary.opacity(0.1))
-                    AxisValueLabel {
-                        if let v = value.as(Double.self) {
-                            let abs = Swift.abs(v)
-                            Text(abs < 1 ? "0" : formatBps(abs).value + " " + formatBps(abs).unit)
-                                .font(.system(.caption2, design: .monospaced))
+                if let selected = aggregateSelectedSample {
+                    RuleMark(x: .value("Cursor", selected.timestamp))
+                        .foregroundStyle(Color.secondary.opacity(0.35))
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                        .annotation(
+                            position: .top,
+                            overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
+                        ) {
+                            HStack(spacing: 8) {
+                                tooltipRate(dir: "↓", bps: selected.rxBps, color: .blue)
+                                tooltipRate(dir: "↑", bps: selected.txBps, color: .orange)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
                         }
-                    }
                 }
             }
+            .chartForegroundStyleScale(ThroughputStyle.scale)
+            .chartLegend(.hidden)
             .chartXAxis(.hidden)
-            .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+            .chartXSelection(value: $selectedTime)
+            .chartYAxis(.hidden)
+            .chartYScale(domain: 0...domainTop)
             .frame(height: 140)
             .drawingGroup()
+            .accessibilityLabel("Stacked throughput chart. Hover to inspect exact download and upload rates.")
 
             HStack(spacing: 16) {
-                legendDot(.green, "Download (↑ axis)")
-                legendDot(.blue,  "Upload (↓ axis)")
+                legendDot(.blue, "Download")
+                legendDot(.orange, "Upload")
             }
         }
         .padding(20)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+    }
+
+    private func tooltipRate(dir: String, bps: Double, color: Color) -> some View {
+        let fmt = formatBps(bps)
+        return HStack(spacing: 4) {
+            Text(dir).font(.caption.bold()).foregroundColor(color)
+            Text("\(fmt.value) \(fmt.unit)")
+                .font(.caption.monospaced().weight(.semibold))
+                .foregroundColor(color)
+        }
     }
 
     // MARK: - Interface List
@@ -264,7 +286,7 @@ struct BandwidthView: View {
                         TableHeader("Upload",    width: 110)
                         TableHeader("Sparkline", flexible: true)
                     }
-                    .padding(.vertical, 10).padding(.horizontal, 16)
+                    .padding(.vertical, 8).padding(.horizontal, 16)
                     .background(.regularMaterial)
 
                     Divider()
@@ -297,7 +319,7 @@ struct BandwidthView: View {
                     .font(.caption2)
                     .foregroundColor(.accentColor)
                 Text(iface.name)
-                    .font(.system(.caption, design: .monospaced).weight(.semibold))
+                    .font(.caption.monospaced().weight(.semibold))
             }
             .frame(width: 100, alignment: .leading)
 
@@ -307,26 +329,26 @@ struct BandwidthView: View {
                 .frame(width: 90, alignment: .leading)
 
             Text(iface.ipv4.first ?? "—")
-                .font(.system(.caption, design: .monospaced))
+                .font(.caption.monospaced())
                 .foregroundColor(.secondary)
                 .frame(width: 120, alignment: .leading)
 
             HStack(spacing: 2) {
                 Text(rxFmt.value)
-                    .font(.system(.caption, design: .monospaced).weight(.bold))
-                    .foregroundColor(rx > 0 ? .green : .primary)
+                    .font(.caption.monospaced().weight(.bold))
+                    .foregroundColor(rx > 0 ? .blue : .primary)
                 Text(rxFmt.unit)
-                    .font(.system(.caption2, design: .monospaced))
+                    .font(.caption2.monospaced())
                     .foregroundColor(.secondary)
             }
             .frame(width: 110, alignment: .leading)
 
             HStack(spacing: 2) {
                 Text(txFmt.value)
-                    .font(.system(.caption, design: .monospaced).weight(.bold))
-                    .foregroundColor(tx > 0 ? .blue : .primary)
+                    .font(.caption.monospaced().weight(.bold))
+                    .foregroundColor(tx > 0 ? .orange : .primary)
                 Text(txFmt.unit)
-                    .font(.system(.caption2, design: .monospaced))
+                    .font(.caption2.monospaced())
                     .foregroundColor(.secondary)
             }
             .frame(width: 110, alignment: .leading)
@@ -335,30 +357,39 @@ struct BandwidthView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 24)
         }
-        .padding(.vertical, 10).padding(.horizontal, 16)
+        .padding(.vertical, 8).padding(.horizontal, 16)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(iface.name) — \(iface.typeName) — Download: \(rxFmt.value) \(rxFmt.unit) Upload: \(txFmt.value) \(txFmt.unit)")
     }
 
     private func sparkline(samples: [BandwidthSample]) -> some View {
-        let recent = samples.suffix(30)
-        let maxVal = recent.map { max($0.rxBps, $0.txBps) }.max() ?? 1
+        let recent = Array(samples.suffix(30))
+        let maxVal = recent.map { $0.rxBps + $0.txBps }.max() ?? 1
         return Chart {
-            ForEach(Array(recent), id: \.id) { s in
-                LineMark(x: .value("T", s.timestamp), y: .value("RX", s.rxBps))
-                    .foregroundStyle(Color.green)
-                    .lineStyle(StrokeStyle(lineWidth: 1))
-                    .interpolationMethod(.monotone)
-                LineMark(x: .value("T", s.timestamp), y: .value("TX", s.txBps))
-                    .foregroundStyle(Color.blue)
-                    .lineStyle(StrokeStyle(lineWidth: 1))
-                    .interpolationMethod(.monotone)
+            ForEach(recent) { s in
+                AreaMark(
+                    x: .value("T", s.timestamp),
+                    y: .value("Rate", s.rxBps),
+                    stacking: .standard
+                )
+                .foregroundStyle(by: .value("Direction", "Download"))
+                .interpolationMethod(.monotone)
+                AreaMark(
+                    x: .value("T", s.timestamp),
+                    y: .value("Rate", s.txBps),
+                    stacking: .standard
+                )
+                .foregroundStyle(by: .value("Direction", "Upload"))
+                .interpolationMethod(.monotone)
             }
         }
+        .chartForegroundStyleScale(ThroughputStyle.scale)
+        .chartLegend(.hidden)
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
         .chartYScale(domain: 0...max(maxVal * 1.2, 1))
         .drawingGroup()
+        .accessibilityLabel("Interface throughput trend")
     }
 
     // MARK: - Helpers

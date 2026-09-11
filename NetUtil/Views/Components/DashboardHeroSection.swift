@@ -19,26 +19,7 @@ struct DashboardHeroSection: View {
         let peak = window.map { $0.rxBps + $0.txBps }.max() ?? 0
         let target = peak * 1.25
         if target <= 1024 { return 1024 }
-        return niceCeiling(target)
-    }
-
-    private func niceCeiling(_ value: Double) -> Double {
-        guard value > 0 else { return 1 }
-        let exponent = floor(log10(value))
-        let fraction = value / pow(10, exponent)
-        let niceFraction: Double
-        if fraction <= 1 {
-            niceFraction = 1
-        } else if fraction <= 2 {
-            niceFraction = 2
-        } else if fraction <= 2.5 {
-            niceFraction = 2.5
-        } else if fraction <= 5 {
-            niceFraction = 5
-        } else {
-            niceFraction = 10
-        }
-        return niceFraction * pow(10, exponent)
+        return Metrics.niceCeiling(target)
     }
 
     private var selectedSample: BandwidthSample? {
@@ -119,10 +100,7 @@ struct DashboardHeroSection: View {
                     }
             }
         }
-        .chartForegroundStyleScale([
-            "Download": LinearGradient(colors: [.blue.opacity(0.35), .blue.opacity(0.05)], startPoint: .top, endPoint: .bottom),
-            "Upload": LinearGradient(colors: [.orange.opacity(0.35), .orange.opacity(0.05)], startPoint: .top, endPoint: .bottom)
-        ])
+        .chartForegroundStyleScale(ThroughputStyle.scale)
         .chartLegend(.hidden)
         .chartXAxis(.hidden)
         .chartXSelection(value: $selectedTime)
