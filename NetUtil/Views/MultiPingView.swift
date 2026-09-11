@@ -4,7 +4,6 @@ import Observation
 
 struct MultiPingView: View {
     @Bindable var vm: MultiPingViewModel
-    @Environment(ToolStore.self) private var tools
     @State private var history = HostHistory.shared
     @State private var newHost = ""
     @State private var expandedSlotID: UUID?
@@ -25,7 +24,9 @@ struct MultiPingView: View {
                         emptyState
                     } else {
                         statsBarSection
-                        
+
+                        slotsOptionsRow
+
                         VStack(spacing: 0) {
                             slotsTableHeader
                             Divider()
@@ -75,70 +76,47 @@ struct MultiPingView: View {
     }
 
     private var controlBar: some View {
-        ToolControlBar(icon: "dot.radiowaves.left.and.right", title: "Multi-Ping",
-                       host: $newHost, textFieldWidth: 180, history: history, onSubmit: addHost) {
-            GlassEffectContainer {
-                    Button(action: { showImportSheet = true }) {
-                        Label("Import", systemImage: "square.and.arrow.down")
-                    }
-                    .buttonStyle(.borderless)
-                    
-                    HStack(spacing: 8) {
-                        Text("Sort")
-                            .font(.caption2.weight(.bold))
-                            .foregroundColor(.secondary)
-                        Picker("", selection: $vm.sortMode) {
-                            ForEach(MultiPingSort.allCases) { mode in
-                                Text(mode.rawValue).tag(mode)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .frame(width: 120)
-                        .accessibilityLabel("Sort Mode")
-                    }
+        MultiPingControlBar(
+            host: $newHost,
+            history: history,
+            vm: vm,
+            onAddHost: addHost,
+            onShowGuide: { showLearningGuide = true },
+            onExportPDF: { Exporter.saveMultiPingPDF(slots: vm.slots) },
+            onExportCSV: {
+                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                Exporter.save(string: Exporter.csvString(from: vm.slots), defaultName: "NetUtil-MultiPing-\(date.string(from: Date())).csv", ext: "csv")
+            }
+        )
+    }
 
-                    Toggle(isOn: $alertsEnabled) {
-                        Image(systemName: alertsEnabled ? "bell.fill" : "bell.slash")
-                            .font(.caption)
-                    }
-                    .toggleStyle(.button)
-                    .help("Notify when a host's packet loss or average RTT crosses the thresholds set in Settings > Thresholds (at most one alert per host every 5 minutes).")
-                    .accessibilityLabel("Latency Alerts")
-
-                    if !vm.slots.isEmpty {
-                        ReportMenuButton(
-                            onExportPDF: { Exporter.saveMultiPingPDF(slots: vm.slots) },
-                            onExportCSV: {
-                                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
-                                Exporter.save(string: Exporter.csvString(from: vm.slots), defaultName: "NetUtil-MultiPing-\(date.string(from: Date())).csv", ext: "csv")
-                            }
-                        )
-                    }
-
-                    Button(action: addHost) {
-                        Label("Add Host", systemImage: "plus")
-                            .frame(minWidth: 80)
-                    }
-                    .buttonStyle(.glassProminent)
-                    .disabled(newHost.trimmingCharacters(in: .whitespaces).isEmpty)
-                    .accessibilityLabel("Add Host to Monitor")
-
-                    if !newHost.trimmingCharacters(in: .whitespaces).isEmpty {
-                        let h = newHost.trimmingCharacters(in: .whitespaces)
-                        let isFav = tools.favorites.isFavorite(h)
-                        Button { tools.favorites.toggle(host: h) } label: {
-                            Image(systemName: isFav ? "star.fill" : "star").foregroundColor(isFav ? .orange : .secondary)
-                        }
-                        .buttonStyle(.borderless)
-                        .help(isFav ? "Remove from Favorites" : "Add to Favorites")
-                    }
-
-                    Button { showLearningGuide = true } label: {
-                        Image(systemName: "questionmark.circle")
-                    }
-                    .buttonStyle(.borderless)
-                    .accessibilityLabel("Show Help Guide")
+    /// Secondary controls near the slots table: sort mode plus import and
+    /// alert toggles. Kept out of the primary toolbar so it never wraps.
+    private var slotsOptionsRow: some View {
+        HStack {
+            Picker("", selection: $vm.sortMode) {
+                ForEach(MultiPingSort.allCases) { mode in
+                    Text(mode.rawValue).tag(mode)
                 }
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 360)
+            .accessibilityLabel("Sort Mode")
+
+            Spacer()
+
+            Button(action: { showImportSheet = true }) {
+                Label("Import", systemImage: "square.and.arrow.down")
+            }
+            .buttonStyle(.borderless)
+
+            Toggle(isOn: $alertsEnabled) {
+                Image(systemName: alertsEnabled ? "bell.fill" : "bell.slash")
+                    .font(.caption)
+            }
+            .toggleStyle(.button)
+            .help("Notify when a host's packet loss or average RTT crosses the thresholds set in Settings > Thresholds (at most one alert per host every 5 minutes).")
+            .accessibilityLabel("Latency Alerts")
         }
     }
 
