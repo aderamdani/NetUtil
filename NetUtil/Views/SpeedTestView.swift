@@ -258,6 +258,122 @@ struct SpeedTestView: View {
         .accessibilityLabel("\(vm.phase.rawValue) — \(Int(vm.progress * 100)) percent complete")
     }
 
+    // MARK: - Verdict Section
+
+    private func verdictSection(_ result: SpeedTestResult) -> some View {
+        let verdict = PerformanceVerdict.SpeedVerdict(
+            downloadMbps: result.downloadMbps,
+            uploadMbps: result.uploadMbps,
+            pingMs: result.pingMs,
+            jitterMs: result.jitterMs
+        )
+        let ratingColor: Color = verdict.rating.color == "green" ? .green : verdict.rating.color == "orange" ? .orange : .red
+
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundColor(ratingColor)
+                        Text("Connection Verdict")
+                            .font(.headline)
+                    }
+                    Text(verdict.summary)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(verdict.rating.label)
+                        .font(.subheadline.weight(.bold))
+                        .foregroundColor(ratingColor)
+                    Text("Rating")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Divider().opacity(0.5)
+
+            // Supported activities
+            VStack(alignment: .leading, spacing: 8) {
+                Text("What This Connection Handles Well")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(.secondary)
+                VerdictFlowLayout(spacing: 8) {
+                    ForEach(verdict.supportedActivities, id: \.self) { activity in
+                        Label(activity, systemImage: iconForActivity(activity))
+                            .font(.caption)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(ratingColor.opacity(0.12), in: Capsule())
+                            .foregroundColor(ratingColor)
+                    }
+                }
+            }
+
+            // Detail breakdown
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Metric Breakdown")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(.secondary)
+                VStack(spacing: 6) {
+                    ForEach(verdict.details, id: \.self) { detail in
+                        HStack {
+                            Text(detail.components(separatedBy: " — ").first ?? detail)
+                                .font(.caption.monospaced())
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(detail.components(separatedBy: " — ").last ?? "")
+                                .font(.caption.weight(.medium))
+                                .foregroundColor(.primary)
+                        }
+                    }
+                }
+            }
+
+            // Recommendations if not excellent
+            if verdict.rating.label != "Excellent" {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Tips to Improve")
+                        .font(.caption.weight(.bold))
+                        .foregroundColor(.secondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(recommendations(for: verdict), id: \.self) { tip in
+                            Label(tip, systemImage: "lightbulb")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ratingColor.opacity(0.3), lineWidth: 1))
+    }
+
+    private func iconForActivity(_ activity: String) -> String {
+        if activity.contains("4K") || activity.contains("1080p") || activity.contains("720p") { return "tv.fill" }
+        if activity.contains("video call") { return "video.fill" }
+        if activity.contains("gaming") { return "gamecontroller.fill" }
+        if activity.contains("Remote") || activity.contains("VPN") { return "desktopcomputer" }
+        if activity.contains("download") { return "arrow.down.circle.fill" }
+        if activity.contains("browsing") { return "safari.fill" }
+        return "checkmark.circle.fill"
+    }
+
+    private func recommendations(for verdict: PerformanceVerdict.SpeedVerdict) -> [String] {
+        var tips: [String] = []
+        if verdict.downloadMbps < 25 { tips.append("Consider a plan with 25+ Mbps for 4K streaming") }
+        if verdict.uploadMbps < 5 { tips.append("Low upload may affect video calls — ask ISP about symmetric plans") }
+        if verdict.pingMs > 100 { tips.append("High ping — try Ethernet, closer server, or gaming VPN") }
+        if verdict.jitterMs > 30 { tips.append("High jitter — enable QoS on router, check for bufferbloat") }
+        if tips.isEmpty { tips.append("Run test at different times to check consistency") }
+        return tips
+    }
+
     // MARK: - History
 
     private var historySection: some View {
@@ -457,6 +573,51 @@ struct SpeedTestView: View {
         case "480p SD":             return .orange
         case "240p":                return .red
         default:                    return .secondary
+        }
+    }
+}
+
+// MARK: - Local FlowLayout (avoids shared file conflict)
+
+private struct VerdictFlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width ?? 0
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
+        var lineHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+
+        for view in subviews {
+            let size = view.sizeThatFits(.unspecified)
+            if currentX + size.width > width {
+                currentX = 0
+                currentY += lineHeight + spacing
+                lineHeight = 0
+            }
+            currentX += size.width + spacing
+            lineHeight = max(lineHeight, size.height)
+            totalHeight = max(totalHeight, currentY + lineHeight)
+        }
+        return CGSize(width: width, height: totalHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var currentX: CGFloat = bounds.minX
+        var currentY: CGFloat = bounds.minY
+        var lineHeight: CGFloat = 0
+
+        for view in subviews {
+            let size = view.sizeThatFits(.unspecified)
+            if currentX + size.width > bounds.maxX {
+                currentX = bounds.minX
+                currentY += lineHeight + spacing
+                lineHeight = 0
+            }
+            view.place(at: CGPoint(x: currentX, y: currentY), proposal: .unspecified)
+            currentX += size.width + spacing
+            lineHeight = max(lineHeight, size.height)
         }
     }
 }
