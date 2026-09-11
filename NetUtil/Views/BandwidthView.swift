@@ -353,7 +353,7 @@ struct BandwidthView: View {
             }
             .frame(width: 110, alignment: .leading)
 
-            sparkline(samples: samples)
+            InterfaceSparkline(samples: samples)
                 .frame(maxWidth: .infinity)
                 .frame(height: 24)
         }
@@ -362,35 +362,7 @@ struct BandwidthView: View {
         .accessibilityLabel("\(iface.name) — \(iface.typeName) — Download: \(rxFmt.value) \(rxFmt.unit) Upload: \(txFmt.value) \(txFmt.unit)")
     }
 
-    private func sparkline(samples: [BandwidthSample]) -> some View {
-        let recent = Array(samples.suffix(30))
-        let maxVal = recent.map { $0.rxBps + $0.txBps }.max() ?? 1
-        return Chart {
-            ForEach(recent) { s in
-                AreaMark(
-                    x: .value("T", s.timestamp),
-                    y: .value("Rate", s.rxBps),
-                    stacking: .standard
-                )
-                .foregroundStyle(by: .value("Direction", "Download"))
-                .interpolationMethod(.monotone)
-                AreaMark(
-                    x: .value("T", s.timestamp),
-                    y: .value("Rate", s.txBps),
-                    stacking: .standard
-                )
-                .foregroundStyle(by: .value("Direction", "Upload"))
-                .interpolationMethod(.monotone)
-            }
-        }
-        .chartForegroundStyleScale(ThroughputStyle.scale)
-        .chartLegend(.hidden)
-        .chartXAxis(.hidden)
-        .chartYAxis(.hidden)
-        .chartYScale(domain: 0...max(maxVal * 1.2, 1))
-        .drawingGroup()
-        .accessibilityLabel("Interface throughput trend")
-    }
+
 
     // MARK: - Helpers
 
@@ -419,5 +391,74 @@ struct BandwidthView: View {
             }
         }
         return lines.joined(separator: "\n")
+    }
+}
+
+/// Per-interface sparkline with hover inspection. Extracted as its own view
+/// so each row owns its selection state independently.
+private struct InterfaceSparkline: View {
+    let samples: [BandwidthSample]
+    @State private var selectedTime: Date? = nil
+
+    private var recent: [BandwidthSample] {
+        Array(samples.suffix(30))
+    }
+
+    private var selectedSample: BandwidthSample? {
+        guard let selectedTime else { return nil }
+        return recent.min(by: {
+            abs($0.timestamp.timeIntervalSince(selectedTime)) < abs($1.timestamp.timeIntervalSince(selectedTime))
+        })
+    }
+
+    var body: some View {
+        let maxVal = recent.map { $0.rxBps + $0.txBps }.max() ?? 1
+        return Chart {
+            ForEach(recent) { s in
+                AreaMark(
+                    x: .value("T", s.timestamp),
+                    y: .value("Rate", s.rxBps),
+                    stacking: .standard
+                )
+                .foregroundStyle(by: .value("Direction", "Download"))
+                .interpolationMethod(.monotone)
+                AreaMark(
+                    x: .value("T", s.timestamp),
+                    y: .value("Rate", s.txBps),
+                    stacking: .standard
+                )
+                .foregroundStyle(by: .value("Direction", "Upload"))
+                .interpolationMethod(.monotone)
+            }
+            if let selected = selectedSample {
+                RuleMark(x: .value("Cursor", selected.timestamp))
+                    .foregroundStyle(Color.secondary.opacity(0.35))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .annotation(
+                        position: .top,
+                        overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
+                    ) {
+                        HStack(spacing: 6) {
+                            Text("↓ \(NetworkMath.formatRate(selected.rxBps))")
+                                .font(.caption2.monospaced().weight(.semibold))
+                                .foregroundColor(.blue)
+                            Text("↑ \(NetworkMath.formatRate(selected.txBps))")
+                                .font(.caption2.monospaced().weight(.semibold))
+                                .foregroundColor(.orange)
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
+                    }
+            }
+        }
+        .chartForegroundStyleScale(ThroughputStyle.scale)
+        .chartLegend(.hidden)
+        .chartXAxis(.hidden)
+        .chartXSelection(value: $selectedTime)
+        .chartYAxis(.hidden)
+        .chartYScale(domain: 0...max(maxVal * 1.2, 1))
+        .drawingGroup()
+        .accessibilityLabel("Interface throughput trend. Hover to inspect values.")
     }
 }
