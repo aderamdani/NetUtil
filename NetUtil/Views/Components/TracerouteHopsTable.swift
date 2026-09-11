@@ -6,6 +6,9 @@ struct TracerouteHopsTable: View {
     let selectedHopID: UUID?
     let rttWarn: Double
     let rttCrit: Double
+    /// Bottleneck hop (biggest latency jump) to highlight, if any.
+    var bottleneckHopID: UUID? = nil
+    var bottleneckAddedMs: Double? = nil
     let onSelect: (UUID?) -> Void
     let onInfo: (TracerouteHop) -> Void
 
@@ -31,6 +34,8 @@ struct TracerouteHopsTable: View {
                         HopRowView(
                             hop: hop,
                             isSelected: selectedHopID == hop.id,
+                            isBottleneck: bottleneckHopID == hop.id,
+                            bottleneckAddedMs: hop.id == bottleneckHopID ? bottleneckAddedMs : nil,
                             rttWarn: rttWarn,
                             rttCrit: rttCrit,
                             onInfo: { onInfo(hop) }
@@ -50,6 +55,8 @@ struct TracerouteHopsTable: View {
 private struct HopRowView: View {
     let hop: TracerouteHop
     let isSelected: Bool
+    var isBottleneck: Bool = false
+    var bottleneckAddedMs: Double? = nil
     let rttWarn: Double
     let rttCrit: Double
     let onInfo: () -> Void
@@ -69,6 +76,15 @@ private struct HopRowView: View {
                     Text(ip)
                         .font(.caption2.monospaced())
                         .foregroundColor(.secondary)
+                }
+                if isBottleneck, let added = bottleneckAddedMs {
+                    Text("Slowest jump +\(String(format: "%.0f", added)) ms")
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.orange.opacity(0.15), in: RoundedRectangle(cornerRadius: 6))
+                        .foregroundColor(.orange)
+                        .accessibilityLabel("Slowest jump on this path, adds \(String(format: "%.0f", added)) milliseconds")
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -99,7 +115,7 @@ private struct HopRowView: View {
             .accessibilityLabel("Show IP Geolocation Info")
         }
         .padding(.vertical, 8).padding(.horizontal, 16)
-        .background(isSelected ? Color.accentColor.opacity(0.05) : Color.clear)
+        .background(isSelected ? Color.accentColor.opacity(0.05) : (isBottleneck ? Color.orange.opacity(0.07) : Color.clear))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Hop \(hop.hop): \(hop.displayHost). Latency: \(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "Timeout")")
     }

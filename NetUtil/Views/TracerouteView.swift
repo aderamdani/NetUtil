@@ -215,11 +215,19 @@ struct TracerouteView: View {
         return best
     }
 
+    /// Plain-language role of a hop: your router, your target, or a
+    /// carrier router in between.
+    private func hopRole(_ hop: TracerouteHop) -> String {
+        if hop.hop == 1 { return "Your router — the first step out of your home network." }
+        if hop.id == vm.hops.last?.id { return "Your destination — the server you asked about." }
+        return "A router along the way — run by your provider or a carrier."
+    }
+
     @ViewBuilder
     private var contentArea: some View {
         switch viewMode {
         case .hops:
-            TracerouteHopsTable(hops: vm.hops, selectedHopID: selectedHopID, rttWarn: rttWarn, rttCrit: rttCrit, onSelect: { selectedHopID = $0 }, onInfo: { infoHop = $0 })
+            TracerouteHopsTable(hops: vm.hops, selectedHopID: selectedHopID, rttWarn: rttWarn, rttCrit: rttCrit, bottleneckHopID: bottleneck?.hop.id, bottleneckAddedMs: bottleneck?.addedMs, onSelect: { selectedHopID = $0 }, onInfo: { infoHop = $0 })
         case .timeline:
             TracerouteTimelineView(hops: vm.hops, rttWarn: rttWarn, rttCrit: rttCrit, selectedHopID: selectedHopID, onSelect: { selectedHopID = $0 })
         case .map:
@@ -230,7 +238,8 @@ struct TracerouteView: View {
     }
 
     private func hopQuickDetail(_ hop: TracerouteHop) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let isBottleneck = bottleneck?.hop.id == hop.id
+        return VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Hop \(hop.hop) Detail")
                     .font(.caption.weight(.bold))
@@ -239,7 +248,19 @@ struct TracerouteView: View {
                 Button { selectedHopID = nil } label: { Image(systemName: "xmark").font(.caption2) }.buttonStyle(.plain).foregroundColor(.secondary)
                     .accessibilityLabel("Close Detail")
             }
-            
+
+            Text(hopRole(hop))
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if isBottleneck, let added = bottleneck?.addedMs {
+                Text("Slowest jump on this path — +\(String(format: "%.0f", added)) ms added here.")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             HStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Host / IP").font(.caption2.bold()).foregroundColor(.secondary)
