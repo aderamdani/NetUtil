@@ -15,6 +15,7 @@ struct NetQualityView: View {
                     }
                     if let r = vm.result {
                         resultCards(r)
+                        rpmVerdictSection(r)
                         detailCard(r)
                     } else if vm.isRunning {
                         ToolStateView.loading(message: "Measuring against Apple's test servers — about 20 seconds...")
@@ -125,6 +126,74 @@ struct NetQualityView: View {
         .padding(16)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+    }
+
+    // MARK: - RPM Verdict
+
+    private func rpmVerdictSection(_ r: NetQualityResult) -> some View {
+        let verdict = PerformanceVerdict.RPMVerdict(
+            rpm: r.responsivenessRPM,
+            downloadMbps: r.downloadMbps,
+            uploadMbps: r.uploadMbps,
+            baseRttMs: r.baseRttMs
+        )
+        let gradeColor: Color = verdict.grade.color == "green" ? .green : verdict.grade.color == "orange" ? .orange : .red
+
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "gauge.with.dots.needle.67percent")
+                            .foregroundColor(gradeColor)
+                        Text("Responsiveness Verdict")
+                            .font(.headline)
+                    }
+                    Text(verdict.explanation)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(verdict.grade.label)
+                        .font(.subheadline.weight(.bold))
+                        .foregroundColor(gradeColor)
+                    Text("RPM Grade")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Divider().opacity(0.5)
+
+            // What this means for throughput
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Throughput Suitability")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(.secondary)
+                Text(verdict.throughputSummary)
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            // Recommendations
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Recommendations")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(verdict.recommendations, id: \.self) { tip in
+                        Label(tip, systemImage: "lightbulb")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(gradeColor.opacity(0.3), lineWidth: 1))
     }
 
     private func detailRow(_ label: String, _ value: String) -> some View {
