@@ -4,6 +4,24 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [Unreleased]
+
+
+### Added
+
+
+- **Live-filter**: a text field narrows the Ping console log and the Traceroute hops table (by host/IP) without re-running.
+
+
+### Changed
+
+
+- **Error banners**: neutral material surface (HIG Material Rule) with a built-in copy action and optional retry/dismiss, wired across all 15 tools (each ViewModel gained `clearError()`).
+
+
+---
+
+
 ## [4.14.0] — 2026-09-12
 
 ### Added
