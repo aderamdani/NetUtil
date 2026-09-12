@@ -11,3 +11,5 @@ xcuserdata/
 
 # Local tooling / editor config
 opencode.json
+.rtk/
+.ignore

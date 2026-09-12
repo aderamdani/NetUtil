@@ -1,7 +1,0 @@
-# NetUtil ignore patterns for ripgrep
-DerivedData/
-build/
-.build/
-Pods/
-*.xcodeproj/
-*.pbxproj
