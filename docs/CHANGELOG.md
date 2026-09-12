@@ -6,33 +6,23 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
-
 ### Changed
-
 
 - **PDF export**: table column headers now repeat at the top of every page in multi-page reports.
 
-
 ---
-
 
 ## [4.15.0] — 2026-09-13
 
-
 ### Added
-
 
 - **Live-filter**: a text field narrows result tables across Ping, Traceroute, Port Scan, and DNS (WHOIS already had one) without re-running.
 
-
 ### Changed
-
 
 - **Error banners**: neutral material surface (HIG Material Rule) with a built-in copy action and optional retry/dismiss, wired across all 15 tools (each ViewModel gained `clearError()`).
 
-
 ---
-
 
 ## [4.14.0] — 2026-09-12
 
