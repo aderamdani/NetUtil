@@ -127,7 +127,7 @@ struct ContentView: View {
         NavigationSplitView {
             VStack(spacing: 0) {
                 // Global Search Field
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
                         .font(.caption2.weight(.bold))
@@ -144,7 +144,7 @@ struct ContentView: View {
                     }
                 }
                 .padding(10)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 
@@ -254,7 +254,7 @@ struct ContentView: View {
 
     @ViewBuilder
     private func sidebarItem(_ tool: Tool) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Metrics.spacingSM) {
             Label(tool.displayName, systemImage: tool.icon)
             Spacer()
             if isToolActive(tool) {
@@ -340,7 +340,7 @@ struct FavoriteSidebarItem: View {
         }
         .buttonStyle(.plain)
         .popover(isPresented: $showPopover, arrowEdge: .trailing) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 Text(fav.host)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.secondary)

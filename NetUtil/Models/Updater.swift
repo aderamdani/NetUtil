@@ -227,7 +227,7 @@ struct DownloadProgressView: View {
     var updater: Updater
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             ProgressView(value: updater.downloadProgress)
                 .progressViewStyle(.linear)
                 .tint(.accentColor)

@@ -11,6 +11,7 @@ All notable changes to NetUtil are documented here.
 
 ### Changed
 - **SystemMonitor lifecycle**: `ToolStore` is now the sole owner of `SystemMonitor`'s lifecycle; monitoring cadence uses named constants `SystemMonitor.normalInterval` / `backgroundInterval` (zero-idle).
+- **Tokenized corner radii and stack spacing** across all views (`Metrics.*`); unified control-bar header padding.
 
 ---
 
