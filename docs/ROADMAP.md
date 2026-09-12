@@ -109,10 +109,11 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 - Chart accessibility descriptors for VoiceOver — P1-1 (Ping, Bandwidth, Wi-Fi RSSI, Multi-Ping).
 - Also shipped: first-run onboarding, zero-idle SystemMonitor ownership, and a full UI token sweep.
 
-### Next — carried over from v4.14.0 scope
+### Done since v4.14.0 (unreleased)
 
-- Unified `ClinicalErrorBanner` component (P1-2).
-- Live-filter on Ping / Traceroute result tables (P1-3).
+
+- `ErrorBanner` evolved — material surface, copy action, and retry/dismiss wired across all 15 tools (P1-2).
+- Live-filter on the Ping console log and the Traceroute hops table by host/IP (P1-3; Port Scan / DNS / WHOIS still pending).
 
 ### v4.15.0 — Export & Settings Polish (Q4 2026)
 - PDF table header repeat on every page (P1-4).

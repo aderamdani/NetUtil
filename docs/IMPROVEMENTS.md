@@ -48,10 +48,11 @@
 - P0-1 automated HIG lint (run manually) — done.
 - P1-1 chart accessibility descriptors (Ping, Bandwidth, Wi-Fi RSSI, Multi-Ping) — done.
 
-### Next — carried over from v4.14.0 scope
+### Done since v4.14.0 (unreleased)
 
-- P1-2 unified `ClinicalErrorBanner`.
-- P1-3 live-filter on Ping / Traceroute result tables.
+
+- P1-2 — `ErrorBanner` evolved (material, copy/retry/dismiss) across all tools.
+- P1-3 — live-filter on the Ping console log and Traceroute hops table (Port Scan / DNS / WHOIS still pending).
 
 ### v4.15.0 — Export & Settings Polish (Q4 2026)
 - P1-4 PDF header repeat.
