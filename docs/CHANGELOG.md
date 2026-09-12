@@ -13,6 +13,14 @@ All notable changes to NetUtil are documented here.
 - **SystemMonitor lifecycle**: `ToolStore` is now the sole owner of `SystemMonitor`'s lifecycle; monitoring cadence uses named constants `SystemMonitor.normalInterval` / `backgroundInterval` (zero-idle).
 - **Tokenized corner radii and stack spacing** across all views (`Metrics.*`); unified control-bar header padding.
 
+### Accessibility
+
+- VoiceOver `AXChartDescriptor` support on the Ping latency, Bandwidth aggregate throughput, Wi-Fi RSSI stability, and Multi-Ping per-slot charts, each backed by a pure, unit-tested summary function.
+
+### Tooling
+
+- HIG anti-slop regression lint (`scripts/hig-lint.sh` — font-size, corner-radius, spacing, and grid-padding checks) wired to a CI workflow gate.
+
 ---
 
 ## [4.13.1] — 2026-09-11
