@@ -15,7 +15,7 @@ struct PingResultsTable: View {
                 TableHeader("Target IP", flexible: true)
                 TableHeader("Timestamp", width: 120)
             }
-            .padding(.vertical, 8).padding(.horizontal, 16)
+            .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
             .background(.regularMaterial)
 
             Divider()

@@ -42,7 +42,7 @@ struct HelpView: View {
                 .padding(10)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
             }
-            .padding(16)
+            .padding(Metrics.spacingLG)
             
             Divider().opacity(0.5)
 
@@ -53,7 +53,7 @@ struct HelpView: View {
                         sectionRow(section)
                     }
                 }
-                .padding(12)
+                .padding(Metrics.spacingMD)
             }
         }
         .frame(minWidth: 220, idealWidth: 240, maxWidth: 280)
@@ -80,7 +80,7 @@ struct HelpView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                    .padding(.bottom, 8)
+                    .padding(.bottom, Metrics.spacingSM)
 
                     // Topics
                     VStack(alignment: .leading, spacing: Metrics.spacingXL) {
@@ -135,8 +135,8 @@ struct HelpView: View {
                     .foregroundColor(isSelected ? .white : .primary)
                 Spacer()
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, Metrics.spacingMD)
+            .padding(.vertical, Metrics.spacingSM)
             .contentShape(Rectangle())
             .background(isSelected ? Color.accentColor : Color.clear, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
         }
@@ -160,7 +160,7 @@ struct HelpView: View {
                 Text(code)
                     .font(.system(.footnote, design: .monospaced))
                     .foregroundColor(.primary)
-                    .padding(12)
+                    .padding(Metrics.spacingMD)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                     .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM)
@@ -183,8 +183,8 @@ struct HelpView: View {
                         }
                     }
                 }
-                .padding(.top, 4)
-                .padding(.leading, 4)
+                .padding(.top, Metrics.spacingXS)
+                .padding(.leading, Metrics.spacingXS)
             }
         }
     }

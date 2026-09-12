@@ -30,7 +30,7 @@ struct ToolControlBar<Trailing: View>: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(accessibilityToolName ?? "\(title) Tool")
 
-                Divider().frame(height: 16).padding(.horizontal, 4)
+                Divider().frame(height: 16).padding(.horizontal, Metrics.spacingXS)
 
                 TextField(placeholder, text: $host)
                     .textFieldStyle(.roundedBorder)
@@ -52,8 +52,8 @@ struct ToolControlBar<Trailing: View>: View {
 
                 trailing()
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.horizontal, Metrics.spacingXL)
+            .padding(.vertical, Metrics.spacingLG)
 
             Divider()
         }

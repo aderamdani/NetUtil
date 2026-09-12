@@ -27,8 +27,8 @@ struct MoodBar<Accessory: View>: View {
             Spacer()
             accessory()
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 8)
+        .padding(.horizontal, Metrics.spacingXL)
+        .padding(.vertical, Metrics.spacingSM)
         .background(.regularMaterial)
         .overlay(Divider(), alignment: .bottom)
     }

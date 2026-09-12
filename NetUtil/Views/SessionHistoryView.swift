@@ -74,7 +74,7 @@ struct SessionHistoryView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Session History Tool")
 
-                Divider().frame(height: 16).padding(.horizontal, 4)
+                Divider().frame(height: 16).padding(.horizontal, Metrics.spacingXS)
 
                 HStack(spacing: 6) {
                     Image(systemName: "magnifyingglass").foregroundColor(.secondary).font(.caption)
@@ -84,7 +84,7 @@ struct SessionHistoryView: View {
                         .frame(width: 140)
                         .accessibilityLabel("Filter by host")
                 }
-                .padding(.horizontal, 8).padding(.vertical, 5)
+                .padding(.horizontal, Metrics.spacingSM).padding(.vertical, 5)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                 .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
 
@@ -131,7 +131,7 @@ struct SessionHistoryView: View {
                     .accessibilityLabel("Show Help Guide")
                 }
             }
-            .padding(.horizontal, 24).padding(.vertical, 16)
+            .padding(.horizontal, Metrics.spacingXL).padding(.vertical, Metrics.spacingLG)
             Divider()
         }
     }
@@ -159,10 +159,10 @@ struct SessionHistoryView: View {
                     }
                 }
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, Metrics.spacingLG)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
             .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-            .padding(24)
+            .padding(Metrics.spacingXL)
         }
     }
 
@@ -232,7 +232,7 @@ private struct SessionRecordRow: View {
 
             statusBadge
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, Metrics.spacingSM)
     }
 
     private var statusColor: Color {

@@ -100,7 +100,7 @@ struct PingView: View {
                         emptyState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Ping") }
@@ -271,7 +271,7 @@ struct PingView: View {
                 .accessibilityLabel(Self.linkTypeDetailsLabel(title: shown.title, typical: shown.typical, blurb: shown.blurb))
             }
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }

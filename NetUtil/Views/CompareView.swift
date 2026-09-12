@@ -36,7 +36,7 @@ struct CompareView: View {
                         compareContent(a: a, b: b)
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Compare") }
@@ -57,7 +57,7 @@ struct CompareView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Compare Sessions Tool")
 
-                Divider().frame(height: 16).padding(.horizontal, 4)
+                Divider().frame(height: 16).padding(.horizontal, Metrics.spacingXS)
 
                 Picker("Tool", selection: $toolFilter) {
                     ForEach(comparableTools, id: \.self) { Text(toolLabel($0)).tag($0) }
@@ -97,7 +97,7 @@ struct CompareView: View {
                             .foregroundColor(sessionA == nil ? .secondary : .primary)
                         Image(systemName: "chevron.down").font(.caption2).foregroundColor(.secondary)
                     }
-                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .padding(.horizontal, Metrics.spacingSM).padding(.vertical, 5)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                     .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
@@ -135,7 +135,7 @@ struct CompareView: View {
                             .foregroundColor(sessionB == nil ? .secondary : .primary)
                         Image(systemName: "chevron.down").font(.caption2).foregroundColor(.secondary)
                     }
-                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .padding(.horizontal, Metrics.spacingSM).padding(.vertical, 5)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                     .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
@@ -159,7 +159,7 @@ struct CompareView: View {
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24).padding(.vertical, Metrics.spacingLG)
+            .padding(.horizontal, Metrics.spacingXL).padding(.vertical, Metrics.spacingLG)
             Divider()
         }
     }
@@ -206,7 +206,7 @@ struct CompareView: View {
             Text(record.summary).font(.system(.caption2, design: .monospaced)).foregroundColor(.secondary)
             Text(record.timestamp, style: .relative).font(.caption2).foregroundColor(.secondary)
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
@@ -395,7 +395,7 @@ struct CompareView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .lineLimit(1)
                 }
-                .padding(.horizontal, 16).padding(.vertical, 10)
+                .padding(.horizontal, Metrics.spacingLG).padding(.vertical, 10)
                 .background(.regularMaterial)
 
                 Divider()
@@ -414,10 +414,10 @@ struct CompareView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .foregroundColor(row.3 ?? .primary)
                     }
-                    .padding(.horizontal, 16).padding(.vertical, 8)
+                    .padding(.horizontal, Metrics.spacingLG).padding(.vertical, Metrics.spacingSM)
                     .background(idx % 2 == 0 ? Color.clear : Color.secondary.opacity(0.03))
 
-                    if idx < rows.count - 1 { Divider().padding(.horizontal, 16).opacity(0.4) }
+                    if idx < rows.count - 1 { Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.4) }
                 }
 
                 Divider()
@@ -428,7 +428,7 @@ struct CompareView: View {
                         .foregroundColor(.secondary)
                     Spacer()
                 }
-                .padding(.horizontal, 16).padding(.vertical, 8)
+                .padding(.horizontal, Metrics.spacingLG).padding(.vertical, Metrics.spacingSM)
                 .background(.regularMaterial)
             }
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))

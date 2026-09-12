@@ -26,7 +26,7 @@ struct SubnetScanView: View {
                                 Divider().opacity(0.5)
                             }
                         }
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, Metrics.spacingMD)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
                         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                     } else if viewModel.isRunning {
@@ -35,7 +35,7 @@ struct SubnetScanView: View {
                         emptyState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Subnet Scanner") }
@@ -55,7 +55,7 @@ struct SubnetScanView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Subnet Scanner Tool")
                 
-                Divider().frame(height: 16).padding(.horizontal, 4)
+                Divider().frame(height: 16).padding(.horizontal, Metrics.spacingXS)
                 
                 TextField("192.168.1.0/24", text: $viewModel.cidrInput)
                     .textFieldStyle(.roundedBorder)
@@ -115,7 +115,7 @@ struct SubnetScanView: View {
                     .accessibilityLabel("Show Help Guide")
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
 
             Divider()
@@ -166,14 +166,14 @@ struct SubnetScanView: View {
             }
             Text(result.status.rawValue)
                 .font(.caption)
-                .padding(.horizontal, 8)
+                .padding(.horizontal, Metrics.spacingSM)
                 .padding(.vertical, 2)
                 .background(result.status == .alive ? Color.green.opacity(0.2) : Color.gray.opacity(0.2), in: RoundedRectangle(cornerRadius: 4))
             Text(result.rtt.map { String(format: "%.2f ms", $0) } ?? "—")
                 .font(.system(.caption, design: .monospaced))
                 .frame(width: 80, alignment: .trailing)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, Metrics.spacingSM)
         .contextMenu {
             if result.status == .alive {
                 Button {

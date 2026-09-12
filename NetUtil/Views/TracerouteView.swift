@@ -92,7 +92,7 @@ struct TracerouteView: View {
                         emptyState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .onAppear {
@@ -194,7 +194,7 @@ struct TracerouteView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
@@ -308,7 +308,7 @@ struct TracerouteView: View {
                     StatCardMini(label: "Jitter", value: hop.jitter.map { String(format: "%.1f", $0) } ?? "—")
                 }
             }
-            .padding(16)
+            .padding(Metrics.spacingLG)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
             .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
@@ -323,7 +323,7 @@ struct TracerouteView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            .padding(16)
+            .padding(Metrics.spacingLG)
         }
         .accessibilityLabel("Raw traceroute output")
     }
@@ -368,7 +368,7 @@ private struct StatCardMini: View {
             Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
             Text(value).font(.caption.monospaced().weight(.bold))
         }
-        .padding(.horizontal, 12).padding(.vertical, 8)
+        .padding(.horizontal, Metrics.spacingMD).padding(.vertical, Metrics.spacingSM)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(label): \(value)")
@@ -408,7 +408,7 @@ private struct TracerouteIPInfoSheet: View {
             
             Spacer()
         }
-        .padding(24)
+        .padding(Metrics.spacingXL)
         .frame(width: 400, height: 450)
         .background(.regularMaterial)
     }

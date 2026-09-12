@@ -102,16 +102,16 @@ struct MultiPingSlotRow: View {
                 }
                 .frame(width: 60)
             }
-            .padding(.vertical, 10).padding(.horizontal, 16)
+            .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
             .background(isExpanded ? Color.accentColor.opacity(0.05) : Color.clear)
             
             if isExpanded {
                 VStack(spacing: 0) {
                     expandedChart
-                        .padding(.horizontal, 32)
-                        .padding(.vertical, 16)
+                        .padding(.horizontal, Metrics.spacingXXL)
+                        .padding(.vertical, Metrics.spacingLG)
 
-                    Divider().padding(.horizontal, 16).opacity(0.3)
+                    Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.3)
                 }
                 .background(.regularMaterial)
             }
@@ -232,8 +232,8 @@ struct MultiPingSlotRow: View {
                             .foregroundColor(.red)
                     }
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .padding(.horizontal, Metrics.spacingSM)
+                .padding(.vertical, Metrics.spacingXS)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 0.5))
                 .offset(x: clampedX, y: 4)

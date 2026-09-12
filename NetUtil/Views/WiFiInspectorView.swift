@@ -33,7 +33,7 @@ struct WiFiInspectorView: View {
                         noWiFiState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .onAppear { vm.start() }
@@ -94,7 +94,7 @@ struct WiFiInspectorView: View {
                     .accessibilityLabel("Show Help Guide")
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
             
             Divider()
@@ -149,8 +149,8 @@ struct WiFiInspectorView: View {
                 Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, Metrics.spacingMD)
+            .padding(.vertical, Metrics.spacingSM)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
             .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .accessibilityElement(children: .combine)
@@ -195,7 +195,7 @@ struct WiFiInspectorView: View {
                 }
                 Spacer()
             }
-            .padding(16)
+            .padding(Metrics.spacingLG)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
             .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }

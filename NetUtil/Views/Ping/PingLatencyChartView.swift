@@ -57,8 +57,8 @@ struct PingLatencyChartView: View {
                                     .foregroundColor(.red)
                             }
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, Metrics.spacingSM)
+                        .padding(.vertical, Metrics.spacingXS)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                         .offset(x: clampedX, y: 4)
                         .allowsHitTesting(false)
@@ -66,7 +66,7 @@ struct PingLatencyChartView: View {
                     }
                 }
 
-                Divider().padding(.vertical, 12).opacity(0.5)
+                Divider().padding(.vertical, Metrics.spacingMD).opacity(0.5)
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Quality Distribution")

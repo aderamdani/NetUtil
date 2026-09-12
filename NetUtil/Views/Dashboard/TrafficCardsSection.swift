@@ -466,8 +466,8 @@ struct TrafficCardsSection: View {
             Text(dir).font(.caption.bold()).foregroundColor(color)
             Text(NetworkMath.formatRate(val)).font(.callout.monospaced().weight(.bold))
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, Metrics.spacingSM)
+        .padding(.vertical, Metrics.spacingXS)
         .background(color.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
     }
 }

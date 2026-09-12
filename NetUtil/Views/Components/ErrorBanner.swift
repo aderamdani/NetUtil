@@ -14,7 +14,7 @@ struct ErrorBanner: View {
                 .font(.subheadline.weight(.medium))
             Spacer()
         }
-        .padding(12)
+        .padding(Metrics.spacingMD)
         .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color.red.opacity(0.2), lineWidth: 0.5))
         .accessibilityLabel("Error: \(message)")

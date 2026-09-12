@@ -19,7 +19,7 @@ struct ConnectionsView: View {
                         connectionTable
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .onAppear { vm.start() }
@@ -42,7 +42,7 @@ struct ConnectionsView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Connections Tool")
 
-                Divider().frame(height: 16).padding(.horizontal, 4)
+                Divider().frame(height: 16).padding(.horizontal, Metrics.spacingXS)
 
                 TextField("Filter by process or address", text: $vm.filterText)
                     .textFieldStyle(.roundedBorder)
@@ -86,7 +86,7 @@ struct ConnectionsView: View {
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
 
             Divider()
@@ -132,7 +132,7 @@ struct ConnectionsView: View {
             TableHeader("State", width: 110)
             Spacer()
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Metrics.spacingLG)
         .padding(.vertical, 10)
     }
 
@@ -165,7 +165,7 @@ struct ConnectionsView: View {
                 .frame(width: 110, alignment: .leading)
             Spacer()
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Metrics.spacingLG)
         .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(conn.command) connection")

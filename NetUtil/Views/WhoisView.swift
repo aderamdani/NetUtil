@@ -57,7 +57,7 @@ struct WhoisView: View {
                         emptyState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "WHOIS") }
@@ -195,13 +195,13 @@ struct WhoisView: View {
                                 .textSelection(.enabled)
                         }
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, Metrics.spacingLG)
                     .padding(.vertical, 1)
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel(line.label.map { "\($0): \(line.value ?? "")" } ?? line.raw)
                 }
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, Metrics.spacingLG)
         }
         .frame(minHeight: 400)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))

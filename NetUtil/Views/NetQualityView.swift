@@ -24,7 +24,7 @@ struct NetQualityView: View {
                                             subtitle: "Run a test to measure throughput and responsiveness (bufferbloat) under working load.")
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Network Quality") }
@@ -81,7 +81,7 @@ struct NetQualityView: View {
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
 
             Divider()
@@ -123,7 +123,7 @@ struct NetQualityView: View {
             Divider().opacity(0.5)
             detailRow("Measured", r.timestamp.formatted(date: .abbreviated, time: .shortened))
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }

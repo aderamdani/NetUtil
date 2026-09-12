@@ -42,7 +42,7 @@ struct PathMTUView: View {
                                             subtitle: "Enter a host to find the largest packet that travels the path unfragmented.")
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Path MTU") }
@@ -90,8 +90,8 @@ struct PathMTUView: View {
                         .foregroundColor(.secondary)
                     Spacer()
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, Metrics.spacingLG)
+                .padding(.vertical, Metrics.spacingSM)
                 if idx < vm.probes.count - 1 {
                     Divider().opacity(0.5).padding(.leading, 44)
                 }

@@ -38,7 +38,7 @@ struct SSLInspectorView: View {
                         emptyState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "SSL/TLS") }
@@ -212,7 +212,7 @@ struct SSLInspectorView: View {
                                 .lineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, Metrics.spacingSM)
                         .background(selectedCertIndex == i ? Color.accentColor : Color.clear)
                         .foregroundColor(selectedCertIndex == i ? .white : .primary)
                     }
@@ -265,8 +265,8 @@ struct SSLInspectorView: View {
                         ForEach(cert.sans, id: \.self) { san in
                             Text(san)
                                 .font(.system(.caption2, design: .monospaced))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
+                                .padding(.horizontal, Metrics.spacingSM)
+                                .padding(.vertical, Metrics.spacingXS)
                                 .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 4))
                         }
                     }
@@ -286,7 +286,7 @@ struct SSLInspectorView: View {
             VStack(alignment: .leading, spacing: Metrics.spacingMD) {
                 content()
             }
-            .padding(16)
+            .padding(Metrics.spacingLG)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
             .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))

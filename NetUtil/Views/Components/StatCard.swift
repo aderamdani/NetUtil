@@ -25,8 +25,8 @@ struct StatCard: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Metrics.spacingLG)
+        .padding(.vertical, Metrics.spacingMD)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         .accessibilityElement(children: .combine)

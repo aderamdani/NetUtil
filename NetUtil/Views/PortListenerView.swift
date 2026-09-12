@@ -23,7 +23,7 @@ struct PortListenerView: View {
                         eventList
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Port Listener") }
@@ -46,7 +46,7 @@ struct PortListenerView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Port Listener Tool")
 
-                Divider().frame(height: 16).padding(.horizontal, 4)
+                Divider().frame(height: 16).padding(.horizontal, Metrics.spacingXS)
 
                 TextField("Port", text: $portText)
                     .textFieldStyle(.roundedBorder)
@@ -84,7 +84,7 @@ struct PortListenerView: View {
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
 
             Divider()
@@ -120,8 +120,8 @@ struct PortListenerView: View {
                         .foregroundColor(.secondary)
                     Spacer()
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, Metrics.spacingLG)
+                .padding(.vertical, Metrics.spacingSM)
                 if idx < vm.events.count - 1 {
                     Divider().opacity(0.5)
                 }

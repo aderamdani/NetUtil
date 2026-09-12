@@ -50,7 +50,7 @@ struct BentoCard<Content: View>: View {
                 }
                 content
             }
-            .padding(16)
+            .padding(Metrics.spacingLG)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG)

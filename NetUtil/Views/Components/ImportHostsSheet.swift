@@ -17,8 +17,8 @@ struct ImportHostsSheet: View {
         VStack(spacing: 0) {
             Text("Import Multiple Hosts")
                 .font(.headline)
-                .padding(.top, 16)
-                .padding(.bottom, 8)
+                .padding(.top, Metrics.spacingLG)
+                .padding(.bottom, Metrics.spacingSM)
             
             TextEditor(text: $hostText)
                 .font(.system(.body, design: .monospaced))
@@ -26,8 +26,8 @@ struct ImportHostsSheet: View {
                 .scrollContentBackground(.hidden)
                 .background(.regularMaterial)
                 .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor), lineWidth: 0.5))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, Metrics.spacingLG)
+                .padding(.vertical, Metrics.spacingSM)
             
             HStack {
                 Button(action: pasteFromClipboard) {
@@ -41,8 +41,8 @@ struct ImportHostsSheet: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .padding(.horizontal, Metrics.spacingLG)
+            .padding(.bottom, Metrics.spacingLG)
             
             Divider()
             
@@ -56,7 +56,7 @@ struct ImportHostsSheet: View {
                     .buttonStyle(.glassProminent)
                 .disabled(detectedHosts.isEmpty)
             }
-            .padding(16)
+            .padding(Metrics.spacingLG)
             .background(.regularMaterial)
         }
         .frame(width: 400, height: 400)

@@ -58,7 +58,7 @@ struct HTTPLatencyView: View {
                         emptyState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "HTTP Latency") }
@@ -327,7 +327,7 @@ struct HTTPLatencyView: View {
                 TableHeader("Latency", width: 100)
                 TableHeader("URL / Endpoint", flexible: true)
             }
-            .padding(.vertical, 10).padding(.horizontal, 16)
+            .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
             .background(.regularMaterial)
             
             Divider()
@@ -354,7 +354,7 @@ struct HTTPLatencyView: View {
                             .lineLimit(1)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .padding(.vertical, 8).padding(.horizontal, 16)
+                    .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
                     .contentShape(Rectangle())
                     .onTapGesture { urlString = r.url; method = r.method }
                     .accessibilityElement(children: .combine)
@@ -362,7 +362,7 @@ struct HTTPLatencyView: View {
                     .accessibilityHint("Tap to restore this request")
                     
                     if r.id != vm.history.last?.id {
-                        Divider().padding(.horizontal, 16).opacity(0.5)
+                        Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.5)
                     }
                 }
             }

@@ -59,7 +59,7 @@ struct PrivacyPane: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, Metrics.spacingXS)
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Privacy Shield: No Telemetry Collected")
             } header: {

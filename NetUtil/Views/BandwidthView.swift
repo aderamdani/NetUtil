@@ -20,7 +20,7 @@ struct BandwidthView: View {
                     aggregateChartSection
                     interfaceListSection
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Bandwidth Monitor") }
@@ -95,8 +95,8 @@ struct BandwidthView: View {
                     .accessibilityLabel("Show Help Guide")
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.horizontal, Metrics.spacingXL)
+            .padding(.vertical, Metrics.spacingLG)
             Divider()
         }
     }
@@ -214,8 +214,8 @@ struct BandwidthView: View {
                                 tooltipRate(dir: "↓", bps: selected.rxBps, color: .blue)
                                 tooltipRate(dir: "↑", bps: selected.txBps, color: .orange)
                             }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
+                            .padding(.horizontal, Metrics.spacingSM)
+                            .padding(.vertical, Metrics.spacingXS)
                             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                         }
                 }
@@ -295,7 +295,7 @@ struct BandwidthView: View {
                         TableHeader("Upload",    width: 110)
                         TableHeader("Sparkline", flexible: true)
                     }
-                    .padding(.vertical, 8).padding(.horizontal, 16)
+                    .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
                     .background(.regularMaterial)
 
                     Divider()
@@ -304,7 +304,7 @@ struct BandwidthView: View {
                         ForEach(ifaces) { iface in
                             interfaceRow(iface)
                             if iface.id != ifaces.last?.id {
-                                Divider().padding(.horizontal, 16).opacity(0.5)
+                                Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.5)
                             }
                         }
                     }
@@ -366,7 +366,7 @@ struct BandwidthView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 24)
         }
-        .padding(.vertical, 8).padding(.horizontal, 16)
+        .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(iface.name) — \(iface.typeName) — Download: \(rxFmt.value) \(rxFmt.unit) Upload: \(txFmt.value) \(txFmt.unit)")
     }

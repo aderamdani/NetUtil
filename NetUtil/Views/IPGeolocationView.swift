@@ -28,7 +28,7 @@ struct IPGeolocationView: View {
                                             subtitle: "Leave the field blank and press Return to locate your own public IP, or enter any IP/hostname to locate it.")
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .onAppear {

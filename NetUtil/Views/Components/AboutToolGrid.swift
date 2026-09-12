@@ -7,7 +7,7 @@ struct AboutToolGrid: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Included Diagnostics")
                 .font(.headline)
-                .padding(.leading, 4)
+                .padding(.leading, Metrics.spacingXS)
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
                 ForEach(Array(tools.enumerated()), id: \.element.1) { index, tool in

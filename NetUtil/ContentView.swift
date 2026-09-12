@@ -145,8 +145,8 @@ struct ContentView: View {
                 }
                 .padding(10)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.horizontal, Metrics.spacingMD)
+                .padding(.vertical, Metrics.spacingSM)
                 
                 Divider().opacity(0.1)
 
@@ -344,8 +344,8 @@ struct FavoriteSidebarItem: View {
                 Text(fav.host)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 8)
+                    .padding(.horizontal, Metrics.spacingMD)
+                    .padding(.top, Metrics.spacingSM)
                 Divider()
                 ForEach(availableFavTools, id: \.rawValue) { tool in
                     Button {
@@ -356,7 +356,7 @@ struct FavoriteSidebarItem: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.plain)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, Metrics.spacingMD)
                     .padding(.vertical, 6)
                 }
                 Divider()
@@ -369,9 +369,9 @@ struct FavoriteSidebarItem: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(.red)
-                .padding(.horizontal, 12)
+                .padding(.horizontal, Metrics.spacingMD)
                 .padding(.vertical, 6)
-                .padding(.bottom, 4)
+                .padding(.bottom, Metrics.spacingXS)
             }
             .frame(width: 220)
         }

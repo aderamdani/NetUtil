@@ -23,7 +23,7 @@ struct DNSResolverView: View {
                         resolverList
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .onAppear { if vm.resolvers.isEmpty { vm.start() } }
@@ -73,7 +73,7 @@ struct DNSResolverView: View {
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
 
             Divider()
@@ -88,7 +88,7 @@ struct DNSResolverView: View {
                 .foregroundColor(.secondary)
                 .lineLimit(0)
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }

@@ -57,7 +57,7 @@ struct InterfaceDetailCard: View {
                 }
             }
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }

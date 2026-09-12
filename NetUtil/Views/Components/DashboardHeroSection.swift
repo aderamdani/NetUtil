@@ -94,8 +94,8 @@ struct DashboardHeroSection: View {
                             tooltipRate(dir: "↓", value: selected.rxBps, color: .blue)
                             tooltipRate(dir: "↑", value: selected.txBps, color: .orange)
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, Metrics.spacingSM)
+                        .padding(.vertical, Metrics.spacingXS)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                     }
             }

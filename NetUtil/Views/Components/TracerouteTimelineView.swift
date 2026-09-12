@@ -76,7 +76,7 @@ private struct TimelineHopRow: View {
                 .foregroundColor(.secondary)
                 .frame(width: 60, alignment: .trailing)
         }
-        .padding(.horizontal, 16).padding(.vertical, 8)
+        .padding(.horizontal, Metrics.spacingLG).padding(.vertical, Metrics.spacingSM)
         .background(isSelected ? Color.accentColor.opacity(0.05) : Color.clear)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Hop \(hop.hop): \(hop.displayHost). Average: \(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "Timeout")")

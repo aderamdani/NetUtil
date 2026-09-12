@@ -22,7 +22,7 @@ struct TracerouteHopsTable: View {
                 TableHeader("History", width: 120)
                 TableHeader("", width: 40)
             }
-            .padding(.vertical, 8).padding(.horizontal, 16)
+            .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
             .background(.regularMaterial)
             
             Divider()
@@ -42,7 +42,7 @@ struct TracerouteHopsTable: View {
                         .onTapGesture { onSelect(selectedHopID == hop.id ? nil : hop.id) }
                         
                         if hop.id != hops.last?.id {
-                            Divider().padding(.horizontal, 16).opacity(0.5)
+                            Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.5)
                         }
                     }
                 }
@@ -113,7 +113,7 @@ private struct HopRowView: View {
             .frame(width: 40)
             .accessibilityLabel("Show IP Geolocation Info")
         }
-        .padding(.vertical, 8).padding(.horizontal, 16)
+        .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
         .background(isSelected ? Color.accentColor.opacity(0.05) : (isBottleneck ? Color.orange.opacity(0.07) : Color.clear))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Hop \(hop.hop): \(hop.displayHost). Latency: \(hop.avgRtt.map { String(format: "%.1f ms", $0) } ?? "Timeout")")

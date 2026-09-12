@@ -22,7 +22,7 @@ struct DashboardView: View {
                     LookupCardsSection(selection: $selection)
                     SystemSecurityCardsSection(selection: $selection)
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .background(Color(.windowBackgroundColor).ignoresSafeArea())
@@ -117,8 +117,8 @@ struct DashboardView: View {
                     .accessibilityValue(tools.system.memoryPressure)
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.horizontal, Metrics.spacingXL)
+            .padding(.vertical, Metrics.spacingLG)
 
             Divider()
         }
@@ -169,8 +169,8 @@ struct DashboardView: View {
                 }
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, Metrics.spacingMD)
+        .padding(.vertical, Metrics.spacingSM)
         .glassEffect(in: .rect(cornerRadius: Metrics.cornerRadiusMD))
     }
 }

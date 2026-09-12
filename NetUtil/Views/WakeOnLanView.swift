@@ -22,7 +22,7 @@ struct WakeOnLanView: View {
                                             minHeight: 200)
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Wake on LAN") }
@@ -43,7 +43,7 @@ struct WakeOnLanView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Wake on LAN Tool")
 
-                Divider().frame(height: 16).padding(.horizontal, 4)
+                Divider().frame(height: 16).padding(.horizontal, Metrics.spacingXS)
 
                 TextField("AA:BB:CC:DD:EE:FF", text: $vm.macAddress)
                     .textFieldStyle(.roundedBorder)
@@ -69,7 +69,7 @@ struct WakeOnLanView: View {
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
 
             Divider()
@@ -115,7 +115,7 @@ struct WakeOnLanView: View {
             }
             .help("Wake-on-LAN convention is port 9 (discard); some devices listen on 7. The port rarely matters — most network cards inspect every broadcast frame.")
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }

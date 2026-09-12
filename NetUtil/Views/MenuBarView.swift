@@ -57,7 +57,7 @@ struct MenuBarView: View {
                 }
             }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, Metrics.spacingMD)
         .padding(.vertical, 10)
     }
 
@@ -82,8 +82,8 @@ struct MenuBarView: View {
             bandwidthStat(label: "Download", value: tools.bandwidth.totalRxBps, icon: "arrow.down", color: .green)
             bandwidthStat(label: "Upload", value: tools.bandwidth.totalTxBps, icon: "arrow.up", color: .blue)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, Metrics.spacingMD)
+        .padding(.vertical, Metrics.spacingSM)
     }
 
     private func bandwidthStat(label: String, value: Double, icon: String, color: Color) -> some View {
@@ -146,7 +146,7 @@ struct MenuBarView: View {
             .foregroundStyle(.red)
             .help("Quit NetUtil")
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Metrics.spacingLG)
         .padding(.vertical, 10)
     }
 }

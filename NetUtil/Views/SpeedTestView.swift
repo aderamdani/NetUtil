@@ -27,7 +27,7 @@ struct SpeedTestView: View {
                         historySection
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Speed Test") }
@@ -70,7 +70,7 @@ struct SpeedTestView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Speed Test Tool")
 
-                Divider().frame(height: 16).padding(.horizontal, 4)
+                Divider().frame(height: 16).padding(.horizontal, Metrics.spacingXS)
 
                 Picker("", selection: $vm.kind) {
                     ForEach(SpeedTestKind.allCases) { kind in
@@ -113,7 +113,7 @@ struct SpeedTestView: View {
                     .accessibilityLabel("Show Help Guide")
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
             Divider()
         }
@@ -406,7 +406,7 @@ struct SpeedTestView: View {
                     TableHeader("Secondary", width: 170)
                     TableHeader("",          width: 32)
                 }
-                .padding(.vertical, 10).padding(.horizontal, 16)
+                .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
                 .background(.regularMaterial)
 
                 Divider()
@@ -415,7 +415,7 @@ struct SpeedTestView: View {
                     ForEach(vm.history) { result in
                         historyRow(result)
                         if result.id != vm.history.last?.id {
-                            Divider().padding(.horizontal, 16).opacity(0.5)
+                            Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.5)
                         }
                     }
                 }
@@ -479,7 +479,7 @@ struct SpeedTestView: View {
             .frame(width: 32, alignment: .center)
             .accessibilityLabel("Delete result")
         }
-        .padding(.vertical, 8).padding(.horizontal, 16)
+        .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(result.kind.rawValue) test: \(primaryMetric(result))")
     }
@@ -513,7 +513,7 @@ struct SpeedTestView: View {
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
         .overlay {

@@ -38,7 +38,7 @@ struct MultiPingView: View {
                                     }, onRemove: { vm.remove(slot) }, onCommitRename: { vm.sortSlots() })
                                     
                                     if slot.id != vm.slots.last?.id {
-                                        Divider().padding(.horizontal, 16).opacity(0.5)
+                                        Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.5)
                                     }
                                 }
                             }
@@ -47,7 +47,7 @@ struct MultiPingView: View {
                         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Multi-Ping") }
@@ -169,7 +169,7 @@ struct MultiPingView: View {
             TableHeader("Health (60s)", width: 140)
             TableHeader("", width: 60)
         }
-        .padding(.vertical, 10).padding(.horizontal, 16)
+        .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
         .background(.regularMaterial)
         .accessibilityElement(children: .ignore)
     }

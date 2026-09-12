@@ -25,7 +25,7 @@ struct NetworkDoctorView: View {
                     pathDiagram
                     stepListSection
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Connectivity Doctor") }
@@ -101,8 +101,8 @@ struct NetworkDoctorView: View {
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.horizontal, Metrics.spacingXL)
+            .padding(.vertical, Metrics.spacingLG)
 
             Divider()
         }
@@ -162,7 +162,7 @@ struct NetworkDoctorView: View {
                 .accessibilityLabel(action.label)
             }
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
@@ -197,7 +197,7 @@ struct NetworkDoctorView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         .accessibilityElement(children: .combine)
@@ -299,7 +299,7 @@ struct NetworkDoctorView: View {
     private var stepListSection: some View {
         VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             SectionHeader(title: "Layer Details", icon: "list.bullet.rectangle")
-                .padding(.leading, 4)
+                .padding(.leading, Metrics.spacingXS)
             stepList
         }
     }
@@ -348,9 +348,9 @@ struct NetworkDoctorView: View {
                         .font(.caption2.weight(.semibold))
                         .foregroundColor(.secondary)
                         .rotationEffect(.degrees(expanded ? 90 : 0))
-                        .padding(.top, 4)
+                        .padding(.top, Metrics.spacingXS)
                 }
-                .padding(16)
+                .padding(Metrics.spacingLG)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -375,8 +375,8 @@ struct NetworkDoctorView: View {
                     }
                 }
                 .padding(.leading, 56)
-                .padding(.trailing, 16)
-                .padding(.bottom, 16)
+                .padding(.trailing, Metrics.spacingLG)
+                .padding(.bottom, Metrics.spacingLG)
             }
         }
     }

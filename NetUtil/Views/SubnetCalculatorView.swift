@@ -32,7 +32,7 @@ struct SubnetCalculatorView: View {
                         emptyState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Subnet Calculator") }

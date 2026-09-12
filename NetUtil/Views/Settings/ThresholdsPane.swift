@@ -20,7 +20,7 @@ struct ThresholdsPane: View {
                     }
                     .padding(.top, 2)
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, Metrics.spacingXS)
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("RTT Color Zone Preview")
 

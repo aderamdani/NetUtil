@@ -17,7 +17,7 @@ struct NeighborsView: View {
                         neighborTable
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .onAppear { vm.start() }
@@ -75,7 +75,7 @@ struct NeighborsView: View {
                 .buttonStyle(.borderless)
                 .accessibilityLabel("Show Help Guide")
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
 
             Divider()
@@ -120,7 +120,7 @@ struct NeighborsView: View {
             TableHeader("Type", width: 90)
             Spacer()
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Metrics.spacingLG)
         .padding(.vertical, 10)
     }
 
@@ -144,7 +144,7 @@ struct NeighborsView: View {
                 .frame(width: 90, alignment: .leading)
             Spacer()
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, Metrics.spacingLG)
         .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Neighbor \(entry.ip)")

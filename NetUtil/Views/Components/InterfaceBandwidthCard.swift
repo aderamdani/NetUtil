@@ -80,7 +80,7 @@ struct InterfaceBandwidthCard: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Total transferred data: \(NetworkMath.formatBytes(current?.totalRx ?? 0)) downloaded, \(NetworkMath.formatBytes(current?.totalTx ?? 0)) uploaded")
         }
-        .padding(16)
+        .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }

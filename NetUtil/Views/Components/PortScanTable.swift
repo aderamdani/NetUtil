@@ -13,7 +13,7 @@ struct PortScanTable: View {
                 TableHeader("Latency", width: 100)
                 TableHeader("Target IP", flexible: true)
             }
-            .padding(.vertical, 10).padding(.horizontal, 16)
+            .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
             .background(.regularMaterial)
             .accessibilityElement(children: .ignore)
             
@@ -46,12 +46,12 @@ struct PortScanTable: View {
                                 .foregroundColor(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .padding(.vertical, 8).padding(.horizontal, 16)
+                        .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel(accessibilityLabel(for: r))
                         
                         if r.id != results.last?.id {
-                            Divider().padding(.horizontal, 16).opacity(0.5)
+                            Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.5)
                         }
                     }
                 }

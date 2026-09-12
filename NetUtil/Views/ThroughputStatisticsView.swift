@@ -75,8 +75,8 @@ struct ThroughputStatisticsView: View {
                 .frame(width: 240)
                 .accessibilityLabel("Time range")
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.horizontal, Metrics.spacingXL)
+            .padding(.vertical, Metrics.spacingLG)
 
             Divider()
         }
@@ -107,7 +107,7 @@ struct ThroughputStatisticsView: View {
         .padding(Metrics.spacingXL)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-        .padding(24)
+        .padding(Metrics.spacingXL)
     }
 
     private var throughputChart: some View {
@@ -224,7 +224,7 @@ struct ThroughputStatisticsView: View {
                 }
             }
         }
-        .padding(8)
+        .padding(Metrics.spacingSM)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
     }
 
@@ -238,7 +238,7 @@ struct ThroughputStatisticsView: View {
             }
             .font(.caption2.weight(.bold))
             .foregroundColor(.secondary)
-            .padding(.vertical, 8)
+            .padding(.vertical, Metrics.spacingSM)
 
             Divider().opacity(0.5)
 
@@ -295,7 +295,7 @@ private struct SummaryRow: View {
             Text(stats.last).frame(width: 110, alignment: .trailing)
         }
         .font(.caption.monospaced())
-        .padding(.vertical, 8)
+        .padding(.vertical, Metrics.spacingSM)
     }
 }
 
@@ -390,12 +390,12 @@ extension ThroughputSample {
 
 #Preview("5 Minutes") {
     ThroughputStatisticsView(samples: ThroughputSample.previewData())
-        .padding(24)
+        .padding(Metrics.spacingXL)
         .frame(width: 700, height: 560)
 }
 
 #Preview("12 Hours") {
     ThroughputStatisticsView(samples: ThroughputSample.previewData(), range: .twelveHours)
-        .padding(24)
+        .padding(Metrics.spacingXL)
         .frame(width: 700, height: 560)
 }

@@ -54,7 +54,7 @@ struct DNSView: View {
                         emptyState
                     }
                 }
-                .padding(24)
+                .padding(Metrics.spacingXL)
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "DNS Lookup") }
@@ -159,7 +159,7 @@ struct DNSView: View {
                 TableHeader("Type", width: 80)
                 TableHeader("Record Value", flexible: true)
             }
-            .padding(.vertical, 10).padding(.horizontal, 16)
+            .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
             .background(.regularMaterial)
             
             Divider()
@@ -186,12 +186,12 @@ struct DNSView: View {
                                 .textSelection(.enabled)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .padding(.vertical, 8).padding(.horizontal, 16)
+                        .padding(.vertical, Metrics.spacingSM).padding(.horizontal, Metrics.spacingLG)
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("DNS Record \(r.name). Type \(r.type). TTL \(r.ttl). Value: \(r.value)")
                         
                         if r.value != res.records.last?.value {
-                            Divider().padding(.horizontal, 16).opacity(0.5)
+                            Divider().padding(.horizontal, Metrics.spacingLG).opacity(0.5)
                         }
                     }
                 }
@@ -206,7 +206,7 @@ struct DNSView: View {
             Text(vm.rawOutput)
                 .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary)
-                .padding(16)
+                .padding(Metrics.spacingLG)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .textSelection(.enabled)
         }
