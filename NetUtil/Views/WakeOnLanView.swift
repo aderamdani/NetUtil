@@ -116,7 +116,7 @@ struct WakeOnLanView: View {
             .help("Wake-on-LAN convention is port 9 (discard); some devices listen on 7. The port rarely matters — most network cards inspect every broadcast frame.")
         }
         .padding(16)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 }

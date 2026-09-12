@@ -85,8 +85,8 @@ struct SessionHistoryView: View {
                         .accessibilityLabel("Filter by host")
                 }
                 .padding(.horizontal, 8).padding(.vertical, 5)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
+                .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
 
                 Spacer()
 
@@ -160,8 +160,8 @@ struct SessionHistoryView: View {
                 }
             }
             .padding(.vertical, 16)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .padding(24)
         }
     }

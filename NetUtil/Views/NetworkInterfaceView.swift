@@ -65,8 +65,8 @@ struct NetworkInterfaceView: View {
                 .lineLimit(0)
         }
         .padding(16)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private var gatewaySection: some View {
@@ -100,8 +100,8 @@ struct NetworkInterfaceView: View {
                 }
             }
             .padding(16)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 
@@ -199,8 +199,8 @@ struct NetworkInterfaceView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Last updated at \(vm.lastUpdated.formatted(date: .omitted, time: .standard))")
         }
@@ -230,8 +230,8 @@ struct NetworkInterfaceView: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 150)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         .accessibilityLabel(msg)
     }
 }

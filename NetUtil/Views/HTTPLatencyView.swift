@@ -246,8 +246,8 @@ struct HTTPLatencyView: View {
             }
         }
         .padding(Metrics.spacingXL)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ratingColor.opacity(0.3), lineWidth: 1))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(ratingColor.opacity(0.3), lineWidth: 1))
     }
 
     private func ttfbColor(_ ms: Double) -> Color {
@@ -314,8 +314,8 @@ struct HTTPLatencyView: View {
                 }
             }
             .padding(Metrics.spacingXL)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 
@@ -367,8 +367,8 @@ struct HTTPLatencyView: View {
                 }
             }
         }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private var emptyState: some View {

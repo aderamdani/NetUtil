@@ -216,7 +216,7 @@ struct BandwidthView: View {
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                         }
                 }
             }
@@ -244,8 +244,8 @@ struct BandwidthView: View {
             }
         }
         .padding(Metrics.spacingXL)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private func tooltipRate(dir: String, bps: Double, color: Color) -> some View {
@@ -309,8 +309,8 @@ struct BandwidthView: View {
                         }
                     }
                 }
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+                .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             }
         }
     }

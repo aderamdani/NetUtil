@@ -23,7 +23,7 @@ struct AboutToolGrid: View {
                         Spacer()
                     }
                     .padding(10)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel("\(tool.1) tool included")
                 }

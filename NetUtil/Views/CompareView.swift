@@ -98,8 +98,8 @@ struct CompareView: View {
                         Image(systemName: "chevron.down").font(.caption2).foregroundColor(.secondary)
                     }
                     .padding(.horizontal, 8).padding(.vertical, 5)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
+                    .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
@@ -136,8 +136,8 @@ struct CompareView: View {
                         Image(systemName: "chevron.down").font(.caption2).foregroundColor(.secondary)
                     }
                     .padding(.horizontal, 8).padding(.vertical, 5)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
+                    .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
@@ -208,8 +208,8 @@ struct CompareView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     @ViewBuilder
@@ -431,8 +431,8 @@ struct CompareView: View {
                 .padding(.horizontal, 16).padding(.vertical, 8)
                 .background(.regularMaterial)
             }
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 

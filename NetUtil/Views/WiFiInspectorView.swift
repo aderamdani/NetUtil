@@ -151,8 +151,8 @@ struct WiFiInspectorView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Last polled at \(vm.lastUpdated.formatted(date: .omitted, time: .standard))")
         }
@@ -196,8 +196,8 @@ struct WiFiInspectorView: View {
                 Spacer()
             }
             .padding(16)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 
@@ -244,8 +244,8 @@ struct WiFiInspectorView: View {
             .drawingGroup()
             .frame(height: 120)
             .padding(Metrics.spacingXL)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .accessibilityLabel("Signal stability chart showing RSSI in dBm")
             .accessibilityChartDescriptor(RSSIStabilityDescriptor(
                 samples: vm.rssiSamples.map { (timestamp: $0.timestamp, rssi: $0.rssi) },

@@ -40,7 +40,7 @@ struct HelpView: View {
                     }
                 }
                 .padding(10)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
             }
             .padding(16)
             
@@ -70,7 +70,7 @@ struct HelpView: View {
                             .font(.title)
                             .foregroundColor(.accentColor)
                             .frame(width: 44, height: 44)
-                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text(section.title)
@@ -138,7 +138,7 @@ struct HelpView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .contentShape(Rectangle())
-            .background(isSelected ? Color.accentColor : Color.clear, in: RoundedRectangle(cornerRadius: 8))
+            .background(isSelected ? Color.accentColor : Color.clear, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
         }
         .buttonStyle(.plain)
     }
@@ -162,8 +162,8 @@ struct HelpView: View {
                     .foregroundColor(.primary)
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
+                    .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM)
                         .stroke(Color(.separatorColor).opacity(0.2), lineWidth: 0.5))
             }
 

@@ -27,8 +27,8 @@ struct SubnetScanView: View {
                             }
                         }
                         .padding(.horizontal, 12)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+                        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
                     } else if viewModel.isRunning {
                         loadingState
                     } else {

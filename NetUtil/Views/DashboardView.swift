@@ -171,6 +171,6 @@ struct DashboardView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .glassEffect(in: .rect(cornerRadius: 10))
+        .glassEffect(in: .rect(cornerRadius: Metrics.cornerRadiusMD))
     }
 }

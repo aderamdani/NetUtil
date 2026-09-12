@@ -81,8 +81,8 @@ struct InterfaceBandwidthCard: View {
             .accessibilityLabel("Total transferred data: \(NetworkMath.formatBytes(current?.totalRx ?? 0)) downloaded, \(NetworkMath.formatBytes(current?.totalTx ?? 0)) uploaded")
         }
         .padding(16)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private func rateMiniDetail(icon: String, label: String, value: Double, color: Color) -> some View {

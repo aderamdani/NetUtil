@@ -105,8 +105,8 @@ struct ThroughputStatisticsView: View {
             summaryTable
         }
         .padding(Metrics.spacingXL)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         .padding(24)
     }
 
@@ -225,7 +225,7 @@ struct ThroughputStatisticsView: View {
             }
         }
         .padding(8)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
     }
 
     private var summaryTable: some View {

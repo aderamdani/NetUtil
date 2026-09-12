@@ -59,7 +59,7 @@ struct PingLatencyChartView: View {
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                         .offset(x: clampedX, y: 4)
                         .allowsHitTesting(false)
                         .transition(.opacity)
@@ -77,8 +77,8 @@ struct PingLatencyChartView: View {
                 }
             }
             .padding(Metrics.spacingXL)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 

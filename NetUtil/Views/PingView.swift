@@ -253,7 +253,7 @@ struct PingView: View {
                                 .foregroundColor(isShown ? .white : .secondary)
                                 .padding(.vertical, 6)
                                 .frame(maxWidth: .infinity)
-                                .background((isShown ? Color.accentColor : Color.secondary.opacity(0.12)), in: RoundedRectangle(cornerRadius: 8))
+                                .background((isShown ? Color.accentColor : Color.secondary.opacity(0.12)), in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(Self.linkTypeAccessibilityLabel(title: profile.title, typical: profile.typical))
@@ -272,8 +272,8 @@ struct PingView: View {
             }
         }
         .padding(16)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private var quality: QualityVerdict {
@@ -358,8 +358,8 @@ struct PingView: View {
         .frame(minHeight: 400)
         .scrollContentBackground(.hidden)
         .scrollPosition(id: .constant(vm.rawLines.last?.id))
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private func startAction() {

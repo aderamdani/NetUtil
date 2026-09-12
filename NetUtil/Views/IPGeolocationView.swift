@@ -156,8 +156,8 @@ struct IPGeolocationView: View {
         }
         .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
         .frame(height: 260)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .clipShape(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         .onAppear {
             position = .region(MKCoordinateRegion(center: coordinate,
                                                    span: MKCoordinateSpan(latitudeDelta: 8, longitudeDelta: 8)))

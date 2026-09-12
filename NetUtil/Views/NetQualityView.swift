@@ -124,8 +124,8 @@ struct NetQualityView: View {
             detailRow("Measured", r.timestamp.formatted(date: .abbreviated, time: .shortened))
         }
         .padding(16)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     // MARK: - RPM Verdict
@@ -192,8 +192,8 @@ struct NetQualityView: View {
             }
         }
         .padding(Metrics.spacingXL)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(gradeColor.opacity(0.3), lineWidth: 1))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(gradeColor.opacity(0.3), lineWidth: 1))
     }
 
     private func detailRow(_ label: String, _ value: String) -> some View {

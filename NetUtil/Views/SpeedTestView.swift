@@ -252,8 +252,8 @@ struct SpeedTestView: View {
                 .tint(.accentColor)
         }
         .padding(Metrics.spacingXL)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(vm.phase.rawValue) — \(Int(vm.progress * 100)) percent complete")
     }
@@ -350,8 +350,8 @@ struct SpeedTestView: View {
             }
         }
         .padding(Metrics.spacingXL)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ratingColor.opacity(0.3), lineWidth: 1))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(ratingColor.opacity(0.3), lineWidth: 1))
     }
 
     private func iconForActivity(_ activity: String) -> String {
@@ -420,8 +420,8 @@ struct SpeedTestView: View {
                     }
                 }
             }
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
     }
 
@@ -515,15 +515,15 @@ struct SpeedTestView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
         .overlay {
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD)
                 .fill(vm.kind == kind ? Color.accentColor.opacity(0.08) : Color.clear)
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD)
                 .stroke(vm.kind == kind ? Color.accentColor.opacity(0.5) : Color(.separatorColor).opacity(0.1),
                         lineWidth: vm.kind == kind ? 1 : 0.5)
         }
-        .contentShape(RoundedRectangle(cornerRadius: 10))
+        .contentShape(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
         .onTapGesture { if !vm.isRunning { vm.kind = kind } }
         .accessibilityLabel("\(kind.rawValue): \(kind.subtitle)")
         .accessibilityAddTraits(vm.kind == kind ? [.isButton, .isSelected] : .isButton)

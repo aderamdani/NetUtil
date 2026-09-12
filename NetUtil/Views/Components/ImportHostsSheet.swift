@@ -25,7 +25,7 @@ struct ImportHostsSheet: View {
                 .frame(minHeight: 200)
                 .scrollContentBackground(.hidden)
                 .background(.regularMaterial)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.separatorColor), lineWidth: 0.5))
+                .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor), lineWidth: 0.5))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             
