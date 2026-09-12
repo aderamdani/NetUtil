@@ -13,7 +13,7 @@ struct WakeOnLanView: View {
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
-                        ErrorBanner(message: err, onDismiss: { vm.clearError() })
+                        ErrorBanner(message: err, onRetry: { vm.send() }, onDismiss: { vm.clearError() })
                     }
                     optionsCard
                     if vm.lastSent == nil && vm.error == nil {

@@ -15,7 +15,7 @@ struct IPGeolocationView: View {
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
-                        ErrorBanner(message: err, onDismiss: { vm.clearError() })
+                        ErrorBanner(message: err, onRetry: { vm.start() }, onDismiss: { vm.clearError() })
                     }
                     if let result = vm.result {
                         summarySection(result)

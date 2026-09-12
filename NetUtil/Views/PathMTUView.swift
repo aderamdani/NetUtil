@@ -29,7 +29,7 @@ struct PathMTUView: View {
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
-                        ErrorBanner(message: err, onDismiss: { vm.clearError() })
+                        ErrorBanner(message: err, onRetry: { startAction() }, onDismiss: { vm.clearError() })
                     }
                     if let mtu = vm.mtu {
                         resultCard(mtu)

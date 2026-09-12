@@ -12,7 +12,7 @@ struct PortListenerView: View {
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
-                        ErrorBanner(message: err, onDismiss: { vm.clearError() })
+                        ErrorBanner(message: err, onRetry: { vm.start() }, onDismiss: { vm.clearError() })
                     }
                     if vm.events.isEmpty {
                         ToolStateView.empty(title: vm.isRunning ? "Waiting for Connections" : "Listener Stopped",
