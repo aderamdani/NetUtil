@@ -6,6 +6,10 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- **Batch export (Session History)**: PDF and CSV export now respect the active filter (tool, date, search); the PDF groups sessions into one section per tool.
+
 ### Changed
 
 - **PDF export**: table column headers now repeat at the top of every page in multi-page reports.
