@@ -724,47 +724,58 @@ private enum PDFReport {
         var cy = y
         let contentW = pageW - 2 * margin
 
+
         // Section title — baseline at cy
         draw(ctx, title.uppercased(), x: margin, y: cy, font: .systemFont(ofSize: 9, weight: .semibold), color: cSubtext)
         cy -= 20
+
 
         // Calculate optimal column widths
         let colWidths = calculateColumnWidths(for: rows, availableWidth: contentW)
         let headerRow = rows.first
         let dataRows = rows.dropFirst()
 
-        // Draw header row background
-        if let header = headerRow {
+
+        // Column-header renderer — reused so the header repeats after every page break.
+        func drawColumnHeader(at startY: CGFloat) -> CGFloat {
+            guard let header = headerRow else { return startY }
             let bgH = headerRowHeight
             ctx.setFillColor(cHeader.cgColor)
-            ctx.fill(CGRect(x: margin, y: cy, width: contentW, height: bgH))
+            ctx.fill(CGRect(x: margin, y: startY, width: contentW, height: bgH))
 
-            // Header bottom border
+
             ctx.setStrokeColor(cBorder.cgColor)
             ctx.setLineWidth(0.5)
-            ctx.move(to: CGPoint(x: margin, y: cy))
-            ctx.addLine(to: CGPoint(x: margin + contentW, y: cy))
+            ctx.move(to: CGPoint(x: margin, y: startY))
+            ctx.addLine(to: CGPoint(x: margin + contentW, y: startY))
             ctx.strokePath()
 
-            // Header text — vertically centered in the background
-            let textY = cy + (bgH - lineH) / 2
+
+            let textY = startY + (bgH - lineH) / 2
             for (col, cell) in header.enumerated() {
                 guard col < colWidths.count else { continue }
                 let x = margin + colWidths.prefix(col).reduce(0, +) + cellPadding
                 draw(ctx, cell.uppercased(), x: x, y: textY, font: .systemFont(ofSize: 9, weight: .semibold), color: cSubtext)
             }
-            cy -= bgH
+            return startY - bgH
         }
+
+
+        // Initial header
+        cy = drawColumnHeader(at: cy)
+
 
         // Draw data rows
         for (idx, row) in dataRows.enumerated() {
             guard !row.isEmpty else { continue }
+
 
             // Alternating row stripe
             if idx % 2 == 0 {
                 ctx.setFillColor(cStripe.cgColor)
                 ctx.fill(CGRect(x: margin, y: cy, width: contentW, height: dataRowHeight))
             }
+
 
             // Row content — vertically centered in the row
             let textY = cy + (dataRowHeight - lineH) / 2
@@ -776,6 +787,7 @@ private enum PDFReport {
                 draw(ctx, truncated, x: x, y: textY, font: .monospacedSystemFont(ofSize: 10, weight: .regular), color: cText)
             }
 
+
             // Row bottom border
             ctx.setStrokeColor(cBorder.cgColor)
             ctx.setLineWidth(0.25)
@@ -783,10 +795,16 @@ private enum PDFReport {
             ctx.addLine(to: CGPoint(x: margin + contentW, y: cy))
             ctx.strokePath()
 
+
             cy -= dataRowHeight
 
-            if cy < margin + 40 { cy = newPage(ctx) }
+
+            if cy < margin + 40 {
+                cy = newPage(ctx)
+                cy = drawColumnHeader(at: cy)
+            }
         }
+
 
         // Final bottom border
         ctx.setStrokeColor(cBorder.cgColor)
@@ -795,8 +813,10 @@ private enum PDFReport {
         ctx.addLine(to: CGPoint(x: margin + contentW, y: cy))
         ctx.strokePath()
 
+
         return cy - 8
     }
+
 
     private static func drawFooter(_ ctx: CGContext) {
         draw(ctx, "NetUtil — Network Diagnostics Toolkit",
