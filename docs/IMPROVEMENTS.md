@@ -1,7 +1,7 @@
 # NetUtil — Improvement Backlog
 
 > Last updated: 2026-09-12
-> Current version: 4.14.0
+> Current version: 4.13.1
 
 ---
 
