@@ -25,11 +25,19 @@ NetUtil is a native macOS diagnostics toolkit built with SwiftUI and Swift 6. 28
 
 ## Installation
 
-> Requires an Apple Silicon Mac (M1 or later). Intel Macs are not supported.
+> Requires an Apple Silicon Mac (M1 or later) running macOS Tahoe (26) or later. Intel Macs are not supported.
+
+### Homebrew
+
+    brew install --cask aderamdani/tap/netutil
+
+### Manual (DMG)
 
 1. Visit [Releases](https://github.com/aderamdani/NetUtil/releases).
 2. Download the latest `NetUtil-X.X.X.dmg`.
 3. Open the DMG and drag **NetUtil** to `Applications`.
+
+> **First launch:** NetUtil is ad-hoc signed (not yet notarized), so macOS Gatekeeper blocks the first open. Right-click **NetUtil** in Applications and choose **Open**, or run `xattr -dr com.apple.quarantine /Applications/NetUtil.app`.
 
 ## Documentation & Links
 
