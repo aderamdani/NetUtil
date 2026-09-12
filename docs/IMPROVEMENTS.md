@@ -9,7 +9,7 @@
 
 | # | Task | Tool / Area | Rationale |
 |---|------|-------------|-----------|
-| P0-1 | **Automated HIG regression tests** | CI / TESTING | Human audit is not enough — codify font-size, corner-radius, material, and padding checks into XCTest so PRs cannot regress Anti-Slop rules. |
+| P0-1 | **Automated HIG regression tests** (shipped v4.14.0) | CI / TESTING | Human audit is not enough — codify font-size, corner-radius, material, and padding checks into XCTest so PRs cannot regress Anti-Slop rules. |
 | P0-2 | **Smoke-test harness for all 28 tools** | CI | A single `xcodebuild test` target that drives every tool through its empty/loading/error state with mock data, catching runtime crashes before release. |
 | P0-3 | **Accessibility audit pass** | All views | Verify VoiceOver labels/values on every interactive element; fix missing `accessibilityLabel` on custom buttons and chart marks. |
 
@@ -43,9 +43,14 @@
 
 ## Forward Roadmap
 
-### v4.14.0 — HIG Hardening & Accessibility (Q4 2026)
-- P0-1 automated HIG tests + CI gate.
-- P1-2 unified error banner.
+### Shipped in v4.14.0 — HIG Hardening & Accessibility
+
+- P0-1 automated HIG lint + CI gate — done.
+- P1-1 chart accessibility descriptors (Ping, Bandwidth, Wi-Fi RSSI, Multi-Ping) — done.
+
+### Next — carried over from v4.14.0 scope
+
+- P1-2 unified `ClinicalErrorBanner`.
 - P1-3 live-filter on Ping / Traceroute result tables.
 
 ### v4.15.0 — Export & Settings Polish (Q4 2026)
@@ -75,3 +80,12 @@
 - Sudah ada sejak awal: Statistics (live throughput + daily totals).
 - N/A (tidak punya Swift Chart / sudah berlabel VoiceOver): Traceroute (tabel + timeline custom), Speed Test (kartu + tabel), HTTP Latency (waterfall custom).
 - Dekoratif, sengaja dilewati: sparkline dashboard hero & interface bandwidth card.
+
+### UI token sweep + HIG lint — SELESAI
+
+- Corner radii and stack spacing across all views moved to `Metrics.*`; off-grid padding curated. Locked in by `scripts/hig-lint.sh` (H2 font, H5 radius, H6 spacing, H7 grid padding) wired to a CI workflow (dormant until the GitHub account billing lock clears).
+
+### Distribution: Homebrew + screenshots — SELESAI
+
+- Homebrew tap `aderamdani/tap` with a `netutil` cask (ad-hoc signed; Gatekeeper caveat documented in the cask and README).
+- README Screenshots section (4 tool captures) + an Installation Homebrew option.
