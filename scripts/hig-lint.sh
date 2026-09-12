@@ -11,10 +11,9 @@ if [ -n "$hits" ]; then
   echo "H2 FAIL — sub-10pt font(s):"; echo "$hits"; fail=1
 fi
 
-VIEWS="$ROOT/NetUtil/Views"
-hits=$(rg -n --glob '*.swift' 'cornerRadius: (8|10|12)\b' "$VIEWS" || true)
+hits=$(rg -n --glob '*.swift' 'cornerRadius: (8|10|12)\b' "$SRC" || true)
 if [ -n "$hits" ]; then echo "H5 FAIL — literal corner radius (use Metrics.cornerRadius*):"; echo "$hits"; fail=1; fi
-hits=$(rg -n --glob '*.swift' 'spacing: (4|8|12|16|24|32)\b' "$VIEWS" || true)
+hits=$(rg -n --glob '*.swift' 'spacing: (4|8|12|16|24|32)\b' "$SRC" || true)
 if [ -n "$hits" ]; then echo "H6 FAIL — literal stack spacing (use Metrics.spacing*):"; echo "$hits"; fail=1; fi
 
 if [ "$fail" -eq 0 ]; then
