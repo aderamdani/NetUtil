@@ -19,7 +19,6 @@
 
 | # | Task | Tool / Area | Rationale |
 |---|------|-------------|-----------|
-| P1-1 | **Chart accessibility labels** | Bandwidth, Statistics, Ping, Wi-Fi | Add `.accessibilityLabel` / `.accessibilityValue` to `Chart` marks and Y-axis summaries so VoiceOver reads "500 Kbps download". |
 | P1-2 | **Unified error-surface component** | All tools | Replace ad-hoc `alert` / `Text("...").foregroundColor(.red)` with a shared `ClinicalErrorBanner` that supports retry, copy, and dismiss. |
 | P1-3 | **Live-filter on all result tables** | Ping, Traceroute, Port Scan, DNS, WHOIS | Add per-tool search/filter bar to narrow large result sets without re-running the scan. |
 | P1-4 | **PDF table header repeat on every page** | Exporter | Long reports (Multi-Ping, Traceroute) lose column headers after page 1; implement `CGContext` page-header drawing. |
@@ -46,7 +45,6 @@
 
 ### v4.14.0 — HIG Hardening & Accessibility (Q4 2026)
 - P0-1 automated HIG tests + CI gate.
-- P1-1 chart accessibility labels.
 - P1-2 unified error banner.
 - P1-3 live-filter on Ping / Traceroute result tables.
 
@@ -61,3 +59,13 @@
 - P2-6 menu-bar only mode.
 - Refactor `Exporter` + subprocess runners into a reusable `NetUtilCore` framework consumable by the CLI and potential future iOS/iPadOS front-ends.
 - Evaluate Swift Package Manager distribution for the core framework.
+
+---
+
+## Completed
+
+### Chart accessibility parity — SELESAI
+- Done (AXChartDescriptor + test): Ping, Bandwidth aggregate, Wi-Fi RSSI, Multi-Ping slot.
+- Sudah ada sejak awal: Statistics (live throughput + daily totals).
+- N/A (tidak punya Swift Chart / sudah berlabel VoiceOver): Traceroute (tabel + timeline custom), Speed Test (kartu + tabel), HTTP Latency (waterfall custom).
+- Dekoratif, sengaja dilewati: sparkline dashboard hero & interface bandwidth card.
