@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import Accessibility
 import Observation
 
 struct BandwidthView: View {
@@ -228,6 +229,14 @@ struct BandwidthView: View {
             .frame(height: 140)
             .drawingGroup()
             .accessibilityLabel("Stacked throughput chart. Hover to inspect exact download and upload rates.")
+                .accessibilityChartDescriptor(BandwidthThroughputDescriptor(
+                    samples: aggregateWindow,
+                    yTop: domainTop,
+                    summary: Self.aggregateChartSummary(
+                        peak: NetworkMath.spokenRate(aggregateWindow.map { $0.rxBps + $0.txBps }.max() ?? 0),
+                        top: NetworkMath.spokenRate(domainTop),
+                        sampleCount: aggregateWindow.count)
+                ))
 
             HStack(spacing: 16) {
                 legendDot(.blue, "Download")
@@ -366,6 +375,13 @@ struct BandwidthView: View {
 
     // MARK: - Helpers
 
+    /// Pure spoken-summary builder for the aggregate chart — testable
+    /// without rendering. Time (X) first, describes data not colors.
+    nonisolated static func aggregateChartSummary(peak: String, top: String, sampleCount: Int) -> String {
+        guard sampleCount > 0 else { return "Stacked area chart. No throughput samples yet." }
+        return "Stacked area chart. Time on the X axis, combined throughput on the Y axis from 0 to \(top). Peak \(peak) over \(sampleCount) samples."
+    }
+
     private func legendDot(_ color: Color, _ label: String) -> some View {
         HStack(spacing: 6) {
             Circle().fill(color).frame(width: 6, height: 6)
@@ -391,6 +407,63 @@ struct BandwidthView: View {
             }
         }
         return lines.joined(separator: "\n")
+    }
+}
+
+/// VoiceOver descriptor for the aggregate throughput chart. Points are
+/// downsampled and each carries a spoken label — never colors, time (X)
+/// always first. Mirrors the Statistics live-throughput descriptor.
+private struct BandwidthThroughputDescriptor: AXChartDescriptorRepresentable {
+    let samples: [BandwidthSample]
+    let yTop: Double
+    let summary: String
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let timeFormatter: DateFormatter = {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm:ss"
+            return formatter
+        }()
+        let stride = max(1, samples.count / 60)
+        let points = samples.enumerated().compactMap { index, sample in
+            index % stride == 0 ? sample : nil
+        }
+        return AXChartDescriptor(
+            title: "Aggregate throughput",
+            summary: summary,
+            xAxis: AXCategoricalDataAxisDescriptor(
+                title: "Time",
+                categoryOrder: points.map { timeFormatter.string(from: $0.timestamp) }
+            ),
+            yAxis: AXNumericDataAxisDescriptor(
+                title: "Throughput",
+                range: 0...yTop,
+                gridlinePositions: [0, yTop / 2, yTop],
+                valueDescriptionProvider: { NetworkMath.spokenRate($0) }
+            ),
+            series: [
+                AXDataSeriesDescriptor(
+                    name: "Download",
+                    isContinuous: true,
+                    dataPoints: points.map {
+                        AXDataPoint(
+                            x: timeFormatter.string(from: $0.timestamp),
+                            y: $0.rxBps,
+                            label: "Download at \(timeFormatter.string(from: $0.timestamp)), \(NetworkMath.spokenRate($0.rxBps))")
+                    }
+                ),
+                AXDataSeriesDescriptor(
+                    name: "Upload",
+                    isContinuous: true,
+                    dataPoints: points.map {
+                        AXDataPoint(
+                            x: timeFormatter.string(from: $0.timestamp),
+                            y: $0.txBps,
+                            label: "Upload at \(timeFormatter.string(from: $0.timestamp)), \(NetworkMath.spokenRate($0.txBps))")
+                    }
+                )
+            ]
+        )
     }
 }
 
