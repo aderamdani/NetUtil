@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import Accessibility
 
 struct PingLatencyChartView: View {
     /// Full result set (for health strip / distribution bar — cheap views)
@@ -88,6 +89,10 @@ struct PingLatencyChartView: View {
         let lastSeq  = windowed.last?.sequence  ?? 100
         let strideValue: Double = windowed.count < 50 ? 10 : windowed.count < 200 ? 25 : 50
 
+        let successRtts = windowed.compactMap { $0.status == .success ? $0.rtt : nil }
+        let timeoutCount = windowed.count - successRtts.count
+        let yTop = max(50, maxRtt * 1.2)
+
         return Chart {
             ForEach(windowed) { r in
                 if r.status == .success {
@@ -156,6 +161,18 @@ struct PingLatencyChartView: View {
         .chartPlotStyle { plotArea in
             plotArea.padding(.top, 10).padding(.bottom, 10)
         }
+        .accessibilityChartDescriptor(PingLatencyDescriptor(
+            points: windowed.compactMap { $0.status == .success ? (seq: $0.sequence, rtt: $0.rtt) : nil },
+            yTop: yTop,
+            summary: Self.pingChartSummary(
+                count: windowed.count,
+                timeouts: timeoutCount,
+                minMs: successRtts.min() ?? 0,
+                avgMs: successRtts.isEmpty ? 0 : successRtts.reduce(0, +) / Double(successRtts.count),
+                maxMs: successRtts.max() ?? 0,
+                top: yTop)
+        ))
+        .accessibilityLabel("Line chart of ping round-trip time by sequence number")
     }
 
     private var healthStrip: some View {
@@ -197,5 +214,54 @@ struct PingLatencyChartView: View {
     private func distSegment(count: Int, color: Color, total: CGFloat) -> some View {
         let ratio = CGFloat(count) / CGFloat(max(1, stats.received))
         return Rectangle().fill(color).frame(width: max(0, ratio * total))
+    }
+
+    /// Pure spoken-summary builder for the latency chart — testable
+    /// without rendering. Sequence (X) first, describes data not colors.
+    static func pingChartSummary(count: Int, timeouts: Int, minMs: Double, avgMs: Double, maxMs: Double, top: Double) -> String {
+        guard count > 0 else { return "Line chart. No ping data yet." }
+        return "Line chart. Ping sequence on the X axis, round-trip time in milliseconds on the Y axis from 0 to \(Int(top)). \(count) pings, \(timeouts) timed out. Fastest \(String(format: "%.1f", minMs)), average \(String(format: "%.1f", avgMs)), slowest \(String(format: "%.1f", maxMs)) milliseconds."
+    }
+}
+
+/// VoiceOver descriptor for the ping latency line chart. Successful pings
+/// only; timeouts surface in the summary. Points are downsampled and each
+/// carries a spoken label — never colors, sequence (X) always first.
+private struct PingLatencyDescriptor: AXChartDescriptorRepresentable {
+    let points: [(seq: Int, rtt: Double)]
+    let yTop: Double
+    let summary: String
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let stride = max(1, points.count / 60)
+        let sampled = points.enumerated().compactMap { index, point in
+            index % stride == 0 ? point : nil
+        }
+        return AXChartDescriptor(
+            title: "Latency history",
+            summary: summary,
+            xAxis: AXCategoricalDataAxisDescriptor(
+                title: "Ping sequence",
+                categoryOrder: sampled.map { "ping \($0.seq)" }
+            ),
+            yAxis: AXNumericDataAxisDescriptor(
+                title: "Round-trip time",
+                range: 0...yTop,
+                gridlinePositions: [0, yTop / 2, yTop],
+                valueDescriptionProvider: { String(format: "%.0f milliseconds", $0) }
+            ),
+            series: [
+                AXDataSeriesDescriptor(
+                    name: "Round-trip time",
+                    isContinuous: true,
+                    dataPoints: sampled.map {
+                        AXDataPoint(
+                            x: "ping \($0.seq)",
+                            y: $0.rtt,
+                            label: "Ping \($0.seq), \(String(format: "%.1f", $0.rtt)) milliseconds")
+                    }
+                )
+            ]
+        )
     }
 }
