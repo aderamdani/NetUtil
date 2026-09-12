@@ -96,7 +96,7 @@ NetUtil/
 │   ├── AboutView.swift           # Version, tool grid, acknowledgements
 │   ├── HelpView.swift            # Learning guide (735+ lines, searchable)
 │   ├── MenuBarView.swift         # Menu bar popover content
-│   ├── SettingsView.swift        # Tab view: General, Thresholds, Tools, Privacy
+│   ├── SettingsView.swift        # Tab view: General, Tools, Privacy, Data
 │   ├── CompareView.swift         # Side-by-side session comparison
 │   ├── SessionHistoryView.swift  # Filtered session log
 │   │
@@ -125,12 +125,11 @@ NetUtil/
 │   │   ├── PingResultsTable.swift
 │   │   └── PingLatencyChartView.swift
 │   │
-│   └── Settings/                 # 5 settings panes
-│       ├── GeneralPane.swift
-│       ├── ThresholdsPane.swift
-│       ├── ToolsPane.swift
-│       ├── PrivacyPane.swift
-│       └── BackupPane.swift        # Settings > Backup UI over SettingsBackupService
+│   └── Settings/                 # 4 settings panes
+│       ├── GeneralPane.swift     # Everyday prefs + latency colors; advanced behind disclosure
+│       ├── ToolsPane.swift       # Tool availability + advanced timeouts
+│       ├── PrivacyPane.swift     # Plain summary + connection details disclosure
+│       └── DataPane.swift        # Backup/restore UI over SettingsBackupService
 │
 └── NetUtilTests/                 # 25 test files
     ├── PingTests.swift
@@ -488,7 +487,7 @@ Every parser is a `nonisolated static func` on the model struct — runs off Mai
 | `SSLWatchlist` | `sslWatchlist` | `[SSLWatchItem]` (Codable) | Unlimited |
 | Settings | Various keys | Primitives via `@AppStorage` | — |
 
-Settings backup (`Models/SettingsBackup.swift`, Settings > Backup tab, and File menu): versioned JSON (`schemaVersion`, `BackupValue` primitives) covering an explicit whitelist — 20 prefs, tool availability, favorites, SSL watchlist; session/traffic/host history opt-in only. Import validates schema, ignores foreign keys, and re-applies via `ToolStore.reapplyImportedSettings()` with a destructive-confirm alert. Panels and confirmation live in `Models/SettingsBackupService.swift` so the model layer stays unit-testable.
+Settings backup (`Models/SettingsBackup.swift`, Settings > Data tab, and File menu): versioned JSON (`schemaVersion`, `BackupValue` primitives) covering an explicit whitelist — 20 prefs, tool availability, favorites, SSL watchlist; session/traffic/host history opt-in only. Import validates schema, ignores foreign keys, and re-applies via `ToolStore.reapplyImportedSettings()` with a destructive-confirm alert. Panels and confirmation live in `Models/SettingsBackupService.swift` so the model layer stays unit-testable.
 
 ---
 

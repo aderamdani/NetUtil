@@ -8,15 +8,13 @@ struct SettingsView: View {
         TabView {
             GeneralPane()
                 .tabItem { Label("General", systemImage: "gearshape") }
-            ThresholdsPane()
-                .tabItem { Label("Thresholds", systemImage: "dial.medium") }
             ToolsPane()
                 .tabItem { Label("Tools", systemImage: "wrench.and.screwdriver") }
             PrivacyPane()
                 .tabItem { Label("Privacy", systemImage: "hand.raised") }
-            BackupPane()
-                .tabItem { Label("Backup", systemImage: "externaldrive") }
+            DataPane()
+                .tabItem { Label("Data", systemImage: "externaldrive") }
         }
-        .frame(width: 480, height: 420)
+        .frame(width: 520, height: 460)
     }
 }
