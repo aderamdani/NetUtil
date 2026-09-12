@@ -1,7 +1,7 @@
 # NetUtil — Roadmap & Development Plan
 
-> Last updated: 2026-09-11
-> Current version: 4.13.1
+> Last updated: 2026-09-12
+> Current version: 4.14.0
 
 ---
 
@@ -45,6 +45,14 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 ---
 
 ## Recent Milestones
+
+### Version 4.14.0 — Onboarding, Chart Accessibility & Token Sweep (2026-09-12)
+
+- First-run onboarding sheet (`hasCompletedOnboarding` in `ContentView`), privacy-forward, pointing to Settings > Privacy.
+- VoiceOver chart descriptors (`AXChartDescriptor`) on Ping, Bandwidth aggregate, Wi-Fi RSSI, and Multi-Ping slot charts, each backed by a pure summary function under test.
+- SystemMonitor lifecycle owned solely by `ToolStore` (no self-start); cadence via `normalInterval` (2s) / `backgroundInterval` (10s).
+- UI token sweep: corner radii and stack spacing moved to `Metrics.*`, unified control-bar header padding, off-grid padding curated — locked in by `hig-lint.sh` (H2/H5/H6/H7) + a CI workflow (dormant until the account billing lock clears).
+- Distribution: manual DMG release, Homebrew tap (`aderamdani/tap`), and a README Screenshots section.
 
 ### Version 4.13.1 — Control Bar + String Polish (2026-09-11)
 - Multi-Ping control bar standardized to the Ping/Traceroute pattern: new `MultiPingControlBar` (host input + Add Host + favorite + report + help), with sort/import/alert controls in a secondary row.
@@ -95,9 +103,14 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 
 ## Forward Roadmap (from docs/IMPROVEMENTS.md)
 
-### v4.14.0 — HIG Hardening & Accessibility (Q4 2026)
-- Automated HIG regression tests + CI gate (P0-1).
-- Chart accessibility labels for VoiceOver (P1-1).
+### Shipped in v4.14.0 — HIG Hardening & Accessibility
+
+- Automated HIG regression lint + CI gate — P0-1 (font, corner-radius, spacing, grid-padding checks).
+- Chart accessibility descriptors for VoiceOver — P1-1 (Ping, Bandwidth, Wi-Fi RSSI, Multi-Ping).
+- Also shipped: first-run onboarding, zero-idle SystemMonitor ownership, and a full UI token sweep.
+
+### Next — carried over from v4.14.0 scope
+
 - Unified `ClinicalErrorBanner` component (P1-2).
 - Live-filter on Ping / Traceroute result tables (P1-3).
 
@@ -129,6 +142,7 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 
 | Version | Milestone |
 |---------|-----------|
+| **v4.14.0** | Onboarding, VoiceOver chart descriptors, zero-idle SystemMonitor ownership, UI token sweep + HIG lint CI, Homebrew tap |
 | **v4.13.1** | Multi-Ping control bar, string-fusion sweep, VoiceOver pure functions |
 | **v4.13.0** | Zero-idle monitoring, modular tool catalog, privacy pane, settings backup |
 | **v4.12.0** | Verdict cards (Ping/Traceroute/Speed/HTTP/NetQuality), layperson explanations, HIG standardization, PDF table rebuild |
