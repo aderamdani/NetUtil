@@ -13,6 +13,7 @@ struct PortScanView: View {
     @State private var concurrency = 50
     @State private var timeout = 1.5
     @State private var showOnlyOpen = false
+    @State private var portFilter = ""
     @State private var showLearningGuide = false
 
     private var portsToScan: [Int] {
@@ -22,7 +23,12 @@ struct PortScanView: View {
 
     private var displayResults: [PortResult] {
         let sorted = vm.results.sorted { $0.port < $1.port }
-        return showOnlyOpen ? sorted.filter { $0.status == .open } : sorted
+        let opened = showOnlyOpen ? sorted.filter { $0.status == .open } : sorted
+        guard !portFilter.isEmpty else { return opened }
+        return opened.filter {
+            let svc = $0.service ?? wellKnownPorts[$0.port] ?? ""
+            return "\($0.port)".contains(portFilter) || svc.localizedCaseInsensitiveContains(portFilter)
+        }
     }
 
     var body: some View {
@@ -79,6 +85,9 @@ struct PortScanView: View {
                                     .font(.subheadline)
                                     .toggleStyle(.checkbox)
                                     .accessibilityLabel("Show open ports only")
+                                TextField("Filter", text: $portFilter)
+                                    .textFieldStyle(.roundedBorder)
+                                    .frame(width: 160)
                                 Spacer()
                                 Text("\(displayResults.count) Ports Displayed")
                                     .font(.caption2.bold())
