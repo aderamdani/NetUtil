@@ -114,6 +114,8 @@ struct ContentView: View {
     @State private var history = HostHistory.shared
     
     @State private var searchText = ""
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showOnboarding = false
     @FocusState private var isSearchFocused: Bool
 
     var filteredHistory: [String] {
@@ -227,6 +229,13 @@ struct ContentView: View {
             Button("") { isSearchFocused = true }
                 .keyboardShortcut("f", modifiers: .command)
                 .opacity(0)
+        }
+        .onAppear { if !hasCompletedOnboarding { showOnboarding = true } }
+        .sheet(isPresented: $showOnboarding) {
+            OnboardingView {
+                hasCompletedOnboarding = true
+                showOnboarding = false
+            }
         }
     }
     
