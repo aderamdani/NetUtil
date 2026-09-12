@@ -1,7 +1,7 @@
 # NetUtil — Improvement Backlog
 
-> Last updated: 2026-09-12
-> Current version: 4.15.0
+> Last updated: 2026-09-13
+> Current version: 4.16.0
 
 ---
 
@@ -21,10 +21,12 @@
 |---|------|-------------|-----------|
 | P1-2 | **Unified error-surface component** (done, unreleased) | All tools | Replace ad-hoc `alert` / `Text("...").foregroundColor(.red)` with a shared `ClinicalErrorBanner` that supports retry, copy, and dismiss. |
 | P1-3 | **Live-filter on all result tables** (done, unreleased) | Ping, Traceroute, Port Scan, DNS, WHOIS | Add per-tool search/filter bar to narrow large result sets without re-running the scan. |
-| P1-4 | **PDF table header repeat on every page** | Exporter | Long reports (Multi-Ping, Traceroute) lose column headers after page 1; implement `CGContext` page-header drawing. |
+| P1-4 | **PDF table header repeat on every page** (shipped v4.16.0) | Exporter | Long reports (Multi-Ping, Traceroute) lose column headers after page 1; implement `CGContext` page-header drawing. |
 | P1-5 | **Settings search** | SettingsView | Add a filter field to jump directly to a setting pane (Thresholds, Backup, Privacy, Tools). |
-| P1-6 | **Batch export (PDF + CSV)** | All export-capable tools | Allow selecting multiple sessions/tools and exporting one combined PDF or ZIP of CSVs. |
-| P1-7 | **Unit-test coverage for Exporter** | Exporter.swift | Add snapshot-style tests for PDF page count, CSV column order, and filename pattern `NetUtil-[Tool]-[target]-yyyyMMdd-HHmmss`. |
+| P1-6 | **Batch export (PDF + CSV)** (shipped v4.16.0) | All export-capable tools | Allow selecting multiple sessions/tools and exporting one combined PDF or ZIP of CSVs. |
+| P1-7 | **Unit-test coverage for Exporter** (shipped v4.16.0) | Exporter.swift | Add snapshot-style tests for PDF page count, CSV column order, and filename pattern `NetUtil-[Tool]-[target]-yyyyMMdd-HHmmss`. |
+| P1-8 | **Dashboard redesign** | Dashboard | Layout masih terasa belum pas; tata ulang hierarki informasi, kartu ringkasan/hero, dan spacing agar status at-a-glance terbaca jelas dan konsisten dengan token `Metrics.*`. |
+| P1-9 | **Beginner-friendly + standardization sweep** | All tools | Buat tiap tool bisa dipahami pemula: label bahasa awam, hint inline "ini apa / harus apa", state empty/loading/error yang konsisten, dan satu tata bahasa visual yang seragam di 28 tool. |
 
 ---
 
@@ -38,6 +40,7 @@
 | P2-4 | **LAN device fingerprinting** | Neighbors | Enrich ARP entries with OUI vendor name and guessed device type (router, printer, phone). |
 | P2-5 | **CLI companion tool** | New binary | `netutil ping <host>` / `netutil speed` for scripts and Terminal usage; share the same subprocess runners as the app. |
 | P2-6 | **Menu-bar only mode** | MenuBarExtra | Hide the main window and run a lightweight status-bar popover with ping / bandwidth / VPN state. |
+| P2-7 | **Guided troubleshooting workflow** | New (Assistant) | Alur diagnosa step-by-step yang memandu user lewat urutan troubleshooting umum (link -> IP/DHCP -> gateway -> DNS -> internet reachability), menjalankan tool yang relevan di tiap langkah dan menjelaskan hasilnya dalam bahasa awam. |
 
 ---
 
@@ -54,11 +57,11 @@
 - P1-2 — `ErrorBanner` evolved (material, copy/retry/dismiss) across all tools.
 - P1-3 — live-filter on all result tables (Ping, Traceroute, Port Scan, DNS, WHOIS).
 
-### v4.15.0 — Export & Settings Polish (Q4 2026)
-- P1-4 PDF header repeat.
-- P1-5 Settings search.
-- P1-6 batch export.
-- P1-7 Exporter unit tests.
+### Shipped in v4.16.0 (2026-09-13)
+- P1-4 — PDF table header repeat on every page.
+- P1-6 — batch export (Session History; per-tool sections, filter-aware).
+- P1-7 — Exporter unit tests (CSV header + column-order coverage).
+- P1-5 Settings search — deferred; Settings sudah disederhanakan jadi 4 tab bahasa awam, search belum diperlukan.
 
 ### v5.0.0 — Platform Expansion (2027)
 - P2-5 CLI companion tool.
