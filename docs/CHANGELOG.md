@@ -10,6 +10,10 @@ All notable changes to NetUtil are documented here.
 
 - **PDF export**: table column headers now repeat at the top of every page in multi-page reports.
 
+### Tests
+
+- CSV header and column-order coverage for the per-tool Exporter CSV output.
+
 ---
 
 ## [4.15.0] — 2026-09-13
