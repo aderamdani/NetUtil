@@ -6,6 +6,8 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+## [4.16.0] — 2026-09-13
+
 ### Added
 
 - **Batch export (Session History)**: PDF and CSV export now respect the active filter (tool, date, search); the PDF groups sessions into one section per tool.
