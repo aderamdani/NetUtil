@@ -93,7 +93,10 @@ final class SessionHistory {
         records.filter { $0.tool == tool }
     }
 
-    func csvString() -> String {
+    func csvString() -> String { csvString(for: records) }
+
+
+    func csvString(for records: [SessionRecord]) -> String {
         let fmt = ISO8601DateFormatter()
         let header = "timestamp,tool,target,status,duration_s,summary"
         let rows = records.map {

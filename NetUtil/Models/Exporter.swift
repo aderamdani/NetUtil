@@ -552,15 +552,18 @@ enum Exporter {
     @MainActor static func saveSessionHistoryPDF(records: [SessionRecord]) {
         let ts = timestamp()
         let timeFmt = DateFormatter(); timeFmt.dateStyle = .short; timeFmt.timeStyle = .short
-        let dataRows: [[String]] = records.map {
-            [timeFmt.string(from: $0.timestamp), $0.tool, $0.target,
-             $0.status.rawValue, String(format: "%.1f s", $0.duration), $0.summary]
+        let grouped = Dictionary(grouping: records, by: { $0.tool })
+        let sections: [(title: String, rows: [[String]])] = grouped.keys.sorted().map { tool in
+            let rows = (grouped[tool] ?? []).map {
+                [timeFmt.string(from: $0.timestamp), $0.target,
+                 $0.status.rawValue, String(format: "%.1f s", $0.duration), $0.summary]
+            }
+            return (title: tool, rows: [["Time", "Target", "Status", "Duration", "Summary"]] + rows)
         }
-        let pdf = PDFReport.build(tool: "Session History", target: "\(records.count) sessions", sections: [
-            ("Sessions", [["Time", "Tool", "Target", "Status", "Duration", "Summary"]] + dataRows)
-        ])
+        let pdf = PDFReport.build(tool: "Session History", target: "\(records.count) sessions", sections: sections)
         savePDF(data: pdf, defaultName: "NetUtil-SessionHistory-\(ts).pdf")
     }
+
 
     // MARK: - PDF: Compare
     @MainActor static func saveComparePDF(toolLabel: String, a: SessionRecord, b: SessionRecord,

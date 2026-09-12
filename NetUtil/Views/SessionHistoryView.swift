@@ -107,10 +107,10 @@ struct SessionHistoryView: View {
                     .accessibilityLabel("Filter by date range")
 
                     ReportMenuButton(
-                        onExportPDF: { Exporter.saveSessionHistoryPDF(records: history.records) },
+                        onExportPDF: { Exporter.saveSessionHistoryPDF(records: filtered) },
                         onExportCSV: {
                             let ts = DateFormatter(); ts.dateFormat = "yyyyMMdd-HHmmss"
-                            Exporter.save(string: history.csvString(),
+                            Exporter.save(string: history.csvString(for: filtered),
                                           defaultName: "NetUtil-SessionHistory-\(ts.string(from: Date())).csv",
                                           ext: "csv")
                         }
