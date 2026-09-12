@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import Observation
 
 struct MultiPingView: View {

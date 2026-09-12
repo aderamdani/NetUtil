@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 
 struct TracerouteHopsTable: View {
     let hops: [TracerouteHop]
