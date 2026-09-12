@@ -23,7 +23,6 @@ final class SystemMonitor {
         var len = MemoryLayout<UInt64>.size
         sysctlbyname("hw.memsize", &size, &len, nil, 0)
         ramTotalGB = Double(size) / (1024 * 1024 * 1024)
-        start()
     }
     
     func start(interval: TimeInterval = 2) {

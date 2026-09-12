@@ -56,6 +56,7 @@ final class ToolStore {
             self?.applyToolAvailability(tool: tool, available: available)
         }
         if catalog.isAvailable(.bandwidth) { bandwidth.start() }
+        system.start(interval: SystemMonitor.normalInterval)
         wireSessionLogging()
         refreshGlobalStatus()
         if catalog.isAvailable(.dnsResolver) { dnsResolver.start() }
@@ -99,13 +100,13 @@ final class ToolStore {
         if reduced {
             bandwidth.backgroundInterval = 10.0
             if catalog.isAvailable(.bandwidth) { bandwidth.start() }
-            system.start(interval: 10)
+            system.start(interval: SystemMonitor.backgroundInterval)
             statistics.start()
             if catalog.isAvailable(.interfaces) { interfaces.start(interval: 15) }
         } else {
             bandwidth.backgroundInterval = 5.0
             if catalog.isAvailable(.bandwidth) { bandwidth.start() }
-            system.start()
+            system.start(interval: SystemMonitor.normalInterval)
             statistics.start()
             if catalog.isAvailable(.interfaces) { interfaces.start() }
             if wifiWasActive { wifi.start() }
