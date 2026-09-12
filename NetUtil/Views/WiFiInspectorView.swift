@@ -1,6 +1,7 @@
 import SwiftUI
 import CoreWLAN
 import Charts
+import Accessibility
 import Observation
 
 struct WiFiInspectorView: View {
@@ -246,6 +247,14 @@ struct WiFiInspectorView: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
             .accessibilityLabel("Signal stability chart showing RSSI in dBm")
+            .accessibilityChartDescriptor(RSSIStabilityDescriptor(
+                samples: vm.rssiSamples.map { (timestamp: $0.timestamp, rssi: $0.rssi) },
+                summary: Self.rssiChartSummary(
+                    count: vm.rssiSamples.count,
+                    minRssi: vm.rssiSamples.map { $0.rssi }.min() ?? 0,
+                    maxRssi: vm.rssiSamples.map { $0.rssi }.max() ?? 0,
+                    avgRssi: vm.rssiSamples.isEmpty ? 0 : vm.rssiSamples.map { $0.rssi }.reduce(0, +) / vm.rssiSamples.count)
+            ))
         }
     }
 
@@ -290,6 +299,63 @@ struct WiFiInspectorView: View {
         if snr >= 25 { return .green }
         if snr >= 15 { return .orange }
         return .red
+    }
+
+    /// Pure spoken-summary builder for the RSSI chart — testable without
+    /// rendering. Time (X) first, describes data not colors.
+    nonisolated static func rssiChartSummary(count: Int, minRssi: Int, maxRssi: Int, avgRssi: Int) -> String {
+        guard count > 0 else { return "Line chart. No signal samples yet." }
+        return "Line chart. Time on the X axis, signal strength in dBm on the Y axis. \(count) samples, ranging from \(minRssi) to \(maxRssi) dBm, average \(avgRssi) dBm."
+    }
+}
+
+/// VoiceOver descriptor for the Wi-Fi signal-stability chart. Points are
+/// downsampled and each carries a spoken label — never colors, time (X)
+/// always first.
+private struct RSSIStabilityDescriptor: AXChartDescriptorRepresentable {
+    let samples: [(timestamp: Date, rssi: Int)]
+    let summary: String
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let timeFormatter: DateFormatter = {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm:ss"
+            return formatter
+        }()
+        let stride = max(1, samples.count / 60)
+        let points = samples.enumerated().compactMap { index, sample in
+            index % stride == 0 ? sample : nil
+        }
+        let values = points.map { Double($0.rssi) }
+        let lower = values.min() ?? -100
+        let upper = values.max() ?? -30
+        let yRange = lower == upper ? (lower - 1)...(upper + 1) : lower...upper
+        return AXChartDescriptor(
+            title: "Signal stability",
+            summary: summary,
+            xAxis: AXCategoricalDataAxisDescriptor(
+                title: "Time",
+                categoryOrder: points.map { timeFormatter.string(from: $0.timestamp) }
+            ),
+            yAxis: AXNumericDataAxisDescriptor(
+                title: "Signal strength",
+                range: yRange,
+                gridlinePositions: [yRange.lowerBound, (yRange.lowerBound + yRange.upperBound) / 2, yRange.upperBound],
+                valueDescriptionProvider: { "\(Int($0)) dBm" }
+            ),
+            series: [
+                AXDataSeriesDescriptor(
+                    name: "RSSI",
+                    isContinuous: true,
+                    dataPoints: points.map {
+                        AXDataPoint(
+                            x: timeFormatter.string(from: $0.timestamp),
+                            y: Double($0.rssi),
+                            label: "\(timeFormatter.string(from: $0.timestamp)), \($0.rssi) dBm")
+                    }
+                )
+            ]
+        )
     }
 }
 
