@@ -118,7 +118,7 @@ struct PrivacyPane: View {
                 }
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 Text("Sandbox entitlement")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.secondary)
