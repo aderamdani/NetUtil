@@ -15,6 +15,8 @@ hits=$(rg -n --glob '*.swift' 'cornerRadius: (8|10|12)\b' "$SRC" || true)
 if [ -n "$hits" ]; then echo "H5 FAIL — literal corner radius (use Metrics.cornerRadius*):"; echo "$hits"; fail=1; fi
 hits=$(rg -n --glob '*.swift' 'spacing: (4|8|12|16|24|32)\b' "$SRC" || true)
 if [ -n "$hits" ]; then echo "H6 FAIL — literal stack spacing (use Metrics.spacing*):"; echo "$hits"; fail=1; fi
+hits=$(rg -n --glob '*.swift' '\.padding\((\.(horizontal|vertical|top|bottom|leading|trailing), )?(4|8|12|16|24|32)\)' "$SRC" || true)
+if [ -n "$hits" ]; then echo "H7 FAIL — literal grid padding (use Metrics.spacing*):"; echo "$hits"; fail=1; fi
 
 if [ "$fail" -eq 0 ]; then
   echo "HIG lint: clean."
