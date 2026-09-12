@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import Accessibility
 import Observation
 
 struct MultiPingSlotRow: View {
@@ -122,6 +123,9 @@ struct MultiPingSlotRow: View {
         let maxRTT = samples.compactMap { $0.rtt }.max() ?? 50.0
         let lastIdx = max(1, samples.count - 1)
         let strideVal: Double = samples.count < 30 ? 5 : samples.count < 60 ? 10 : 20
+        let successPoints: [(index: Int, rtt: Double)] = samples.enumerated().compactMap { idx, s in s.rtt.map { (index: idx, rtt: $0) } }
+        let timeoutCount = samples.count - successPoints.count
+        let yTop = max(10, maxRTT * 1.15)
 
         return ZStack(alignment: .topLeading) {
             Chart {
@@ -193,6 +197,20 @@ struct MultiPingSlotRow: View {
             .drawingGroup()
             .frame(height: 80)
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { expandedChartWidth = $0 }
+            .accessibilityChartDescriptor(SlotLatencyDescriptor(
+                host: slot.host,
+                points: successPoints,
+                yTop: yTop,
+                summary: Self.slotChartSummary(
+                    host: slot.host,
+                    count: samples.count,
+                    timeouts: timeoutCount,
+                    minMs: successPoints.map { $0.rtt }.min() ?? 0,
+                    avgMs: successPoints.isEmpty ? 0 : successPoints.map { $0.rtt }.reduce(0, +) / Double(successPoints.count),
+                    maxMs: successPoints.map { $0.rtt }.max() ?? 0,
+                    top: yTop)
+            ))
+            .accessibilityLabel("Line chart of ping round-trip time for \(slot.host)")
 
             if let s = hoveredSample {
                 let tooltipEst: CGFloat = Metrics.tooltipEstimateNarrow
@@ -251,5 +269,50 @@ struct MultiPingSlotRow: View {
     
     private func rttColor(_ rtt: Double) -> Color {
         rtt < rttWarn ? .primary : (rtt < rttCrit ? .orange : .red)
+    }
+
+    nonisolated static func slotChartSummary(host: String, count: Int, timeouts: Int, minMs: Double, avgMs: Double, maxMs: Double, top: Double) -> String {
+        guard count > 0 else { return "Line chart for \(host). No ping data yet." }
+        return "Line chart for \(host). Ping sequence on the X axis, round-trip time in milliseconds on the Y axis from 0 to \(Int(top)). \(count) pings, \(timeouts) timed out. Fastest \(String(format: "%.1f", minMs)), average \(String(format: "%.1f", avgMs)), slowest \(String(format: "%.1f", maxMs)) milliseconds."
+    }
+}
+
+private struct SlotLatencyDescriptor: AXChartDescriptorRepresentable {
+    let host: String
+    let points: [(index: Int, rtt: Double)]
+    let yTop: Double
+    let summary: String
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let stride = max(1, points.count / 60)
+        let sampled = points.enumerated().compactMap { i, point in
+            i % stride == 0 ? point : nil
+        }
+        return AXChartDescriptor(
+            title: "Latency history for \(host)",
+            summary: summary,
+            xAxis: AXCategoricalDataAxisDescriptor(
+                title: "Ping sequence",
+                categoryOrder: sampled.map { "ping \($0.index)" }
+            ),
+            yAxis: AXNumericDataAxisDescriptor(
+                title: "Round-trip time",
+                range: 0...yTop,
+                gridlinePositions: [0, yTop / 2, yTop],
+                valueDescriptionProvider: { String(format: "%.0f milliseconds", $0) }
+            ),
+            series: [
+                AXDataSeriesDescriptor(
+                    name: "Round-trip time",
+                    isContinuous: true,
+                    dataPoints: sampled.map {
+                        AXDataPoint(
+                            x: "ping \($0.index)",
+                            y: $0.rtt,
+                            label: "Ping \($0.index), \(String(format: "%.1f", $0.rtt)) milliseconds")
+                    }
+                )
+            ]
+        )
     }
 }
