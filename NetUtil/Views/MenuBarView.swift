@@ -155,9 +155,10 @@ struct MenuBarView: View {
 
 struct MenuBarLabel: View {
     @Environment(ToolStore.self) private var tools
+    @AppStorage("menuBarShowTraffic") private var showTraffic = false
 
     var body: some View {
-        if UserDefaults.standard.bool(forKey: "menuBarShowTraffic") {
+        if showTraffic {
             HStack(spacing: 3) {
                 Image(systemName: "network")
                     .imageScale(.small)

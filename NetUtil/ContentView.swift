@@ -216,19 +216,14 @@ struct ContentView: View {
                                                availableKeys: tools.catalog.availableKeys)
         }
         .background {
-            // Invisible buttons for keyboard shortcuts (available tools only)
-            ForEach(tools.catalog.availableTools) { tool in
-                if let key = tool.shortcut {
-                    Button("") { selection = tool }
-                        .keyboardShortcut(key, modifiers: tool.shortcutModifiers)
-                        .opacity(0)
-                }
-            }
-            
             // Cmd+F shortcut
             Button("") { isSearchFocused = true }
                 .keyboardShortcut("f", modifiers: .command)
                 .opacity(0)
+        }
+        .focusedSceneValue(\.selectTool) { tool in
+            guard tools.catalog.isAvailable(tool) else { return }
+            selection = tool
         }
         .onAppear { if !hasCompletedOnboarding { showOnboarding = true } }
         .sheet(isPresented: $showOnboarding) {

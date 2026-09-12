@@ -25,6 +25,7 @@
 ```
 NetUtil/
 ├── NetUtilApp.swift              # @main entry — 5 scenes
+├── AppCommands.swift             # Menu bar: Tools navigation, import/export, copy, refresh
 ├── ContentView.swift             # Tool enum (28 cases) + NavigationSplitView
 ├── NetUtil.entitlements          # com.apple.security.network.client only
 ├── Assets.xcassets/              # App icon, accent color
@@ -54,6 +55,7 @@ NetUtil/
 │   ├── HostHistory.swift         # MRU host list (20 entries)
 │   ├── SSLWatchlist.swift        # SSL cert monitoring
 │   ├── Notifier.swift            # macOS notification banners
+│   ├── SettingsBackupService.swift # Save/open panels + replace confirmation for backups
 │   ├── Exporter.swift            # CSV + PDF export for all tools
 │   ├── Updater.swift             # GitHub Releases auto-updater
 │   ├── WakeOnLan.swift           # Magic packet construction + UDP broadcast
@@ -128,7 +130,7 @@ NetUtil/
 │       ├── ThresholdsPane.swift
 │       ├── ToolsPane.swift
 │       ├── PrivacyPane.swift
-│       └── BackupPane.swift        # Export/import settings JSON (SettingsBackup model)
+│       └── BackupPane.swift        # Settings > Backup UI over SettingsBackupService
 │
 └── NetUtilTests/                 # 25 test files
     ├── PingTests.swift
@@ -165,6 +167,20 @@ NetUtilApp (@main)
 - `AppDelegate` handles `applicationShouldTerminateAfterLastWindowClosed` — when `backgroundOnClose` is enabled, closing the window switches to `.accessory` activation policy (Dock icon hidden, menu bar stays alive).
 - `NSApplication.showMainWindow()` restores the window from menu bar mode.
 
+### Menu Bar Commands
+
+**File:** `AppCommands.swift` — a single `Commands` type wired in `NetUtilApp` via `.commands {}`.
+
+| Placement | Items |
+|---|---|
+| File (`after: .importExport`) | Export Settings…, Import Settings… (via `SettingsBackupService`) |
+| Edit (`after: .pasteboard`) | Copy Public IP (⌥⌘P), Copy Local IP (⌥⌘L), Copy Hostname |
+| View (`after: .sidebar`) | Refresh Network Status (⌘R), Show Traffic in Menu Bar toggle |
+| Tools (`CommandMenu`) | All available tools, grouped by `ToolGroup`, with their `Cmd`/`Opt+Cmd` shortcuts |
+| Help (`replacing: .help`) | NetUtil Help (⌘?) |
+
+Tool navigation is bridged without moving selection state: `ContentView` publishes `.focusedSceneValue(\.selectTool)`, and `AppCommands` reads it with `@FocusedValue`. Tool keyboard shortcuts now live on the menu items (the former hidden-button approach was removed); items are disabled when the main window is not focused.
+
 ### Window Behavior
 
 | Window | Type | Size | Style |
@@ -189,7 +205,7 @@ NetUtilApp (@main)
 - `icon` — SF Symbol name
 - `shortcut` / `shortcutModifiers` — keyboard navigation (two banks: `Cmd+1-9`, `Opt+Cmd+1-9`)
 
-Sidebar sections are generated data-driven from `ToolGroup.allCases` + `ToolCatalog.availableTools(in:)` (disabled tools hidden, empty sections skipped). A selection pointing at a newly-disabled tool falls back to `.dashboard` via `Tool.fallbackSelection`. Keyboard shortcuts register for available tools only.
+Sidebar sections are generated data-driven from `ToolGroup.allCases` + `ToolCatalog.availableTools(in:)` (disabled tools hidden, empty sections skipped). A selection pointing at a newly-disabled tool falls back to `.dashboard` via `Tool.fallbackSelection`. Keyboard shortcuts register for available tools only — surfaced in the Tools menu (see `AppCommands.swift`).
 
 **Tool availability** — `Models/ToolCatalog.swift` (`@MainActor @Observable`): persists disabled `persistenceKey`s in UserDefaults (`com.netutil.disabledTools`, default all available). Toggled per group in Settings > Tools. `ToolStore` owns the catalog and stops/starts the matching pollers (`BandwidthMonitor`, interface polling, `DNSResolverViewModel`) so a disabled tool costs zero CPU.
 
@@ -472,7 +488,7 @@ Every parser is a `nonisolated static func` on the model struct — runs off Mai
 | `SSLWatchlist` | `sslWatchlist` | `[SSLWatchItem]` (Codable) | Unlimited |
 | Settings | Various keys | Primitives via `@AppStorage` | — |
 
-Settings backup (`Models/SettingsBackup.swift`, Settings > Backup tab): versioned JSON (`schemaVersion`, `BackupValue` primitives) covering an explicit whitelist — 20 prefs, tool availability, favorites, SSL watchlist; session/traffic/host history opt-in only. Import validates schema, ignores foreign keys, and re-applies via `ToolStore.reapplyImportedSettings()` with a destructive-confirm alert.
+Settings backup (`Models/SettingsBackup.swift`, Settings > Backup tab, and File menu): versioned JSON (`schemaVersion`, `BackupValue` primitives) covering an explicit whitelist — 20 prefs, tool availability, favorites, SSL watchlist; session/traffic/host history opt-in only. Import validates schema, ignores foreign keys, and re-applies via `ToolStore.reapplyImportedSettings()` with a destructive-confirm alert. Panels and confirmation live in `Models/SettingsBackupService.swift` so the model layer stays unit-testable.
 
 ---
 
@@ -652,11 +668,11 @@ Entitlements: only `com.apple.security.network.client` (outbound connections).
 5. **Wire session logging** — set `myTool.onSessionComplete` in `ToolStore.wireSessionLogging()`
 6. **Add routing** — add case to `toolView(_:)` switch in `ContentView.swift`
 7. **Add to sidebar** — add to appropriate section in `ContentView.swift` sidebar List
-8. **Add keyboard shortcut** — assign from available digit bank
+8. **Add keyboard shortcut** — assign from available digit bank; `AppCommands` surfaces it in the Tools menu automatically
 9. **Add to `AboutView.toolList`** — icon + name tuple
 10. **Add learning guide** — create `HelpView(topic: "My Tool")` content
 11. **Add export** — implement CSV/PDF methods in `Exporter.swift`, wire `ReportMenuButton`
-12. **Add to Dashboard** — optionally add a BentoCard in the appropriate section
+12. **Add to Dashboard** — optionally add a `BentoCard` to `EssentialToolsSection`
 
 ### Adding a New ViewModel
 

@@ -5,8 +5,8 @@ import Observation
 @main
 struct NetUtilApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @Environment(\.openWindow) private var openWindow
     @State private var tools = ToolStore()
+    @AppStorage("menuBarShowTraffic") private var menuBarShowTraffic = false
 
     var body: some Scene {
         WindowGroup {
@@ -16,22 +16,12 @@ struct NetUtilApp: App {
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
         .commands {
-            CommandGroup(replacing: .newItem) {}
-            CommandGroup(after: .appInfo) {
-                Button("Check for Updates...") {
-                    Updater.shared.checkForUpdates(interactive: true)
-                }
-            }
-            CommandGroup(replacing: .help) {
-                Button("NetUtil Help") {
-                    openWindow(id: "help")
-                }
-                .keyboardShortcut("?", modifiers: .command)
-            }
+            AppCommands(tools: tools, menuBarShowTraffic: $menuBarShowTraffic)
         }
 
         Window("About NetUtil", id: "about") {
             AboutView()
+                .frame(width: 560, height: 620)
         }
         .windowResizability(.contentSize)
         .windowStyle(.titleBar)
