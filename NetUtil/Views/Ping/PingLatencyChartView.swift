@@ -218,7 +218,7 @@ struct PingLatencyChartView: View {
 
     /// Pure spoken-summary builder for the latency chart — testable
     /// without rendering. Sequence (X) first, describes data not colors.
-    static func pingChartSummary(count: Int, timeouts: Int, minMs: Double, avgMs: Double, maxMs: Double, top: Double) -> String {
+    static nonisolated func pingChartSummary(count: Int, timeouts: Int, minMs: Double, avgMs: Double, maxMs: Double, top: Double) -> String {
         guard count > 0 else { return "Line chart. No ping data yet." }
         return "Line chart. Ping sequence on the X axis, round-trip time in milliseconds on the Y axis from 0 to \(Int(top)). \(count) pings, \(timeouts) timed out. Fastest \(String(format: "%.1f", minMs)), average \(String(format: "%.1f", avgMs)), slowest \(String(format: "%.1f", maxMs)) milliseconds."
     }
