@@ -1,7 +1,7 @@
 # NetUtil — Roadmap & Development Plan
 
 > Last updated: 2026-09-12
-> Current version: 4.14.0
+> Current version: 4.15.0
 
 ---
 
@@ -109,7 +109,7 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 - Chart accessibility descriptors for VoiceOver — P1-1 (Ping, Bandwidth, Wi-Fi RSSI, Multi-Ping).
 - Also shipped: first-run onboarding, zero-idle SystemMonitor ownership, and a full UI token sweep.
 
-### Done since v4.14.0 (unreleased)
+### Shipped in v4.15.0 (2026-09-13)
 
 
 - `ErrorBanner` evolved — material surface, copy action, and retry/dismiss wired across all 15 tools (P1-2).
@@ -143,6 +143,7 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 
 | Version | Milestone |
 |---------|-----------|
+| **v4.15.0** | ErrorBanner material + copy/retry/dismiss; live-filter across all result tables |
 | **v4.14.0** | Onboarding, VoiceOver chart descriptors, zero-idle SystemMonitor ownership, UI token sweep + HIG lint, Homebrew tap |
 | **v4.13.1** | Multi-Ping control bar, string-fusion sweep, VoiceOver pure functions |
 | **v4.13.0** | Zero-idle monitoring, modular tool catalog, privacy pane, settings backup |

@@ -1,7 +1,7 @@
 # NetUtil — Improvement Backlog
 
 > Last updated: 2026-09-12
-> Current version: 4.14.0
+> Current version: 4.15.0
 
 ---
 
@@ -48,7 +48,7 @@
 - P0-1 automated HIG lint (run manually) — done.
 - P1-1 chart accessibility descriptors (Ping, Bandwidth, Wi-Fi RSSI, Multi-Ping) — done.
 
-### Done since v4.14.0 (unreleased)
+### Shipped in v4.15.0 (2026-09-13)
 
 
 - P1-2 — `ErrorBanner` evolved (material, copy/retry/dismiss) across all tools.

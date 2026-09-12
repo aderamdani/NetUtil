@@ -4,7 +4,7 @@ All notable changes to NetUtil are documented here.
 
 ---
 
-## [Unreleased]
+## [4.15.0] — 2026-09-13
 
 
 ### Added
