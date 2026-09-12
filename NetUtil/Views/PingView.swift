@@ -346,20 +346,31 @@ struct PingView: View {
         ToolStateView.loading(message: "Waiting for ICMP sequence...")
     }
 
+    @State private var logFilter = ""
+
+
     private var rawOutput: some View {
-        List {
-            ForEach(vm.rawLines) { line in
-                Text(line.text)
-                    .font(.caption.monospaced())
-                    .foregroundColor(.secondary)
+        VStack(spacing: Metrics.spacingSM) {
+            HStack {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+                    .foregroundStyle(.secondary)
+                TextField("Filter log", text: $logFilter)
+                    .textFieldStyle(.roundedBorder)
             }
+            List {
+                ForEach(vm.rawLines.filter { logFilter.isEmpty || $0.text.localizedCaseInsensitiveContains(logFilter) }) { line in
+                    Text(line.text)
+                        .font(.caption.monospaced())
+                        .foregroundColor(.secondary)
+                }
+            }
+            .listStyle(.plain)
+            .frame(minHeight: 400)
+            .scrollContentBackground(.hidden)
+            .scrollPosition(id: .constant(vm.rawLines.last?.id))
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
         }
-        .listStyle(.plain)
-        .frame(minHeight: 400)
-        .scrollContentBackground(.hidden)
-        .scrollPosition(id: .constant(vm.rawLines.last?.id))
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
-        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
     }
 
     private func startAction() {
