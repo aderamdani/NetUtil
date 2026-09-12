@@ -14,6 +14,7 @@ struct TracerouteView: View {
     @State private var maxHops = 30
     @State private var traceInterval = 5.0
     @State private var viewMode: ViewMode = .hops
+    @State private var hopFilter = ""
     @State private var selectedHopID: UUID?
     @State private var infoHop: TracerouteHop?
     @State private var showLearningGuide = false
@@ -67,6 +68,11 @@ struct TracerouteView: View {
                             HStack {
                                 SectionHeader(title: "Path Visualization", icon: "map.fill")
                                 Spacer()
+                                if viewMode == .hops {
+                                    TextField("Filter hops", text: $hopFilter)
+                                        .textFieldStyle(.roundedBorder)
+                                        .frame(width: 180)
+                                }
                                 Picker("", selection: $viewMode) {
                                     ForEach(ViewMode.allCases, id: \.self) { mode in
                                         Text(mode.rawValue.capitalized).tag(mode)
@@ -246,11 +252,17 @@ struct TracerouteView: View {
         return "A router along the way — run by your provider or a carrier."
     }
 
+    private var filteredHops: [TracerouteHop] {
+        guard !hopFilter.isEmpty else { return vm.hops }
+        return vm.hops.filter { $0.displayHost.localizedCaseInsensitiveContains(hopFilter) }
+    }
+
+
     @ViewBuilder
     private var contentArea: some View {
         switch viewMode {
         case .hops:
-            TracerouteHopsTable(hops: vm.hops, selectedHopID: selectedHopID, rttWarn: rttWarn, rttCrit: rttCrit, bottleneckHopID: bottleneck?.hop.id, bottleneckAddedMs: bottleneck?.addedMs, onSelect: { selectedHopID = $0 }, onInfo: { infoHop = $0 })
+            TracerouteHopsTable(hops: filteredHops, selectedHopID: selectedHopID, rttWarn: rttWarn, rttCrit: rttCrit, bottleneckHopID: bottleneck?.hop.id, bottleneckAddedMs: bottleneck?.addedMs, onSelect: { selectedHopID = $0 }, onInfo: { infoHop = $0 })
         case .timeline:
             TracerouteTimelineView(hops: vm.hops, rttWarn: rttWarn, rttCrit: rttCrit, selectedHopID: selectedHopID, onSelect: { selectedHopID = $0 })
         case .map:
