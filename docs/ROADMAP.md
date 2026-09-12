@@ -142,7 +142,7 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 
 | Version | Milestone |
 |---------|-----------|
-| **v4.14.0** | Onboarding, VoiceOver chart descriptors, zero-idle SystemMonitor ownership, UI token sweep + HIG lint CI, Homebrew tap |
+| **v4.14.0** | Onboarding, VoiceOver chart descriptors, zero-idle SystemMonitor ownership, UI token sweep + HIG lint, Homebrew tap |
 | **v4.13.1** | Multi-Ping control bar, string-fusion sweep, VoiceOver pure functions |
 | **v4.13.0** | Zero-idle monitoring, modular tool catalog, privacy pane, settings backup |
 | **v4.12.0** | Verdict cards (Ping/Traceroute/Speed/HTTP/NetQuality), layperson explanations, HIG standardization, PDF table rebuild |
