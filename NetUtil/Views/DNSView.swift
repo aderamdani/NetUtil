@@ -9,6 +9,7 @@ struct DNSView: View {
     @State private var recordType = DNSRecordType.a
     @State private var server = DNSServer.system
     @State private var showRaw = false
+    @State private var recordFilter = ""
     @State private var showLearningGuide = false
 
     var body: some View {
@@ -153,6 +154,13 @@ struct DNSView: View {
 
     private var recordsTable: some View {
         VStack(spacing: 0) {
+            HStack {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+                    .foregroundStyle(.secondary)
+                TextField("Filter records", text: $recordFilter)
+                    .textFieldStyle(.roundedBorder)
+            }
+            .padding(.bottom, Metrics.spacingSM)
             HStack(spacing: 0) {
                 TableHeader("Resource Name", flexible: true)
                 TableHeader("TTL", width: 80)
@@ -166,7 +174,7 @@ struct DNSView: View {
             
             if let res = vm.result {
                 LazyVStack(spacing: 0) {
-                    ForEach(res.records) { r in
+                    ForEach(res.records.filter { recordFilter.isEmpty || $0.name.localizedCaseInsensitiveContains(recordFilter) || $0.type.localizedCaseInsensitiveContains(recordFilter) || $0.value.localizedCaseInsensitiveContains(recordFilter) }) { r in
                         HStack(spacing: 0) {
                             Text(r.name)
                                 .font(.system(.caption, design: .monospaced))
