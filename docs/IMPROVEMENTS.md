@@ -45,7 +45,7 @@
 
 ### Shipped in v4.14.0 — HIG Hardening & Accessibility
 
-- P0-1 automated HIG lint + CI gate — done.
+- P0-1 automated HIG lint (run manually) — done.
 - P1-1 chart accessibility descriptors (Ping, Bandwidth, Wi-Fi RSSI, Multi-Ping) — done.
 
 ### Next — carried over from v4.14.0 scope
@@ -83,7 +83,7 @@
 
 ### UI token sweep + HIG lint — SELESAI
 
-- Corner radii and stack spacing across all views moved to `Metrics.*`; off-grid padding curated. Locked in by `scripts/hig-lint.sh` (H2 font, H5 radius, H6 spacing, H7 grid padding) wired to a CI workflow (dormant until the GitHub account billing lock clears).
+- Corner radii and stack spacing across all views moved to `Metrics.*`; off-grid padding curated. Locked in by `scripts/hig-lint.sh` (H2 font, H5 radius, H6 spacing, H7 grid padding) run manually before each commit.
 
 ### Distribution: Homebrew + screenshots — SELESAI
 

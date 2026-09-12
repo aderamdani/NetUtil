@@ -19,7 +19,7 @@ All notable changes to NetUtil are documented here.
 
 ### Tooling
 
-- HIG anti-slop regression lint (`scripts/hig-lint.sh` — font-size, corner-radius, spacing, and grid-padding checks) wired to a CI workflow gate.
+- HIG anti-slop regression lint (`scripts/hig-lint.sh` — font-size, corner-radius, spacing, and grid-padding checks) run manually before each commit.
 
 ---
 

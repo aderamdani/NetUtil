@@ -51,7 +51,7 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 - First-run onboarding sheet (`hasCompletedOnboarding` in `ContentView`), privacy-forward, pointing to Settings > Privacy.
 - VoiceOver chart descriptors (`AXChartDescriptor`) on Ping, Bandwidth aggregate, Wi-Fi RSSI, and Multi-Ping slot charts, each backed by a pure summary function under test.
 - SystemMonitor lifecycle owned solely by `ToolStore` (no self-start); cadence via `normalInterval` (2s) / `backgroundInterval` (10s).
-- UI token sweep: corner radii and stack spacing moved to `Metrics.*`, unified control-bar header padding, off-grid padding curated — locked in by `hig-lint.sh` (H2/H5/H6/H7) + a CI workflow (dormant until the account billing lock clears).
+- UI token sweep: corner radii and stack spacing moved to `Metrics.*`, unified control-bar header padding, off-grid padding curated — locked in by `hig-lint.sh` (H2/H5/H6/H7), run manually before each commit.
 - Distribution: manual DMG release, Homebrew tap (`aderamdani/tap`), and a README Screenshots section.
 
 ### Version 4.13.1 — Control Bar + String Polish (2026-09-11)
@@ -105,7 +105,7 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 
 ### Shipped in v4.14.0 — HIG Hardening & Accessibility
 
-- Automated HIG regression lint + CI gate — P0-1 (font, corner-radius, spacing, grid-padding checks).
+- Automated HIG regression lint (run manually) — P0-1 (font, corner-radius, spacing, grid-padding checks).
 - Chart accessibility descriptors for VoiceOver — P1-1 (Ping, Bandwidth, Wi-Fi RSSI, Multi-Ping).
 - Also shipped: first-run onboarding, zero-idle SystemMonitor ownership, and a full UI token sweep.
 
