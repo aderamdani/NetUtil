@@ -11,6 +11,8 @@ final class WakeOnLanViewModel {
     private(set) var lastSent: (mac: String, at: Date)?
     private(set) var error: String?
 
+    func clearError() { error = nil }
+
     func send() {
         error = nil
         do {

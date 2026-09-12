@@ -19,7 +19,7 @@ struct DNSView: View {
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
-                        ErrorBanner(message: err)
+                        ErrorBanner(message: err, onDismiss: { vm.clearError() })
                     }
                     
                     if let result = vm.result {

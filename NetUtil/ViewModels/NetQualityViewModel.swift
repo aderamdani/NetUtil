@@ -7,6 +7,8 @@ final class NetQualityViewModel {
     private(set) var result: NetQualityResult?
     private(set) var isRunning = false
     private(set) var error: String?
+
+    func clearError() { error = nil }
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     @ObservationIgnored private let subprocess = CancellableSubprocess()

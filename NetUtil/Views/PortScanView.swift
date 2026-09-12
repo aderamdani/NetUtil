@@ -53,7 +53,7 @@ struct PortScanView: View {
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
-                        ErrorBanner(message: err)
+                        ErrorBanner(message: err, onDismiss: { vm.clearError() })
                     }
                     
                     if vm.total > 0 || !vm.results.isEmpty {

@@ -22,6 +22,8 @@ final class PortListenerViewModel {
     var proto: Proto = .tcp
     private(set) var isRunning = false
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var events: [ListenerEvent] = []
 
     private static let eventLimit = 200

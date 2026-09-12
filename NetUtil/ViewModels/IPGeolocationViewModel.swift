@@ -7,6 +7,8 @@ final class IPGeolocationViewModel {
     var query: String = ""
     private(set) var isRunning = false
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var result: IPGeoResult?
     private(set) var lastQuery: String?
 

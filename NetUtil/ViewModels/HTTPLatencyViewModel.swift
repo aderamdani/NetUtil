@@ -29,6 +29,8 @@ final class HTTPLatencyViewModel {
     var history: [HTTPLatencyResult] = []
     private(set) var isRunning = false
     private(set) var error: String?
+
+    func clearError() { error = nil }
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     @ObservationIgnored nonisolated(unsafe) private var currentTask: Task<Void, Never>?

@@ -13,6 +13,8 @@ final class PingViewModel {
     private(set) var isRunning = false
     private(set) var rawLines: [PingLogLine] = []
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var resolvedIP: String?
     private(set) var currentHost: String = ""
     var quickLaunchHost: String? = nil

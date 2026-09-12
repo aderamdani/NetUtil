@@ -108,6 +108,8 @@ final class SSLInspectorViewModel {
     private(set) var result: CertResult?
     private(set) var isRunning = false
     private(set) var error: String?
+
+    func clearError() { error = nil }
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     @ObservationIgnored nonisolated(unsafe) private var task: Task<Void, Never>?

@@ -14,7 +14,7 @@ struct SubnetScanView: View {
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
                     if let err = viewModel.error {
-                        ErrorBanner(message: err)
+                        ErrorBanner(message: err, onDismiss: { viewModel.clearError() })
                     }
 
                     if viewModel.scanStats.total > 0 {

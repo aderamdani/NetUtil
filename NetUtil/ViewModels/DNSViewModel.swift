@@ -8,6 +8,8 @@ final class DNSViewModel {
     private(set) var isRunning = false
     private(set) var rawOutput = ""
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var lastQuery: String = ""
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 

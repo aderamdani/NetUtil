@@ -7,6 +7,8 @@ final class WhoisViewModel {
     private(set) var lines: [WhoisLine] = []
     private(set) var isRunning = false
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var lastQuery: String = ""
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
     @ObservationIgnored private let subprocess = CancellableSubprocess()

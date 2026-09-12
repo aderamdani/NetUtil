@@ -11,6 +11,8 @@ final class PortScanViewModel {
     private(set) var total = 0
     private(set) var openCount = 0
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var currentHost: String = ""
 
     private(set) var startTime: Date?

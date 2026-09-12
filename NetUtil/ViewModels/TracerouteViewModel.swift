@@ -9,6 +9,8 @@ final class TracerouteViewModel {
     private(set) var isRunning = false
     private(set) var rawLines: [PingLogLine] = []
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var round = 0
     private(set) var currentHost: String = ""
     private(set) var startTime: Date?

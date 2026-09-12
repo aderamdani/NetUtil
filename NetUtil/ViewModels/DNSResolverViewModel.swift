@@ -6,6 +6,8 @@ import Observation
 final class DNSResolverViewModel {
     private(set) var isRunning = false
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var resolvers: [DNSResolverEntry] = []
     private(set) var lastUpdated: Date?
 

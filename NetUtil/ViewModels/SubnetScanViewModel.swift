@@ -14,6 +14,8 @@ final class SubnetScanViewModel {
     private(set) var scanDuration: String = "0.0s"
     private(set) var error: String?
 
+    func clearError() { error = nil }
+
     /// Largest scannable block: /16 = 65 534 hosts. Anything wider would
     /// allocate millions of result rows and ping for hours.
     static let minPrefix = 16

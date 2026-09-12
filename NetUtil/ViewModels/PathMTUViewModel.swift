@@ -15,6 +15,8 @@ final class PathMTUViewModel {
     private(set) var mtu: Int?
     private(set) var isRunning = false
     private(set) var error: String?
+
+    func clearError() { error = nil }
     private(set) var currentHost = ""
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 

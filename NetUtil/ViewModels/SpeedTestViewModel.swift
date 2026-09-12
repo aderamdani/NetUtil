@@ -38,6 +38,8 @@ final class SpeedTestViewModel: SpeedTestDelegate {
     private(set) var lastResult: SpeedTestResult?
     private(set) var history: [SpeedTestResult] = []
     private(set) var error: String?
+
+    func clearError() { error = nil }
     var onSessionComplete: ((SessionRecord) -> Void)? = nil
 
     private(set) var isRunning = false
