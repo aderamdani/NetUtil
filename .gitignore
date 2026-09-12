@@ -8,3 +8,6 @@ DerivedData/
 build/
 dist/
 xcuserdata/
+
+# Local tooling / editor config
+opencode.json
