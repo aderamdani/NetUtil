@@ -4,7 +4,7 @@ All notable changes to NetUtil are documented here.
 
 ---
 
-## [Unreleased]
+## [4.14.0] — 2026-09-12
 
 ### Added
 - **First-run onboarding**: welcome screen shown once (`hasCompletedOnboarding` in `ContentView`) with a privacy summary (no telemetry; points to Settings > Privacy).
