@@ -113,7 +113,7 @@ Multi-Ping additionally gained threshold-based latency alert notifications.
 
 
 - `ErrorBanner` evolved — material surface, copy action, and retry/dismiss wired across all 15 tools (P1-2).
-- Live-filter on the Ping console log and the Traceroute hops table by host/IP (P1-3; Port Scan / DNS / WHOIS still pending).
+- Live-filter across all result tables: Ping, Traceroute, Port Scan, DNS, WHOIS (P1-3).
 
 ### v4.15.0 — Export & Settings Polish (Q4 2026)
 - PDF table header repeat on every page (P1-4).

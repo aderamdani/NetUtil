@@ -10,7 +10,7 @@ All notable changes to NetUtil are documented here.
 ### Added
 
 
-- **Live-filter**: a text field narrows the Ping console log and the Traceroute hops table (by host/IP) without re-running.
+- **Live-filter**: a text field narrows result tables across Ping, Traceroute, Port Scan, and DNS (WHOIS already had one) without re-running.
 
 
 ### Changed

@@ -20,7 +20,7 @@
 | # | Task | Tool / Area | Rationale |
 |---|------|-------------|-----------|
 | P1-2 | **Unified error-surface component** (done, unreleased) | All tools | Replace ad-hoc `alert` / `Text("...").foregroundColor(.red)` with a shared `ClinicalErrorBanner` that supports retry, copy, and dismiss. |
-| P1-3 | **Live-filter on all result tables** (Ping + Traceroute done, unreleased) | Ping, Traceroute, Port Scan, DNS, WHOIS | Add per-tool search/filter bar to narrow large result sets without re-running the scan. |
+| P1-3 | **Live-filter on all result tables** (done, unreleased) | Ping, Traceroute, Port Scan, DNS, WHOIS | Add per-tool search/filter bar to narrow large result sets without re-running the scan. |
 | P1-4 | **PDF table header repeat on every page** | Exporter | Long reports (Multi-Ping, Traceroute) lose column headers after page 1; implement `CGContext` page-header drawing. |
 | P1-5 | **Settings search** | SettingsView | Add a filter field to jump directly to a setting pane (Thresholds, Backup, Privacy, Tools). |
 | P1-6 | **Batch export (PDF + CSV)** | All export-capable tools | Allow selecting multiple sessions/tools and exporting one combined PDF or ZIP of CSVs. |
@@ -52,7 +52,7 @@
 
 
 - P1-2 — `ErrorBanner` evolved (material, copy/retry/dismiss) across all tools.
-- P1-3 — live-filter on the Ping console log and Traceroute hops table (Port Scan / DNS / WHOIS still pending).
+- P1-3 — live-filter on all result tables (Ping, Traceroute, Port Scan, DNS, WHOIS).
 
 ### v4.15.0 — Export & Settings Polish (Q4 2026)
 - P1-4 PDF header repeat.
@@ -98,7 +98,7 @@
 - `ErrorBanner` moved to a `.regularMaterial` surface (was fake red opacity), gained a built-in copy-to-clipboard action, and optional retry/dismiss wired to each tool's run action plus a new `clearError()` on every ViewModel.
 
 
-### Live-filter (P1-3, partial) — SELESAI (unreleased)
+### Live-filter (P1-3) — SELESAI (unreleased)
 
 
-- Text filter on the Ping console log and the Traceroute hops table (by host/IP). Port Scan / DNS / WHOIS tables still pending.
+- Text filter across the Ping console log, Traceroute hops (by host/IP), Port Scan (port/service), and DNS records; WHOIS already had one.
