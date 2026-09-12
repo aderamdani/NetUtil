@@ -4,6 +4,16 @@ All notable changes to NetUtil are documented here.
 
 ---
 
+## [4.14.0] — 2026-09-12
+
+### Added
+- **First-run onboarding**: welcome screen shown once (`hasCompletedOnboarding` in `ContentView`) with a privacy summary (no telemetry; points to Settings > Privacy).
+
+### Changed
+- **SystemMonitor lifecycle**: `ToolStore` is now the sole owner of `SystemMonitor`'s lifecycle; monitoring cadence uses named constants `SystemMonitor.normalInterval` / `backgroundInterval` (zero-idle).
+
+---
+
 ## [4.13.1] — 2026-09-11
 
 ### Changed

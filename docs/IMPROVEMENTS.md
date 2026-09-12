@@ -1,7 +1,7 @@
 # NetUtil — Improvement Backlog
 
-> Last updated: 2026-09-11
-> Current version: 4.13.1
+> Last updated: 2026-09-12
+> Current version: 4.14.0
 
 ---
 
@@ -63,6 +63,12 @@
 ---
 
 ## Completed
+
+### First-run onboarding — SELESAI
+- Onboarding shown once via `@AppStorage("hasCompletedOnboarding")` in `ContentView`; privacy-forward summary (no telemetry; points to Settings > Privacy for per-tool host breakdown).
+
+### SystemMonitor lifecycle (zero-idle) — SELESAI
+- `ToolStore` is now the sole owner of `SystemMonitor` lifecycle (`SystemMonitor.init` no longer auto-starts); cadence uses named constants `SystemMonitor.normalInterval` (2s) / `backgroundInterval` (10s).
 
 ### Chart accessibility parity — SELESAI
 - Done (AXChartDescriptor + test): Ping, Bandwidth aggregate, Wi-Fi RSSI, Multi-Ping slot.
