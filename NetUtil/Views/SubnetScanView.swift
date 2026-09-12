@@ -116,7 +116,7 @@ struct SubnetScanView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 14)
+            .padding(.vertical, Metrics.spacingLG)
 
             Divider()
         }

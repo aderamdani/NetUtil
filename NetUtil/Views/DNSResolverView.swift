@@ -74,7 +74,7 @@ struct DNSResolverView: View {
                 .accessibilityLabel("Show Help Guide")
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 14)
+            .padding(.vertical, Metrics.spacingLG)
 
             Divider()
         }
