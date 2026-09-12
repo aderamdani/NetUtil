@@ -14,7 +14,7 @@ struct WiFiInspectorView: View {
             moodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let info = vm.info {
                         interpretationSection(info)
                         recommendationSection(info)
@@ -25,7 +25,7 @@ struct WiFiInspectorView: View {
                             signalStabilitySection
                         }
                         
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             SectionHeader(title: "Infrastructure Details", icon: "antenna.radiowaves.left.and.right")
                             detailGrid(info)
                         }
@@ -45,8 +45,8 @@ struct WiFiInspectorView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "wifi")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -58,7 +58,7 @@ struct WiFiInspectorView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 16) {
+                HStack(spacing: Metrics.spacingLG) {
                     VStack(alignment: .trailing, spacing: 2) {
                         Text("Interface").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                         Text(vm.info?.interfaceName ?? "en0")
@@ -115,7 +115,7 @@ struct WiFiInspectorView: View {
     }
 
     private func interpretationSection(_ info: WiFiInfo) -> some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: Metrics.spacingLG) {
             let rssi = info.rssi ?? -100
             let (status, desc, icon, color): (String, String, String, Color) = {
                 if rssi >= -60 { return ("Excellent Association", "High signal-to-noise ratio with minimal interference.", "wifi", .green) }
@@ -144,7 +144,7 @@ struct WiFiInspectorView: View {
             
             Spacer()
             
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .trailing, spacing: Metrics.spacingXS) {
                 Text("Last Polled").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                 Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
@@ -170,16 +170,16 @@ struct WiFiInspectorView: View {
             }
         }()
         
-        return VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             SectionHeader(title: "Penilaian & Saran", icon: "lightbulb")
-            HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .top, spacing: Metrics.spacingMD) {
                 ZStack {
                     Circle().fill(.green.opacity(0.1)).frame(width: 44, height: 44)
                     Text(grade)
                         .font(.system(.title2, design: .rounded).weight(.bold))
                         .foregroundColor(.green)
                 }
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Rating Sinyal Wi-Fi")
                         .font(.headline)
                     Text(advice)
@@ -202,7 +202,7 @@ struct WiFiInspectorView: View {
     }
 
     private func statsBarSection(_ info: WiFiInfo) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             if let rssi = info.rssi {
                 StatCard(title: "Signal (RSSI)", value: "\(rssi)", unit: "dBm", icon: "waveform", color: signalColor(rssi))
             }
@@ -215,7 +215,7 @@ struct WiFiInspectorView: View {
     }
 
     private var signalStabilitySection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             SectionHeader(title: "Signal Stability (RSSI)", icon: "chart.line.uptrend.xyaxis")
             
             Chart {
@@ -267,7 +267,7 @@ struct WiFiInspectorView: View {
             ("MAC Address",    info.hardwareAddress, "barcode"),
         ]
 
-        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
             ForEach(items, id: \.0) { label, value, icon in
                 if let value {
                     DetailCard(label: label, value: value, icon: icon)
@@ -277,7 +277,7 @@ struct WiFiInspectorView: View {
     }
 
     private var noWiFiState: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Metrics.spacingMD) {
             Text("No Wi-Fi Connection")
                 .font(.headline)
                 .foregroundColor(.secondary)

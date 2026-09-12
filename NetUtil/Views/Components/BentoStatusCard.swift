@@ -36,7 +36,7 @@ struct BentoStatusCard: View {
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.spacingSM) {
                     ZStack {
                         RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM)
                             .fill(color.opacity(isHovered ? 0.15 : 0.1))
@@ -52,7 +52,7 @@ struct BentoStatusCard: View {
                         .foregroundColor(.secondary)
                 }
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text(status)
                             .font(.subheadline.bold())

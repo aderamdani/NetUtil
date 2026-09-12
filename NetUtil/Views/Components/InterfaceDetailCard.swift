@@ -3,8 +3,8 @@ import SwiftUI
 struct InterfaceDetailCard: View {
     let iface: NetworkInterface
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingMD) {
+            HStack(spacing: Metrics.spacingMD) {
                 ZStack {
                     Circle()
                         .fill(iface.isUp ? (iface.isVLAN ? Color.purple.opacity(0.1) : Color.accentColor.opacity(0.1)) : Color.secondary.opacity(0.1))
@@ -63,7 +63,7 @@ struct InterfaceDetailCard: View {
     }
 
     private func ifaceRow(label: String, value: String) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             Text(label)
                 .font(.caption2.weight(.bold))
                 .foregroundColor(.secondary)

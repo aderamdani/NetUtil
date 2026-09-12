@@ -5,12 +5,12 @@ struct TrafficCardsSection: View {
     @Binding var selection: Tool?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             SectionHeader(title: "Network & Traffic", icon: "wifi.router.fill")
 
             // Row 1: Bandwidth, Statistics, Interfaces
             GlassEffectContainer {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
                     bandwidthCard
                     statisticsCard
                     interfacesCard
@@ -18,7 +18,7 @@ struct TrafficCardsSection: View {
             }
             // Row 2: Wi-Fi, Traceroute, Route Table
             GlassEffectContainer {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
                     wifiCard
                     tracerouteCard
                     routeTableCard
@@ -26,7 +26,7 @@ struct TrafficCardsSection: View {
             }
             // Row 3: SSL/TLS, HTTP Latency, DNS Lookup
             GlassEffectContainer {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
                     sslCard
                     httpCard
                     dnsCard
@@ -34,7 +34,7 @@ struct TrafficCardsSection: View {
             }
             // Row 4: Speed Test, Subnet Scanner
             GlassEffectContainer {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
                     speedTestCard
                     subnetScannerCard
                 }
@@ -50,7 +50,7 @@ struct TrafficCardsSection: View {
             action: { selection = .bandwidth },
             helpText: "Real-time network throughput. See live download/upload speeds, peak rates, and historical charts."
         ) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                 HStack {
                     RatePill(dir: "↓", val: tools.bandwidth.totalRxBps, color: .blue)
                     Spacer()
@@ -79,13 +79,13 @@ struct TrafficCardsSection: View {
             action: { selection = .statistics },
             helpText: "Daily, weekly, and monthly data usage totals. Track your bandwidth consumption over time."
         ) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 Text("Today's Usage").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                 Text(NetworkMath.formatBytes(tools.statistics.todayRx + tools.statistics.todayTx))
                     .font(.subheadline.monospaced().weight(.bold))
                     .contentTransition(.numericText())
                 if tools.statistics.todayRx + tools.statistics.todayTx > 0 {
-                    HStack(spacing: 16) {
+                    HStack(spacing: Metrics.spacingLG) {
                         Label("↓ \(NetworkMath.formatBytes(tools.statistics.todayRx))", systemImage: "arrow.down")
                             .font(.caption2.monospaced())
                             .foregroundColor(.blue)
@@ -138,7 +138,7 @@ struct TrafficCardsSection: View {
             helpText: "View connected network details: SSID, signal strength (RSSI), channel, security type, and noise."
         ) {
             if let info = tools.wifi.info {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     HStack {
                         Text(info.ssid ?? "Connected")
                             .font(.subheadline.bold())
@@ -150,7 +150,7 @@ struct TrafficCardsSection: View {
                         }
                     }
                     if let rssi = info.rssi {
-                        HStack(spacing: 4) {
+                        HStack(spacing: Metrics.spacingXS) {
                             Text("\(rssi) dBm")
                                 .font(.caption.monospaced())
                                 .foregroundColor(rssi > -60 ? .green : (rssi > -75 ? .orange : .red))
@@ -164,7 +164,7 @@ struct TrafficCardsSection: View {
                     }
                 }
             } else {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Not Connected")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -190,7 +190,7 @@ struct TrafficCardsSection: View {
                         Text(tools.traceroute.currentHost)
                             .font(.subheadline.bold())
                             .lineLimit(1)
-                        HStack(spacing: 8) {
+                        HStack(spacing: Metrics.spacingSM) {
                             Label("\(tools.traceroute.hops.count) hops", systemImage: "point.3.connected.trianglepath.dotted")
                                 .font(.caption2.monospaced())
                                 .foregroundColor(.secondary)
@@ -239,7 +239,7 @@ struct TrafficCardsSection: View {
             action: { selection = .ssl },
             helpText: "Monitor SSL certificate expiration for your domains. Get alerts before certificates expire."
         ) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 if !items.isEmpty {
                     HStack {
                         Text("\(items.count) watched")
@@ -256,7 +256,7 @@ struct TrafficCardsSection: View {
                             .font(.caption2.monospaced())
                             .foregroundColor(.green)
                     } else {
-                        HStack(spacing: 8) {
+                        HStack(spacing: Metrics.spacingSM) {
                             Label("\(expiring.count) need attention", systemImage: "exclamationmark.triangle.fill")
                                 .font(.caption2.monospaced())
                                 .foregroundColor(critical.isEmpty ? .orange : .red)
@@ -280,7 +280,7 @@ struct TrafficCardsSection: View {
                             .foregroundColor(.secondary)
                     }
                 } else {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                         Text("Certificate Audit")
                             .font(.subheadline.bold())
                         Text("Add domains to monitor SSL certificates")
@@ -308,7 +308,7 @@ struct TrafficCardsSection: View {
                         .font(.subheadline.bold())
                         .lineLimit(1)
                     if let ttfb {
-                        HStack(spacing: 8) {
+                        HStack(spacing: Metrics.spacingSM) {
                             Label("TTFB: \(String(format: "%.1f", ttfb)) ms", systemImage: "timer")
                                 .font(.caption2.monospaced())
                                 .foregroundColor(.secondary)
@@ -319,7 +319,7 @@ struct TrafficCardsSection: View {
                     }
                 }
             } else {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("TTFB Breakdown")
                         .font(.subheadline.bold())
                     Text("Enter a URL to analyze HTTP response time")
@@ -359,7 +359,7 @@ struct TrafficCardsSection: View {
                     }
                 }
             } else {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Resolver Audit")
                         .font(.subheadline.bold())
                     Text("Enter a domain to query DNS records")
@@ -379,7 +379,7 @@ struct TrafficCardsSection: View {
             helpText: "Run a full internet speed test using Cloudflare. Measures download, upload, latency, and jitter."
         ) {
             if let result = tools.speedTest.lastResult {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     HStack(alignment: .bottom) {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(String(format: "↓ %.1f", result.downloadMbps))
@@ -396,7 +396,7 @@ struct TrafficCardsSection: View {
                             .frame(width: 60, height: 24)
                         }
                     }
-                    HStack(spacing: 16) {
+                    HStack(spacing: Metrics.spacingLG) {
                         Text(String(format: "↑ %.1f Mbps", result.uploadMbps))
                             .font(.caption2.monospaced())
                             .foregroundColor(.secondary)
@@ -409,7 +409,7 @@ struct TrafficCardsSection: View {
                         .foregroundColor(.secondary)
                 }
             } else {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Run Speed Test")
                         .font(.subheadline.bold())
                     Text("Measures real-world internet performance")
@@ -437,7 +437,7 @@ struct TrafficCardsSection: View {
                         Text(tools.subnetScan.cidrInput)
                             .font(.subheadline.bold())
                             .lineLimit(1)
-                        HStack(spacing: 12) {
+                        HStack(spacing: Metrics.spacingMD) {
                             Label("\(tools.subnetScan.scanStats.alive) devices found", systemImage: "checkmark.circle.fill")
                                 .font(.caption2.monospaced())
                                 .foregroundColor(.green)
@@ -462,7 +462,7 @@ struct TrafficCardsSection: View {
     }
 
     private func RatePill(dir: String, val: Double, color: Color) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Metrics.spacingXS) {
             Text(dir).font(.caption.bold()).foregroundColor(color)
             Text(NetworkMath.formatRate(val)).font(.callout.monospaced().weight(.bold))
         }

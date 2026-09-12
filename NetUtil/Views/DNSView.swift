@@ -17,7 +17,7 @@ struct DNSView: View {
             dnsMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -25,7 +25,7 @@ struct DNSView: View {
                     if let result = vm.result {
                         statsBarSection(result)
                         
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             HStack {
                                 Picker("", selection: $showRaw) {
                                     Text("Structured Records").tag(false)
@@ -81,8 +81,8 @@ struct DNSView: View {
                        host: $host, placeholder: "Domain name or IP", textFieldWidth: 190,
                        textFieldAccessibilityLabel: "Target Host Input",
                        history: history, onSubmit: startLookup) {
-            HStack(spacing: 12) {
-                    HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                    HStack(spacing: Metrics.spacingSM) {
                         Picker("", selection: $recordType) {
                             ForEach(DNSRecordType.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                         }
@@ -142,7 +142,7 @@ struct DNSView: View {
     }
 
     private func statsBarSection(_ r: DNSResult) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Records Found", value: "\(r.records.count)", icon: "list.bullet.rectangle")
             if let ms = r.queryTimeMs {
                 StatCard(title: "Resolution Time", value: "\(ms)", unit: "ms", icon: "timer", color: ms < 50 ? .green : .orange)

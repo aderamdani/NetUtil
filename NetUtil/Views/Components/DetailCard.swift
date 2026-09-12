@@ -10,7 +10,7 @@ struct DetailCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingSM) {
                 Image(systemName: icon)
                     .font(.caption2.weight(.bold))
                     .foregroundColor(.accentColor)

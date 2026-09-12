@@ -26,7 +26,7 @@ struct SectionHeader: View {
     }
 
     private var headerContent: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Metrics.spacingSM) {
             Image(systemName: icon)
                 .foregroundColor(isHovered ? .accentColor : .accentColor)
                 .font(.caption.weight(.bold))

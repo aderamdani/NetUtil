@@ -21,7 +21,7 @@ struct MoodBar<Accessory: View>: View {
     }
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Metrics.spacingSM) {
             Image(systemName: icon).foregroundColor(color).font(.callout.weight(.semibold))
             Text(message).font(.callout).foregroundColor(messageColor)
             Spacer()

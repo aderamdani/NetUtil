@@ -9,7 +9,7 @@ struct NetQualityView: View {
             controlBar
             moodBar
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -34,8 +34,8 @@ struct NetQualityView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "gauge.with.dots.needle.67percent")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -107,7 +107,7 @@ struct NetQualityView: View {
 
     private func resultCards(_ r: NetQualityResult) -> some View {
         let gradeColor: Color = r.rpmGrade.color == "green" ? .green : r.rpmGrade.color == "orange" ? .orange : .red
-        return HStack(spacing: 12) {
+        return HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Download", value: String(format: "%.0f", r.downloadMbps), unit: "Mbps", icon: "arrow.down.circle")
             StatCard(title: "Upload", value: String(format: "%.0f", r.uploadMbps), unit: "Mbps", icon: "arrow.up.circle")
             StatCard(title: "Responsiveness", value: "\(r.responsivenessRPM)", unit: "RPM", icon: "gauge.with.dots.needle.67percent", color: gradeColor)
@@ -116,7 +116,7 @@ struct NetQualityView: View {
     }
 
     private func detailCard(_ r: NetQualityResult) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             detailRow("Interface", r.interfaceName ?? "—")
             Divider().opacity(0.5)
             detailRow("Test Server", r.endpoint ?? "—")
@@ -139,10 +139,10 @@ struct NetQualityView: View {
         )
         let gradeColor: Color = verdict.grade.color == "green" ? .green : verdict.grade.color == "orange" ? .orange : .red
 
-        return VStack(alignment: .leading, spacing: 16) {
+        return VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
+                    HStack(spacing: Metrics.spacingSM) {
                         Image(systemName: "gauge.with.dots.needle.67percent")
                             .foregroundColor(gradeColor)
                         Text("Responsiveness Verdict")
@@ -167,7 +167,7 @@ struct NetQualityView: View {
             Divider().opacity(0.5)
 
             // What this means for throughput
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                 Text("Throughput Suitability")
                     .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
@@ -178,11 +178,11 @@ struct NetQualityView: View {
             }
 
             // Recommendations
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                 Text("Recommendations")
                     .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     ForEach(verdict.recommendations, id: \.self) { tip in
                         Label(tip, systemImage: "lightbulb")
                             .font(.caption2)

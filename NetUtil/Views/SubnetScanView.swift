@@ -12,7 +12,7 @@ struct SubnetScanView: View {
             statusMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = viewModel.error {
                         ErrorBanner(message: err)
                     }
@@ -44,8 +44,8 @@ struct SubnetScanView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "network.badge.shield.half.filled")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -64,7 +64,7 @@ struct SubnetScanView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     Picker("", selection: $viewModel.batchSize) {
                         Text("Normal").tag(8)
                         Text("Fast").tag(16)

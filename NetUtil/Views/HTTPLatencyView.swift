@@ -18,7 +18,7 @@ struct HTTPLatencyView: View {
             httpMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -30,9 +30,9 @@ struct HTTPLatencyView: View {
                         latencyWaterfallSection(result)
                         
                         if !vm.history.isEmpty {
-                            VStack(alignment: .leading, spacing: 16) {
+                            VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                                 HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
+                                    VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                                         Text("Analysis History")
                                             .font(.headline)
                                         Text("Previous request performance benchmarks")
@@ -86,8 +86,8 @@ struct HTTPLatencyView: View {
                        host: $urlString, placeholder: "https://example.com", textFieldWidth: 280,
                        history: history, onSubmit: startAction,
                        onSelectHistory: { h in urlString = h.contains("://") ? h : "https://\(h)"; startAction() }) {
-            HStack(spacing: 12) {
-                    HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                    HStack(spacing: Metrics.spacingSM) {
                         Picker("", selection: $method) {
                             ForEach(methods, id: \.self) { Text($0).tag($0) }
                         }
@@ -142,7 +142,7 @@ struct HTTPLatencyView: View {
     }
 
     private func statsBarSection(_ r: HTTPLatencyResult) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Status Code", value: "\(r.statusCode ?? 0)", icon: "network", color: statusColor(r.statusCode))
             StatCard(title: "Total Latency", value: String(format: "%.0f", r.totalMs), unit: "ms", icon: "stopwatch.fill", color: totalColor(r.totalMs))
             if let bytes = r.bodyBytes {
@@ -164,10 +164,10 @@ struct HTTPLatencyView: View {
         )
         let ratingColor: Color = verdict.rating.color == "green" ? .green : verdict.rating.color == "orange" ? .orange : .red
 
-        return VStack(alignment: .leading, spacing: 16) {
+        return VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
+                    HStack(spacing: Metrics.spacingSM) {
                         Image(systemName: "stopwatch.fill")
                             .foregroundColor(ratingColor)
                         Text("Latency Verdict")
@@ -192,11 +192,11 @@ struct HTTPLatencyView: View {
             Divider().opacity(0.5)
 
             // Phase insights
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                 Text("Phase Analysis")
                     .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     ForEach(verdict.phaseInsights, id: \.self) { insight in
                         Label(insight, systemImage: "magnifyingglass")
                             .font(.caption2)
@@ -206,11 +206,11 @@ struct HTTPLatencyView: View {
             }
 
             // Key metrics summary
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                 Text("Key Metrics")
                     .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
-                VStack(spacing: 4) {
+                VStack(spacing: Metrics.spacingXS) {
                     if let ttfb = ttfbMs {
                         HStack {
                             Text("TTFB")
@@ -273,9 +273,9 @@ struct HTTPLatencyView: View {
     }
 
     private func latencyWaterfallSection(_ r: HTTPLatencyResult) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Latency Waterfall")
                         .font(.headline)
                     Text("Step-by-step connection timing breakdown")
@@ -289,7 +289,7 @@ struct HTTPLatencyView: View {
             VStack(spacing: 14) {
                 let maxMs = r.phases.map(\.endMs).max() ?? r.totalMs
                 ForEach(r.phases) { phase in
-                    HStack(spacing: 12) {
+                    HStack(spacing: Metrics.spacingMD) {
                         Text(phase.phase.rawValue)
                             .font(.caption2.weight(.bold))
                             .foregroundColor(.secondary)

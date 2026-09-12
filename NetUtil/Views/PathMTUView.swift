@@ -27,7 +27,7 @@ struct PathMTUView: View {
             }
             moodBar
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -69,7 +69,7 @@ struct PathMTUView: View {
     }
 
     private func resultCard(_ mtu: Int) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Path MTU", value: "\(mtu)", unit: "bytes", icon: "ruler",
                      color: mtu >= 1500 ? .green : .orange)
             StatCard(title: "Max Payload", value: "\(mtu - PathMTUViewModel.headerOverhead)", unit: "bytes", icon: "shippingbox")
@@ -80,7 +80,7 @@ struct PathMTUView: View {
     private var probeLog: some View {
         VStack(spacing: 0) {
             ForEach(Array(vm.probes.enumerated()), id: \.element.id) { idx, probe in
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     Image(systemName: probe.passed ? "checkmark.circle.fill" : "xmark.circle.fill")
                         .foregroundColor(probe.passed ? .green : .red)
                     Text("\(probe.packetSize) bytes")

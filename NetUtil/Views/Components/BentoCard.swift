@@ -33,7 +33,7 @@ struct BentoCard<Content: View>: View {
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.spacingSM) {
                     ZStack {
                         RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM)
                             .fill(color.opacity(isHovered ? 0.15 : 0.1))

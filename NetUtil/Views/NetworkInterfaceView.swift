@@ -15,7 +15,7 @@ struct NetworkInterfaceView: View {
             moodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     explanationCard
                     gatewaySection
                     
@@ -23,13 +23,13 @@ struct NetworkInterfaceView: View {
                     
                     statsBarSection
                     
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                         SectionHeader(title: "Active Adapters", icon: "arrow.up.circle.fill")
                         
                         if active.isEmpty {
                             emptyState(msg: "No Active Interfaces Found")
                         } else {
-                            LazyVStack(spacing: 12) {
+                            LazyVStack(spacing: Metrics.spacingMD) {
                                 ForEach(active) { iface in
                                     InterfaceDetailCard(iface: iface)
                                 }
@@ -38,10 +38,10 @@ struct NetworkInterfaceView: View {
                     }
                     
                     if showAll && !inactive.isEmpty {
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             SectionHeader(title: "Inactive Adapters", icon: "arrow.down.circle.fill")
                             
-                            LazyVStack(spacing: 12) {
+                            LazyVStack(spacing: Metrics.spacingMD) {
                                 ForEach(inactive) { iface in
                                     InterfaceDetailCard(iface: iface)
                                 }
@@ -57,7 +57,7 @@ struct NetworkInterfaceView: View {
     }
 
     private var explanationCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             SectionHeader(title: "Apa Itu Interface?", icon: "questionmark.circle")
             Text("Interface jaringan adalah 'pintu' komputer ke dunia luar. Setiap adapter (Wi-Fi, Ethernet) punya alamat sendiri. Status 'Up' berarti aktif dan siap digunakan.")
                 .font(.subheadline)
@@ -70,10 +70,10 @@ struct NetworkInterfaceView: View {
     }
 
     private var gatewaySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             SectionHeader(title: "Gateway Quick Actions", icon: "arrow.triangle.branch")
             
-            HStack(spacing: 16) {
+            HStack(spacing: Metrics.spacingLG) {
                 if let gateway = vm.defaultGateway {
                     Text("Gateway: \(gateway)")
                         .font(.system(.body, design: .monospaced))
@@ -107,8 +107,8 @@ struct NetworkInterfaceView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "network")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -120,7 +120,7 @@ struct NetworkInterfaceView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 16) {
+                HStack(spacing: Metrics.spacingLG) {
                     Toggle("Show Inactive", isOn: $showAll)
                         .font(.subheadline)
                         .toggleStyle(.checkbox)
@@ -169,7 +169,7 @@ struct NetworkInterfaceView: View {
     }
 
     private var interpretationSection: some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: Metrics.spacingLG) {
             let count = active.count
             ZStack {
                 Circle()
@@ -192,7 +192,7 @@ struct NetworkInterfaceView: View {
             
             Spacer()
             
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .trailing, spacing: Metrics.spacingXS) {
                 Text("Last Updated").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                 Text(vm.lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
@@ -207,7 +207,7 @@ struct NetworkInterfaceView: View {
     }
 
     private var statsBarSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Total Adapters", value: "\(vm.interfaces.count)", icon: "laptopcomputer")
                 .accessibilityElement(children: .combine)
             StatCard(title: "Active Link", value: "\(active.count)", icon: "arrow.up.circle.fill", color: .green)
@@ -224,7 +224,7 @@ struct NetworkInterfaceView: View {
     }
 
     private func emptyState(msg: String) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Metrics.spacingMD) {
             Text(msg)
                 .font(.headline)
                 .foregroundColor(.secondary)

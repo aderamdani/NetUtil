@@ -9,7 +9,7 @@ struct NeighborsView: View {
             controlBar
             moodBar
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if vm.visibleEntries.isEmpty {
                         ToolStateView.empty(title: "No Neighbors Found",
                                             subtitle: "The ARP table fills as this Mac talks to devices — run a Subnet Scan to populate it.")
@@ -29,8 +29,8 @@ struct NeighborsView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "person.2.wave.2")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)

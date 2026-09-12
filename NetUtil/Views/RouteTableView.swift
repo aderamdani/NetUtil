@@ -21,12 +21,12 @@ struct RouteTableView: View {
             moodBar
             
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     interpretationSection
                     
                     statsBarSection
                     
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                         SectionHeader(title: "Routing Entries", icon: "list.bullet.rectangle")
                         
                         routeTable
@@ -45,8 +45,8 @@ struct RouteTableView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "arrow.triangle.branch")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -58,7 +58,7 @@ struct RouteTableView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 16) {
+                HStack(spacing: Metrics.spacingLG) {
                     Picker("", selection: $showIPv6) {
                         Text("IPv4").tag(false)
                         Text("IPv6").tag(true)
@@ -67,7 +67,7 @@ struct RouteTableView: View {
                     .frame(width: 120)
                     .accessibilityLabel("IP Version Selector")
                     
-                    HStack(spacing: 8) {
+                    HStack(spacing: Metrics.spacingSM) {
                         Image(systemName: "line.3.horizontal.decrease.circle")
                             .foregroundColor(.secondary)
                         TextField("Filter destination...", text: $filterText)
@@ -126,7 +126,7 @@ struct RouteTableView: View {
     }
 
     private var interpretationSection: some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: Metrics.spacingLG) {
             ZStack {
                 Circle()
                     .fill(Color.accentColor.opacity(0.1))
@@ -153,7 +153,7 @@ struct RouteTableView: View {
                     .accessibilityLabel("Loading routing table")
             }
             
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .trailing, spacing: Metrics.spacingXS) {
                 Text("Last Synced").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                 Text(lastUpdated.formatted(date: .omitted, time: .standard))
                     .font(.system(.subheadline, design: .monospaced).weight(.bold))
@@ -168,7 +168,7 @@ struct RouteTableView: View {
     }
 
     private var statsBarSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Total Routes", value: "\(entries.count)", icon: "list.bullet.rectangle")
             if let def = entries.first(where: { $0.isDefault && $0.isIPv6 == showIPv6 }) {
                 StatCard(title: "Default Gateway", value: def.gateway, icon: "house.fill", color: .blue)
@@ -180,7 +180,7 @@ struct RouteTableView: View {
     private var routeTable: some View {
         Table(displayed) {
             TableColumn("Destination") { r in
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.spacingSM) {
                     if r.isDefault { Image(systemName: "star.fill").foregroundColor(.orange).font(.caption2) }
                     Text(r.destination)
                         .font(.system(.caption, design: .monospaced))

@@ -20,7 +20,7 @@ struct AboutView: View {
     }
 
     private var logoHeader: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Metrics.spacingLG) {
             Image(systemName: "network") // Simplified to SF Symbol for icon
                 .resizable()
                 .scaledToFit()
@@ -30,7 +30,7 @@ struct AboutView: View {
                 .foregroundColor(.accentColor)
                 .accessibilityLabel("NetUtil Application Icon")
             
-            VStack(spacing: 4) {
+            VStack(spacing: Metrics.spacingXS) {
                 Text("NetUtil")
                     .font(.system(.title, design: .default).weight(.bold))
                 Text("Version \(currentVersion)")
@@ -44,7 +44,7 @@ struct AboutView: View {
     }
 
     private var footerSection: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Metrics.spacingXL) {
             Divider()
             
             HStack(spacing: 40) {
@@ -62,7 +62,7 @@ struct AboutView: View {
                 .accessibilityLabel("Show software acknowledgements")
             }
             
-            VStack(spacing: 8) {
+            VStack(spacing: Metrics.spacingSM) {
                 Text("© 2026 Ade Ramdani. All rights reserved.")
                 Text("Handcrafted for macOS with SwiftUI & Zero Dependencies.")
             }

@@ -5,14 +5,14 @@ struct DiagnosticsCardsSection: View {
     @Binding var selection: Tool?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             SectionHeader(title: "Core Diagnostics", icon: "bolt.shield.fill")
 
             GlassEffectContainer {
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     pingCard
                         .frame(maxWidth: .infinity)
-                    VStack(spacing: 12) {
+                    VStack(spacing: Metrics.spacingMD) {
                         multiPingCard
                         portScanCard
                     }
@@ -31,7 +31,7 @@ struct DiagnosticsCardsSection: View {
             helpText: "Measure connection latency and stability to any host. Shows response time, jitter, and packet loss."
         ) {
             let isRunning = tools.ping.isRunning
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(tools.ping.currentHost.isEmpty ? "Idle — Enter a host to begin" : tools.ping.currentHost)
@@ -84,11 +84,11 @@ struct DiagnosticsCardsSection: View {
                             .foregroundColor(.secondary)
                     }
                 } else {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                         Text("What this does:")
                             .font(.caption2.weight(.bold))
                             .foregroundColor(.secondary)
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                             HelpRow(icon: "speedometer", text: "Measures round-trip time to any server")
                             HelpRow(icon: "waveform.path.ecg", text: "Detects connection jitter (variance)")
                             HelpRow(icon: "exclamationmark.triangle", text: "Reports packet loss percentage")
@@ -111,7 +111,7 @@ struct DiagnosticsCardsSection: View {
             helpText: "Ping multiple hosts at once. Compare latency across different servers or network paths."
         ) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("\(tools.multiPing.slots.count) targets configured")
                         .font(.subheadline.bold())
                     if tools.multiPing.slots.isEmpty {
@@ -137,7 +137,7 @@ struct DiagnosticsCardsSection: View {
             helpText: "Find open ports on any device. Useful for checking firewall rules, exposed services, and security auditing."
         ) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     if tools.portScan.isRunning {
                         Text("Scanning ports…")
                             .font(.subheadline.bold())

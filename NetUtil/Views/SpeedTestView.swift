@@ -13,7 +13,7 @@ struct SpeedTestView: View {
             speedMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error { ErrorBanner(message: err) }
 
                     if vm.isRunning || vm.lastResult != nil {
@@ -59,8 +59,8 @@ struct SpeedTestView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "speedometer")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -84,7 +84,7 @@ struct SpeedTestView: View {
 
                 Spacer()
 
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     if !vm.history.isEmpty {
                         ReportMenuButton(
                             onExportPDF: { Exporter.saveSpeedTestPDF(history: vm.history) },
@@ -132,7 +132,7 @@ struct SpeedTestView: View {
     }
 
     private var speedMetrics: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Download",
                      value: String(format: "%.1f", vm.downloadMbps),
                      unit: "Mbps", icon: "arrow.down.circle.fill",
@@ -161,7 +161,7 @@ struct SpeedTestView: View {
     }
 
     private var browsingMetrics: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Sites Tested",
                      value: "\(vm.browsingProcessed)",
                      unit: "/ 8", icon: "safari")
@@ -183,7 +183,7 @@ struct SpeedTestView: View {
     }
 
     private var gamingMetrics: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Median Ping",
                      value: String(format: "%.0f", vm.gameMedianMs),
                      unit: "ms", icon: "gamecontroller.fill",
@@ -212,7 +212,7 @@ struct SpeedTestView: View {
     }
 
     private var streamingMetrics: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Avg Speed",
                      value: String(format: "%.1f", vm.streamAvgMbps),
                      unit: "Mbps", icon: "play.tv.fill",
@@ -237,7 +237,7 @@ struct SpeedTestView: View {
     // MARK: - Progress
 
     private var progressSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             HStack {
                 Text(vm.phase.rawValue)
                     .font(.subheadline)
@@ -269,10 +269,10 @@ struct SpeedTestView: View {
         )
         let ratingColor: Color = verdict.rating.color == "green" ? .green : verdict.rating.color == "orange" ? .orange : .red
 
-        return VStack(alignment: .leading, spacing: 16) {
+        return VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
+                    HStack(spacing: Metrics.spacingSM) {
                         Image(systemName: "checkmark.seal.fill")
                             .foregroundColor(ratingColor)
                         Text("Connection Verdict")
@@ -297,11 +297,11 @@ struct SpeedTestView: View {
             Divider().opacity(0.5)
 
             // Supported activities
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                 Text("What This Connection Handles Well")
                     .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
-                VerdictFlowLayout(spacing: 8) {
+                VerdictFlowLayout(spacing: Metrics.spacingSM) {
                     ForEach(verdict.supportedActivities, id: \.self) { activity in
                         Label(activity, systemImage: iconForActivity(activity))
                             .font(.caption)
@@ -314,7 +314,7 @@ struct SpeedTestView: View {
             }
 
             // Detail breakdown
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                 Text("Metric Breakdown")
                     .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
@@ -335,11 +335,11 @@ struct SpeedTestView: View {
 
             // Recommendations if not excellent
             if verdict.rating.label != "Excellent" {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                     Text("Tips to Improve")
                         .font(.caption.weight(.bold))
                         .foregroundColor(.secondary)
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                         ForEach(recommendations(for: verdict), id: \.self) { tip in
                             Label(tip, systemImage: "lightbulb")
                                 .font(.caption2)
@@ -377,9 +377,9 @@ struct SpeedTestView: View {
     // MARK: - History
 
     private var historySection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("History")
                         .font(.headline)
                     Text("Click a label cell to rename a result")
@@ -432,7 +432,7 @@ struct SpeedTestView: View {
                 .foregroundColor(.secondary)
                 .frame(width: 80, alignment: .leading)
 
-            HStack(spacing: 4) {
+            HStack(spacing: Metrics.spacingXS) {
                 Image(systemName: result.kind.icon).font(.caption2)
                 Text(result.kind.rawValue).font(.caption)
             }
@@ -492,7 +492,7 @@ struct SpeedTestView: View {
                 .font(.headline)
                 .foregroundColor(.secondary)
 
-            HStack(spacing: 12) {
+            HStack(spacing: Metrics.spacingMD) {
                 ForEach(SpeedTestKind.allCases) { kind in
                     kindCard(kind)
                 }
@@ -502,7 +502,7 @@ struct SpeedTestView: View {
     }
 
     private func kindCard(_ kind: SpeedTestKind) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             Image(systemName: kind.icon)
                 .font(.title3)
                 .foregroundColor(vm.kind == kind ? .accentColor : .secondary)

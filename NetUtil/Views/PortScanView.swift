@@ -51,7 +51,7 @@ struct PortScanView: View {
             scanMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -59,9 +59,9 @@ struct PortScanView: View {
                     if vm.total > 0 || !vm.results.isEmpty {
                         statsBarSection
                         
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             HStack(alignment: .firstTextBaseline) {
-                                VStack(alignment: .leading, spacing: 4) {
+                                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                                     Text("Audit Results")
                                         .font(.headline)
                                     Text("Status of targeted network ports")
@@ -125,7 +125,7 @@ struct PortScanView: View {
     // REMOVED: controlBar (now in Components/PortScanControlBar.swift)
 
     private var statsBarSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Ports Scanned", value: "\(vm.scanned)", icon: "checklist")
                 .accessibilityElement(children: .combine)
             StatCard(title: "Open Ports", value: "\(vm.openCount)", icon: "lock.open.fill", color: vm.openCount > 0 ? .green : .primary)
@@ -137,7 +137,7 @@ struct PortScanView: View {
 
     private var scanProgressView: some View {
         let progress = Double(vm.scanned) / Double(max(vm.total, 1))
-        return HStack(spacing: 12) {
+        return HStack(spacing: Metrics.spacingMD) {
             Text("\(Int(progress * 100))%")
                 .font(.caption2.weight(.bold).monospaced())
                 .foregroundColor(.secondary)

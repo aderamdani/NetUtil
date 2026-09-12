@@ -19,8 +19,8 @@ struct ToolControlBar<Trailing: View>: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: icon)
                         .foregroundColor(.accentColor)
                         .imageScale(.large)

@@ -9,7 +9,7 @@ struct ConnectionsView: View {
             controlBar
             moodBar
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if vm.visibleConnections.isEmpty {
                         ToolStateView.empty(title: "No Connections Shown",
                                             subtitle: vm.connections.isEmpty
@@ -31,8 +31,8 @@ struct ConnectionsView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "app.connected.to.app.below.fill")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)

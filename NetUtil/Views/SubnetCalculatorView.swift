@@ -13,18 +13,18 @@ struct SubnetCalculatorView: View {
             moodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let result = vm.result {
                         interpretationSection(result)
                         
                         statsBarSection(result)
                         
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             SectionHeader(title: "Network Parameters", icon: "network")
                             resultsGrid(result)
                         }
                         
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             SectionHeader(title: "Bitwise Representation", icon: "number.square")
                             binarySection(result)
                         }
@@ -47,9 +47,9 @@ struct SubnetCalculatorView: View {
                        textFieldAccessibilityLabel: "IP Address Input",
                        history: history, onSubmit: { vm.calculate() },
                        onSelectHistory: { h in vm.updateIP(h) }) {
-            HStack(spacing: 12) {
+            HStack(spacing: Metrics.spacingMD) {
                 GlassEffectContainer {
-                    HStack(spacing: 4) {
+                    HStack(spacing: Metrics.spacingXS) {
                         Text("Prefix")
                             .font(.caption2.weight(.bold))
                             .foregroundColor(.secondary)
@@ -105,7 +105,7 @@ struct SubnetCalculatorView: View {
     }
 
     private func interpretationSection(_ r: SubnetResult) -> some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: Metrics.spacingLG) {
             ZStack {
                 Circle()
                     .fill(Color.accentColor.opacity(0.1))
@@ -130,7 +130,7 @@ struct SubnetCalculatorView: View {
     }
 
     private func statsBarSection(_ r: SubnetResult) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Total Addresses", value: "\(r.totalHosts)", icon: "network")
             StatCard(title: "Usable Hosts", value: "\(r.usableHosts)", icon: "checkmark.shield.fill", color: .green)
             StatCard(title: "Subnet Mask", value: r.mask, icon: "rectangle.split.3x3.fill", color: .blue)
@@ -146,7 +146,7 @@ struct SubnetCalculatorView: View {
             ("Wildcard", r.wildcardMask, "scissors"),
             ("Prefix Len", "/\(r.prefix)", "tag.fill")
         ]
-        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
             ForEach(items, id: \.0) { label, value, icon in
                 DetailCard(label: label, value: value, icon: icon)
             }
@@ -154,7 +154,7 @@ struct SubnetCalculatorView: View {
     }
 
     private func binarySection(_ r: SubnetResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             HStack {
                 Text("Subnet Mask Topology")
                     .font(.system(.caption2, design: .default).weight(.bold))

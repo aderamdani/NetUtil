@@ -7,7 +7,7 @@ struct ErrorBanner: View {
     let message: String
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundColor(.red)
             Text(message)

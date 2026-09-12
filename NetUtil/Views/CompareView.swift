@@ -29,7 +29,7 @@ struct CompareView: View {
             compareMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if sessionA == nil || sessionB == nil {
                         emptyCompareState
                     } else if let a = sessionA, let b = sessionB {
@@ -46,8 +46,8 @@ struct CompareView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "arrow.left.arrow.right")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -90,7 +90,7 @@ struct CompareView: View {
                         Text("No sessions with detail data").foregroundColor(.secondary)
                     }
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: Metrics.spacingXS) {
                         Image(systemName: "a.circle").foregroundColor(.accentColor)
                         Text(sessionA.map { truncate($0.target, 18) } ?? "Session A")
                             .font(.system(.subheadline, design: .monospaced))
@@ -128,7 +128,7 @@ struct CompareView: View {
                         Text("No sessions with detail data").foregroundColor(.secondary)
                     }
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: Metrics.spacingXS) {
                         Image(systemName: "b.circle").foregroundColor(.accentColor)
                         Text(sessionB.map { truncate($0.target, 18) } ?? "Session B")
                             .font(.system(.subheadline, design: .monospaced))
@@ -193,7 +193,7 @@ struct CompareView: View {
     // MARK: - Compare Content
 
     private func sessionHeaders(a: SessionRecord, b: SessionRecord) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             sessionHeaderCard(record: a, label: "Session A")
             sessionHeaderCard(record: b, label: "Session B")
         }
@@ -375,7 +375,7 @@ struct CompareView: View {
     // MARK: - Shared Table
 
     private func compareTable(title: String, headers: (String, String), rows: [(String, String, String, Color?)], summary: String) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             Text(title).font(.headline)
 
             VStack(spacing: 0) {

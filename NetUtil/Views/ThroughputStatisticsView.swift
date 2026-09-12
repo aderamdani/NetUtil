@@ -53,8 +53,8 @@ struct ThroughputStatisticsView: View {
 
     private var header: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -98,7 +98,7 @@ struct ThroughputStatisticsView: View {
     }
 
     private var statsCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             throughputChart
                 .frame(height: 240)
             Divider().opacity(0.5)
@@ -205,18 +205,18 @@ struct ThroughputStatisticsView: View {
     }
 
     private func tooltip(sample: ThroughputSample) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Metrics.spacingXS) {
             Text(sample.time, format: .dateTime.hour().minute())
                 .font(.caption2.monospaced())
                 .foregroundColor(.secondary)
-            HStack(spacing: 8) {
-                HStack(spacing: 4) {
+            HStack(spacing: Metrics.spacingSM) {
+                HStack(spacing: Metrics.spacingXS) {
                     Text("↓").font(.caption.bold()).foregroundColor(.blue)
                     Text(NetworkMath.formatRate(sample.download))
                         .font(.caption.monospaced().weight(.semibold))
                         .foregroundColor(.blue)
                 }
-                HStack(spacing: 4) {
+                HStack(spacing: Metrics.spacingXS) {
                     Text("↑").font(.caption.bold()).foregroundColor(.orange)
                     Text(NetworkMath.formatRate(sample.upload))
                         .font(.caption.monospaced().weight(.semibold))

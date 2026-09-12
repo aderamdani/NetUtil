@@ -5,11 +5,11 @@ struct LookupCardsSection: View {
     @Binding var selection: Tool?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             SectionHeader(title: "Infrastructure Lookup", icon: "magnifyingglass.circle.fill")
 
             GlassEffectContainer {
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     whoisCard
                     subnetCard
                     ipGeolocationCard
@@ -27,7 +27,7 @@ struct LookupCardsSection: View {
             action: { selection = .whois },
             helpText: "Look up domain registration details: registrar, creation/expiry dates, name servers, and contact info."
         ) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 if tools.whois.lastQuery.isEmpty {
                     Text("Domain Registry")
                         .font(.subheadline.bold())
@@ -56,7 +56,7 @@ struct LookupCardsSection: View {
             action: { selection = .subnet },
             helpText: "Calculate network ranges, CIDR notation, usable hosts, broadcast address, and subnet masks."
         ) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 Text("CIDR Toolbox")
                     .font(.subheadline.bold())
                 Text("Convert between CIDR, netmask, and host ranges")
@@ -74,7 +74,7 @@ struct LookupCardsSection: View {
             action: { selection = .ipGeolocation },
             helpText: "Find the geographic location of any IP address: country, city, ISP, and coordinates."
         ) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 if let geo = tools.externalIPGeo {
                     HStack {
                         Text(geo.shortLabel)

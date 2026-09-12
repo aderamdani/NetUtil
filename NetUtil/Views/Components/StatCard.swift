@@ -8,7 +8,7 @@ struct StatCard: View {
     var color: Color = .primary
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Metrics.spacingXS) {
             Text(title)
                 .font(.caption.weight(.medium))
                 .foregroundColor(.secondary)

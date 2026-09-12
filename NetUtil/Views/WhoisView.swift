@@ -21,7 +21,7 @@ struct WhoisView: View {
             whoisMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -31,11 +31,11 @@ struct WhoisView: View {
                         
                         statsBarSection
                         
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             HStack {
                                 sectionHeader("Registry Dataset", systemImage: "text.justify.left")
                                 Spacer()
-                                HStack(spacing: 8) {
+                                HStack(spacing: Metrics.spacingSM) {
                                     Image(systemName: "line.3.horizontal.decrease.circle")
                                         .foregroundColor(.secondary)
                                     TextField("Filter results...", text: $filterText)
@@ -88,7 +88,7 @@ struct WhoisView: View {
                        textFieldAccessibilityLabel: "Query Input",
                        accessibilityToolName: "WHOIS Lookup Tool",
                        history: history, onSubmit: lookup) {
-            HStack(spacing: 12) {
+            HStack(spacing: Metrics.spacingMD) {
                 if !vm.lines.isEmpty {
                     ReportMenuButton(
                         onExportPDF: { Exporter.saveWhoisPDF(lines: vm.lines, query: query) },
@@ -135,7 +135,7 @@ struct WhoisView: View {
     }
     
     private var interpretationSection: some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: Metrics.spacingLG) {
             ZStack {
                 Circle()
                     .fill(Color.green.opacity(0.1))
@@ -160,7 +160,7 @@ struct WhoisView: View {
     }
 
     private var statsBarSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Record Lines", value: "\(vm.lines.count)", icon: "text.alignleft")
             
             if let registrar = findValue(for: "Registrar") {
@@ -175,7 +175,7 @@ struct WhoisView: View {
 
     private var outputView: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 4) {
+            LazyVStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 ForEach(displayedLines) { line in
                     HStack(alignment: .top, spacing: 0) {
                         if let label = line.label {
@@ -209,7 +209,7 @@ struct WhoisView: View {
     }
 
     private func sectionHeader(_ title: String, systemImage: String) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Metrics.spacingSM) {
             Image(systemName: systemImage).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
             Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
         }

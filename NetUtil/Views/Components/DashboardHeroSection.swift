@@ -31,7 +31,7 @@ struct DashboardHeroSection: View {
 
     var body: some View {
         Button { selection = .bandwidth } label: {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Network Activity")
                         .font(.headline)
@@ -50,7 +50,7 @@ struct DashboardHeroSection: View {
                         .frame(height: 120)
                 }
 
-                HStack(spacing: 24) {
+                HStack(spacing: Metrics.spacingXL) {
                     heroRateMetric(label: "Download", value: tools.bandwidth.totalRxBps, color: .blue)
                     heroRateMetric(label: "Upload", value: tools.bandwidth.totalTxBps, color: .orange)
                     Spacer()
@@ -90,7 +90,7 @@ struct DashboardHeroSection: View {
                         position: .top,
                         overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
                     ) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: Metrics.spacingSM) {
                             tooltipRate(dir: "↓", value: selected.rxBps, color: .blue)
                             tooltipRate(dir: "↑", value: selected.txBps, color: .orange)
                         }
@@ -112,7 +112,7 @@ struct DashboardHeroSection: View {
 
     private func heroRateMetric(label: String, value: Double, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 4) {
+            HStack(spacing: Metrics.spacingXS) {
                 Circle().fill(color).frame(width: 6, height: 6)
                 Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
             }
@@ -126,7 +126,7 @@ struct DashboardHeroSection: View {
     }
 
     private func tooltipRate(dir: String, value: Double, color: Color) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Metrics.spacingXS) {
             Text(dir).font(.caption.bold()).foregroundColor(color)
             Text(NetworkMath.formatRate(value))
                 .font(.caption.monospaced().weight(.semibold))

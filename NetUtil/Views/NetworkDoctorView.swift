@@ -13,7 +13,7 @@ struct NetworkDoctorView: View {
             controlBar
             moodBar
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: Metrics.spacingLG) {
                     if vm.lastRun == nil && !vm.isRunning {
                         ToolStateView.empty(title: "No Diagnosis Yet",
                                             subtitle: "Run a check to test each network layer — router, DNS, internet, and encrypted web — and find where a problem sits.",
@@ -46,8 +46,8 @@ struct NetworkDoctorView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "stethoscope")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -137,7 +137,7 @@ struct NetworkDoctorView: View {
             if case .failed = check.state { return true }
             return false
         })
-        return HStack(spacing: 12) {
+        return HStack(spacing: Metrics.spacingMD) {
             Image(systemName: v.icon)
                 .font(.title.weight(.semibold))
                 .foregroundColor(color)
@@ -172,7 +172,7 @@ struct NetworkDoctorView: View {
     /// Visual chain Mac → Router → DNS → Internet → Secure Web. Green means
     /// the step works; the chain breaks at the first red step.
     private var pathDiagram: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             HStack {
                 Text("Connection Path")
                     .font(.caption.weight(.bold))
@@ -182,7 +182,7 @@ struct NetworkDoctorView: View {
                     .font(.caption2.monospaced())
                     .foregroundColor(.secondary)
             }
-            HStack(alignment: .top, spacing: 4) {
+            HStack(alignment: .top, spacing: Metrics.spacingXS) {
                 pathNode(icon: "desktopcomputer", label: "This Mac", state: nil)
                 pathConnector(state: state(for: .gateway))
                 pathNode(icon: DoctorStepID.gateway.icon, label: DoctorStepID.gateway.rawValue, state: state(for: .gateway))
@@ -297,7 +297,7 @@ struct NetworkDoctorView: View {
     // MARK: - Steps
 
     private var stepListSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             SectionHeader(title: "Layer Details", icon: "list.bullet.rectangle")
                 .padding(.leading, 4)
             stepList
@@ -326,7 +326,7 @@ struct NetworkDoctorView: View {
                 if expanded { expandedSteps.remove(check.id.rawValue) }
                 else { expandedSteps.insert(check.id.rawValue) }
             } label: {
-                HStack(alignment: .top, spacing: 12) {
+                HStack(alignment: .top, spacing: Metrics.spacingMD) {
                     Image(systemName: check.id.icon)
                         .foregroundColor(.accentColor)
                         .frame(width: 28, height: 28)
@@ -358,7 +358,7 @@ struct NetworkDoctorView: View {
             .accessibilityHint(expanded ? "Tap to collapse details" : "Tap to expand details")
 
             if expanded && (showExplanation || action != nil) {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                     Divider().opacity(0.5)
                     if showExplanation {
                         Text(check.id.explanation)

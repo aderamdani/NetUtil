@@ -8,7 +8,7 @@ struct CompactSlider: View {
     var tint: Color = .accentColor
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Metrics.spacingSM) {
             Slider(value: $value, in: range, step: step)
                 .tint(tint)
                 .frame(width: 120)

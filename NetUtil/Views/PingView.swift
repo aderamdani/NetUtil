@@ -49,7 +49,7 @@ struct PingView: View {
             pingMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -70,7 +70,7 @@ struct PingView: View {
                             chartWidth: $chartWidth
                         )
 
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             HStack {
                                 Picker("", selection: $showRaw) {
                                     Text("Analysis").tag(false)
@@ -135,7 +135,7 @@ struct PingView: View {
     // MARK: - Components
 
     private var statsBarSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Transmitted", value: "\(vm.stats.transmitted)", icon: "paperplane")
                 .accessibilityElement(children: .combine)
             StatCard(title: "Received", value: "\(vm.stats.received)", icon: "tray.and.arrow.down")
@@ -196,15 +196,15 @@ struct PingView: View {
         let matched = LinkProfile.match(avgMs: vm.stats.avgRtt)
         let shown = selectedProfile ?? matched
         let link = measuredLink
-        return VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
+        return VStack(alignment: .leading, spacing: Metrics.spacingMD) {
+            HStack(spacing: Metrics.spacingMD) {
                 Image(systemName: verdict.icon)
                     .font(.title2.weight(.semibold))
                     .foregroundColor(verdict.color)
                     .frame(width: 36)
                     .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
+                    HStack(spacing: Metrics.spacingSM) {
                         Text("Connection Quality")
                             .font(.caption.weight(.bold))
                             .foregroundColor(.secondary)
@@ -224,7 +224,7 @@ struct PingView: View {
 
             Divider().opacity(0.5)
 
-            HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingSM) {
                 Text("Measured over")
                     .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
@@ -238,11 +238,11 @@ struct PingView: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Measured over \(link.detail)")
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                 Text("Link type — tap a type to learn what it means")
                     .font(.caption.weight(.bold))
                     .foregroundColor(.secondary)
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.spacingSM) {
                     ForEach(LinkProfile.allCases, id: \.self) { profile in
                         let isShown = profile == shown
                         Button {
@@ -327,7 +327,7 @@ struct PingView: View {
     }
 
     private var rttLegend: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: Metrics.spacingLG) {
             ForEach([("Normal", Color.green), ("High", Color.orange), ("Critical", Color.red), ("Loss", Color.purple)], id: \.0) { item in
                 HStack(spacing: 6) {
                     Circle().fill(item.1).frame(width: 6, height: 6)

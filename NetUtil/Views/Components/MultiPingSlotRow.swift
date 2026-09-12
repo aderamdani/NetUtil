@@ -29,7 +29,7 @@ struct MultiPingSlotRow: View {
                     .onSubmit { isNameFocused = false; onCommitRename() }
                     .accessibilityLabel("Host Alias")
                 
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.spacingSM) {
                     Circle()
                         .fill(statusColor)
                         .frame(width: 6, height: 6)
@@ -85,7 +85,7 @@ struct MultiPingSlotRow: View {
                     .onTapGesture { onToggleExpand() }
                     .accessibilityLabel("Health History")
 
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     Button(action: { if slot.isRunning { slot.stop() } else { slot.start() } }) {
                         Image(systemName: slot.isRunning ? "pause.fill" : "play.fill")
                             .foregroundColor(slot.isRunning ? .secondary : .accentColor)

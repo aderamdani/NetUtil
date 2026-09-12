@@ -19,13 +19,13 @@ struct TracerouteControlBar: View {
     var body: some View {
         ToolControlBar(icon: "point.3.connected.trianglepath.dotted", title: "Traceroute",
                        host: $host, history: history, onSubmit: onStart) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    HStack(spacing: 4) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
+                    HStack(spacing: Metrics.spacingXS) {
                         Text("Hops").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                         TextField("", value: $maxHops, format: .number).textFieldStyle(.roundedBorder).frame(width: 48)
                     }
-                    HStack(spacing: 4) {
+                    HStack(spacing: Metrics.spacingXS) {
                         Text("Interval").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                         TextField("", value: $traceInterval, format: .number).textFieldStyle(.roundedBorder).frame(width: 48)
                     }

@@ -89,8 +89,8 @@ struct StatisticsView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)

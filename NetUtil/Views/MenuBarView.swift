@@ -30,7 +30,7 @@ struct MenuBarView: View {
     // MARK: - Status Header
 
     private var statusHeader: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: Metrics.spacingMD) {
             VStack(alignment: .leading, spacing: 6) {
                 ipRow(label: "External", value: tools.externalIP,
                       faded: tools.externalIP == "Checking..." || tools.externalIP == "Unknown")
@@ -49,7 +49,7 @@ struct MenuBarView: View {
                         .foregroundStyle(.secondary)
                 }
                 if let iface = primaryInterface {
-                    HStack(spacing: 4) {
+                    HStack(spacing: Metrics.spacingXS) {
                         Image(systemName: iface.typeIcon).font(.caption2)
                         Text(iface.typeName).font(.caption2)
                     }
@@ -78,7 +78,7 @@ struct MenuBarView: View {
     // MARK: - Live Bandwidth
 
     private var bandwidthSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             bandwidthStat(label: "Download", value: tools.bandwidth.totalRxBps, icon: "arrow.down", color: .green)
             bandwidthStat(label: "Upload", value: tools.bandwidth.totalTxBps, icon: "arrow.up", color: .blue)
         }
@@ -88,7 +88,7 @@ struct MenuBarView: View {
 
     private func bandwidthStat(label: String, value: Double, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            HStack(spacing: 4) {
+            HStack(spacing: Metrics.spacingXS) {
                 Image(systemName: icon).font(.caption2.weight(.bold)).foregroundColor(color)
                 Text(label).font(.caption2.weight(.medium)).foregroundColor(.secondary)
             }

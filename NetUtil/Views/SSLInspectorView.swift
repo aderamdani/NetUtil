@@ -17,7 +17,7 @@ struct SSLInspectorView: View {
             sslMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -25,7 +25,7 @@ struct SSLInspectorView: View {
                     if let result = vm.result {
                         certificateHealthSection(result)
                         
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             chainSelector(result)
                             
                             if let cert = result.chain[safe: selectedCertIndex] {
@@ -80,7 +80,7 @@ struct SSLInspectorView: View {
                        host: $host, placeholder: "hostname or URL", textFieldWidth: 220,
                        textFieldAccessibilityLabel: "Target Host Input",
                        history: history, onSubmit: startInspection) {
-            HStack(spacing: 12) {
+            HStack(spacing: Metrics.spacingMD) {
                     TextField("Port", text: $portText)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 46)
@@ -154,7 +154,7 @@ struct SSLInspectorView: View {
     }
 
     private func certificateHealthSection(_ r: CertResult) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             let leaf = r.chain.first
             let isExpired = (leaf?.daysRemaining ?? 0) < 0
             
@@ -194,7 +194,7 @@ struct SSLInspectorView: View {
     }
 
     private func chainSelector(_ result: CertResult) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             Text("Certificate Chain")
                 .font(.system(.caption, design: .default).weight(.bold))
                 .foregroundColor(.secondary)
@@ -204,7 +204,7 @@ struct SSLInspectorView: View {
                     Button {
                         selectedCertIndex = i
                     } label: {
-                        VStack(spacing: 4) {
+                        VStack(spacing: Metrics.spacingXS) {
                             Text(cert.isLeaf ? "End-Entity" : (i == result.chain.count - 1 ? "Root" : "Intermediate"))
                                 .font(.caption.weight(.bold))
                             Text(cert.subject.components(separatedBy: "CN=").last?.components(separatedBy: ",").first ?? cert.subject)
@@ -240,12 +240,12 @@ struct SSLInspectorView: View {
             
             detailGroup("Validity Period") {
                 HStack(spacing: 40) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                         Text("Not Before").font(.caption2.bold()).foregroundColor(.secondary)
                         Text(cert.notBefore?.formatted(date: .abbreviated, time: .shortened) ?? "—")
                             .font(.system(.subheadline, design: .monospaced))
                     }
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                         Text("Not After").font(.caption2.bold()).foregroundColor(.secondary)
                         Text(cert.notAfter?.formatted(date: .abbreviated, time: .shortened) ?? "—")
                             .font(.system(.subheadline, design: .monospaced))
@@ -261,7 +261,7 @@ struct SSLInspectorView: View {
             
             if !cert.sans.isEmpty {
                 detailGroup("Subject Alternative Names (\(cert.sans.count))") {
-                    FlowLayout(spacing: 8) {
+                    FlowLayout(spacing: Metrics.spacingSM) {
                         ForEach(cert.sans, id: \.self) { san in
                             Text(san)
                                 .font(.system(.caption2, design: .monospaced))
@@ -277,13 +277,13 @@ struct SSLInspectorView: View {
 
     @ViewBuilder
     private func detailGroup<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             Text(title)
                 .font(.system(.caption, design: .default).weight(.bold))
                 .foregroundColor(.secondary)
                 .accessibilityAddTraits(.isHeader)
             
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Metrics.spacingMD) {
                 content()
             }
             .padding(16)
@@ -294,7 +294,7 @@ struct SSLInspectorView: View {
     }
 
     private func kv(_ label: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Metrics.spacingXS) {
             Text(label)
                 .font(.caption2.weight(.bold))
                 .foregroundColor(.secondary)

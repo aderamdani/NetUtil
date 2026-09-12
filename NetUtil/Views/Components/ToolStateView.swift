@@ -4,7 +4,7 @@ import SwiftUI
 /// a result exists or while one is being fetched.
 enum ToolStateView {
     static func empty(title: String, subtitle: String, minHeight: CGFloat = 400) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Metrics.spacingMD) {
             Text(title)
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -16,7 +16,7 @@ enum ToolStateView {
     }
 
     static func loading(message: String, minHeight: CGFloat = 400) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Metrics.spacingLG) {
             ProgressView()
                 .controlSize(.large)
             Text(message)

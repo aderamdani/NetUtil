@@ -5,18 +5,18 @@ struct SystemSecurityCardsSection: View {
     @Binding var selection: Tool?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             SectionHeader(title: "System & Security", icon: "lock.shield.fill")
 
             GlassEffectContainer {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
                     doctorCard
                     netQualityCard
                     portListenerCard
                 }
             }
             GlassEffectContainer {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
                     connectionsCard
                     neighborsCard
                     historyCard
@@ -44,7 +44,7 @@ struct SystemSecurityCardsSection: View {
             action: { selection = .doctor },
             helpText: "Run automated checks: gateway reachability, DNS resolution, internet connectivity, and captive portal detection."
         ) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 HStack {
                     Text(statusText)
                         .font(.subheadline.bold())
@@ -53,7 +53,7 @@ struct SystemSecurityCardsSection: View {
                     if tools.doctor.isRunning { PulsingIndicator(color: .blue) }
                 }
                 if !tools.doctor.isRunning && total > 0 {
-                    HStack(spacing: 16) {
+                    HStack(spacing: Metrics.spacingLG) {
                         Label("\(passed) passed", systemImage: "checkmark.circle.fill")
                             .font(.caption2)
                             .foregroundColor(.green)
@@ -86,8 +86,8 @@ struct SystemSecurityCardsSection: View {
         ) {
             if let result = tools.netQuality.result {
                 let grade = result.rpmGrade
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(alignment: .bottom, spacing: 8) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
+                    HStack(alignment: .bottom, spacing: Metrics.spacingSM) {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(String(format: "↓ %.0f", result.downloadMbps))
                                 .font(.subheadline.monospaced().weight(.bold))
@@ -95,7 +95,7 @@ struct SystemSecurityCardsSection: View {
                             Text("Mbps").font(.caption2).foregroundColor(.secondary)
                         }
                         Spacer()
-                        HStack(spacing: 4) {
+                        HStack(spacing: Metrics.spacingXS) {
                             Text("\(result.responsivenessRPM) RPM")
                                 .font(.caption.monospaced().weight(.bold))
                             Image(systemName: grade.color == "green" ? "checkmark.circle.fill" : (grade.color == "orange" ? "exclamationmark.triangle.fill" : "xmark.octagon.fill"))
@@ -103,7 +103,7 @@ struct SystemSecurityCardsSection: View {
                         }
                         .foregroundColor(grade.color == "green" ? .green : (grade.color == "orange" ? .orange : .red))
                     }
-                    HStack(spacing: 12) {
+                    HStack(spacing: Metrics.spacingMD) {
                         Text("↑ \(String(format: "%.0f", result.uploadMbps)) Mbps")
                             .font(.caption2.monospaced()).foregroundColor(.secondary)
                         if let baseRtt = result.baseRttMs {
@@ -116,7 +116,7 @@ struct SystemSecurityCardsSection: View {
                         .foregroundColor(grade.color == "green" ? .green : (grade.color == "orange" ? .orange : .red))
                 }
             } else if tools.netQuality.isRunning {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Measuring network quality…")
                         .font(.subheadline.bold())
                     Text("Running download, upload, and responsiveness tests")
@@ -125,7 +125,7 @@ struct SystemSecurityCardsSection: View {
                     PulsingIndicator(color: .blue)
                 }
             } else {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Link Quality Probe")
                         .font(.subheadline.bold())
                     Text("Measures throughput, latency, and responsiveness (RPM)")
@@ -144,7 +144,7 @@ struct SystemSecurityCardsSection: View {
             action: { selection = .portListener },
             helpText: "Start a TCP or UDP listener on any port. Useful for testing firewall rules, port forwarding, and service connectivity."
         ) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 if tools.portListener.isRunning {
                     Text("Listening on port \(tools.portListener.port)")
                         .font(.subheadline.monospaced().weight(.bold))
@@ -197,7 +197,7 @@ struct SystemSecurityCardsSection: View {
             action: { selection = .sessionHistory },
             helpText: "View past 90 days of tool usage: ping results, traceroutes, speed tests, and scan history."
         ) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 Text("\(tools.sessionHistory.records.count) recorded sessions")
                     .font(.subheadline.bold())
                 Text("Past 90 Days — Auto-saved")

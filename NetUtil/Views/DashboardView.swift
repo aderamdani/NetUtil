@@ -15,7 +15,7 @@ struct DashboardView: View {
             healthSummaryBar
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXL) {
                     DashboardHeroSection(selection: $selection)
                     DiagnosticsCardsSection(selection: $selection)
                     TrafficCardsSection(selection: $selection)
@@ -56,8 +56,8 @@ struct DashboardView: View {
                         .font(.title3.bold())
                         .tracking(-0.2)
 
-                    HStack(spacing: 12) {
-                        HStack(spacing: 4) {
+                    HStack(spacing: Metrics.spacingMD) {
+                        HStack(spacing: Metrics.spacingXS) {
                             Image(systemName: tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps > 0 ? "antenna.radiowaves.left.and.right" : "antenna.radiowaves.left.and.right.slash")
                                 .foregroundColor(tools.bandwidth.totalRxBps > 0 || tools.bandwidth.totalTxBps > 0 ? .green : .secondary)
                                 .font(.caption2)
@@ -89,7 +89,7 @@ struct DashboardView: View {
 
                 Spacer()
 
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     healthGauge(
                         label: "CPU",
                         value: String(format: "%.0f%%", tools.system.cpuUsage),
@@ -140,7 +140,7 @@ struct DashboardView: View {
     }
 
     private func gatewayChip(label: String, value: String) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Metrics.spacingXS) {
             Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
             Text(value).font(.caption2.monospaced().weight(.medium))
         }
@@ -150,9 +150,9 @@ struct DashboardView: View {
     }
 
     private func healthGauge(label: String, value: String, subtitle: String? = nil, progress: Double, color: Color) -> some View {
-        VStack(alignment: .trailing, spacing: 4) {
+        VStack(alignment: .trailing, spacing: Metrics.spacingXS) {
             Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
-            HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingSM) {
                 VStack(alignment: .trailing, spacing: 0) {
                     Text(value)
                         .font(.subheadline.monospaced().weight(.bold))

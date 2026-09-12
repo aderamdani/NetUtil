@@ -10,8 +10,8 @@ struct InterfaceBandwidthCard: View {
     private var maxVal: Double { max(history.flatMap { [$0.rxBps, $0.txBps] }.max() ?? 1024, 1024) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
+            HStack(spacing: Metrics.spacingMD) {
                 ZStack {
                     Circle()
                         .fill(iface.isUp ? Color.accentColor.opacity(0.1) : Color.secondary.opacity(0.1))

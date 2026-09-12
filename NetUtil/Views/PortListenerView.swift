@@ -10,7 +10,7 @@ struct PortListenerView: View {
             controlBar
             moodBar
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -35,8 +35,8 @@ struct PortListenerView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "ear")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -108,7 +108,7 @@ struct PortListenerView: View {
     private var eventList: some View {
         VStack(spacing: 0) {
             ForEach(Array(vm.events.enumerated()), id: \.element.id) { idx, event in
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     Text(event.time.formatted(date: .omitted, time: .standard))
                         .font(.system(.subheadline, design: .monospaced))
                         .foregroundColor(.secondary)

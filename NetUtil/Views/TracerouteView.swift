@@ -53,7 +53,7 @@ struct TracerouteView: View {
             traceMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -63,7 +63,7 @@ struct TracerouteView: View {
 
                         pathVerdictCard
 
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             HStack {
                                 SectionHeader(title: "Path Visualization", icon: "map.fill")
                                 Spacer()
@@ -146,7 +146,7 @@ struct TracerouteView: View {
     // MARK: - Components
 
     private var pathSummarySection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Path Depth", value: "\(vm.hops.count)", unit: "Hops", icon: "arrow.triangle.branch")
                 .accessibilityElement(children: .combine)
             StatCard(title: "Path Loss", value: String(format: "%.1f%%", vm.pathLoss), icon: "exclamationmark.triangle", color: vm.pathLoss > 0 ? .red : .primary)
@@ -170,14 +170,14 @@ struct TracerouteView: View {
     /// whether packets are lost, or whether the trace looks clean.
     private var pathVerdictCard: some View {
         let verdict = pathVerdict
-        return HStack(spacing: 12) {
+        return HStack(spacing: Metrics.spacingMD) {
             Image(systemName: verdict.icon)
                 .font(.title2.weight(.semibold))
                 .foregroundColor(verdict.color)
                 .frame(width: 36)
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: Metrics.spacingXS) {
+                HStack(spacing: Metrics.spacingSM) {
                     Text("Path Verdict")
                         .font(.caption.weight(.bold))
                         .foregroundColor(.secondary)
@@ -262,7 +262,7 @@ struct TracerouteView: View {
 
     private func hopQuickDetail(_ hop: TracerouteHop) -> some View {
         let isBottleneck = bottleneck?.hop.id == hop.id
-        return VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             HStack {
                 Text("Hop \(hop.hop) Detail")
                     .font(.caption.weight(.bold))
@@ -284,15 +284,15 @@ struct TracerouteView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            HStack(spacing: 24) {
-                VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: Metrics.spacingXL) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Host / IP").font(.caption2.bold()).foregroundColor(.secondary)
                     Text(hop.displayHost).font(.subheadline.monospaced().weight(.bold))
                 }
                 .accessibilityElement(children: .combine)
                 
                 if let geo = hop.geo {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                         Text("Location").font(.caption2.bold()).foregroundColor(.secondary)
                         Text("\(geo.flag) \(geo.city), \(geo.country)")
                             .font(.subheadline)
@@ -302,7 +302,7 @@ struct TracerouteView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     StatCardMini(label: "Min", value: hop.minRtt.map { String(format: "%.1f", $0) } ?? "—")
                     StatCardMini(label: "Max", value: hop.maxRtt.map { String(format: "%.1f", $0) } ?? "—")
                     StatCardMini(label: "Jitter", value: hop.jitter.map { String(format: "%.1f", $0) } ?? "—")
@@ -316,7 +316,7 @@ struct TracerouteView: View {
 
     private var rawOutputView: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 4) {
+            LazyVStack(alignment: .leading, spacing: Metrics.spacingXS) {
                 ForEach(vm.rawLines) { line in
                     Text(line.text)
                         .font(.caption.monospaced())
@@ -380,9 +380,9 @@ private struct TracerouteIPInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: Metrics.spacingXL) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Hop \(hop.hop)").font(.headline)
                     Text(hop.displayHost).font(.subheadline).foregroundColor(.secondary)
                 }
@@ -393,7 +393,7 @@ private struct TracerouteIPInfoSheet: View {
             
             Divider()
             
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                 infoRow(label: "IP Address", value: hop.ip ?? "Unknown")
                 if let geo = hop.geo {
                     infoRow(label: "Location", value: "\(geo.flag) \(geo.city), \(geo.country)")
@@ -414,7 +414,7 @@ private struct TracerouteIPInfoSheet: View {
     }
     
     private func infoRow(label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Metrics.spacingXS) {
             Text(label).font(.caption2.bold()).foregroundColor(.secondary)
             Text(value).font(.subheadline.monospaced()).textSelection(.enabled)
         }

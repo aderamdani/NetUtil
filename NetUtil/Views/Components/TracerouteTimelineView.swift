@@ -38,7 +38,7 @@ private struct TimelineHopRow: View {
     let isSelected: Bool
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: Metrics.spacingLG) {
             Text("\(hop.hop)")
                 .font(.caption2.monospaced())
                 .foregroundColor(.secondary)

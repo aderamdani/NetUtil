@@ -9,9 +9,9 @@ struct AboutToolGrid: View {
                 .font(.headline)
                 .padding(.leading, 4)
             
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
                 ForEach(Array(tools.enumerated()), id: \.element.1) { index, tool in
-                    HStack(spacing: 12) {
+                    HStack(spacing: Metrics.spacingMD) {
                         Image(systemName: tool.0)
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(.accentColor)

@@ -18,7 +18,7 @@ struct MultiPingView: View {
             multiPingMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if vm.slots.isEmpty {
                         emptyState
                     } else {
@@ -133,7 +133,7 @@ struct MultiPingView: View {
     private var statsBarSection: some View {
         let running = vm.slots.filter { $0.isRunning }.count
         let avgLoss = vm.slots.isEmpty ? 0.0 : vm.slots.map { $0.loss }.reduce(0, +) / Double(vm.slots.count)
-        return HStack(spacing: 12) {
+        return HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Active Hosts", value: "\(vm.slots.count)", icon: "server.rack")
                 .accessibilityElement(children: .combine)
             StatCard(title: "Monitoring", value: "\(running)", icon: "play.fill", color: running > 0 ? .green : .primary)

@@ -13,7 +13,7 @@ struct IPGeolocationView: View {
             controlBar
             moodBar
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -96,7 +96,7 @@ struct IPGeolocationView: View {
     // MARK: - Result
 
     private func summarySection(_ r: IPGeoResult) -> some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: Metrics.spacingLG) {
             ZStack {
                 Circle()
                     .fill(Color.accentColor.opacity(0.1))
@@ -130,7 +130,7 @@ struct IPGeolocationView: View {
     }
 
     private func statsGrid(_ r: IPGeoResult) -> some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: Metrics.spacingMD) {
             DetailCard(label: "ISP / Org", value: r.ispName, icon: "building.2")
             DetailCard(label: "ASN", value: r.asn ?? "—", icon: "number")
             DetailCard(label: "Hostname", value: r.hostname ?? "—", icon: "textformat")

@@ -18,7 +18,7 @@ struct PortScanControlBar: View {
     var body: some View {
         ToolControlBar(icon: "checklist", title: "Port Scanner",
                        host: $host, textFieldWidth: 180, history: history, onSubmit: onStart) {
-            HStack(spacing: 12) {
+            HStack(spacing: Metrics.spacingMD) {
                 Picker("", selection: $portRangeType) {
                     ForEach(PortPreset.allCases, id: \.self) { type in
                         Text(type.rawValue).tag(type)

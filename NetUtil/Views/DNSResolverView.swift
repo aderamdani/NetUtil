@@ -9,7 +9,7 @@ struct DNSResolverView: View {
             controlBar
             moodBar
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
                         ErrorBanner(message: err)
                     }
@@ -34,8 +34,8 @@ struct DNSResolverView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "server.rack")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -81,7 +81,7 @@ struct DNSResolverView: View {
     }
 
     private var explanationCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             SectionHeader(title: "Apa Itu Resolver?", icon: "questionmark.circle")
             Text("Resolver DNS adalah 'penerjemah' internet. Saat kamu mengetik nama situs (misal google.com), resolver mengubahnya menjadi alamat angka (IP) agar komputer bisa menemukan server tersebut. Tanpa resolver yang cepat dan tepat, akses internet bisa lambat atau gagal.")
                 .font(.subheadline)
@@ -110,7 +110,7 @@ struct DNSResolverView: View {
     // MARK: - Resolver List
 
     private var resolverList: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Metrics.spacingMD) {
             ForEach(vm.effectiveResolvers) { resolver in
                 resolverCard(resolver)
             }

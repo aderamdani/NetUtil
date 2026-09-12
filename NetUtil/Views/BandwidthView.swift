@@ -15,7 +15,7 @@ struct BandwidthView: View {
             bandwidthMoodBar
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: Metrics.spacingXL) {
                     aggregateStatsSection
                     aggregateChartSection
                     interfaceListSection
@@ -47,8 +47,8 @@ struct BandwidthView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "chart.bar.xaxis")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -60,7 +60,7 @@ struct BandwidthView: View {
 
                 Spacer()
 
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     Toggle("Active Only", isOn: Binding(
                         get: { vm.showActiveOnly },
                         set: { vm.showActiveOnly = $0 }
@@ -104,7 +104,7 @@ struct BandwidthView: View {
     // MARK: - Aggregate Stats
 
     private var aggregateStatsSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             StatCard(title: "Download",
                      value: formatBps(vm.totalRxBps).value,
                      unit: formatBps(vm.totalRxBps).unit,
@@ -164,9 +164,9 @@ struct BandwidthView: View {
     }
 
     private var aggregateChartSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Aggregate Throughput")
                         .font(.headline)
                     Text("Combined download and upload across all connections — last 60 seconds")
@@ -210,7 +210,7 @@ struct BandwidthView: View {
                             position: .top,
                             overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
                         ) {
-                            HStack(spacing: 8) {
+                            HStack(spacing: Metrics.spacingSM) {
                                 tooltipRate(dir: "↓", bps: selected.rxBps, color: .blue)
                                 tooltipRate(dir: "↑", bps: selected.txBps, color: .orange)
                             }
@@ -238,7 +238,7 @@ struct BandwidthView: View {
                         sampleCount: aggregateWindow.count)
                 ))
 
-            HStack(spacing: 16) {
+            HStack(spacing: Metrics.spacingLG) {
                 legendDot(.blue, "Download")
                 legendDot(.orange, "Upload")
             }
@@ -250,7 +250,7 @@ struct BandwidthView: View {
 
     private func tooltipRate(dir: String, bps: Double, color: Color) -> some View {
         let fmt = formatBps(bps)
-        return HStack(spacing: 4) {
+        return HStack(spacing: Metrics.spacingXS) {
             Text(dir).font(.caption.bold()).foregroundColor(color)
             Text("\(fmt.value) \(fmt.unit)")
                 .font(.caption.monospaced().weight(.semibold))
@@ -265,9 +265,9 @@ struct BandwidthView: View {
             ? vm.interfaces.filter { !$0.isLoopback && vm.hasTraffic($0.name) }
             : vm.interfaces.filter { !$0.isLoopback }
 
-        return VStack(alignment: .leading, spacing: 16) {
+        return VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Interfaces")
                         .font(.headline)
                     Text(vm.showActiveOnly ? "Showing interfaces with recent traffic" : "All non-loopback interfaces")

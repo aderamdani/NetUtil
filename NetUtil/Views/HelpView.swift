@@ -19,12 +19,12 @@ struct HelpView: View {
     private var sidebar: some View {
         VStack(spacing: 0) {
             // Search Bar Area
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Metrics.spacingMD) {
                 Text("Documentation")
                     .font(.headline)
                     .foregroundColor(.primary)
                 
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
                         .font(.caption.weight(.bold))
@@ -48,7 +48,7 @@ struct HelpView: View {
 
             // Navigation List
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 4) {
+                LazyVStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     ForEach(filteredSections) { section in
                         sectionRow(section)
                     }
@@ -63,16 +63,16 @@ struct HelpView: View {
     private var detail: some View {
         ScrollView {
             if let section = selectedSection {
-                VStack(alignment: .leading, spacing: 32) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXXL) {
                     // Section Header
-                    HStack(spacing: 16) {
+                    HStack(spacing: Metrics.spacingLG) {
                         Image(systemName: section.icon)
                             .font(.title)
                             .foregroundColor(.accentColor)
                             .frame(width: 44, height: 44)
                             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
                         
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                             Text(section.title)
                                 .font(.title.bold())
                             Text(section.subtitle)
@@ -83,7 +83,7 @@ struct HelpView: View {
                     .padding(.bottom, 8)
 
                     // Topics
-                    VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: Metrics.spacingXL) {
                         ForEach(section.topics) { topic in
                             topicBlock(topic)
                             if topic.id != section.topics.last?.id {
@@ -145,7 +145,7 @@ struct HelpView: View {
 
     @ViewBuilder
     private func topicBlock(_ topic: HelpTopic) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             Text(topic.heading)
                 .font(.headline)
                 .foregroundColor(.primary)
@@ -168,9 +168,9 @@ struct HelpView: View {
             }
 
             if let tips = topic.tips, !tips.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: Metrics.spacingSM) {
                     ForEach(tips, id: \.self) { tip in
-                        HStack(alignment: .top, spacing: 8) {
+                        HStack(alignment: .top, spacing: Metrics.spacingSM) {
                             Image(systemName: "lightbulb.fill")
                                 .foregroundColor(.orange)
                                 .font(.caption2)

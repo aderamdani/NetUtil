@@ -15,9 +15,9 @@ struct PingLatencyChartView: View {
     @Binding var chartWidth: CGFloat
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Metrics.spacingLG) {
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Metrics.spacingXS) {
                     Text("Latency History")
                         .font(.headline)
                     Text("Real-time round-trip performance")
@@ -40,7 +40,7 @@ struct PingLatencyChartView: View {
                     if let point = hoveredPoint {
                         let tooltipEst: CGFloat = Metrics.tooltipEstimate
                         let clampedX = max(0, min(hoverLocation.x - tooltipEst / 2, chartWidth - tooltipEst))
-                        HStack(spacing: 4) {
+                        HStack(spacing: Metrics.spacingXS) {
                             Circle()
                                 .fill(point.status == .success ? rttColor(point.rtt) : Color.red)
                                 .frame(width: 6, height: 6)

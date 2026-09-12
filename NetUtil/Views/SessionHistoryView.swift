@@ -63,8 +63,8 @@ struct SessionHistoryView: View {
 
     private var controlBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                HStack(spacing: 8) {
+            HStack(spacing: Metrics.spacingMD) {
+                HStack(spacing: Metrics.spacingSM) {
                     Image(systemName: "clock.arrow.circlepath")
                         .foregroundColor(.accentColor)
                         .imageScale(.large)
@@ -90,7 +90,7 @@ struct SessionHistoryView: View {
 
                 Spacer()
 
-                HStack(spacing: 12) {
+                HStack(spacing: Metrics.spacingMD) {
                     Picker("Tool", selection: $filterTool) {
                         ForEach(availableTools, id: \.self) { Text(toolLabel($0)).tag($0) }
                     }
@@ -210,14 +210,14 @@ private struct SessionRecordRow: View {
     let record: SessionRecord
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.spacingMD) {
             Image(systemName: toolIcon(record.tool))
                 .foregroundColor(statusColor)
                 .frame(width: 20)
                 .font(.subheadline.weight(.semibold))
 
             VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.spacingSM) {
                     Text(toolLabel(record.tool)).font(.caption2.weight(.bold)).foregroundColor(.secondary)
                     Text(record.target).font(.subheadline.monospaced()).lineLimit(1)
                 }

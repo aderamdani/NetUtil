@@ -27,7 +27,7 @@ struct PrivacyPane: View {
 
             Section {
                 LabeledContent("Saved Hosts") {
-                    HStack(spacing: 8) {
+                    HStack(spacing: Metrics.spacingSM) {
                         Text("\(history.hosts.count) / 20")
                             .font(.system(.callout, design: .monospaced))
                             .foregroundColor(.secondary)
@@ -108,7 +108,7 @@ private struct PrivacyRemoteSection: View {
                     .foregroundColor(.secondary)
             } else {
                 ForEach(rows) { row in
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    HStack(alignment: .firstTextBaseline, spacing: Metrics.spacingMD) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(row.tool.displayName)
                                 .font(.callout.weight(.medium))
