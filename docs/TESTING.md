@@ -91,7 +91,7 @@ table background uses colored opacity.
 Legend: ▶ steps · ✓ expected · ⚠ edge.
 
 ### Dashboard
-- ▶ Launch app. ✓ Header shows Hostname, Local IP, Public IP (resolves from "Checking…"), VPN status. ✓ Cards show live sparklines; CPU/RAM badges update ~2s.
+- ▶ Launch app. ✓ Header shows Hostname, Local IP, Public IP (resolves from "Checking…"), VPN status, and uptime. ✓ Essential tools grid shows live sparklines and status.
 - ▶ Click a tool card. ✓ Sidebar selection follows; detail view swaps.
 - ▶ Circle play on Ping card. ✓ Card shows activity; sidebar dot pulses.
 - ⚠ No network: Public IP → "Unknown" (no hang/crash).

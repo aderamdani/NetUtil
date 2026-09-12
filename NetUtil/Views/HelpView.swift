@@ -231,7 +231,7 @@ private let allSections: [HelpSection] = [
                 "Hover over cards to see a subtle scale effect and highlighted borders.",
                 "Tooltips provide a brief description of each tool's primary purpose."
             ]),
-            HelpTopic(heading: "System Health", body: "The header displays real-time badges for CPU load and memory pressure, helping you correlate network performance with local system resources.", tips: nil)
+            HelpTopic(heading: "Connection Header", body: "The header shows your Mac's name, the active connection (Wi-Fi or Ethernet), your local and public IP addresses, a VPN badge when a tunnel is up, and how long the app has been running. A status bar beneath it summarises overall network health.", tips: nil)
         ]
     ),
     HelpSection(

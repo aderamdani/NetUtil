@@ -46,7 +46,6 @@ NetUtil/
 │   ├── RouteEntry.swift          # Routing table parser
 │   ├── WiFiInfo.swift            # CoreWLAN Wi-Fi details
 │   ├── BandwidthMonitor.swift    # Per-interface byte counter sampling
-│   ├── SystemMonitor.swift       # CPU + RAM via host_processor_info
 │   ├── TrafficStatistics.swift   # 90-day daily totals (UserDefaults)
 │   ├── SpeedTestEngine.swift     # Cloudflare speed test (4 modes)
 │   ├── SpeedTestModels.swift     # Speed test result types
@@ -224,7 +223,7 @@ Detail pane routing via `toolView(_ tool: Tool) -> some View` — a `@ViewBuilde
 3. **Owns health status** — `healthIcon`, `healthColor`, `healthMessage` (derived from SSL watchlist, ping loss, Wi-Fi RSSI)
 4. **Owns shared managers** — `statistics`, `sslWatchlist`, `favorites`, `sessionHistory`
 5. **Wires session logging** — connects `onSessionComplete` closures from 12 ViewModels to `SessionHistory`
-6. **Manages app-lifetime polling** — `BandwidthMonitor`, `SystemMonitor`, `TrafficStatistics`, `NetworkInterfaceViewModel`, `WiFiInspectorViewModel`
+6. **Manages app-lifetime polling** — `BandwidthMonitor`, `TrafficStatistics`, `NetworkInterfaceViewModel`, `WiFiInspectorViewModel`
 7. **Battery optimization** — `pauseMonitoring()` / `resumeMonitoring(reduced:)` drops to reduced polling when no window is visible or in accessory mode
 8. **Global status refresh** — `refreshGlobalStatus()` fetches external IP via ipinfo.io, detects VPN, resolves connection name
 
@@ -419,7 +418,6 @@ Used in:
 | ViewModel | Interval | Pauses on occlusion? |
 |---|---|---|
 | `BandwidthMonitor` | 1-10s (dynamic) | Yes |
-| `SystemMonitor` | 2-10s | Yes |
 | `TrafficStatistics` | 30s (save only) | Yes |
 | `NetworkInterfaceViewModel` | 3-15s | Yes |
 | `WiFiInspectorViewModel` | 2s | Yes |
@@ -534,14 +532,11 @@ struct SomeToolView: View {
 
 ```
 DashboardView
-├── Header Bar (hostname, connection name, IPs, VPN badge, uptime, CPU/RAM gauges)
+├── Header Bar (hostname, connection name, IPs, VPN badge, uptime)
 ├── MoodBar (global health status)
 └── ScrollView
-    ├── DashboardHeroSection      — Live RX/TX chart (SwiftUI Charts)
-    ├── DiagnosticsCardsSection   — Ping, Multi-Ping, Port Scanner cards
-    ├── TrafficCardsSection       — Bandwidth, Stats, Interfaces, Wi-Fi, etc.
-    ├── LookupCardsSection        — WHOIS, Subnet Calc, IP Geo, DNS Resolver
-    └── SystemSecurityCardsSection— Doctor, Net Quality, Port Listener, etc.
+    ├── DashboardHeroSection   — Live RX/TX chart (SwiftUI Charts)
+    └── EssentialToolsSection  — Curated grid of core network tools
 ```
 
 ---
@@ -595,9 +590,6 @@ Standardized dropdown in every tool's control bar:
 | `getifaddrs()` / `freeifaddrs()` | NetworkInterface.swift, BandwidthMonitor.swift | Interface enumeration, IPs, MACs, MTUs, byte counters |
 | `getnameinfo()` | NetworkInterface.swift | sockaddr → IP string |
 | `AF_LINK` / `if_data` | BandwidthMonitor.swift | Raw byte counts, interface type |
-| `host_processor_info()` | SystemMonitor.swift | CPU usage per core |
-| `host_statistics64()` | SystemMonitor.swift | Memory pressure, RAM usage |
-| `sysctlbyname("hw.memsize")` | SystemMonitor.swift | Total RAM |
 | `SCNetworkInterfaceCopyAll()` | ToolStore.swift | Localized interface names |
 | `CWWiFiClient` | WiFiInspectorViewModel.swift, ToolStore.swift | Wi-Fi SSID, RSSI, channel, security, txRate |
 | `SecTrust` / `SecCertificate` | SSLInspectorViewModel.swift | TLS certificate chain inspection |

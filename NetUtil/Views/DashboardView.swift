@@ -17,10 +17,7 @@ struct DashboardView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Metrics.spacingXL) {
                     DashboardHeroSection(selection: $selection)
-                    DiagnosticsCardsSection(selection: $selection)
-                    TrafficCardsSection(selection: $selection)
-                    LookupCardsSection(selection: $selection)
-                    SystemSecurityCardsSection(selection: $selection)
+                    EssentialToolsSection(selection: $selection)
                 }
                 .padding(Metrics.spacingXL)
             }
@@ -50,7 +47,7 @@ struct DashboardView: View {
 
     private var headerBar: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .bottom) {
+            HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(localHostName)
                         .font(.title3.bold())
@@ -78,44 +75,22 @@ struct DashboardView: View {
                                 .background(Color.green.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
                                 .foregroundColor(.green)
                         }
-
-                        Divider().frame(height: 10)
-
-                        Text("Uptime: \(uptimeString)")
-                            .font(.caption.monospaced())
-                            .foregroundColor(.secondary)
                     }
                 }
 
                 Spacer()
 
-                HStack(spacing: Metrics.spacingMD) {
-                    healthGauge(
-                        label: "CPU",
-                        value: String(format: "%.0f%%", tools.system.cpuUsage),
-                        progress: tools.system.cpuUsage / 100,
-                        color: tools.system.cpuUsage > 75 ? .red : .accentColor
-                    )
-                    .help(String(format: "CPU: %.0f%% — %d cores", tools.system.cpuUsage, ProcessInfo.processInfo.processorCount))
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("CPU Usage")
-                    .accessibilityValue(String(format: "%.0f percent", tools.system.cpuUsage))
-
-                    let ramPct = tools.system.ramTotalGB > 0
-                        ? tools.system.ramUsedGB / tools.system.ramTotalGB
-                        : 0.3
-                    healthGauge(
-                        label: "RAM",
-                        value: tools.system.memoryPressure.capitalized,
-                        subtitle: String(format: "%.1f / %.0f GB", tools.system.ramUsedGB, tools.system.ramTotalGB),
-                        progress: tools.system.memoryColor == "red" ? 0.9 : (tools.system.memoryColor == "orange" ? 0.6 : ramPct),
-                        color: tools.system.memoryColor == "red" ? .red : (tools.system.memoryColor == "orange" ? .orange : .accentColor)
-                    )
-                    .help(String(format: "RAM: %.1f / %.0f GB (%.0f%%)", tools.system.ramUsedGB, tools.system.ramTotalGB, ramPct * 100))
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("Memory Pressure")
-                    .accessibilityValue(tools.system.memoryPressure)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("Uptime")
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(.secondary)
+                    Text(uptimeString)
+                        .font(.caption.monospaced().weight(.medium))
+                        .contentTransition(.numericText())
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Uptime")
+                .accessibilityValue(uptimeString)
             }
             .padding(.horizontal, Metrics.spacingXL)
             .padding(.vertical, Metrics.spacingLG)
@@ -147,30 +122,5 @@ struct DashboardView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(label) IP address")
         .accessibilityValue(value)
-    }
-
-    private func healthGauge(label: String, value: String, subtitle: String? = nil, progress: Double, color: Color) -> some View {
-        VStack(alignment: .trailing, spacing: Metrics.spacingXS) {
-            Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
-            HStack(spacing: Metrics.spacingSM) {
-                VStack(alignment: .trailing, spacing: 0) {
-                    Text(value)
-                        .font(.subheadline.monospaced().weight(.bold))
-                        .foregroundColor(.primary)
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.caption2.monospaced())
-                            .foregroundColor(.secondary)
-                    }
-                }
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Color.secondary.opacity(0.1)).frame(width: 40, height: 4)
-                    Capsule().fill(color).frame(width: 40 * max(0.05, min(progress, 1.0)), height: 4)
-                }
-            }
-        }
-        .padding(.horizontal, Metrics.spacingMD)
-        .padding(.vertical, Metrics.spacingSM)
-        .glassEffect(in: .rect(cornerRadius: Metrics.cornerRadiusMD))
     }
 }

@@ -19,7 +19,6 @@ final class ToolStore {
     let interfaces  = NetworkInterfaceViewModel()
     let subnet      = SubnetViewModel()
     let subnetScan  = SubnetScanViewModel()
-    let system      = SystemMonitor()
     let bandwidth   = BandwidthMonitor()
     let speedTest   = SpeedTestViewModel()
     let netQuality  = NetQualityViewModel()
@@ -56,7 +55,6 @@ final class ToolStore {
             self?.applyToolAvailability(tool: tool, available: available)
         }
         if catalog.isAvailable(.bandwidth) { bandwidth.start() }
-        system.start(interval: SystemMonitor.normalInterval)
         wireSessionLogging()
         refreshGlobalStatus()
         if catalog.isAvailable(.dnsResolver) { dnsResolver.start() }
@@ -87,7 +85,6 @@ final class ToolStore {
     /// Stops all app-lifetime pollers to save battery when no window is visible.
     func pauseMonitoring() {
         bandwidth.stop()
-        system.stop()
         statistics.stop()
         interfaces.stop()
         wifiWasActive = wifi.isRunning
@@ -100,13 +97,11 @@ final class ToolStore {
         if reduced {
             bandwidth.backgroundInterval = 10.0
             if catalog.isAvailable(.bandwidth) { bandwidth.start() }
-            system.start(interval: SystemMonitor.backgroundInterval)
             statistics.start()
             if catalog.isAvailable(.interfaces) { interfaces.start(interval: 15) }
         } else {
             bandwidth.backgroundInterval = 5.0
             if catalog.isAvailable(.bandwidth) { bandwidth.start() }
-            system.start(interval: SystemMonitor.normalInterval)
             statistics.start()
             if catalog.isAvailable(.interfaces) { interfaces.start() }
             if wifiWasActive { wifi.start() }
