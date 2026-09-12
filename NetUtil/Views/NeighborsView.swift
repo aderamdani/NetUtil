@@ -121,7 +121,7 @@ struct NeighborsView: View {
             Spacer()
         }
         .padding(.horizontal, Metrics.spacingLG)
-        .padding(.vertical, 10)
+        .padding(.vertical, Metrics.spacingMD)
     }
 
     private func entryRow(_ entry: ARPEntry) -> some View {

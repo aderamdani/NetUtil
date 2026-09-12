@@ -43,7 +43,7 @@ struct WhoisView: View {
                                         .font(.subheadline)
                                         .frame(width: 180)
                                 }
-                                .padding(.horizontal, 10)
+                                .padding(.horizontal, Metrics.spacingMD)
                                 .padding(.vertical, 6)
                                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                                 .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))

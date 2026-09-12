@@ -243,7 +243,7 @@ struct ThroughputStatisticsView: View {
             Divider().opacity(0.5)
 
             SummaryRow(color: .blue, square: false, name: "Download", stats: stats(for: \.download))
-            Divider().opacity(0.5).padding(.leading, 20)
+            Divider().opacity(0.5).padding(.leading, Metrics.spacingXL)
             SummaryRow(color: .orange, square: true, name: "Upload", stats: stats(for: \.upload))
         }
         .accessibilityElement(children: .combine)

@@ -244,7 +244,7 @@ struct StatisticsView: View {
                             )
                     }
                 }
-                .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+                .chartPlotStyle { plotArea in plotArea.padding(.top, Metrics.spacingMD).padding(.bottom, Metrics.spacingMD) }
                 .drawingGroup()
                 .frame(height: 160)
                 .accessibilityChartDescriptor(LiveThroughputDescriptor(
@@ -415,7 +415,7 @@ struct StatisticsView: View {
                                 )
                         }
                     }
-                    .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+                    .chartPlotStyle { plotArea in plotArea.padding(.top, Metrics.spacingMD).padding(.bottom, Metrics.spacingMD) }
                     .drawingGroup()
                     .frame(height: 180)
                     .accessibilityChartDescriptor(DailyTotalsDescriptor(

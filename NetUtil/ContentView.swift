@@ -143,7 +143,7 @@ struct ContentView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(10)
+                .padding(Metrics.spacingMD)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                 .padding(.horizontal, Metrics.spacingMD)
                 .padding(.vertical, Metrics.spacingSM)

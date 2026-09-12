@@ -327,7 +327,7 @@ struct HTTPLatencyView: View {
                 TableHeader("Latency", width: 100)
                 TableHeader("URL / Endpoint", flexible: true)
             }
-            .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
+            .padding(.vertical, Metrics.spacingMD).padding(.horizontal, Metrics.spacingLG)
             .background(.regularMaterial)
             
             Divider()

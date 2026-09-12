@@ -159,7 +159,7 @@ struct DNSView: View {
                 TableHeader("Type", width: 80)
                 TableHeader("Record Value", flexible: true)
             }
-            .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
+            .padding(.vertical, Metrics.spacingMD).padding(.horizontal, Metrics.spacingLG)
             .background(.regularMaterial)
             
             Divider()

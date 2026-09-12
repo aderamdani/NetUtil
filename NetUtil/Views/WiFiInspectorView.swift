@@ -240,7 +240,7 @@ struct WiFiInspectorView: View {
                     }
                 }
             }
-            .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+            .chartPlotStyle { plotArea in plotArea.padding(.top, Metrics.spacingMD).padding(.bottom, Metrics.spacingMD) }
             .drawingGroup()
             .frame(height: 120)
             .padding(Metrics.spacingXL)

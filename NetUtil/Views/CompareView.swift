@@ -395,7 +395,7 @@ struct CompareView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .lineLimit(1)
                 }
-                .padding(.horizontal, Metrics.spacingLG).padding(.vertical, 10)
+                .padding(.horizontal, Metrics.spacingLG).padding(.vertical, Metrics.spacingMD)
                 .background(.regularMaterial)
 
                 Divider()

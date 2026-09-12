@@ -169,7 +169,7 @@ struct MultiPingView: View {
             TableHeader("Health (60s)", width: 140)
             TableHeader("", width: 60)
         }
-        .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
+        .padding(.vertical, Metrics.spacingMD).padding(.horizontal, Metrics.spacingLG)
         .background(.regularMaterial)
         .accessibilityElement(children: .ignore)
     }

@@ -154,7 +154,7 @@ struct DNSResolverView: View {
                     .foregroundColor(.secondary)
             }
         }
-        .padding(14)
+        .padding(Metrics.spacingLG)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))

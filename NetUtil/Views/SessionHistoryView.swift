@@ -155,7 +155,7 @@ struct SessionHistoryView: View {
                             }
                         }
                     if record.id != filtered.last?.id {
-                        Divider().padding(.horizontal, 20).opacity(0.5)
+                        Divider().padding(.horizontal, Metrics.spacingXL).opacity(0.5)
                     }
                 }
             }

@@ -76,7 +76,7 @@ struct RouteTableView: View {
                             .frame(width: 150)
                             .accessibilityLabel("Filter by destination")
                     }
-                    .padding(.horizontal, 10)
+                    .padding(.horizontal, Metrics.spacingMD)
                     .padding(.vertical, 6)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
                     .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))

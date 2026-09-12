@@ -133,7 +133,7 @@ struct ConnectionsView: View {
             Spacer()
         }
         .padding(.horizontal, Metrics.spacingLG)
-        .padding(.vertical, 10)
+        .padding(.vertical, Metrics.spacingMD)
     }
 
     private func connectionRow(_ conn: NetConnection) -> some View {

@@ -58,7 +58,7 @@ struct MenuBarView: View {
             }
         }
         .padding(.horizontal, Metrics.spacingMD)
-        .padding(.vertical, 10)
+        .padding(.vertical, Metrics.spacingMD)
     }
 
     private func ipRow(label: String, value: String, faded: Bool) -> some View {
@@ -122,7 +122,7 @@ struct MenuBarView: View {
             .foregroundStyle(.secondary)
             .help("Settings")
 
-            Divider().frame(height: 12).padding(.horizontal, 10)
+            Divider().frame(height: 12).padding(.horizontal, Metrics.spacingMD)
 
             Button {
                 Updater.shared.checkForUpdates(interactive: true)
@@ -134,7 +134,7 @@ struct MenuBarView: View {
             .foregroundStyle(.secondary)
             .help("Check for Updates")
 
-            Divider().frame(height: 12).padding(.horizontal, 10)
+            Divider().frame(height: 12).padding(.horizontal, Metrics.spacingMD)
 
             Button {
                 NSApp.terminate(nil)
@@ -147,7 +147,7 @@ struct MenuBarView: View {
             .help("Quit NetUtil")
         }
         .padding(.horizontal, Metrics.spacingLG)
-        .padding(.vertical, 10)
+        .padding(.vertical, Metrics.spacingMD)
     }
 }
 

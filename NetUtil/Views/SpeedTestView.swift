@@ -305,7 +305,7 @@ struct SpeedTestView: View {
                     ForEach(verdict.supportedActivities, id: \.self) { activity in
                         Label(activity, systemImage: iconForActivity(activity))
                             .font(.caption)
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, Metrics.spacingMD)
                             .padding(.vertical, 5)
                             .background(ratingColor.opacity(0.12), in: Capsule())
                             .foregroundColor(ratingColor)
@@ -406,7 +406,7 @@ struct SpeedTestView: View {
                     TableHeader("Secondary", width: 170)
                     TableHeader("",          width: 32)
                 }
-                .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
+                .padding(.vertical, Metrics.spacingMD).padding(.horizontal, Metrics.spacingLG)
                 .background(.regularMaterial)
 
                 Divider()

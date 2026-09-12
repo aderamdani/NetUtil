@@ -159,7 +159,7 @@ struct PingLatencyChartView: View {
             }
         }
         .chartPlotStyle { plotArea in
-            plotArea.padding(.top, 10).padding(.bottom, 10)
+            plotArea.padding(.top, Metrics.spacingMD).padding(.bottom, Metrics.spacingMD)
         }
         .accessibilityChartDescriptor(PingLatencyDescriptor(
             points: windowed.compactMap { $0.status == .success ? (seq: $0.sequence, rtt: $0.rtt) : nil },

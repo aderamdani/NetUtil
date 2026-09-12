@@ -102,7 +102,7 @@ struct MultiPingSlotRow: View {
                 }
                 .frame(width: 60)
             }
-            .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
+            .padding(.vertical, Metrics.spacingMD).padding(.horizontal, Metrics.spacingLG)
             .background(isExpanded ? Color.accentColor.opacity(0.05) : Color.clear)
             
             if isExpanded {
@@ -193,7 +193,7 @@ struct MultiPingSlotRow: View {
                     }
                 }
             }
-            .chartPlotStyle { plotArea in plotArea.padding(.top, 10).padding(.bottom, 10) }
+            .chartPlotStyle { plotArea in plotArea.padding(.top, Metrics.spacingMD).padding(.bottom, Metrics.spacingMD) }
             .drawingGroup()
             .frame(height: 80)
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { expandedChartWidth = $0 }

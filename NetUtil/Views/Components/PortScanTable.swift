@@ -13,7 +13,7 @@ struct PortScanTable: View {
                 TableHeader("Latency", width: 100)
                 TableHeader("Target IP", flexible: true)
             }
-            .padding(.vertical, 10).padding(.horizontal, Metrics.spacingLG)
+            .padding(.vertical, Metrics.spacingMD).padding(.horizontal, Metrics.spacingLG)
             .background(.regularMaterial)
             .accessibilityElement(children: .ignore)
             

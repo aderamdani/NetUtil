@@ -242,7 +242,7 @@ struct DownloadProgressView: View {
                     .foregroundColor(.secondary)
             }
         }
-        .padding(20)
+        .padding(Metrics.spacingXL)
         .frame(width: 320)
     }
 }
