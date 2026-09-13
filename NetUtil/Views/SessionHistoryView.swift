@@ -232,6 +232,7 @@ private struct SessionRecordRow: View {
 
             statusBadge
         }
+        .padding(.horizontal, Metrics.spacingXL)
         .padding(.vertical, Metrics.spacingSM)
     }
 
