@@ -12,11 +12,10 @@ struct DashboardView: View {
     var body: some View {
         VStack(spacing: 0) {
             headerBar
-            healthSummaryBar
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Metrics.spacingXL) {
-                    DashboardHeroSection(selection: $selection)
+                    DashboardStatusHero(selection: $selection)
                     EssentialToolsSection(selection: $selection)
                 }
                 .padding(Metrics.spacingXL)
@@ -98,13 +97,6 @@ struct DashboardView: View {
             Divider()
         }
         .background(.regularMaterial)
-    }
-
-    private var healthSummaryBar: some View {
-        MoodBar(icon: tools.healthIcon,
-                color: tools.healthColor == "red" ? .red : (tools.healthColor == "orange" ? .orange : .green),
-                message: tools.healthMessage,
-                messageColor: tools.healthColor == "green" ? .secondary : (tools.healthColor == "red" ? .red : .orange))
     }
 
     private func formatUptime(from date: Date) -> String {
