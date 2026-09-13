@@ -6,6 +6,10 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Session History**: rows are inset from the card edge so content no longer sits flush against the border.
+
 ## [4.17.0] — 2026-09-13
 
 ### Changed
