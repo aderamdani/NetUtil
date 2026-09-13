@@ -77,8 +77,6 @@ struct NetworkMath {
         return "Unknown"
     }
     
-    /// True for RFC 1918 / loopback / link-local (APIPA) addresses, or their
-    /// IPv6 equivalents (`fe80::`/`fc..`/`fd..` unique-local, `::` prefix).
     /// Converts a dotted-decimal netmask (e.g. "255.255.255.0") to its
     /// CIDR prefix length (24). Returns nil for a non-contiguous or
     /// unparseable mask.
@@ -91,6 +89,8 @@ struct NetworkMath {
         return value.nonzeroBitCount
     }
 
+    /// True for RFC 1918 / loopback / link-local (APIPA) addresses, or their
+    /// IPv6 equivalents (`fe80::`/`fc..`/`fd..` unique-local, `::` prefix).
     static func isPrivateIP(_ ip: String) -> Bool {
         let parts = ip.components(separatedBy: ".").compactMap { Int($0) }
         guard parts.count == 4 else {

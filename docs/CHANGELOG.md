@@ -9,6 +9,7 @@ All notable changes to NetUtil are documented here.
 ### Fixed
 
 - **Session History**: rows are inset from the card edge so content no longer sits flush against the border.
+- **CSV export**: Wi-Fi SSID, IP-geolocation country, and speed-test server name are now escaped, so values with commas or quotes no longer break the columns.
 
 ## [4.17.0] — 2026-09-13
 
