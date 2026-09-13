@@ -33,7 +33,7 @@ struct WhoisView: View {
                         
                         VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             HStack {
-                                sectionHeader("Registry Dataset", systemImage: "text.justify.left")
+                                SectionHeader(title: "Registry Dataset", icon: "text.justify.left")
                                 Spacer()
                                 HStack(spacing: Metrics.spacingSM) {
                                     Image(systemName: "line.3.horizontal.decrease.circle")
@@ -206,14 +206,6 @@ struct WhoisView: View {
         .frame(minHeight: 400)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
         .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
-    }
-
-    private func sectionHeader(_ title: String, systemImage: String) -> some View {
-        HStack(spacing: Metrics.spacingSM) {
-            Image(systemName: systemImage).foregroundColor(.accentColor).font(.system(.caption2, design: .default).weight(.bold))
-            Text(title).font(.system(.caption2, design: .default).weight(.bold)).foregroundColor(.secondary)
-        }
-        .accessibilityAddTraits(.isHeader)
     }
 
     private var emptyState: some View {

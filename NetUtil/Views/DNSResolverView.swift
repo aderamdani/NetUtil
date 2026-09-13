@@ -82,8 +82,8 @@ struct DNSResolverView: View {
 
     private var explanationCard: some View {
         VStack(alignment: .leading, spacing: Metrics.spacingSM) {
-            SectionHeader(title: "Apa Itu Resolver?", icon: "questionmark.circle")
-            Text("Resolver DNS adalah 'penerjemah' internet. Saat kamu mengetik nama situs (misal google.com), resolver mengubahnya menjadi alamat angka (IP) agar komputer bisa menemukan server tersebut. Tanpa resolver yang cepat dan tepat, akses internet bisa lambat atau gagal.")
+            SectionHeader(title: "What is a resolver?", icon: "questionmark.circle")
+            Text("A DNS resolver is the internet's translator. When you type a site name (like google.com), the resolver turns it into a numeric address (IP) so your computer can find the server. Without a fast, accurate resolver, browsing can be slow or fail.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .lineLimit(0)

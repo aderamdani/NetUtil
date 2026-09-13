@@ -58,8 +58,8 @@ struct NetworkInterfaceView: View {
 
     private var explanationCard: some View {
         VStack(alignment: .leading, spacing: Metrics.spacingSM) {
-            SectionHeader(title: "Apa Itu Interface?", icon: "questionmark.circle")
-            Text("Interface jaringan adalah 'pintu' komputer ke dunia luar. Setiap adapter (Wi-Fi, Ethernet) punya alamat sendiri. Status 'Up' berarti aktif dan siap digunakan.")
+            SectionHeader(title: "What is a network interface?", icon: "questionmark.circle")
+            Text("A network interface is your computer's door to the outside world. Each adapter (Wi-Fi, Ethernet) has its own address. A status of 'Up' means it's active and ready to use.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .lineLimit(0)
