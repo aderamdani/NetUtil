@@ -2,7 +2,7 @@ import SwiftUI
 
 
 /// ipconfig-style readout of the primary connection: addresses, gateway, DNS,
-/// and Wi-Fi details in one scannable, copyable key/value panel.
+/// and Wi-Fi details laid out in two balanced columns so the panel fills its width.
 struct DashboardNetworkDetails: View {
     @Environment(ToolStore.self) private var tools
 
@@ -31,42 +31,53 @@ struct DashboardNetworkDetails: View {
 
 
             if let primary {
-                Grid(alignment: .leadingFirstTextBaseline,
-                     horizontalSpacing: Metrics.spacingXL,
-                     verticalSpacing: Metrics.spacingSM) {
-                    groupLabel("This device")
-                    detailRow("Interface", "\(primary.name) · \(primary.typeName)")
-                    detailRow("IPv4 address", primary.defaultScanCIDR ?? primary.ipv4.first ?? "—")
-                    detailRow("Subnet mask", primary.netmasks.first ?? "—")
-                    detailRow("Router", tools.interfaces.defaultGateway ?? "—")
-                    detailRow("DNS servers", dnsServers.isEmpty ? "—" : dnsServers.joined(separator: ", "))
-                    if let v6 = primary.ipv6.first {
-                        detailRow("IPv6 address", v6)
-                    }
-                    detailRow("MAC address", primary.mac ?? "—")
-                    detailRow("MTU", primary.mtu.map { "\($0)" } ?? "—")
-
-
-                    groupLabel("Internet")
-                    detailRow("Public IP", publicIPValue)
-                    if tools.isVPNActive {
-                        detailRow("VPN", "Active")
-                    }
-
-
-                    if let wifi = tools.wifi.info {
-                        groupLabel("Wi-Fi")
-                        detailRow("Network", wifi.ssid ?? "—")
-                        if let ch = wifi.channel {
-                            detailRow("Channel", "\(ch)\(wifi.band.map { " (\($0))" } ?? "")")
+                HStack(alignment: .top, spacing: Metrics.spacingXXL) {
+                    Grid(alignment: .leadingFirstTextBaseline,
+                         horizontalSpacing: Metrics.spacingLG,
+                         verticalSpacing: Metrics.spacingSM) {
+                        groupLabel("This device")
+                        detailRow("Interface", "\(primary.name) · \(primary.typeName)")
+                        detailRow("IPv4 address", primary.defaultScanCIDR ?? primary.ipv4.first ?? "—")
+                        detailRow("Subnet mask", primary.netmasks.first ?? "—")
+                        detailRow("Router", tools.interfaces.defaultGateway ?? "—")
+                        detailRow("DNS servers", dnsServers.isEmpty ? "—" : dnsServers.joined(separator: ", "))
+                        if let v6 = primary.ipv6.first {
+                            detailRow("IPv6 address", v6)
                         }
-                        if let rssi = wifi.rssi {
-                            detailRow("Signal", "\(rssi) dBm")
+                        detailRow("MAC address", primary.mac ?? "—")
+                        detailRow("MTU", primary.mtu.map { "\($0)" } ?? "—")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+
+                    Grid(alignment: .leadingFirstTextBaseline,
+                         horizontalSpacing: Metrics.spacingLG,
+                         verticalSpacing: Metrics.spacingSM) {
+                        groupLabel("Internet")
+                        detailRow("Public IP", publicIPValue)
+                        if let geo = tools.externalIPGeo {
+                            detailRow("Location", geo.shortLabel)
                         }
-                        if let rate = wifi.transmitRate {
-                            detailRow("Tx rate", String(format: "%.0f Mbps", rate))
+                        if tools.isVPNActive {
+                            detailRow("VPN", "Active")
+                        }
+
+
+                        if let wifi = tools.wifi.info {
+                            groupLabel("Wi-Fi")
+                            detailRow("Network", wifi.ssid ?? "—")
+                            if let ch = wifi.channel {
+                                detailRow("Channel", "\(ch)\(wifi.band.map { " (\($0))" } ?? "")")
+                            }
+                            if let rssi = wifi.rssi {
+                                detailRow("Signal", "\(rssi) dBm")
+                            }
+                            if let rate = wifi.transmitRate {
+                                detailRow("Tx rate", String(format: "%.0f Mbps", rate))
+                            }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             } else {
                 Text("Gathering network info…")
