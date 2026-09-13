@@ -403,12 +403,18 @@ struct NetworkDoctorView: View {
                 selection = .dnsResolver
             }
         case .http:
-            guard vm.captivePortal, let url = URL(string: "http://captive.apple.com/hotspot-detect.html") else { return nil }
-            return FailureAction(label: "Open in Browser", icon: "safari") {
-                NSWorkspace.shared.open(url)
+            if vm.captivePortal, let url = URL(string: "http://captive.apple.com/hotspot-detect.html") {
+                return FailureAction(label: "Open in Browser", icon: "safari") {
+                    NSWorkspace.shared.open(url)
+                }
+            }
+            return FailureAction(label: "Trace the Route", icon: "point.3.connected.trianglepath.dotted") {
+                selection = .traceroute
             }
         case .tls:
-            return nil
+            return FailureAction(label: "Open SSL Inspector", icon: "lock.shield") {
+                selection = .ssl
+            }
         }
     }
 
