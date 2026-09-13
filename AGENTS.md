@@ -75,8 +75,7 @@ When asked to **"commit, build DMG, and release"**, follow this checklist withou
 6. `bash scripts/build_dmg.sh`
 7. `git commit`, `git push`, `git tag vX.X.X`, `git push --tags`
 8. `gh release create vX.X.X dist/NetUtil-X.X.X.dmg --title "..." --notes "..."`
-."   - After creating, verify it is not stuck as a draft: `gh release view vX --json isDraft`. GitHub can return HTTP 500 yet leave a draft with a 404 asset. If drafted, run `gh release edit vX --draft=false` and allow a few seconds for CDN propagation before `brew fetch`.
-"
+   - After creating, verify it is not stuck as a draft: `gh release view vX --json isDraft`. GitHub can return HTTP 500 yet leave a draft with a 404 asset. If drafted, run `gh release edit vX --draft=false` and allow a few seconds for CDN propagation before `brew fetch`.
 ### Canonical toolList (AboutView.swift)
 
 Must match `ContentView.swift` Tool enum exactly:
