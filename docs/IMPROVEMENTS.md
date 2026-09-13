@@ -26,7 +26,7 @@
 | P1-6 | **Batch export (PDF + CSV)** (shipped v4.16.0) | All export-capable tools | Allow selecting multiple sessions/tools and exporting one combined PDF or ZIP of CSVs. |
 | P1-7 | **Unit-test coverage for Exporter** (shipped v4.16.0) | Exporter.swift | Add snapshot-style tests for PDF page count, CSV column order, and filename pattern `NetUtil-[Tool]-[target]-yyyyMMdd-HHmmss`. |
 | P1-8 | **Dashboard redesign** (done, unreleased) | Dashboard | Layout masih terasa belum pas; tata ulang hierarki informasi, kartu ringkasan/hero, dan spacing agar status at-a-glance terbaca jelas dan konsisten dengan token `Metrics.*`. |
-| P1-9 | **Beginner-friendly + standardization sweep** | All tools | Buat tiap tool bisa dipahami pemula: label bahasa awam, hint inline "ini apa / harus apa", state empty/loading/error yang konsisten, dan satu tata bahasa visual yang seragam di 28 tool. |
+| P1-9 | **Beginner-friendly + standardization sweep** (largely done, unreleased) | All tools | Buat tiap tool bisa dipahami pemula: label bahasa awam, hint inline "ini apa / harus apa", state empty/loading/error yang konsisten, dan satu tata bahasa visual yang seragam di 28 tool. |
 
 ---
 
@@ -40,7 +40,7 @@
 | P2-4 | **LAN device fingerprinting** | Neighbors | Enrich ARP entries with OUI vendor name and guessed device type (router, printer, phone). |
 | P2-5 | **CLI companion tool** | New binary | `netutil ping <host>` / `netutil speed` for scripts and Terminal usage; share the same subprocess runners as the app. |
 | P2-6 | **Menu-bar only mode** | MenuBarExtra | Hide the main window and run a lightweight status-bar popover with ping / bandwidth / VPN state. |
-| P2-7 | **Guided troubleshooting workflow** | New (Assistant) | Alur diagnosa step-by-step yang memandu user lewat urutan troubleshooting umum (link -> IP/DHCP -> gateway -> DNS -> internet reachability), menjalankan tool yang relevan di tiap langkah dan menjelaskan hasilnya dalam bahasa awam. |
+| P2-7 | **Guided troubleshooting workflow** (done via Doctor, unreleased) | New (Assistant) | Alur diagnosa step-by-step yang memandu user lewat urutan troubleshooting umum (link -> IP/DHCP -> gateway -> DNS -> internet reachability), menjalankan tool yang relevan di tiap langkah dan menjelaskan hasilnya dalam bahasa awam. |
 
 ---
 

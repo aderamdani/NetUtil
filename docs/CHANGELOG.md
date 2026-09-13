@@ -9,6 +9,8 @@ All notable changes to NetUtil are documented here.
 ### Changed
 
 - **Dashboard redesign (P1-8)** — status-first hero ("is my connection healthy?" plus a Run-a-full-check action), an ipconfig-style Network Details readout (IPv4/subnet, router, DNS, IPv6, MAC, MTU, public IP, Wi-Fi) in two balanced columns, and a compact tool launcher grid in place of the equal-weight bento cards; removed the redundant bandwidth surfaces.
+- **Guided troubleshooting (P2-7)** — the Connectivity Doctor now offers a remediation action for every failing layer, adding Open SSL Inspector (encrypted-web failures) and Trace the Route (internet failures that are not a captive portal).
+- **Language + consistency (P1-9)** — translated stray Indonesian tool explainers to English and moved WHOIS onto the shared section-header component.
 
 ## [4.16.0] — 2026-09-13
 
