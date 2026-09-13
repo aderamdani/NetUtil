@@ -88,7 +88,7 @@ enum Exporter {
     // MARK: - CSV: WiFi
     static func csvString(from info: WiFiInfo) -> String {
         let header = "ssid,bssid,rssi_dbm,channel,security,interface"
-        let row = "\(info.ssid ?? ""),\(info.bssid ?? ""),\(info.rssi.map { "\($0)" } ?? ""),\(info.channel.map { "\($0)" } ?? ""),\(info.security ?? ""),\(info.interfaceName ?? "")"
+        let row = "\(csvField(info.ssid ?? "")),\(csvField(info.bssid ?? "")),\(info.rssi.map { "\($0)" } ?? ""),\(info.channel.map { "\($0)" } ?? ""),\(csvField(info.security ?? "")),\(csvField(info.interfaceName ?? ""))"
         return header + "\n" + row
     }
 
@@ -121,7 +121,7 @@ enum Exporter {
     // MARK: - CSV: IP Geolocation
     static func csvString(from result: IPGeoResult) -> String {
         let header = "ip,hostname,city,region,country,isp,asn,postal,timezone"
-        let row = "\(result.ip),\(csvField(result.hostname ?? "")),\(csvField(result.city)),\(csvField(result.region)),\(result.country),\(csvField(result.ispName)),\(result.asn ?? ""),\(result.postal ?? ""),\(result.timezone ?? "")"
+        let row = "\(result.ip),\(csvField(result.hostname ?? "")),\(csvField(result.city)),\(csvField(result.region)),\(csvField(result.country)),\(csvField(result.ispName)),\(result.asn ?? ""),\(result.postal ?? ""),\(result.timezone ?? "")"
         return header + "\n" + row
     }
 
@@ -143,7 +143,7 @@ enum Exporter {
         let fmt = ISO8601DateFormatter()
         let header = "timestamp,kind,name,download_mbps,upload_mbps,ping_ms,jitter_ms,browsing_avg_ms,game_median_ms,stream_avg_mbps,stream_tier"
         let rows = history.map { r -> String in
-            "\(fmt.string(from: r.timestamp)),\(r.kind.rawValue),\(r.name ?? ""),\(String(format: "%.2f", r.downloadMbps)),\(String(format: "%.2f", r.uploadMbps)),\(String(format: "%.1f", r.pingMs)),\(String(format: "%.1f", r.jitterMs)),\(String(format: "%.1f", r.browsingAvgMs)),\(String(format: "%.1f", r.gameMedianMs)),\(String(format: "%.2f", r.streamAvgMbps)),\(r.streamTier)"
+            "\(fmt.string(from: r.timestamp)),\(r.kind.rawValue),\(csvField(r.name ?? "")),\(String(format: "%.2f", r.downloadMbps)),\(String(format: "%.2f", r.uploadMbps)),\(String(format: "%.1f", r.pingMs)),\(String(format: "%.1f", r.jitterMs)),\(String(format: "%.1f", r.browsingAvgMs)),\(String(format: "%.1f", r.gameMedianMs)),\(String(format: "%.2f", r.streamAvgMbps)),\(r.streamTier)"
         }
         return ([header] + rows).joined(separator: "\n")
     }
