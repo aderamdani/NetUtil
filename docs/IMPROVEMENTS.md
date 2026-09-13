@@ -25,7 +25,7 @@
 | P1-5 | **Settings search** | SettingsView | Add a filter field to jump directly to a setting pane (Thresholds, Backup, Privacy, Tools). |
 | P1-6 | **Batch export (PDF + CSV)** (shipped v4.16.0) | All export-capable tools | Allow selecting multiple sessions/tools and exporting one combined PDF or ZIP of CSVs. |
 | P1-7 | **Unit-test coverage for Exporter** (shipped v4.16.0) | Exporter.swift | Add snapshot-style tests for PDF page count, CSV column order, and filename pattern `NetUtil-[Tool]-[target]-yyyyMMdd-HHmmss`. |
-| P1-8 | **Dashboard redesign** | Dashboard | Layout masih terasa belum pas; tata ulang hierarki informasi, kartu ringkasan/hero, dan spacing agar status at-a-glance terbaca jelas dan konsisten dengan token `Metrics.*`. |
+| P1-8 | **Dashboard redesign** (done, unreleased) | Dashboard | Layout masih terasa belum pas; tata ulang hierarki informasi, kartu ringkasan/hero, dan spacing agar status at-a-glance terbaca jelas dan konsisten dengan token `Metrics.*`. |
 | P1-9 | **Beginner-friendly + standardization sweep** | All tools | Buat tiap tool bisa dipahami pemula: label bahasa awam, hint inline "ini apa / harus apa", state empty/loading/error yang konsisten, dan satu tata bahasa visual yang seragam di 28 tool. |
 
 ---

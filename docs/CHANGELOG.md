@@ -6,6 +6,10 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- **Dashboard redesign (P1-8)** — status-first hero ("is my connection healthy?" plus a Run-a-full-check action), an ipconfig-style Network Details readout (IPv4/subnet, router, DNS, IPv6, MAC, MTU, public IP, Wi-Fi) in two balanced columns, and a compact tool launcher grid in place of the equal-weight bento cards; removed the redundant bandwidth surfaces.
+
 ## [4.16.0] — 2026-09-13
 
 ### Added
