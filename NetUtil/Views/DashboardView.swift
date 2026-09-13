@@ -16,6 +16,7 @@ struct DashboardView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Metrics.spacingXL) {
                     DashboardStatusHero(selection: $selection)
+                    DashboardNetworkDetails()
                     EssentialToolsSection(selection: $selection)
                 }
                 .padding(Metrics.spacingXL)
@@ -36,6 +37,7 @@ struct DashboardView: View {
             }
             tools.wifi.start()
             tools.interfaces.refresh()
+            tools.dnsResolver.start()
             tools.refreshGlobalStatus()
         }
         .onDisappear {
@@ -60,11 +62,6 @@ struct DashboardView: View {
                             Text(tools.currentConnectionName)
                                 .font(.caption.weight(.semibold))
                         }
-
-                        Divider().frame(height: 10)
-
-                        gatewayChip(label: "Local", value: tools.primaryLocalIP)
-                        gatewayChip(label: "Public", value: tools.externalIP)
 
                         if tools.isVPNActive {
                             Text("VPN")
@@ -106,13 +103,4 @@ struct DashboardView: View {
         return hours > 0 ? "\(hours)h \(minutes)m" : "\(max(minutes, 0))m"
     }
 
-    private func gatewayChip(label: String, value: String) -> some View {
-        HStack(spacing: Metrics.spacingXS) {
-            Text(label).font(.caption2.weight(.bold)).foregroundColor(.secondary)
-            Text(value).font(.caption2.monospaced().weight(.medium))
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(label) IP address")
-        .accessibilityValue(value)
-    }
 }
