@@ -48,41 +48,27 @@ struct SubnetCalculatorView: View {
                        history: history, onSubmit: { vm.calculate() },
                        onSelectHistory: { h in vm.updateIP(h) }) {
             HStack(spacing: Metrics.spacingMD) {
-                GlassEffectContainer {
-                    HStack(spacing: Metrics.spacingXS) {
-                        Text("Prefix")
-                            .font(.caption2.weight(.bold))
-                            .foregroundColor(.secondary)
-                        Picker("", selection: $vm.prefix) {
-                            ForEach(0...32, id: \.self) { p in
-                                Text("/\(p)").tag(p)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .frame(width: 70)
-                        .onChange(of: vm.prefix) { vm.calculate() }
-                        .accessibilityLabel("Network Prefix Length")
-                    }
-                    
-                    Slider(value: Binding(get: { Double(vm.prefix) }, set: { vm.updatePrefix(Int($0)) }), in: 0...32, step: 1)
-                        .frame(width: 120)
-                        .tint(.accentColor)
-                        .accessibilityLabel("Adjust Prefix Length")
+                Stepper(value: $vm.prefix, in: 0...32) {
+                    Text("/\(vm.prefix)")
+                        .font(.caption.monospaced())
+                }
+                .controlSize(.small)
+                .accessibilityLabel("Network Prefix Length")
+                .onChange(of: vm.prefix) { vm.calculate() }
 
-                    if let result = vm.result {
-                        ReportMenuButton(
-                            onExportPDF: { Exporter.saveSubnetCalcPDF(result: result) },
-                            onExportCSV: {
-                                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
-                                Exporter.save(string: Exporter.csvString(from: result), defaultName: "NetUtil-SubnetCalc-\(date.string(from: Date())).csv", ext: "csv")
-                            },
-                            onCopySummary: {
-                                let summary = "Network: \(result.networkAddress)\nBroadcast: \(result.broadcastAddress)\nRange: \(result.firstHost) - \(result.lastHost)\nTotal Hosts: \(result.totalHosts)"
-                                NSPasteboard.general.clearContents()
-                                NSPasteboard.general.setString(summary, forType: .string)
-                            }
-                        )
-                    }
+                if let result = vm.result {
+                    ReportMenuButton(
+                        onExportPDF: { Exporter.saveSubnetCalcPDF(result: result) },
+                        onExportCSV: {
+                            let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                            Exporter.save(string: Exporter.csvString(from: result), defaultName: "NetUtil-SubnetCalc-\(date.string(from: Date())).csv", ext: "csv")
+                        },
+                        onCopySummary: {
+                            let summary = "Network: \(result.networkAddress)\nBroadcast: \(result.broadcastAddress)\nRange: \(result.firstHost) - \(result.lastHost)\nTotal Hosts: \(result.totalHosts)"
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(summary, forType: .string)
+                        }
+                    )
                 }
 
                 Button { showLearningGuide = true } label: {
