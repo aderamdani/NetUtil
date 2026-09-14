@@ -7,6 +7,8 @@ final class NeighborsViewModel {
     private(set) var entries: [ARPEntry] = []
     private(set) var lastUpdated: Date?
     var hideNonHosts = true
+    private(set) var hostnames: [String: String] = [:]
+    private(set) var resolving: Set<String> = []
 
     @ObservationIgnored private var timer: Timer?
 
@@ -14,6 +16,18 @@ final class NeighborsViewModel {
         let items = hideNonHosts ? entries.filter { $0.kind == .host } : entries
         return items.sorted { a, b in
             a.ip.compare(b.ip, options: .numeric) == .orderedAscending
+        }
+    }
+
+    /// One-click reverse DNS (PTR) lookup for a table row.
+    func resolveHostname(for ip: String) {
+        guard hostnames[ip] == nil, !resolving.contains(ip) else { return }
+        resolving.insert(ip)
+        Task { [weak self] in
+            let name = await ReverseDNS.lookup(ip)
+            guard let self else { return }
+            self.resolving.remove(ip)
+            if let name { self.hostnames[ip] = name }
         }
     }
 

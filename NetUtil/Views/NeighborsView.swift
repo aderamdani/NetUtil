@@ -115,6 +115,7 @@ struct NeighborsView: View {
     private var headerRow: some View {
         HStack(spacing: 0) {
             TableHeader("IP Address", width: 140)
+            TableHeader("Hostname", width: 170)
             TableHeader("MAC Address", width: 160)
             TableHeader("Interface", width: 80)
             TableHeader("Device", width: 190)
@@ -130,6 +131,7 @@ struct NeighborsView: View {
                 .font(.system(.subheadline, design: .monospaced))
                 .frame(width: 140, alignment: .leading)
                 .textSelection(.enabled)
+            hostnameCell(entry)
             Text(entry.mac ?? "unresolved")
                 .font(.system(.subheadline, design: .monospaced))
                 .foregroundColor(entry.mac == nil ? .secondary : .primary)
@@ -157,6 +159,27 @@ struct NeighborsView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Neighbor \(entry.ip)")
         .accessibilityValue("\(entry.mac ?? "unresolved") on \(entry.interface)\(entry.vendor.map { ", \($0)" } ?? "")")
+    }
+
+    @ViewBuilder
+    private func hostnameCell(_ entry: ARPEntry) -> some View {
+        Group {
+            if let name = vm.hostnames[entry.ip] {
+                Text(name)
+                    .font(.system(.caption, design: .monospaced))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .textSelection(.enabled)
+            } else if vm.resolving.contains(entry.ip) {
+                ProgressView().controlSize(.small)
+            } else {
+                Button("Resolve") { vm.resolveHostname(for: entry.ip) }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .accessibilityLabel("Resolve hostname for \(entry.ip)")
+            }
+        }
+        .frame(width: 170, alignment: .leading)
     }
 
     private func kindLabel(_ entry: ARPEntry) -> String {

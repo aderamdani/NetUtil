@@ -4,6 +4,7 @@ import Observation
 struct NetworkInterfaceView: View {
     var vm: NetworkInterfaceViewModel
     @State private var showAll = false
+    @State private var resolvedGatewayName: String? = nil
     @State private var showLearningGuide = false
 
     private var active: [NetworkInterface] { vm.interfaces.filter { $0.isUp } }
@@ -56,6 +57,10 @@ struct NetworkInterfaceView: View {
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Network Interfaces") }
     }
 
+    private func resolveGateway(_ ip: String) {
+        Task { resolvedGatewayName = await ReverseDNS.lookup(ip) }
+    }
+
     private var explanationCard: some View {
         VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             SectionHeader(title: "What is a network interface?", icon: "questionmark.circle")
@@ -77,6 +82,18 @@ struct NetworkInterfaceView: View {
                 if let gateway = vm.defaultGateway {
                     Text("Gateway: \(gateway)")
                         .font(.system(.body, design: .monospaced))
+
+                    if let name = resolvedGatewayName {
+                        Text(name)
+                            .font(.system(.caption, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    } else {
+                        Button { resolveGateway(gateway) } label: {
+                            Label("Resolve", systemImage: "magnifyingglass")
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityLabel("Reverse-lookup the gateway hostname")
+                    }
                     
                     Spacer()
                     
