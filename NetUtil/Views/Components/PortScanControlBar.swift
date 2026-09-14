@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PortScanControlBar: View {
+struct PortScanControlBar: ToolbarContent {
     @Binding var host: String
     var isRunning: Bool
     @Binding var portRangeType: PortPreset
@@ -15,8 +15,8 @@ struct PortScanControlBar: View {
     var isFavorite: Bool = false
     var onToggleFavorite: (() -> Void)? = nil
     
-    var body: some View {
-        ToolControlBar(icon: "checklist", title: "Port Scanner",
+    var body: some ToolbarContent {
+        ToolToolbar(icon: "checklist", title: "Port Scanner",
                        host: $host, textFieldWidth: 180, history: history, onSubmit: onStart) {
             HStack(spacing: Metrics.spacingMD) {
                 Picker("", selection: $portRangeType) {

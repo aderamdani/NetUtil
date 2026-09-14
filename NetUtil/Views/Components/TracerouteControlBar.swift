@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TracerouteControlBar: View {
+struct TracerouteControlBar: ToolbarContent {
     @Binding var host: String
     var isRunning: Bool
     @Binding var maxHops: Int
@@ -16,8 +16,8 @@ struct TracerouteControlBar: View {
     var isFavorite: Bool = false
     var onToggleFavorite: (() -> Void)? = nil
     
-    var body: some View {
-        ToolControlBar(icon: "point.3.connected.trianglepath.dotted", title: "Traceroute",
+    var body: some ToolbarContent {
+        ToolToolbar(icon: "point.3.connected.trianglepath.dotted", title: "Traceroute",
                        host: $host, history: history, onSubmit: onStart) {
             HStack(spacing: Metrics.spacingMD) {
                 HStack(spacing: Metrics.spacingSM) {
