@@ -37,6 +37,7 @@ struct HelpView: View {
                                 .foregroundColor(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Clear search")
                     }
                 }
                 .padding(Metrics.spacingMD)

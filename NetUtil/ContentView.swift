@@ -141,6 +141,7 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Clear search")
                     }
                 }
                 .padding(Metrics.spacingMD)
@@ -220,6 +221,7 @@ struct ContentView: View {
             Button("") { isSearchFocused = true }
                 .keyboardShortcut("f", modifiers: .command)
                 .opacity(0)
+                .accessibilityHidden(true)
         }
         .focusedSceneValue(\.selectTool) { tool in
             guard tools.catalog.isAvailable(tool) else { return }
