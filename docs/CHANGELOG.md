@@ -6,6 +6,17 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+## [4.19.0] — 2026-09-14
+
+### Added
+
+- **Ping options (P3-1)**: force IPv6 (`ping6`) and set a per-request timeout in milliseconds from the Ping control bar.
+- **Net Quality deep-dive (P3-2)**: bind the test to a specific interface (`-I`) and route it through iCloud Private Relay (`-p`); the result records the relay state.
+- **Reverse lookup (P3-3)**: one-click IP → hostname (PTR) in Neighbors, plus a Resolve action for the gateway in Interfaces.
+- **How-to guides (P3-4)**: a new Help section with step-by-step tasks — change DNS servers, flush the DNS cache, check open ports, and test internet speed.
+- **Route-change detection (P3-5)**: Traceroute compares each round with the previous and lists changed hops in a Route Changes card.
+- **Protocol & interface helpers (P3-6)**: IP protocol number ↔ name normalization, and canonical localized interface names (e.g. `en0` → "Wi-Fi") shown in Interfaces and the Net Quality picker.
+
 ## [4.18.0] — 2026-09-14
 
 ### Added
@@ -16,12 +27,6 @@ All notable changes to NetUtil are documented here.
 - **LAN fingerprinting (P2-4)**: Neighbors enriches each ARP entry with an offline OUI vendor name and a guessed device category.
 - **CLI companion (P2-5)**: a `netutil` SwiftPM executable under `CLI/` wraps ping, traceroute, dig, whois, and networkQuality for Terminal use (`netutil ping <host> [count]`, etc.). Build with `bash scripts/build_cli.sh`.
 - **Menu-bar only mode (P2-6)**: a View-menu command (⇧⌘M) hides the main window and runs NetUtil as an accessory app; the menu-bar popover now leads with connection health.
-- **Ping options (P3-1)**: force IPv6 (`ping6`) and set a per-request timeout in milliseconds from the Ping control bar.
-- **Net Quality deep-dive (P3-2)**: bind the test to a specific interface (`-I`) and route it through iCloud Private Relay (`-p`); the result records the relay state.
-- **Reverse lookup (P3-3)**: one-click IP → hostname (PTR) in Neighbors, plus a Resolve action for the gateway in Interfaces.
-- **How-to guides (P3-4)**: a new Help section with step-by-step tasks — change DNS servers, flush the DNS cache, check open ports, and test internet speed.
-- **Route-change detection (P3-5)**: Traceroute compares each round with the previous and lists changed hops in a Route Changes card.
-- **Protocol & interface helpers (P3-6)**: IP protocol number ↔ name normalization, and canonical localized interface names (e.g. `en0` → "Wi-Fi") shown in Interfaces and the Net Quality picker.
 
 ### Fixed
 
