@@ -3,8 +3,11 @@ import Observation
 
 struct NetworkInterfaceView: View {
     var vm: NetworkInterfaceViewModel
+    @Binding var selection: Tool?
+    @Environment(ToolStore.self) private var tools
     @State private var showAll = false
     @State private var resolvedGatewayName: String? = nil
+    @State private var didResolveGateway = false
     @State private var showLearningGuide = false
 
     private var active: [NetworkInterface] { vm.interfaces.filter { $0.isUp } }
@@ -58,7 +61,10 @@ struct NetworkInterfaceView: View {
     }
 
     private func resolveGateway(_ ip: String) {
-        Task { resolvedGatewayName = await ReverseDNS.lookup(ip) }
+        Task {
+            resolvedGatewayName = await ReverseDNS.lookup(ip)
+            didResolveGateway = true
+        }
     }
 
     private var explanationCard: some View {
@@ -87,6 +93,10 @@ struct NetworkInterfaceView: View {
                         Text(name)
                             .font(.system(.caption, design: .monospaced))
                             .foregroundColor(.secondary)
+                    } else if didResolveGateway {
+                        Text("No PTR record")
+                            .font(.system(.caption, design: .monospaced))
+                            .foregroundColor(.secondary)
                     } else {
                         Button { resolveGateway(gateway) } label: {
                             Label("Resolve", systemImage: "magnifyingglass")
@@ -98,18 +108,22 @@ struct NetworkInterfaceView: View {
                     Spacer()
                     
                     Button {
-                        // Action for Ping
+                        tools.ping.quickLaunchHost = gateway
+                        selection = .ping
                     } label: {
                         Label("Ping Gateway", systemImage: "antenna.radiowaves.left.and.right")
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Ping the gateway")
                     
                     Button {
-                        // Action for Traceroute
+                        tools.traceroute.quickLaunchHost = gateway
+                        selection = .traceroute
                     } label: {
                         Label("Traceroute Gateway", systemImage: "point.3.connected.trianglepath.dotted")
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Traceroute to the gateway")
                 } else {
                     Text("No gateway detected on en0")
                         .font(.subheadline)
@@ -119,6 +133,10 @@ struct NetworkInterfaceView: View {
             .padding(Metrics.spacingLG)
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD))
             .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusMD).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+            .onChange(of: vm.defaultGateway) { _, _ in
+                resolvedGatewayName = nil
+                didResolveGateway = false
+            }
         }
     }
 

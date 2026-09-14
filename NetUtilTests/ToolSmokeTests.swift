@@ -288,7 +288,7 @@ final class ToolSmokeTests: XCTestCase {
         _ = TracerouteView(vm: TracerouteViewModel())
         _ = DNSView(vm: DNSViewModel())
         _ = PortScanView(vm: PortScanViewModel())
-        _ = NetworkInterfaceView(vm: NetworkInterfaceViewModel())
+        _ = NetworkInterfaceView(vm: NetworkInterfaceViewModel(), selection: .constant(.dashboard))
         _ = HTTPLatencyView(vm: HTTPLatencyViewModel())
         _ = PathMTUView(vm: PathMTUViewModel())
         _ = MultiPingView(vm: MultiPingViewModel())

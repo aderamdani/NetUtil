@@ -220,7 +220,7 @@ struct ContentView: View {
         case .traceroute:  TracerouteView(vm: tools.traceroute)
         case .dns:         DNSView(vm: tools.dns)
         case .portScan:    PortScanView(vm: tools.portScan)
-        case .interfaces:  NetworkInterfaceView(vm: tools.interfaces)
+        case .interfaces:  NetworkInterfaceView(vm: tools.interfaces, selection: $selection)
         case .httpLatency: HTTPLatencyView(vm: tools.httpLatency)
         case .pathMTU:     PathMTUView(vm: tools.pathMTU)
         case .multiPing:   MultiPingView(vm: tools.multiPing)
