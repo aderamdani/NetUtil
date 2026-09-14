@@ -36,7 +36,7 @@
 |---|------|-------------|-----------|
 | P2-1 | **Plug-in host-resolver cache** (done, unreleased) | All tools | Cache DNS / Geo / RDAP lookups for the session lifetime to reduce repeated ipinfo.io calls and speed up Traceroute / WHOIS. |
 | P2-2 | **Timeline scrubber for historical data** (done, unreleased) | Statistics, Bandwidth | Replace static daily bar chart with a draggable time window (day / week / month / 90-day). |
-| P2-3 | **Custom alert presets** | Ping, Multi-Ping, Net Quality | Let users save named threshold sets (e.g., "Gaming", "Work") and switch between them without opening Settings. |
+| P2-3 | **Custom alert presets** (done via Ping and Multi-Ping, unreleased) | Ping, Multi-Ping, Net Quality | Let users save named threshold sets (e.g., "Gaming", "Work") and switch between them without opening Settings. |
 | P2-4 | **LAN device fingerprinting** | Neighbors | Enrich ARP entries with OUI vendor name and guessed device type (router, printer, phone). |
 | P2-5 | **CLI companion tool** | New binary | `netutil ping <host>` / `netutil speed` for scripts and Terminal usage; share the same subprocess runners as the app. |
 | P2-6 | **Menu-bar only mode** | MenuBarExtra | Hide the main window and run a lightweight status-bar popover with ping / bandwidth / VPN state. |
