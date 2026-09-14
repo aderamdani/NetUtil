@@ -169,7 +169,7 @@ struct ContentView: View {
             }
             .listStyle(.sidebar)
             .navigationSplitViewColumnWidth(min: 175, ideal: 200, max: 240)
-            .searchable(text: $searchText, placement: .sidebar, prompt: "Search history")
+            .searchable(text: $searchText, placement: .toolbar, prompt: "Search history")
             .searchFocused($isSearchFocused)
         } detail: {
             if let selection, tools.catalog.isAvailable(selection) {

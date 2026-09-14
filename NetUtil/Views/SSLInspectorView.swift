@@ -13,7 +13,6 @@ struct SSLInspectorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            controlBar
             sslMoodBar
 
             ScrollView {
@@ -41,6 +40,7 @@ struct SSLInspectorView: View {
                 .padding(Metrics.spacingXL)
             }
         }
+        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "SSL/TLS") }
     }
 
@@ -75,8 +75,8 @@ struct SSLInspectorView: View {
 
     // MARK: - Components
 
-    private var controlBar: some View {
-        ToolControlBar(icon: "lock.shield.fill", title: "SSL/TLS Inspector",
+    private var controlBar: some ToolbarContent {
+        ToolToolbar(icon: "lock.shield.fill", title: "SSL/TLS Inspector",
                        host: $host, placeholder: "hostname or URL", textFieldWidth: 220,
                        textFieldAccessibilityLabel: "Target Host Input",
                        history: history, onSubmit: startInspection) {

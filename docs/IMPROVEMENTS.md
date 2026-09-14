@@ -62,7 +62,7 @@
 | # | Task | Tool / Area | Rationale |
 |---|------|-------------|-----------|
 | P4-1 | **Navigation chrome** (in progress — sidebar search migrated) | ContentView / scenes | System `.searchable`, background extension, scene/titlebar audit. |
-| P4-2 | **System toolbar for tools** (in progress — Ping pilot) | Tool control bars | Migrate `ToolControlBar` + per-tool bars to `.toolbar` with scroll edge effect. |
+| P4-2 | **System toolbar for tools** (in progress — Ping + 7 tools) | Tool control bars | Migrate `ToolControlBar` + per-tool bars to `.toolbar` with scroll edge effect. |
 | P4-3 | **Controls & shapes** | All views | Concentric corner tokens, `.glass`/`.glassProminent`, judicious color. |
 | P4-4 | **Lists, forms, section headers** | Settings, tables | Title-style headers, updated row metrics. |
 | P4-5 | **Layered app icon** | Assets | Icon Composer, light/dark/clear/tinted variants. |

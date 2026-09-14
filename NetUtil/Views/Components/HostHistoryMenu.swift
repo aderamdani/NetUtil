@@ -16,9 +16,12 @@ struct HostHistoryMenu: View {
             } label: {
                 Image(systemName: "clock.arrow.circlepath")
                     .foregroundColor(.secondary)
+                    .frame(width: 20, height: 20, alignment: .center)
             }
             .menuStyle(.borderlessButton)
-            .frame(width: 28)
+            .menuIndicator(.hidden)
+            .frame(width: 24, height: 22)
+            .contentShape(Rectangle())
             .accessibilityLabel("Host History")
         }
     }

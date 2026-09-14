@@ -14,7 +14,6 @@ struct HTTPLatencyView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            controlBar
             httpMoodBar
 
             ScrollView {
@@ -61,6 +60,7 @@ struct HTTPLatencyView: View {
                 .padding(Metrics.spacingXL)
             }
         }
+        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "HTTP Latency") }
     }
 
@@ -81,8 +81,8 @@ struct HTTPLatencyView: View {
         return MoodBar(icon: icon, color: color, message: msg)
     }
 
-    private var controlBar: some View {
-        ToolControlBar(icon: "stopwatch.fill", title: "HTTP Latency",
+    private var controlBar: some ToolbarContent {
+        ToolToolbar(icon: "stopwatch.fill", title: "HTTP Latency",
                        host: $urlString, placeholder: "https://example.com", textFieldWidth: 280,
                        history: history, onSubmit: startAction,
                        onSelectHistory: { h in urlString = h.contains("://") ? h : "https://\(h)"; startAction() }) {
