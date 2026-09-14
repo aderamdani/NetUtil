@@ -20,16 +20,16 @@ struct TracerouteControlBar: ToolbarContent {
         ToolToolbar(icon: "point.3.connected.trianglepath.dotted", title: "Traceroute",
                        host: $host, history: history, onSubmit: onStart) {
             HStack(spacing: Metrics.spacingMD) {
-                HStack(spacing: Metrics.spacingSM) {
-                    HStack(spacing: Metrics.spacingXS) {
-                        Text("Hops").font(.caption2.weight(.bold)).foregroundColor(.secondary)
-                        TextField("", value: $maxHops, format: .number).textFieldStyle(.roundedBorder).frame(width: 48)
-                            .accessibilityLabel("Maximum hops")
+                ToolbarOptionsButton {
+                    LabeledContent("Max hops") {
+                        TextField("", value: $maxHops, format: .number)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 90)
                     }
-                    HStack(spacing: Metrics.spacingXS) {
-                        Text("Interval").font(.caption2.weight(.bold)).foregroundColor(.secondary)
-                        TextField("", value: $traceInterval, format: .number).textFieldStyle(.roundedBorder).frame(width: 48)
-                            .accessibilityLabel("Re-trace interval in seconds")
+                    LabeledContent("Re-trace interval (s)") {
+                        TextField("", value: $traceInterval, format: .number)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 90)
                     }
                 }
 
@@ -39,7 +39,6 @@ struct TracerouteControlBar: ToolbarContent {
 
                 Button(action: onStart) {
                     Label(isRunning ? "Stop" : "Start", systemImage: isRunning ? "stop.fill" : "play.fill")
-                        .frame(minWidth: 80)
                 }
                 .buttonStyle(.glassProminent)
                 .tint(isRunning ? .red : .accentColor)

@@ -28,11 +28,19 @@ struct PortScanControlBar: ToolbarContent {
                 .frame(width: 140)
                 .accessibilityLabel("Port Range Type")
 
-                if portRangeType == .custom {
-                    TextField("e.g. 80,443,3000-4000", text: $customPorts)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 180)
-                        .accessibilityLabel("Custom Port Range")
+                ToolbarOptionsButton {
+                    if portRangeType == .custom {
+                        LabeledContent("Custom ports") {
+                            TextField("e.g. 80,443,3000-4000", text: $customPorts)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 150)
+                        }
+                    } else {
+                        Text("Choose \"Custom\" in the port range menu to enter ports.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
 
                 if hasResults {
@@ -41,7 +49,6 @@ struct PortScanControlBar: ToolbarContent {
 
                 Button(action: onStart) {
                     Label(isRunning ? "Stop" : "Scan", systemImage: isRunning ? "stop.fill" : "play.fill")
-                        .frame(minWidth: 70)
                 }
                 .buttonStyle(.glassProminent)
                 .tint(isRunning ? .red : .accentColor)

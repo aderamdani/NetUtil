@@ -19,11 +19,11 @@ struct ToolToolbar<Trailing: View>: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .navigation) {
-            TextField(placeholder, text: $host)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: textFieldWidth)
-                .onSubmit(onSubmit)
-                .accessibilityLabel(textFieldAccessibilityLabel)
+            ToolbarHostField(host: $host,
+                             placeholder: placeholder,
+                             width: textFieldWidth,
+                             accessibilityLabel: textFieldAccessibilityLabel,
+                             onSubmit: onSubmit)
 
             HostHistoryMenu(history: history) { h in
                 if let onSelectHistory {

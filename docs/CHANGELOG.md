@@ -8,6 +8,10 @@ All notable changes to NetUtil are documented here.
 
 ### Changed
 
+- **Toolbar declutter (P4-2)**: secondary controls (count/interval/payload/timeout/IPv6/infinite/alerts, traceroute hops/interval, port-scan custom range) move into a single "Options" popover; toolbars keep only host input, run/stop, report, favorite, and help. Numeric fields are consistently bordered; run buttons no longer render as oversized empty capsules. The unused `ToolControlBar` is removed.
+
+### Changed
+
 - **Liquid Glass redesign (phase 1, in progress)**: the sidebar history search now uses the system search field (`.searchable`) instead of a custom material field.
 - **Toolbar pilot**: Ping moves its controls into the system toolbar (`.toolbar`) — host input and toggles leading, run/report/favorite/help trailing; the custom `PingControlBar` is removed.
 - **Toolbar migration (batch 1)**: DNS Lookup, HTTP Latency, IP Geolocation, SSL/TLS, WHOIS, Subnet Calculator, and Path MTU now render their controls in the system toolbar via a shared `ToolToolbar`; the host-history menu icon is centered (menu indicator hidden).

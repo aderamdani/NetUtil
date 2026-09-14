@@ -25,7 +25,6 @@ struct MultiPingControlBar: ToolbarContent {
 
             Button(action: onAddHost) {
                 Label("Add Host", systemImage: "plus")
-                    .frame(minWidth: 80)
             }
             .buttonStyle(.glassProminent)
             .disabled(host.trimmingCharacters(in: .whitespaces).isEmpty)

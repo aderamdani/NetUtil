@@ -105,43 +105,21 @@ struct PingView: View {
     @ToolbarContentBuilder
     private var pingToolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigation) {
-            TextField("Host", text: $host)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 180)
-                .onSubmit(startAction)
-                .accessibilityLabel("Host Input")
+            ToolbarHostField(host: $host, placeholder: "Host", width: 180, onSubmit: startAction)
             HostHistoryMenu(history: history) { h in host = h; startAction() }
-
-            Toggle(isOn: $infinite) { Image(systemName: "infinity").font(.caption.weight(.bold)) }
-                .toggleStyle(.button)
-                .help("Infinite Ping — runs until stopped")
-                .accessibilityLabel("Infinite Ping Mode")
-
-            Toggle(isOn: $alertsEnabled) { Image(systemName: alertsEnabled ? "bell.fill" : "bell.slash").font(.caption.weight(.bold)) }
-                .toggleStyle(.button)
-                .help("Notify on completion or high loss")
-                .accessibilityLabel("Notify on Completion or High Loss")
         }
         ToolbarItemGroup(placement: .primaryAction) {
-            if !infinite {
-                TextField("Count", text: $countText)
-                    .frame(width: 48)
-                    .accessibilityLabel("Packet Count")
+            ToolbarOptionsButton {
+                optionRow("Pings per run", text: $countText)
+                optionRow("Interval (s)", text: $intervalText)
+                optionRow("Payload (bytes)", text: $packetSizeText)
+                optionRow("Timeout (ms)", text: $timeoutText)
+                Toggle("Infinite ping", isOn: $infinite)
+                Toggle("Use IPv6", isOn: $ipv6)
+                Toggle("Notify on loss", isOn: $alertsEnabled)
+                Divider()
+                ThresholdPresetMenu()
             }
-            TextField("Sec", text: $intervalText)
-                .frame(width: 40)
-                .accessibilityLabel("Ping Interval")
-            TextField("Bytes", text: $packetSizeText)
-                .frame(width: 48)
-                .accessibilityLabel("Payload Size")
-            TextField("ms", text: $timeoutText)
-                .frame(width: 44)
-                .accessibilityLabel("Request Timeout")
-            Toggle(isOn: $ipv6) { Text("IPv6").font(.caption.weight(.bold)) }
-                .toggleStyle(.button)
-                .accessibilityLabel("Use IPv6")
-
-            ThresholdPresetMenu()
 
             if !vm.results.isEmpty {
                 ReportMenuButton(
@@ -156,7 +134,6 @@ struct PingView: View {
 
             Button(action: startAction) {
                 Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
-                    .frame(minWidth: 56)
             }
             .buttonStyle(.glassProminent)
             .tint(vm.isRunning ? .red : .accentColor)
@@ -180,6 +157,14 @@ struct PingView: View {
             }
             .buttonStyle(.borderless)
             .accessibilityLabel("Show Help Guide")
+        }
+    }
+
+    private func optionRow(_ title: String, text: Binding<String>) -> some View {
+        LabeledContent(title) {
+            TextField("", text: text)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 90)
         }
     }
 
