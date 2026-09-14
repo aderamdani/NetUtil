@@ -16,7 +16,7 @@ final class ToolStore {
     let ssl         = SSLInspectorViewModel()
     let whois       = WhoisViewModel()
     let wifi        = WiFiInspectorViewModel()
-    let interfaces  = NetworkInterfaceViewModel()
+    @ObservationIgnored private(set) lazy var interfaces = NetworkInterfaceViewModel()
     let subnet      = SubnetViewModel()
     let subnetScan  = SubnetScanViewModel()
     let bandwidth   = BandwidthMonitor()
@@ -30,7 +30,7 @@ final class ToolStore {
     let portListener = PortListenerViewModel()
     let ipGeolocation = IPGeolocationViewModel()
     let dnsResolver   = DNSResolverViewModel()
-    let statistics  = TrafficStatistics()
+    @ObservationIgnored private(set) lazy var statistics = TrafficStatistics()
     let thresholdPresets = ThresholdPresets()
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()
@@ -48,15 +48,26 @@ final class ToolStore {
     private(set) var healthColor: String = "green"
     private(set) var healthMessage: String = "All Systems Normal"
 
-    init() {
+    init(autoStart: Bool = true) {
         bandwidth.onAggregateDelta = { [weak self] rx, tx in
             self?.statistics.record(rxDelta: rx, txDelta: tx)
         }
         catalog.onAvailabilityChange = { [weak self] tool, available in
             self?.applyToolAvailability(tool: tool, available: available)
         }
-        if catalog.isAvailable(.bandwidth) { bandwidth.start() }
         wireSessionLogging()
+        if autoStart { startMonitoring() }
+    }
+
+    /// Starts every live side effect — pollers, network lookups, and the
+    /// notification observers that re-tier them. Deferred out of `init` so a
+    /// test can construct an inert store with `ToolStore(autoStart: false)`.
+    func startMonitoring() {
+        // Materialize the lazily-constructed pollers first; their initializers
+        // start their own timers, preserving the original startup order.
+        _ = interfaces
+        _ = statistics
+        if catalog.isAvailable(.bandwidth) { bandwidth.start() }
         refreshGlobalStatus()
         if catalog.isAvailable(.dnsResolver) { dnsResolver.start() }
         observeActivationPolicy()

@@ -8,7 +8,9 @@ final class ToolSmokeTests: XCTestCase {
     // MARK: - ToolStore
 
     func testToolStoreInitializesWithSaneDefaults() {
-        let store = ToolStore()
+        // autoStart: false keeps construction inert — no pollers, network,
+        // timers, or observers — so this test requires no teardown.
+        let store = ToolStore(autoStart: false)
 
         XCTAssertFalse(store.healthIcon.isEmpty)
         XCTAssertFalse(store.healthColor.isEmpty)
@@ -17,11 +19,6 @@ final class ToolSmokeTests: XCTestCase {
         XCTAssertFalse(store.currentConnectionName.isEmpty)
         XCTAssertFalse(store.primaryLocalIP.isEmpty)
         XCTAssertNil(store.externalIPGeo)
-
-        // Construction owns live pollers; shut them down so the smoke test
-        // does not leak timers or child processes into the rest of the suite.
-        store.pauseMonitoring()
-        store.dnsResolver.stop()
     }
 
     // MARK: - Initial contract
