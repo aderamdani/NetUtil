@@ -6,6 +6,17 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+## [4.19.2] — 2026-09-14
+
+### Changed
+
+- **Ping Connection Quality**: removed the LAN / Fiber / 4G / Far / Satellite link-type classifier and its "Likely match" estimate; the card now shows only the quality verdict and the interface that carried the packets.
+
+### Fixed
+
+- **Wi-Fi Inspector**: translated the remaining Indonesian rating and channel-advice copy to English.
+- **Interfaces**: gateway quick actions are now functional — Resolve performs a reverse-DNS (PTR) lookup with a clean no-record state, and Ping Gateway / Traceroute Gateway open the tool with the gateway prefilled and running.
+
 ## [4.19.1] — 2026-09-14
 
 ### Changed
