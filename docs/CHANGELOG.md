@@ -9,6 +9,7 @@ All notable changes to NetUtil are documented here.
 ### Added
 
 - **Settings search (P1-5)**: a search field filters every setting and jumps to the matching tab.
+- **Shared geo lookup cache (P2-1)**: ipinfo.io results are cached for the session and shared across Traceroute and IP Geolocation; concurrent lookups of the same address are deduplicated.
 
 ### Fixed
 

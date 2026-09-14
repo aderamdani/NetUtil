@@ -317,16 +317,10 @@ final class ToolStore {
     /// its own request).
     private func fetchExternalIP() {
         Task {
-            guard let url = URL(string: "https://ipinfo.io/json") else { return }
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                if let geo = IPGeoResult.parse(data) {
-                    self.externalIP = geo.ip
-                    self.externalIPGeo = geo
-                } else {
-                    self.externalIP = "Unknown"
-                }
-            } catch {
+            if let geo = await GeoLookupCache.shared.lookup("") {
+                self.externalIP = geo.ip
+                self.externalIPGeo = geo
+            } else {
                 self.externalIP = "Unknown"
             }
         }

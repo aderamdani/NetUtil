@@ -35,8 +35,7 @@ final class TracerouteViewModel {
         let limit = UserDefaults.standard.integer(forKey: "maxRawLines")
         return limit > 0 ? limit : 500
     }
-    private var geoCache: [String: GeoInfo] = [:]
-    private var geoInFlight: [String: Task<Void, Never>] = [:]
+    private let geoCache = GeoLookupCache.shared
 
     /// Generation token: bumped on every stop/round so handlers of a
     /// terminated process can't merge into (or re-schedule under) a newer run.
@@ -46,8 +45,6 @@ final class TracerouteViewModel {
     func start(host: String, maxHops: Int, interval: Double) {
         stop()
         hops.removeAll()
-        geoCache.removeAll()
-        geoInFlight.removeAll()
         rawLines.removeAll()
         error = nil
         round = 0
@@ -65,8 +62,6 @@ final class TracerouteViewModel {
         runID += 1
         subprocess.stop()
         isRunning = false
-        geoInFlight.values.forEach { $0.cancel() }
-        geoInFlight.removeAll()
         logSession()
     }
 
@@ -161,47 +156,21 @@ final class TracerouteViewModel {
         guard UserDefaults.standard.object(forKey: "geoEnabled") as? Bool != false else { return }
         let ipsNeeded = hops.compactMap { hop -> String? in
             guard let ip = hop.ip, hop.geo == nil,
-                  geoInFlight[ip] == nil,
                   !NetworkMath.isPrivateIP(ip) else { return nil }
             return ip
         }
         for ip in ipsNeeded {
-            let task = Task {
-                let geo = await Self.fetchGeo(ip: ip)
-                guard !Task.isCancelled else { return }
-                
-                await MainActor.run { [weak self] in
-                    guard let self else { return }
-                    self.geoCache[ip] = geo
-                    self.geoInFlight.removeValue(forKey: ip)
-                    if let geo, let idx = self.hops.firstIndex(where: { $0.ip == ip }) {
-                        self.hops[idx].geo = geo
-                    }
+            Task { [weak self] in
+                guard let self else { return }
+                guard let result = await self.geoCache.lookup(ip) else { return }
+                let geo = GeoInfo(country: result.country, city: result.city, org: result.org,
+                                  hostname: result.hostname, postal: result.postal,
+                                  timezone: result.timezone, coordinate: result.coordinate)
+                if let idx = self.hops.firstIndex(where: { $0.ip == ip }) {
+                    self.hops[idx].geo = geo
                 }
             }
-            geoInFlight[ip] = task
         }
-    }
-
-    private nonisolated static func fetchGeo(ip: String) async -> GeoInfo? {
-        struct GeoResponse: Decodable {
-            let city, country, org, hostname, loc, postal, timezone: String?
-        }
-        
-        guard let url = URL(string: "https://ipinfo.io/\(ip)/json") else { return nil }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let response = try JSONDecoder().decode(GeoResponse.self, from: data)
-            
-            var coord: CLLocationCoordinate2D?
-            if let loc = response.loc {
-                let parts = loc.split(separator: ",").compactMap { Double($0) }
-                if parts.count == 2 { coord = CLLocationCoordinate2D(latitude: parts[0], longitude: parts[1]) }
-            }
-            return GeoInfo(country: response.country ?? "", city: response.city ?? "", org: response.org ?? "",
-                           hostname: response.hostname, postal: response.postal, timezone: response.timezone,
-                           coordinate: coord)
-        } catch { return nil }
     }
 
     nonisolated static func parseLine(_ line: String) -> TracerouteHop? {

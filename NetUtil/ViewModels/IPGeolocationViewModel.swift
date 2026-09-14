@@ -61,15 +61,7 @@ final class IPGeolocationViewModel {
     }
 
     private nonisolated static func fetch(target: String) async -> IPGeoResult? {
-        let path = target.isEmpty ? "json"
-            : "\(target.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? target)/json"
-        guard let url = URL(string: "https://ipinfo.io/\(path)") else { return nil }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return IPGeoResult.parse(data)
-        } catch {
-            return nil
-        }
+        await GeoLookupCache.shared.lookup(target)
     }
 
     deinit { task?.cancel() }
