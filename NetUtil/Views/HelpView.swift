@@ -871,4 +871,31 @@ private let allSections: [HelpSection] = [
             ),
         ]
     ),
+    HelpSection(
+        title: "How-to Guides",
+        icon: "wrench.and.screwdriver",
+        subtitle: "Step-by-step tasks",
+        topics: [
+            HelpTopic(heading: "Change your DNS servers", body: "In System Settings > Network, select your connection, click Details, then DNS. Add a public resolver such as 1.1.1.1 (Cloudflare) or 8.8.8.8 (Google) and drag it to the top. Re-open DNS Resolver in NetUtil to confirm the change took effect.", tips: [
+                "Use DNS Lookup to query a specific resolver directly: choose it in the Server menu and compare response times.",
+                "On a managed or VPN network, DNS may be overridden — check the scoped entries in DNS Resolver."
+            ]),
+            HelpTopic(heading: "Flush the DNS cache", body: "If a site resolves to an old or wrong address, clear the local cache in Terminal, then retry.", codeBlock:
+                    "sudo dscacheutil -flushcache\n" +
+                    "sudo killall -HUP mDNSResponder",
+                tips: [
+                    "You are asked for your admin password; nothing appears while you type.",
+                    "After flushing, re-run DNS Lookup to confirm the new record."
+                ]),
+            HelpTopic(heading: "Check which ports are open", body: "Two different questions: what a remote host is exposing, and what this Mac is listening on.", tips: [
+                "Remote host: Port Scanner — enter the host and a preset range to test inbound reachability.",
+                "This Mac: Connections — filter for LISTEN to see every local listener and its process.",
+                "To test inbound reachability from outside, start a Port Listener here and connect from another device."
+            ]),
+            HelpTopic(heading: "Test your internet speed", body: "Run Speed Test for download, upload, and latency against Cloudflare, or Network Quality for Apple's responsiveness (bufferbloat) rating. For a fair result, stop other downloads and use the same server between runs.", tips: [
+                "Responsiveness (RPM) matters more than raw speed for video calls and gaming.",
+                "Results are saved to Session History and can be exported as PDF or CSV."
+            ])
+        ]
+    ),
 ]

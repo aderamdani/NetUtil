@@ -51,7 +51,7 @@
 | P3-1 | **Ping IPv6 + timeout options** (done, unreleased) | Ping | Force IPv6 (`ping6` / `-6`) and set a per-request timeout (`-W`). |
 | P3-2 | **Net Quality deep-dive** (done, unreleased) | Net Quality | Private Relay comparison (`-p`), per-interface runs (`-I`), and idle latency. |
 | P3-3 | **One-click reverse lookup** (done, unreleased) | Neighbors / Interfaces / DNS | Resolve an IP to its hostname (PTR) without leaving the tool. |
-| P3-4 | **How-to guides** | Help | Cross-tool how-tos: change DNS, flush the DNS cache, check open ports. |
+| P3-4 | **How-to guides** (done, unreleased) | Help | Cross-tool how-tos: change DNS, flush the DNS cache, check open ports. |
 | P3-5 | **Traceroute route-change detection** | Traceroute | Keep path history across runs and flag changed hops/routes. |
 | P3-6 | **Protocol & interface helpers** | Various | Protocol number to name (6 = TCP); canonical interface display names. |
 
