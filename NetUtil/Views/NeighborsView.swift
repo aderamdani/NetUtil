@@ -117,7 +117,7 @@ struct NeighborsView: View {
             TableHeader("IP Address", width: 140)
             TableHeader("MAC Address", width: 160)
             TableHeader("Interface", width: 80)
-            TableHeader("Type", width: 90)
+            TableHeader("Device", width: 190)
             Spacer()
         }
         .padding(.horizontal, Metrics.spacingLG)
@@ -138,17 +138,25 @@ struct NeighborsView: View {
             Text(entry.interface)
                 .font(.system(.subheadline, design: .monospaced))
                 .frame(width: 80, alignment: .leading)
-            Text(kindLabel(entry))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .frame(width: 90, alignment: .leading)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(entry.deviceCategory ?? kindLabel(entry))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                if let vendor = entry.vendor {
+                    Text(vendor)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .frame(width: 190, alignment: .leading)
             Spacer()
         }
         .padding(.horizontal, Metrics.spacingLG)
         .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Neighbor \(entry.ip)")
-        .accessibilityValue("\(entry.mac ?? "unresolved") on \(entry.interface)")
+        .accessibilityValue("\(entry.mac ?? "unresolved") on \(entry.interface)\(entry.vendor.map { ", \($0)" } ?? "")")
     }
 
     private func kindLabel(_ entry: ARPEntry) -> String {

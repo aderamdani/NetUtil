@@ -11,6 +11,7 @@ All notable changes to NetUtil are documented here.
 - **Settings search (P1-5)**: a search field filters every setting and jumps to the matching tab.
 - **Shared geo lookup cache (P2-1)**: ipinfo.io results are cached for the session and shared across Traceroute and IP Geolocation; concurrent lookups of the same address are deduplicated.
 - **Alert presets (P2-3)**: named threshold sets (Default, Gaming, Work, plus custom) switch from a menu in Ping and Multi-Ping, no Settings trip needed.
+- **LAN fingerprinting (P2-4)**: Neighbors enriches each ARP entry with an offline OUI vendor name and a guessed device category.
 
 ### Fixed
 

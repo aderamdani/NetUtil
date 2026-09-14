@@ -18,6 +18,12 @@ struct ARPEntry: Identifiable, Equatable {
         return .host
     }
 
+    /// Best-effort vendor name from the MAC's OUI (offline lookup).
+    nonisolated var vendor: String? { mac.flatMap { OUILookup.vendor(for: $0) } }
+
+    /// Best-effort device category from the MAC's OUI.
+    nonisolated var deviceCategory: String? { mac.flatMap { OUILookup.deviceCategory(for: $0) } }
+
     /// Parses `arp -an` output, e.g.
     /// `? (192.168.1.1) at aa:bb:cc:dd:ee:ff on en0 ifscope [ethernet]`
     /// `? (192.168.1.50) at (incomplete) on en0 ifscope [ethernet]`
