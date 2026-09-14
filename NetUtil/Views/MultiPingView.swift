@@ -14,6 +14,7 @@ struct MultiPingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            controlBar
             multiPingMoodBar
 
             ScrollView {
@@ -49,7 +50,6 @@ struct MultiPingView: View {
                 .padding(Metrics.spacingXL)
             }
         }
-        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Multi-Ping") }
         .sheet(isPresented: $showImportSheet) {
             ImportHostsSheet { hosts in
@@ -85,8 +85,7 @@ struct MultiPingView: View {
         return "Active: \(active)/\(total) — All hosts reachable"
     }
 
-    @ToolbarContentBuilder
-    private var controlBar: some ToolbarContent {
+    private var controlBar: some View {
         MultiPingControlBar(
             host: $newHost,
             history: history,

@@ -9,6 +9,7 @@ struct SubnetCalculatorView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            controlBar
             moodBar
 
             ScrollView {
@@ -34,15 +35,14 @@ struct SubnetCalculatorView: View {
                 .padding(Metrics.spacingXL)
             }
         }
-        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Subnet Calculator") }
         .onAppear { vm.applyDetectedDefault(from: tools.primaryInterface) }
     }
 
     // MARK: - Components
 
-    private var controlBar: some ToolbarContent {
-        ToolToolbar(icon: "number.square", title: "Subnet Calculator",
+    private var controlBar: some View {
+        ToolControlBar(icon: "number.square", title: "Subnet Calculator",
                        host: $vm.ipAddress, placeholder: "IP Address",
                        textFieldAccessibilityLabel: "IP Address Input",
                        history: history, onSubmit: { vm.calculate() },

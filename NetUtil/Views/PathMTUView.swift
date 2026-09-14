@@ -8,6 +8,23 @@ struct PathMTUView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            ToolControlBar(icon: "ruler", title: "Path MTU",
+                           host: $host, history: history, onSubmit: startAction) {
+                Button(action: { vm.isRunning ? vm.stop() : startAction() }) {
+                    Label(vm.isRunning ? "Stop" : "Measure", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
+                        .frame(minWidth: 80)
+                }
+                .buttonStyle(.glassProminent)
+                .tint(vm.isRunning ? .red : .accentColor)
+                .disabled(!vm.isRunning && host.trimmingCharacters(in: .whitespaces).isEmpty)
+                .accessibilityLabel(vm.isRunning ? "Stop Measurement" : "Start Measurement")
+
+                Button { showLearningGuide = true } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Show Help Guide")
+            }
             moodBar
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
@@ -28,29 +45,7 @@ struct PathMTUView: View {
                 .padding(Metrics.spacingXL)
             }
         }
-        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Path MTU") }
-    }
-
-    @ToolbarContentBuilder
-    private var controlBar: some ToolbarContent {
-        ToolToolbar(icon: "ruler", title: "Path MTU",
-                       host: $host, history: history, onSubmit: startAction) {
-            Button(action: { vm.isRunning ? vm.stop() : startAction() }) {
-                Label(vm.isRunning ? "Stop" : "Measure", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
-                    .frame(minWidth: 80)
-            }
-            .buttonStyle(.glassProminent)
-            .tint(vm.isRunning ? .red : .accentColor)
-            .disabled(!vm.isRunning && host.trimmingCharacters(in: .whitespaces).isEmpty)
-            .accessibilityLabel(vm.isRunning ? "Stop Measurement" : "Start Measurement")
-
-            Button { showLearningGuide = true } label: {
-                Image(systemName: "questionmark.circle")
-            }
-            .buttonStyle(.borderless)
-            .accessibilityLabel("Show Help Guide")
-        }
     }
 
     private func startAction() {

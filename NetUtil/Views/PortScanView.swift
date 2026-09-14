@@ -33,6 +33,26 @@ struct PortScanView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            PortScanControlBar(
+                host: $host,
+                isRunning: vm.isRunning,
+                portRangeType: $preset,
+                customPorts: $customRange,
+                onStart: startAction,
+                onShowGuide: { showLearningGuide = true },
+                onExportPDF: { Exporter.savePortScanPDF(results: displayResults, host: host) },
+                onExportCSV: { exportCSV(displayResults) },
+                hasResults: !vm.results.isEmpty,
+                history: history,
+                onCopySummary: {
+                    let open = displayResults.filter { $0.status == .open }
+                    let summary = "Host: \(host)\nScanned: \(vm.total)\nOpen: \(open.count) \(vm.total > 0 ? String(format: "(%.0f%%)", Double(open.count) / Double(vm.total) * 100) : "")"
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(summary, forType: .string)
+                },
+                isFavorite: tools.favorites.isFavorite(host),
+                onToggleFavorite: { tools.favorites.toggle(host: host) }
+            )
 
             scanMoodBar
 
@@ -90,7 +110,6 @@ struct PortScanView: View {
             timeout = defaultTimeout
             if let h = vm.quickLaunchHost { host = h; vm.quickLaunchHost = nil; startAction() }
         }
-        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Port Scanner") }
     }
 
@@ -151,30 +170,6 @@ struct PortScanView: View {
     private var loadingState: some View {
         ToolStateView.loading(message: "Scanning Network Ports...")
             .accessibilityLabel("Scanning network ports, please wait")
-    }
-
-    @ToolbarContentBuilder
-    private var controlBar: some ToolbarContent {
-        PortScanControlBar(
-            host: $host,
-            isRunning: vm.isRunning,
-            portRangeType: $preset,
-            customPorts: $customRange,
-            onStart: startAction,
-            onShowGuide: { showLearningGuide = true },
-            onExportPDF: { Exporter.savePortScanPDF(results: displayResults, host: host) },
-            onExportCSV: { exportCSV(displayResults) },
-            hasResults: !vm.results.isEmpty,
-            history: history,
-            onCopySummary: {
-                let open = displayResults.filter { $0.status == .open }
-                let summary = "Host: \(host)\nScanned: \(vm.total)\nOpen: \(open.count) \(vm.total > 0 ? String(format: "(%.0f%%)", Double(open.count) / Double(vm.total) * 100) : "")"
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(summary, forType: .string)
-            },
-            isFavorite: tools.favorites.isFavorite(host),
-            onToggleFavorite: { tools.favorites.toggle(host: host) }
-        )
     }
 
     private func startAction() {

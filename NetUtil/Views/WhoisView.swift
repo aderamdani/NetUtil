@@ -17,6 +17,7 @@ struct WhoisView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            controlBar
             whoisMoodBar
 
             ScrollView {
@@ -59,7 +60,6 @@ struct WhoisView: View {
                 .padding(Metrics.spacingXL)
             }
         }
-        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "WHOIS") }
     }
 
@@ -82,8 +82,8 @@ struct WhoisView: View {
 
     // MARK: - Components
 
-    private var controlBar: some ToolbarContent {
-        ToolToolbar(icon: "magnifyingglass.circle.fill", title: "WHOIS",
+    private var controlBar: some View {
+        ToolControlBar(icon: "magnifyingglass.circle.fill", title: "WHOIS",
                        host: $query, placeholder: "Domain or IP address",
                        textFieldAccessibilityLabel: "Query Input",
                        accessibilityToolName: "WHOIS Lookup Tool",

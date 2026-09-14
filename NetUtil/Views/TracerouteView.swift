@@ -26,6 +26,30 @@ struct TracerouteView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            TracerouteControlBar(
+                host: $host,
+                isRunning: vm.isRunning,
+                maxHops: $maxHops,
+                traceInterval: $traceInterval,
+                round: vm.round,
+                onStart: startAction,
+                onShowGuide: { showLearningGuide = true },
+                history: history,
+                hasHops: !vm.hops.isEmpty,
+                onExportPDF: { Exporter.saveTraceroutePDF(hops: vm.hops, host: host, round: vm.round) },
+                onExportCSV: {
+                    let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                    Exporter.save(string: Exporter.csvString(from: vm.hops), defaultName: "NetUtil-Traceroute-\(host)-\(date.string(from: Date())).csv", ext: "csv")
+                },
+                onCopySummary: {
+                    let avg = vm.pathAvgRtt.map { String(format: "%.1f ms", $0) } ?? "—"
+                    let summary = "Host: \(host)\nHops: \(vm.hops.count)\nAvg RTT: \(avg)\nMax loss: \(String(format: "%.0f%%", vm.pathLoss))"
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(summary, forType: .string)
+                },
+                isFavorite: tools.favorites.isFavorite(host),
+                onToggleFavorite: { tools.favorites.toggle(host: host) }
+            )
 
             traceMoodBar
 
@@ -86,7 +110,6 @@ struct TracerouteView: View {
             traceInterval = defaultInterval
             if let h = vm.quickLaunchHost { host = h; vm.quickLaunchHost = nil; startAction() }
         }
-        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Traceroute") }
     }
 
@@ -354,34 +377,6 @@ struct TracerouteView: View {
     private var loadingState: some View {
         ToolStateView.loading(message: "Discovering Network Hops...")
             .accessibilityLabel("Discovering network hops, please wait")
-    }
-
-    @ToolbarContentBuilder
-    private var controlBar: some ToolbarContent {
-        TracerouteControlBar(
-            host: $host,
-            isRunning: vm.isRunning,
-            maxHops: $maxHops,
-            traceInterval: $traceInterval,
-            round: vm.round,
-            onStart: startAction,
-            onShowGuide: { showLearningGuide = true },
-            history: history,
-            hasHops: !vm.hops.isEmpty,
-            onExportPDF: { Exporter.saveTraceroutePDF(hops: vm.hops, host: host, round: vm.round) },
-            onExportCSV: {
-                let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
-                Exporter.save(string: Exporter.csvString(from: vm.hops), defaultName: "NetUtil-Traceroute-\(host)-\(date.string(from: Date())).csv", ext: "csv")
-            },
-            onCopySummary: {
-                let avg = vm.pathAvgRtt.map { String(format: "%.1f ms", $0) } ?? "—"
-                let summary = "Host: \(host)\nHops: \(vm.hops.count)\nAvg RTT: \(avg)\nMax loss: \(String(format: "%.0f%%", vm.pathLoss))"
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(summary, forType: .string)
-            },
-            isFavorite: tools.favorites.isFavorite(host),
-            onToggleFavorite: { tools.favorites.toggle(host: host) }
-        )
     }
 
     private func startAction() {

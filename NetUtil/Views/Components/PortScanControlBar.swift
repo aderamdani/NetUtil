@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PortScanControlBar: ToolbarContent {
+struct PortScanControlBar: View {
     @Binding var host: String
     var isRunning: Bool
     @Binding var portRangeType: PortPreset
@@ -15,8 +15,8 @@ struct PortScanControlBar: ToolbarContent {
     var isFavorite: Bool = false
     var onToggleFavorite: (() -> Void)? = nil
     
-    var body: some ToolbarContent {
-        ToolToolbar(icon: "checklist", title: "Port Scanner",
+    var body: some View {
+        ToolControlBar(icon: "checklist", title: "Port Scanner",
                        host: $host, textFieldWidth: 180, history: history, onSubmit: onStart) {
             HStack(spacing: Metrics.spacingMD) {
                 Picker("", selection: $portRangeType) {
@@ -28,19 +28,11 @@ struct PortScanControlBar: ToolbarContent {
                 .frame(width: 140)
                 .accessibilityLabel("Port Range Type")
 
-                ToolbarOptionsButton {
-                    if portRangeType == .custom {
-                        LabeledContent("Custom ports") {
-                            TextField("e.g. 80,443,3000-4000", text: $customPorts)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 150)
-                        }
-                    } else {
-                        Text("Choose \"Custom\" in the port range menu to enter ports.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
+                if portRangeType == .custom {
+                    TextField("e.g. 80,443,3000-4000", text: $customPorts)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 180)
+                        .accessibilityLabel("Custom Port Range")
                 }
 
                 if hasResults {
@@ -49,6 +41,7 @@ struct PortScanControlBar: ToolbarContent {
 
                 Button(action: onStart) {
                     Label(isRunning ? "Stop" : "Scan", systemImage: isRunning ? "stop.fill" : "play.fill")
+                        .frame(minWidth: 70)
                 }
                 .buttonStyle(.glassProminent)
                 .tint(isRunning ? .red : .accentColor)

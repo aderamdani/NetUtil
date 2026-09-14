@@ -4,7 +4,7 @@ import SwiftUI
 /// add, favorite, help). Secondary controls (sort, import, alerts) live in
 /// the slots options row near the table header — same split as
 /// PingControlBar/TracerouteControlBar.
-struct MultiPingControlBar: ToolbarContent {
+struct MultiPingControlBar: View {
     @Binding var host: String
     let history: HostHistory
     let vm: MultiPingViewModel
@@ -14,8 +14,8 @@ struct MultiPingControlBar: ToolbarContent {
     let onExportCSV: () -> Void
     @Environment(ToolStore.self) private var tools
 
-    var body: some ToolbarContent {
-        ToolToolbar(icon: "dot.radiowaves.left.and.right", title: "Multi-Ping",
+    var body: some View {
+        ToolControlBar(icon: "dot.radiowaves.left.and.right", title: "Multi-Ping",
                        host: $host, textFieldWidth: 180, history: history, onSubmit: onAddHost) {
             if !vm.slots.isEmpty {
                 ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV)
@@ -25,6 +25,7 @@ struct MultiPingControlBar: ToolbarContent {
 
             Button(action: onAddHost) {
                 Label("Add Host", systemImage: "plus")
+                    .frame(minWidth: 80)
             }
             .buttonStyle(.glassProminent)
             .disabled(host.trimmingCharacters(in: .whitespaces).isEmpty)

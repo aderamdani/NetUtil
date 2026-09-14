@@ -10,6 +10,7 @@ struct IPGeolocationView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            controlBar
             moodBar
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
@@ -35,14 +36,13 @@ struct IPGeolocationView: View {
                 vm.seed(cached)
             }
         }
-        .toolbar { controlBar }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "IP Geolocation") }
     }
 
     // MARK: - Control Bar
 
-    private var controlBar: some ToolbarContent {
-        ToolToolbar(icon: "mappin.and.ellipse", title: "IP Geolocation",
+    private var controlBar: some View {
+        ToolControlBar(icon: "mappin.and.ellipse", title: "IP Geolocation",
                        host: $vm.query, placeholder: "IP or hostname (blank = my IP)",
                        textFieldAccessibilityLabel: "IP Address or Hostname Input",
                        history: history, onSubmit: startAction,

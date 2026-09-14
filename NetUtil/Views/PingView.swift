@@ -1,6 +1,5 @@
 import SwiftUI
 import Observation
-import AppKit
 
 struct PingView: View {
     var vm: PingViewModel
@@ -32,6 +31,26 @@ struct PingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            PingControlBar(
+                host: $host,
+                countText: $countText,
+                intervalText: $intervalText,
+                packetSizeText: $packetSizeText,
+                ipv6: $ipv6,
+                timeoutText: $timeoutText,
+                infinite: $infinite,
+                alertsEnabled: $alertsEnabled,
+                vm: vm,
+                history: history,
+                onStartStop: startAction,
+                onHelp: { showLearningGuide = true },
+                onExportPDF: { Exporter.savePingPDF(results: vm.results, stats: vm.stats, host: host, resolvedIP: vm.resolvedIP) },
+                onExportCSV: {
+                    let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
+                    Exporter.save(string: Exporter.csvString(from: vm.results), defaultName: "NetUtil-Ping-\(host)-\(date.string(from: Date())).csv", ext: "csv")
+                }
+            )
+
             pingMoodBar
 
             ScrollView {
@@ -90,7 +109,6 @@ struct PingView: View {
             }
         }
         .sheet(isPresented: $showLearningGuide) { HelpView(topic: "Ping") }
-        .toolbar { pingToolbarContent }
         .onAppear {
             tools.interfaces.refresh()
             tools.refreshGlobalStatus()
@@ -100,79 +118,6 @@ struct PingView: View {
                 startAction()
             }
         }
-    }
-
-    @ToolbarContentBuilder
-    private var pingToolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigation) {
-            ToolbarHostField(host: $host, placeholder: "Host", width: 180, onSubmit: startAction)
-            HostHistoryMenu(history: history) { h in host = h; startAction() }
-        }
-        ToolbarItemGroup(placement: .primaryAction) {
-            ToolbarOptionsButton {
-                optionRow("Pings per run", text: $countText)
-                optionRow("Interval (s)", text: $intervalText)
-                optionRow("Payload (bytes)", text: $packetSizeText)
-                optionRow("Timeout (ms)", text: $timeoutText)
-                Toggle("Infinite ping", isOn: $infinite)
-                Toggle("Use IPv6", isOn: $ipv6)
-                Toggle("Notify on loss", isOn: $alertsEnabled)
-                Divider()
-                ThresholdPresetMenu()
-            }
-
-            if !vm.results.isEmpty {
-                ReportMenuButton(
-                    onExportPDF: { Exporter.savePingPDF(results: vm.results, stats: vm.stats, host: host, resolvedIP: vm.resolvedIP) },
-                    onExportCSV: {
-                        let date = DateFormatter(); date.dateFormat = "yyyyMMdd-HHmmss"
-                        Exporter.save(string: Exporter.csvString(from: vm.results), defaultName: "NetUtil-Ping-\(host)-\(date.string(from: Date())).csv", ext: "csv")
-                    },
-                    onCopySummary: copySummary
-                )
-            }
-
-            Button(action: startAction) {
-                Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
-            }
-            .buttonStyle(.glassProminent)
-            .tint(vm.isRunning ? .red : .accentColor)
-            .disabled(!vm.isRunning && host.isEmpty)
-            .accessibilityLabel(vm.isRunning ? "Stop Ping" : "Start Ping")
-
-            let favHost = vm.isRunning ? vm.currentHost : host
-            if !favHost.isEmpty {
-                let isFav = tools.favorites.isFavorite(favHost)
-                Button { tools.favorites.toggle(host: favHost) } label: {
-                    Image(systemName: isFav ? "star.fill" : "star")
-                        .foregroundColor(isFav ? .orange : .secondary)
-                }
-                .buttonStyle(.borderless)
-                .help(isFav ? "Remove from Favorites" : "Add to Favorites")
-                .accessibilityLabel(isFav ? "Remove from Favorites" : "Add to Favorites")
-            }
-
-            Button { showLearningGuide = true } label: {
-                Image(systemName: "questionmark.circle")
-            }
-            .buttonStyle(.borderless)
-            .accessibilityLabel("Show Help Guide")
-        }
-    }
-
-    private func optionRow(_ title: String, text: Binding<String>) -> some View {
-        LabeledContent(title) {
-            TextField("", text: text)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 90)
-        }
-    }
-
-    private func copySummary() {
-        let s = vm.stats
-        let summary = "Host: \(vm.currentHost)\nTransmitted: \(s.transmitted)\nReceived: \(s.received)\nLoss: \(String(format: "%.1f%%", s.loss))\nAvg RTT: \(String(format: "%.1f ms", s.avgRtt))\nMin/Max RTT: \(String(format: "%.1f", s.minRtt))/\(String(format: "%.1f", s.maxRtt)) ms\nJitter: \(String(format: "%.1f ms", s.jitter))"
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(summary, forType: .string)
     }
 
     private var pingMoodBar: some View {
