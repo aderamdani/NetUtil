@@ -55,6 +55,7 @@ struct PortScanControlBar: View {
                     }
                     .buttonStyle(.borderless)
                     .help(isFavorite ? "Remove from Favorites" : "Add to Favorites")
+                    .accessibilityLabel(isFavorite ? "Remove from Favorites" : "Add to Favorites")
                 }
 
                 Button(action: onShowGuide) {

@@ -131,6 +131,7 @@ struct DNSView: View {
                         }
                         .buttonStyle(.borderless)
                         .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                        .accessibilityLabel(isFav ? "Remove from Favorites" : "Add to Favorites")
                     }
 
                     Button { showLearningGuide = true } label: {
