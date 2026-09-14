@@ -21,6 +21,7 @@ All notable changes to NetUtil are documented here.
 - **Reverse lookup (P3-3)**: one-click IP → hostname (PTR) in Neighbors, plus a Resolve action for the gateway in Interfaces.
 - **How-to guides (P3-4)**: a new Help section with step-by-step tasks — change DNS servers, flush the DNS cache, check open ports, and test internet speed.
 - **Route-change detection (P3-5)**: Traceroute compares each round with the previous and lists changed hops in a Route Changes card.
+- **Protocol & interface helpers (P3-6)**: IP protocol number ↔ name normalization, and canonical localized interface names (e.g. `en0` → "Wi-Fi") shown in Interfaces and the Net Quality picker.
 
 ### Fixed
 

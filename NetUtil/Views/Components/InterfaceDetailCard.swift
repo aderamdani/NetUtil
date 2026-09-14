@@ -16,7 +16,7 @@ struct InterfaceDetailCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(iface.name)
                         .font(.system(.headline, design: .monospaced))
-                    Text(iface.typeName)
+                    Text(iface.canonicalName)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }

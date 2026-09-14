@@ -1,5 +1,6 @@
 import Foundation
 import Darwin
+import SystemConfiguration
 
 struct NetworkInterface: Identifiable {
     let id = UUID()
@@ -59,6 +60,25 @@ struct NetworkInterface: Identifiable {
             if name.hasPrefix("awdl") || name.hasPrefix("llw")   { return "wifi" }
             return "network"
         }
+    }
+
+    /// Localized system name for this interface (e.g. "Wi-Fi", "Ethernet"),
+    /// falling back to the derived `typeName`. Canonicalizes `en0`-style names.
+    nonisolated static func localizedInterfaceNames() -> [String: String] {
+        guard let list = SCNetworkInterfaceCopyAll() as? [SCNetworkInterface] else { return [:] }
+        var map: [String: String] = [:]
+        for iface in list {
+            if let bsd = SCNetworkInterfaceGetBSDName(iface) as String?,
+               let name = SCNetworkInterfaceGetLocalizedDisplayName(iface) as String? {
+                map[bsd] = name
+            }
+        }
+        return map
+    }
+
+    var canonicalName: String {
+        if isVLAN || isLoopback { return typeName }
+        return Self.localizedInterfaceNames()[name] ?? typeName
     }
 
     var typeName: String {

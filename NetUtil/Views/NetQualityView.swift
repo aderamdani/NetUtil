@@ -53,7 +53,7 @@ struct NetQualityView: View {
                 Picker("", selection: $useInterface) {
                     Text("Default interface").tag("")
                     ForEach(tools.interfaces.interfaces, id: \.name) { iface in
-                        Text("\(iface.name) · \(iface.typeName)").tag(iface.name)
+                        Text("\(iface.name) · \(iface.canonicalName)").tag(iface.name)
                     }
                 }
                 .labelsHidden()

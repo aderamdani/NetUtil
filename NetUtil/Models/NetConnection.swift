@@ -21,8 +21,7 @@ struct NetConnection: Identifiable, Equatable {
             guard parts.count >= 9,
                   parts[0] != "COMMAND",
                   let pid = Int(parts[1]) else { return nil }
-            let proto = parts[7]
-            guard proto == "TCP" || proto == "UDP" else { return nil }
+            guard let proto = IPProtocol.canonical(parts[7]), proto == "TCP" || proto == "UDP" else { return nil }
 
             let name = parts[8]
             var state: String?
