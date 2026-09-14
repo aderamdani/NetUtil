@@ -7,6 +7,8 @@ Native macOS network diagnostics toolkit. SwiftUI, Swift 6, macOS 26+. Zero thir
 > data models, persistence, export system, Darwin APIs, and conventions for adding
 > new code. This file (AGENTS.md) covers coding rules and release workflow.
 
+> **Resuming work?** See `docs/HANDOFF.md` for current state, reverted work, and next steps.
+
 ## Build & Run
 
 ```bash
