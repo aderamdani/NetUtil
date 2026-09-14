@@ -20,6 +20,7 @@ All notable changes to NetUtil are documented here.
 - **Net Quality deep-dive (P3-2)**: bind the test to a specific interface (`-I`) and route it through iCloud Private Relay (`-p`); the result records the relay state.
 - **Reverse lookup (P3-3)**: one-click IP → hostname (PTR) in Neighbors, plus a Resolve action for the gateway in Interfaces.
 - **How-to guides (P3-4)**: a new Help section with step-by-step tasks — change DNS servers, flush the DNS cache, check open ports, and test internet speed.
+- **Route-change detection (P3-5)**: Traceroute compares each round with the previous and lists changed hops in a Route Changes card.
 
 ### Fixed
 

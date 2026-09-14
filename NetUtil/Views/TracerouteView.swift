@@ -64,6 +64,10 @@ struct TracerouteView: View {
 
                         pathVerdictCard
 
+                        if !vm.routeChanges.isEmpty {
+                            routeChangeCard
+                        }
+
                         VStack(alignment: .leading, spacing: Metrics.spacingLG) {
                             HStack {
                                 SectionHeader(title: "Path Visualization", icon: "map.fill")
@@ -257,6 +261,28 @@ struct TracerouteView: View {
         return vm.hops.filter { $0.displayHost.localizedCaseInsensitiveContains(hopFilter) }
     }
 
+
+    private var routeChangeCard: some View {
+        VStack(alignment: .leading, spacing: Metrics.spacingSM) {
+            SectionHeader(title: "Route Changes", icon: "arrow.triangle.branch")
+                .padding(.leading, Metrics.spacingXS)
+            ForEach(vm.routeChanges.suffix(5).reversed()) { change in
+                HStack(spacing: Metrics.spacingSM) {
+                    Text(change.timestamp.formatted(date: .omitted, time: .shortened))
+                        .font(.caption.monospaced())
+                        .foregroundColor(.secondary)
+                    Text(change.summary)
+                        .font(.caption)
+                    Spacer()
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(change.summary)
+            }
+        }
+        .padding(Metrics.spacingLG)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG).stroke(Color(.separatorColor).opacity(0.1), lineWidth: 0.5))
+    }
 
     @ViewBuilder
     private var contentArea: some View {

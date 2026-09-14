@@ -12,6 +12,7 @@ final class TracerouteViewModel {
 
     func clearError() { error = nil }
     private(set) var round = 0
+    private(set) var routeChanges: [RouteChange] = []
     private(set) var currentHost: String = ""
     private(set) var startTime: Date?
     var quickLaunchHost: String? = nil
@@ -29,6 +30,7 @@ final class TracerouteViewModel {
     private var targetHost: String = ""
     @ObservationIgnored private var subprocess = StreamingSubprocess()
     private var pendingHops: [TracerouteHop] = []
+    private var lastPath: [String?] = []
 
     /// Configurable in Settings > General > Performance (default 500).
     private static var rawLinesLimit: Int {
@@ -48,6 +50,8 @@ final class TracerouteViewModel {
         rawLines.removeAll()
         error = nil
         round = 0
+        routeChanges.removeAll()
+        lastPath.removeAll()
         startTime = Date()
         targetHost = host
         currentHost = host
@@ -103,6 +107,7 @@ final class TracerouteViewModel {
                     guard let self, self.runID == id else { return }
                     self.subprocess.stop()
                     self.mergeRound()
+                    self.detectRouteChange()
                     self.lookupGeoForNewHops()
                     self.round += 1
                     guard self.isRunning else { return }
@@ -115,6 +120,35 @@ final class TracerouteViewModel {
             self.error = error.localizedDescription
             isRunning = false
         }
+    }
+
+    /// Compares this round's hop addresses with the previous round and records
+    /// any changed hops. Only meaningful from the second round onward.
+    private func detectRouteChange() {
+        let current = hops.map { $0.ip }
+        if let diff = Self.changedHopNumbers(previous: lastPath, current: current), !diff.changed.isEmpty {
+            routeChanges.append(RouteChange(timestamp: Date(),
+                                            previousHopCount: diff.previousCount,
+                                            currentHopCount: diff.currentCount,
+                                            changedHops: diff.changed))
+            if routeChanges.count > 20 { routeChanges.removeFirst(routeChanges.count - 20) }
+        }
+        lastPath = current
+    }
+
+    /// Pure diff between two rounds' hop addresses. Returns nil when either
+    /// round has no resolved hops yet (first observation / still filling in).
+    nonisolated static func changedHopNumbers(previous: [String?], current: [String?])
+        -> (changed: [Int], previousCount: Int, currentCount: Int)? {
+        guard current.contains(where: { $0 != nil }), previous.contains(where: { $0 != nil }) else { return nil }
+        let maxCount = max(previous.count, current.count)
+        var changed: [Int] = []
+        for i in 0..<maxCount {
+            let before = i < previous.count ? previous[i] : nil
+            let after = i < current.count ? current[i] : nil
+            if before != after { changed.append(i + 1) }
+        }
+        return (changed, previous.count, current.count)
     }
 
     private func mergeRound() {
