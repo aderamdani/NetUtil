@@ -14,14 +14,18 @@ struct HostHistoryMenu: View {
                 Divider()
                 Button("Clear History", role: .destructive) { history.clear() }
             } label: {
-                Image(systemName: "clock.arrow.circlepath")
-                    .foregroundColor(.secondary)
-                    .frame(width: 20, height: 20, alignment: .center)
+                ZStack {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .imageScale(.medium)
+                        .foregroundColor(.secondary)
+                }
+                .frame(width: 22, height: 22)
+                .contentShape(Rectangle())
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
-            .frame(width: 24, height: 22)
-            .contentShape(Rectangle())
+            .fixedSize()
+            .help("Recent hosts")
             .accessibilityLabel("Host History")
         }
     }
