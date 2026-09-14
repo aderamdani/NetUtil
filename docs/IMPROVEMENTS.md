@@ -22,7 +22,7 @@
 | P1-2 | **Unified error-surface component** (done, unreleased) | All tools | Replace ad-hoc `alert` / `Text("...").foregroundColor(.red)` with a shared `ClinicalErrorBanner` that supports retry, copy, and dismiss. |
 | P1-3 | **Live-filter on all result tables** (done, unreleased) | Ping, Traceroute, Port Scan, DNS, WHOIS | Add per-tool search/filter bar to narrow large result sets without re-running the scan. |
 | P1-4 | **PDF table header repeat on every page** (shipped v4.16.0) | Exporter | Long reports (Multi-Ping, Traceroute) lose column headers after page 1; implement `CGContext` page-header drawing. |
-| P1-5 | **Settings search** | SettingsView | Add a filter field to jump directly to a setting pane (Thresholds, Backup, Privacy, Tools). |
+| P1-5 | **Settings search** (done, unreleased) | SettingsView | Add a filter field to jump directly to a setting pane (Thresholds, Backup, Privacy, Tools). |
 | P1-6 | **Batch export (PDF + CSV)** (shipped v4.16.0) | All export-capable tools | Allow selecting multiple sessions/tools and exporting one combined PDF or ZIP of CSVs. |
 | P1-7 | **Unit-test coverage for Exporter** (shipped v4.16.0) | Exporter.swift | Add snapshot-style tests for PDF page count, CSV column order, and filename pattern `NetUtil-[Tool]-[target]-yyyyMMdd-HHmmss`. |
 | P1-8 | **Dashboard redesign** (done, unreleased) | Dashboard | Layout masih terasa belum pas; tata ulang hierarki informasi, kartu ringkasan/hero, dan spacing agar status at-a-glance terbaca jelas dan konsisten dengan token `Metrics.*`. |
