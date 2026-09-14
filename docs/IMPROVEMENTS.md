@@ -53,7 +53,7 @@
 | P3-3 | **One-click reverse lookup** (done, unreleased) | Neighbors / Interfaces / DNS | Resolve an IP to its hostname (PTR) without leaving the tool. |
 | P3-4 | **How-to guides** (done, unreleased) | Help | Cross-tool how-tos: change DNS, flush the DNS cache, check open ports. |
 | P3-5 | **Traceroute route-change detection** (done, unreleased) | Traceroute | Keep path history across runs and flag changed hops/routes. |
-| P3-6 | **Protocol **Protocol & interface helpers** | Various interface helpers** (done, unreleased) | Various | Protocol number to name (6 = TCP); canonical interface display names. |
+| P3-6 | **Protocol & interface helpers** (done, unreleased) | Various | Protocol number to name (6 = TCP); canonical interface display names. |
 
 ---
 
