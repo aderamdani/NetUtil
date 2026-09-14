@@ -308,7 +308,7 @@ struct SSLInspectorView: View {
     }
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Target Inspected",
+        ToolStateView.empty(title: "No Certificate Inspected",
                             subtitle: "Enter a domain to audit its SSL/TLS certificate chain.",
                             minHeight: 300)
     }

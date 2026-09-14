@@ -343,7 +343,7 @@ struct TracerouteView: View {
 
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Active Trace",
+        ToolStateView.empty(title: "No Trace Yet",
                             subtitle: "Enter a target to map the layer 3 network path.")
         .accessibilityElement(children: .combine)
     }

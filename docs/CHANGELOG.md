@@ -19,6 +19,8 @@ All notable changes to NetUtil are documented here.
 
 - **Accessibility (P0-3)**: VoiceOver labels added to icon-only controls — Report menu, actionable section headers, Traceroute/Multi-Ping favorite and help buttons, HTTP Latency favorite/help, menu-bar footer, and the import-hosts sheet.
 
+- **Empty states (P1-9)**: empty-state titles unified to a consistent "No … yet" form across tools.
+
 ## [4.17.0] — 2026-09-13
 
 ### Changed

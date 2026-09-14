@@ -17,7 +17,7 @@ struct WakeOnLanView: View {
                     }
                     optionsCard
                     if vm.lastSent == nil && vm.error == nil {
-                        ToolStateView.empty(title: "No Packet Sent",
+                        ToolStateView.empty(title: "No Magic Packet Sent",
                                             subtitle: "Enter the MAC address of a sleeping machine and press Wake.",
                                             minHeight: 200)
                     }

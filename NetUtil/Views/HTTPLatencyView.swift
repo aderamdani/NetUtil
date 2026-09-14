@@ -374,7 +374,7 @@ struct HTTPLatencyView: View {
     }
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Request Sent",
+        ToolStateView.empty(title: "No Request Yet",
                             subtitle: "Enter a URL to analyze connection phases and TTFB latency.")
     }
 

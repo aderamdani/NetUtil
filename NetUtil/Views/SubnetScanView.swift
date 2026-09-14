@@ -212,7 +212,7 @@ struct SubnetScanView: View {
     }
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Scan Performed",
+        ToolStateView.empty(title: "No Scan Yet",
                             subtitle: "Enter a CIDR block (e.g. 192.168.1.0/24) to discover live hosts on your network.")
     }
 

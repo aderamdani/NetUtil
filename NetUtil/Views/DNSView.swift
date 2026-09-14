@@ -224,7 +224,7 @@ struct DNSView: View {
     }
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Lookup Performed",
+        ToolStateView.empty(title: "No Lookup Yet",
                             subtitle: "Enter a domain to resolve its global DNS resource records.")
     }
 

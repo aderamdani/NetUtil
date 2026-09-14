@@ -209,7 +209,7 @@ struct WhoisView: View {
     }
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Query Executed",
+        ToolStateView.empty(title: "No Query Yet",
                             subtitle: "Enter a domain or IP to query its registration database.")
     }
 

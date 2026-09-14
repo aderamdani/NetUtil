@@ -167,7 +167,7 @@ struct SessionHistoryView: View {
     }
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Sessions Recorded",
+        ToolStateView.empty(title: "No Sessions Yet",
                             subtitle: "Run any tool to start logging.")
             .frame(maxHeight: .infinity)
     }

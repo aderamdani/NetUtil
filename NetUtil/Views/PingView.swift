@@ -338,7 +338,7 @@ struct PingView: View {
     }
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Host Target",
+        ToolStateView.empty(title: "No Ping Yet",
                             subtitle: "Enter an IP or hostname to analyze network performance.")
     }
 

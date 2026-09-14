@@ -162,7 +162,7 @@ struct PortScanView: View {
     // REMOVED: resultsGrid
 
     private var emptyState: some View {
-        ToolStateView.empty(title: "No Target Audited",
+        ToolStateView.empty(title: "No Scan Yet",
                             subtitle: "Enter a host and select a port range to begin discovery.")
         .accessibilityElement(children: .combine)
     }
