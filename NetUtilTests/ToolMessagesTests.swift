@@ -145,4 +145,24 @@ final class ToolMessagesTests: XCTestCase {
             XCTAssertFalse(status.contains("  "), status)
         }
     }
+
+    // MARK: - Session history row
+
+    func testSessionRowAccessibilityLabel() {
+        XCTAssertEqual(
+            SessionHistoryView.rowAccessibilityLabel(
+                tool: "Ping", target: "8.8.8.8", status: "Success",
+                summary: "10 pkts, 0.0% loss, avg 12.3 ms", time: "3:42:10 PM"),
+            "Ping session for 8.8.8.8. Status Success. 10 pkts, 0.0% loss, avg 12.3 ms. Recorded at 3:42:10 PM."
+        )
+    }
+
+    func testSessionRowAccessibilityLabelNoFusedTokens() {
+        let label = SessionHistoryView.rowAccessibilityLabel(
+            tool: "Traceroute", target: "example.com", status: "Partial",
+            summary: "12 hops", time: "9:00:00 AM")
+        XCTAssertFalse(label.contains("example.com.Status"), label)
+        XCTAssertFalse(label.contains("Partial.12"), label)
+        XCTAssertFalse(label.contains("  "), label)
+    }
 }

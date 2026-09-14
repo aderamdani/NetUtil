@@ -149,6 +149,15 @@ struct SessionHistoryView: View {
                     SessionRecordRow(record: record)
                         .contentShape(Rectangle())
                         .onTapGesture { navigate(to: record) }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(Self.rowAccessibilityLabel(
+                            tool: SessionToolNames.label(record.tool),
+                            target: record.target,
+                            status: record.status.rawValue.capitalized,
+                            summary: record.summary,
+                            time: record.timestamp.formatted(date: .omitted, time: .standard)))
+                        .accessibilityAddTraits(.isButton)
+                        .accessibilityHint("Open this session's tool")
                         .contextMenu {
                             Button(role: .destructive) { history.remove(id: record.id) } label: {
                                 Label("Delete", systemImage: "trash")
@@ -189,6 +198,13 @@ struct SessionHistoryView: View {
 
     private func toolLabel(_ key: String) -> String {
         key == "All" ? "All Tools" : SessionToolNames.label(key)
+    }
+
+    /// VoiceOver label for a session row — pure, so the spacing/pluralization
+    /// is unit-tested without rendering the view.
+    static func rowAccessibilityLabel(tool: String, target: String, status: String,
+                                      summary: String, time: String) -> String {
+        "\(tool) session for \(target). Status \(status). \(summary). Recorded at \(time)."
     }
 }
 
