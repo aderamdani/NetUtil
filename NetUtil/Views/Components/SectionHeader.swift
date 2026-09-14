@@ -18,6 +18,7 @@ struct SectionHeader: View {
                 .buttonStyle(.plain)
                 .onHover { isHovered = $0 }
                 .help("Jump to \(title)")
+                .accessibilityLabel(title)
             } else {
                 headerContent
             }

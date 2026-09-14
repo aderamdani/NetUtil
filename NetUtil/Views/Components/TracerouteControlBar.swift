@@ -24,10 +24,12 @@ struct TracerouteControlBar: View {
                     HStack(spacing: Metrics.spacingXS) {
                         Text("Hops").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                         TextField("", value: $maxHops, format: .number).textFieldStyle(.roundedBorder).frame(width: 48)
+                            .accessibilityLabel("Maximum hops")
                     }
                     HStack(spacing: Metrics.spacingXS) {
                         Text("Interval").font(.caption2.weight(.bold)).foregroundColor(.secondary)
                         TextField("", value: $traceInterval, format: .number).textFieldStyle(.roundedBorder).frame(width: 48)
+                            .accessibilityLabel("Re-trace interval in seconds")
                     }
                 }
 
@@ -41,6 +43,7 @@ struct TracerouteControlBar: View {
                 }
                 .buttonStyle(.glassProminent)
                 .tint(isRunning ? .red : .accentColor)
+                .accessibilityLabel(isRunning ? "Stop Traceroute" : "Start Traceroute")
 
                 if !host.isEmpty, let onToggle = onToggleFavorite {
                     Button(action: onToggle) {
@@ -49,12 +52,14 @@ struct TracerouteControlBar: View {
                     }
                     .buttonStyle(.borderless)
                     .help(isFavorite ? "Remove from Favorites" : "Add to Favorites")
+                    .accessibilityLabel(isFavorite ? "Remove from Favorites" : "Add to Favorites")
                 }
 
                 Button(action: onShowGuide) {
                     Image(systemName: "questionmark.circle")
                 }
                 .buttonStyle(.borderless)
+                .accessibilityLabel("Show Help Guide")
             }
         }
     }

@@ -11,6 +11,10 @@ All notable changes to NetUtil are documented here.
 - **Session History**: rows are inset from the card edge so content no longer sits flush against the border.
 - **CSV export**: Wi-Fi SSID, IP-geolocation country, and speed-test server name are now escaped, so values with commas or quotes no longer break the columns.
 
+### Changed
+
+- **Accessibility (P0-3)**: VoiceOver labels added to icon-only controls — Report menu, actionable section headers, Traceroute/Multi-Ping favorite and help buttons, HTTP Latency favorite/help, menu-bar footer, and the import-hosts sheet.
+
 ## [4.17.0] — 2026-09-13
 
 ### Changed

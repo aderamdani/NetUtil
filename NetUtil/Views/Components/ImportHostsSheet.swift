@@ -28,6 +28,7 @@ struct ImportHostsSheet: View {
                 .overlay(RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM).stroke(Color(.separatorColor), lineWidth: 0.5))
                 .padding(.horizontal, Metrics.spacingLG)
                 .padding(.vertical, Metrics.spacingSM)
+                .accessibilityLabel("Hosts to import, one per line")
             
             HStack {
                 Button(action: pasteFromClipboard) {

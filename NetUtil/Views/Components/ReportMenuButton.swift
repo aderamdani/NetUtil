@@ -20,5 +20,6 @@ struct ReportMenuButton: View {
             Label("Report", systemImage: "doc.text")
         }
         .menuStyle(.borderlessButton)
+        .accessibilityLabel("Report")
     }
 }

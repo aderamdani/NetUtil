@@ -131,12 +131,14 @@ struct HTTPLatencyView: View {
                         }
                         .buttonStyle(.borderless)
                         .help(isFav ? "Remove from Favorites" : "Add to Favorites")
+                        .accessibilityLabel(isFav ? "Remove from Favorites" : "Add to Favorites")
                     }
 
                     Button { showLearningGuide = true } label: {
                         Image(systemName: "questionmark.circle")
                     }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel("Show Help Guide")
                 }
         }
     }

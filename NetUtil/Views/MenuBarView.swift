@@ -111,6 +111,7 @@ struct MenuBarView: View {
             }
             .buttonStyle(.borderless)
             .help("Open NetUtil")
+            .accessibilityLabel("Open NetUtil Window")
 
             Spacer()
 
@@ -121,6 +122,7 @@ struct MenuBarView: View {
             .buttonStyle(.borderless)
             .foregroundStyle(.secondary)
             .help("Settings")
+            .accessibilityLabel("Open Settings")
 
             Divider().frame(height: 12).padding(.horizontal, Metrics.spacingMD)
 
@@ -133,6 +135,7 @@ struct MenuBarView: View {
             .buttonStyle(.borderless)
             .foregroundStyle(.secondary)
             .help("Check for Updates")
+            .accessibilityLabel("Check for Updates")
 
             Divider().frame(height: 12).padding(.horizontal, Metrics.spacingMD)
 
@@ -145,6 +148,7 @@ struct MenuBarView: View {
             .buttonStyle(.borderless)
             .foregroundStyle(.red)
             .help("Quit NetUtil")
+            .accessibilityLabel("Quit NetUtil")
         }
         .padding(.horizontal, Metrics.spacingLG)
         .padding(.vertical, Metrics.spacingMD)
