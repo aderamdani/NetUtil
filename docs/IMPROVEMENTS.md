@@ -38,7 +38,7 @@
 | P2-2 | **Timeline scrubber for historical data** (done, unreleased) | Statistics, Bandwidth | Replace static daily bar chart with a draggable time window (day / week / month / 90-day). |
 | P2-3 | **Custom alert presets** (done via Ping and Multi-Ping, unreleased) | Ping, Multi-Ping, Net Quality | Let users save named threshold sets (e.g., "Gaming", "Work") and switch between them without opening Settings. |
 | P2-4 | **LAN device fingerprinting** (done, unreleased) | Neighbors | Enrich ARP entries with OUI vendor name and guessed device type (router, printer, phone). |
-| P2-5 | **CLI companion tool** | New binary | `netutil ping <host>` / `netutil speed` for scripts and Terminal usage; share the same subprocess runners as the app. |
+| P2-5 | **CLI companion tool** (done, unreleased) | New binary | `netutil ping <host>` / `netutil speed` for scripts and Terminal usage; share the same subprocess runners as the app. |
 | P2-6 | **Menu-bar only mode** | MenuBarExtra | Hide the main window and run a lightweight status-bar popover with ping / bandwidth / VPN state. |
 | P2-7 | **Guided troubleshooting workflow** (done via Doctor, unreleased) | New (Assistant) | Alur diagnosa step-by-step yang memandu user lewat urutan troubleshooting umum (link -> IP/DHCP -> gateway -> DNS -> internet reachability), menjalankan tool yang relevan di tiap langkah dan menjelaskan hasilnya dalam bahasa awam. |
 

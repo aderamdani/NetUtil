@@ -39,6 +39,21 @@ NetUtil is a native macOS diagnostics toolkit built with SwiftUI and Swift 6. 28
 
 > **First launch:** NetUtil is ad-hoc signed (not yet notarized), so macOS Gatekeeper blocks the first open. Right-click **NetUtil** in Applications and choose **Open**, or run `xattr -dr com.apple.quarantine /Applications/NetUtil.app`.
 
+## Command-line tool
+
+A small companion CLI that wraps the same system tools the app uses (`ping`, `traceroute`, `dig`, `whois`, `networkQuality`).
+
+```bash
+bash scripts/build_cli.sh        # builds CLI/.build/release/netutil
+netutil ping 1.1.1.1 10
+netutil traceroute apple.com 20
+netutil dns apple.com MX
+netutil whois apple.com
+netutil speed
+```
+
+It is a standalone SwiftPM package under `CLI/`; unifying it with the app in a shared `NetUtilCore` framework is planned for v5.0.0.
+
 ## Documentation & Links
 
 - **[AGENTS.md](./AGENTS.md)** — Architecture, coding standards, release workflow, HIG rules.
