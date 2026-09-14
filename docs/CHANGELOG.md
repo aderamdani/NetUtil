@@ -6,6 +6,23 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+## [4.19.1] — 2026-09-14
+
+### Changed
+
+- **Subnet Calculator**: the prefix control is now a compact inline stepper on a single-line control bar; the separate prefix slider is removed.
+- **Navigation**: the redundant global host search in the sidebar is removed; per-tool host recall remains via each tool's history (clock) menu.
+- **Accessibility**: VoiceOver labels added to the session-history rows, favorite toggles (DNS, WHOIS, SSL/TLS, Port Scan), and the clear-search controls.
+- **UI**: restored the pre-Liquid-Glass prominent button style (`.borderedProminent`) across 20 views, replacing stray `.glassProminent` remnants.
+
+### Fixed
+
+- **ToolStore**: app-lifetime pollers, network lookups, and notification observers now start through an explicit `startMonitoring()` path, so a store can be constructed inert for tests.
+
+### Tests
+
+- ViewModel and parser smoke harness for every tool (P0-2): initial contract, idempotent `stop()`, `clearError()`, and representative plus malformed parser input.
+
 ## [4.19.0] — 2026-09-14
 
 ### Added
