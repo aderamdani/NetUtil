@@ -111,90 +111,29 @@ enum Tool: String, CaseIterable, Identifiable {
 struct ContentView: View {
     @State private var selection: Tool? = .dashboard
     @Environment(ToolStore.self) private var tools
-    @State private var history = HostHistory.shared
-    
-    @State private var searchText = ""
+
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showOnboarding = false
-    @FocusState private var isSearchFocused: Bool
-
-    var filteredHistory: [String] {
-        guard !searchText.isEmpty else { return [] }
-        return history.hosts.filter { $0.lowercased().contains(searchText.lowercased()) }
-    }
 
     var body: some View {
         NavigationSplitView {
-            VStack(spacing: 0) {
-                // Global Search Field
-                HStack(spacing: Metrics.spacingSM) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-                        .font(.caption2.weight(.bold))
-                    TextField("Search history... (⌘F)", text: $searchText)
-                        .textFieldStyle(.plain)
-                        .font(.subheadline)
-                        .focused($isSearchFocused)
-                    if !searchText.isEmpty {
-                        Button { searchText = "" } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
+            List(selection: $selection) {
+                if !tools.favorites.favorites.isEmpty {
+                    Section("Favorites") {
+                        ForEach(tools.favorites.favorites) { fav in
+                            FavoriteSidebarItem(fav: fav, selection: $selection, tools: tools)
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Clear search")
+                        .onMove { tools.favorites.move(from: $0, to: $1) }
+                        .onDelete { idxs in
+                            idxs.map { tools.favorites.favorites[$0].id }.forEach { tools.favorites.remove(id: $0) }
+                        }
                     }
                 }
-                .padding(Metrics.spacingMD)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
-                .padding(.horizontal, Metrics.spacingMD)
-                .padding(.vertical, Metrics.spacingSM)
-                
-                Divider().opacity(0.1)
 
-                if !searchText.isEmpty {
-                    List {
-                        Section("History Results") {
-                            ForEach(filteredHistory, id: \.self) { host in
-                                Button {
-                                    copyToActiveTool(host)
-                                    searchText = ""
-                                    isSearchFocused = false
-                                } label: {
-                                    HStack {
-                                        Image(systemName: "clock.arrow.circlepath")
-                                            .foregroundColor(.secondary)
-                                        Text(host)
-                                            .lineLimit(1)
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            if filteredHistory.isEmpty {
-                                Text("No matches found").font(.caption).foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                } else {
-                    List(selection: $selection) {
-                        if !tools.favorites.favorites.isEmpty {
-                            Section("Favorites") {
-                                ForEach(tools.favorites.favorites) { fav in
-                                    FavoriteSidebarItem(fav: fav, selection: $selection, tools: tools)
-                                }
-                                .onMove { tools.favorites.move(from: $0, to: $1) }
-                                .onDelete { idxs in
-                                    idxs.map { tools.favorites.favorites[$0].id }.forEach { tools.favorites.remove(id: $0) }
-                                }
-                            }
-                        }
-
-                        ForEach(ToolGroup.allCases, id: \.self) { group in
-                            let items = tools.catalog.availableTools(in: group)
-                            if !items.isEmpty {
-                                toolSection(group: group, items: items)
-                            }
-                        }
-
+                ForEach(ToolGroup.allCases, id: \.self) { group in
+                    let items = tools.catalog.availableTools(in: group)
+                    if !items.isEmpty {
+                        toolSection(group: group, items: items)
                     }
                 }
             }
@@ -215,13 +154,6 @@ struct ContentView: View {
         .onChange(of: tools.catalog.disabledKeys) { _, _ in
             selection = Tool.fallbackSelection(current: selection,
                                                availableKeys: tools.catalog.availableKeys)
-        }
-        .background {
-            // Cmd+F shortcut
-            Button("") { isSearchFocused = true }
-                .keyboardShortcut("f", modifiers: .command)
-                .opacity(0)
-                .accessibilityHidden(true)
         }
         .focusedSceneValue(\.selectTool) { tool in
             guard tools.catalog.isAvailable(tool) else { return }
@@ -277,11 +209,6 @@ struct ContentView: View {
         case .dnsResolver:   return tools.dnsResolver.isRunning
         default:           return false
         }
-    }
-    
-    private func copyToActiveTool(_ host: String) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(host, forType: .string)
     }
     
     @ViewBuilder
