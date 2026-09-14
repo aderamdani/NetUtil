@@ -9,6 +9,7 @@ All notable changes to NetUtil are documented here.
 ### Changed
 
 - **Liquid Glass redesign (phase 1, in progress)**: the sidebar history search now uses the system search field (`.searchable`) instead of a custom material field.
+- **Toolbar pilot**: Ping moves its controls into the system toolbar (`.toolbar`) — host input and toggles leading, run/report/favorite/help trailing; the custom `PingControlBar` is removed.
 
 
 ## [4.19.0] — 2026-09-14
