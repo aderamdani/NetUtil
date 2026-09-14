@@ -83,7 +83,7 @@ final class ToolMessagesTests: XCTestCase {
         XCTAssertFalse(loss.contains("12hops"), loss)
     }
 
-    // MARK: - Ping spoken latency + link types
+    // MARK: - Ping spoken latency + Wi-Fi summary
 
     func testPingSpokenMilliseconds() {
         XCTAssertEqual(PingView.spokenMilliseconds(45.6), "45 milliseconds")
@@ -93,25 +93,6 @@ final class ToolMessagesTests: XCTestCase {
             XCTAssertTrue(spoken.hasSuffix(" milliseconds"), spoken)
             XCTAssertFalse(spoken.contains("  "), spoken)
         }
-    }
-
-    func testPingLinkTypeStrings() {
-        XCTAssertEqual(
-            PingView.linkTypeAccessibilityLabel(title: "Fiber", typical: "10-50 ms"),
-            "Fiber, typical latency 10-50 ms"
-        )
-        XCTAssertEqual(
-            PingView.linkTypeMatchText(prefix: "", title: "Fiber", typical: "10-50 ms"),
-            "Fiber · typical 10-50 ms"
-        )
-        XCTAssertEqual(
-            PingView.linkTypeMatchText(prefix: "Likely match: ", title: "Fiber", typical: "10-50 ms"),
-            "Likely match: Fiber · typical 10-50 ms"
-        )
-        XCTAssertEqual(
-            PingView.linkTypeDetailsLabel(title: "Fiber", typical: "10-50 ms", blurb: "Fast."),
-            "Link type details. Fiber, typical latency 10-50 ms. Fast."
-        )
     }
 
     func testPingWifiSummary() {

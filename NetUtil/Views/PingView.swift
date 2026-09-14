@@ -22,7 +22,6 @@ struct PingView: View {
     @State private var hoveredPoint: PingResult? = nil
     @State private var hoverLocation: CGPoint = .zero
     @State private var chartWidth: CGFloat = Metrics.chartDefaultWidth
-    @State private var selectedProfile: LinkProfile? = nil
 
     private var resolvedCount: String { countText.isEmpty ? "\(defaultCount)" : countText }
     private var resolvedInterval: String { intervalText.isEmpty ? String(format: "%.1f", defaultInterval) : intervalText }
@@ -171,18 +170,6 @@ struct PingView: View {
         "\(Int(ms)) milliseconds"
     }
 
-    static func linkTypeAccessibilityLabel(title: String, typical: String) -> String {
-        "\(title), typical latency \(typical)"
-    }
-
-    static func linkTypeMatchText(prefix: String, title: String, typical: String) -> String {
-        "\(prefix)\(title) · typical \(typical)"
-    }
-
-    static func linkTypeDetailsLabel(title: String, typical: String, blurb: String) -> String {
-        "Link type details. \(title), typical latency \(typical). \(blurb)"
-    }
-
     static func signalStrengthText(rssi: Int) -> String {
         "\(rssi) dBm"
     }
@@ -191,15 +178,12 @@ struct PingView: View {
         "Wi-Fi · " + parts.joined(separator: " · ")
     }
 
-    // MARK: - Quality & Link Classification
+    // MARK: - Quality
 
-    /// Plain-language verdict card: a rating anyone can understand, which
-    /// local link carried the packets, and an explorable estimate of the
-    /// internet link type (LAN / fiber / mobile / satellite).
+    /// Plain-language verdict card: a rating anyone can understand, plus the
+    /// local link that carried the packets.
     private var qualityCard: some View {
         let verdict = quality
-        let matched = LinkProfile.match(avgMs: vm.stats.avgRtt)
-        let shown = selectedProfile ?? matched
         let link = measuredLink
         return VStack(alignment: .leading, spacing: Metrics.spacingMD) {
             HStack(spacing: Metrics.spacingMD) {
@@ -242,39 +226,6 @@ struct PingView: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Measured over \(link.detail)")
-
-            VStack(alignment: .leading, spacing: Metrics.spacingSM) {
-                Text("Link type — tap a type to learn what it means")
-                    .font(.caption.weight(.bold))
-                    .foregroundColor(.secondary)
-                HStack(spacing: Metrics.spacingSM) {
-                    ForEach(LinkProfile.allCases, id: \.self) { profile in
-                        let isShown = profile == shown
-                        Button {
-                            selectedProfile = (selectedProfile == profile) ? nil : profile
-                        } label: {
-                            Text(profile.shortLabel)
-                                .font(.caption2.weight(.bold))
-                                .foregroundColor(isShown ? .white : .secondary)
-                                .padding(.vertical, 6)
-                                .frame(maxWidth: .infinity)
-                                .background((isShown ? Color.accentColor : Color.secondary.opacity(0.12)), in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(Self.linkTypeAccessibilityLabel(title: profile.title, typical: profile.typical))
-                        .accessibilityHint(isShown ? "Showing details below" : "Tap to learn about this link type")
-                    }
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(Self.linkTypeMatchText(prefix: selectedProfile == nil ? "Likely match: " : "", title: shown.title, typical: shown.typical))
-                        .font(.caption.monospaced().weight(.semibold))
-                    Text(shown.blurb)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel(Self.linkTypeDetailsLabel(title: shown.title, typical: shown.typical, blurb: shown.blurb))
-            }
         }
         .padding(Metrics.spacingLG)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusLG))
@@ -283,12 +234,12 @@ struct PingView: View {
 
     private var quality: QualityVerdict {
         let s = vm.stats
-        let profile = LinkProfile.match(avgMs: s.avgRtt)
         if s.loss >= 20 {
             return QualityVerdict(title: "Unstable", icon: "xmark.circle.fill", color: .red,
                 message: "About 1 in 5 packets never arrives. Check your Wi-Fi signal, move closer to the router, or plug in a cable.")
         }
-        if profile == .satellite {
+        // 450 ms and above is the satellite (VSAT) band.
+        if s.avgRtt >= 450 {
             if s.loss > 5 {
                 return QualityVerdict(title: "Fair", icon: "exclamationmark.triangle.fill", color: .orange,
                     message: "Satellite links are slow by nature, but packets are also being lost — bad weather or dish alignment may be the cause.")
@@ -380,7 +331,7 @@ struct PingView: View {
 
     private func startAction() {
         if vm.isRunning { vm.stop() }
-        else { guard !host.isEmpty else { return }; selectedProfile = nil; history.record(host); vm.start(host: host, count: infinite ? nil : Int(resolvedCount), interval: Double(resolvedInterval) ?? defaultInterval, packetSize: resolvedPacketSize, ipv6: ipv6, timeoutMs: resolvedTimeout) }
+        else { guard !host.isEmpty else { return }; history.record(host); vm.start(host: host, count: infinite ? nil : Int(resolvedCount), interval: Double(resolvedInterval) ?? defaultInterval, packetSize: resolvedPacketSize, ipv6: ipv6, timeoutMs: resolvedTimeout) }
     }
 }
 
@@ -391,59 +342,4 @@ private struct QualityVerdict {
     let icon: String
     let color: Color
     let message: String
-}
-
-/// Internet link-type estimate from measured latency. Bands are typical
-/// values, surfaced as "likely" — not a detection, so the UI must keep the
-/// "Likely match" wording and let users explore every type.
-private enum LinkProfile: String, CaseIterable, Hashable {
-    case lan, fiber, mobile, distant, satellite
-
-    var shortLabel: String {
-        switch self {
-        case .lan: return "LAN"
-        case .fiber: return "Fiber"
-        case .mobile: return "4G"
-        case .distant: return "Far"
-        case .satellite: return "Sat"
-        }
-    }
-
-    var title: String {
-        switch self {
-        case .lan: return "Local network (LAN)"
-        case .fiber: return "Fiber (FO)"
-        case .mobile: return "Mobile (4G/5G)"
-        case .distant: return "Distant route"
-        case .satellite: return "Satellite (VSAT)"
-        }
-    }
-
-    var typical: String {
-        switch self {
-        case .lan: return "< 3 ms"
-        case .fiber: return "5–45 ms"
-        case .mobile: return "45–130 ms"
-        case .distant: return "130–450 ms"
-        case .satellite: return "500–700 ms"
-        }
-    }
-
-    var blurb: String {
-        switch self {
-        case .lan: return "The target is on your own network — just your Wi-Fi or cable to the router."
-        case .fiber: return "Fast landline such as fiber optic — great for everything, including gaming."
-        case .mobile: return "Mobile data or a far-away server — fine for browsing and streaming."
-        case .distant: return "A very distant or busy route — calls and gaming may lag."
-        case .satellite: return "The signal travels to space and back, so a long delay is normal here."
-        }
-    }
-
-    static func match(avgMs: Double) -> LinkProfile {
-        if avgMs < 3 { return .lan }
-        if avgMs < 45 { return .fiber }
-        if avgMs < 130 { return .mobile }
-        if avgMs < 450 { return .distant }
-        return .satellite
-    }
 }
