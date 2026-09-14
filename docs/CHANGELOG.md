@@ -16,6 +16,7 @@ All notable changes to NetUtil are documented here.
 - **LAN fingerprinting (P2-4)**: Neighbors enriches each ARP entry with an offline OUI vendor name and a guessed device category.
 - **CLI companion (P2-5)**: a `netutil` SwiftPM executable under `CLI/` wraps ping, traceroute, dig, whois, and networkQuality for Terminal use (`netutil ping <host> [count]`, etc.). Build with `bash scripts/build_cli.sh`.
 - **Menu-bar only mode (P2-6)**: a View-menu command (⇧⌘M) hides the main window and runs NetUtil as an accessory app; the menu-bar popover now leads with connection health.
+- **Ping options (P3-1)**: force IPv6 (`ping6`) and set a per-request timeout in milliseconds from the Ping control bar.
 
 ### Fixed
 

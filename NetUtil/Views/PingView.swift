@@ -14,6 +14,8 @@ struct PingView: View {
     @State private var countText = ""
     @State private var intervalText = ""
     @State private var packetSizeText = ""
+    @State private var ipv6 = false
+    @State private var timeoutText = ""
     @State private var infinite = false
     @State private var showRaw = false
     @State private var showLearningGuide = false
@@ -25,6 +27,7 @@ struct PingView: View {
     private var resolvedCount: String { countText.isEmpty ? "\(defaultCount)" : countText }
     private var resolvedInterval: String { intervalText.isEmpty ? String(format: "%.1f", defaultInterval) : intervalText }
     private var resolvedPacketSize: Int? { Int(packetSizeText) }
+    private var resolvedTimeout: Int? { Int(timeoutText) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -33,6 +36,8 @@ struct PingView: View {
                 countText: $countText,
                 intervalText: $intervalText,
                 packetSizeText: $packetSizeText,
+                ipv6: $ipv6,
+                timeoutText: $timeoutText,
                 infinite: $infinite,
                 alertsEnabled: $alertsEnabled,
                 vm: vm,
@@ -375,7 +380,7 @@ struct PingView: View {
 
     private func startAction() {
         if vm.isRunning { vm.stop() }
-        else { guard !host.isEmpty else { return }; selectedProfile = nil; history.record(host); vm.start(host: host, count: infinite ? nil : Int(resolvedCount), interval: Double(resolvedInterval) ?? defaultInterval, packetSize: resolvedPacketSize) }
+        else { guard !host.isEmpty else { return }; selectedProfile = nil; history.record(host); vm.start(host: host, count: infinite ? nil : Int(resolvedCount), interval: Double(resolvedInterval) ?? defaultInterval, packetSize: resolvedPacketSize, ipv6: ipv6, timeoutMs: resolvedTimeout) }
     }
 }
 

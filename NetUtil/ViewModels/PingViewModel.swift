@@ -65,7 +65,7 @@ final class PingViewModel {
         pattern: #"Request timeout for icmp(?:6)?_seq (\d+)"#
     )
 
-    func start(host: String, count: Int?, interval: Double, packetSize: Int? = nil) {
+    func start(host: String, count: Int?, interval: Double, packetSize: Int? = nil, ipv6: Bool = false, timeoutMs: Int? = nil) {
         stop()
         results.removeAll()
         rawLines.removeAll()
@@ -89,13 +89,10 @@ final class PingViewModel {
                 self?.flushBuffer()
             }
 
-        var args: [String] = []
-        if let count { args += ["-c", "\(count)"] }
-        if let packetSize { args += ["-s", "\(packetSize)"] }
-        args += ["-i", "\(max(0.2, interval))", host]
+        let args = Self.pingArguments(count: count, packetSize: packetSize, timeoutMs: timeoutMs, interval: interval, host: host)
 
         do {
-            try subprocess.run(executable: "/sbin/ping", arguments: args, onChunk: { [weak self] text in
+            try subprocess.run(executable: ipv6 ? "/sbin/ping6" : "/sbin/ping", arguments: args, onChunk: { [weak self] text in
                 guard let self else { return }
 
                 // Parse on background thread
@@ -238,6 +235,16 @@ final class PingViewModel {
                           body: String(format: "Average RTT over the last %d pings is %.0f ms (critical threshold %.0f ms).",
                                        stats.recentCount, stats.recentAvgRtt, rttCrit))
         }
+    }
+
+    /// Pure arg builder for `/sbin/ping` (`ping6` when `ipv6`). Unit-tested.
+    nonisolated static func pingArguments(count: Int?, packetSize: Int?, timeoutMs: Int?, interval: Double, host: String) -> [String] {
+        var args: [String] = []
+        if let count { args += ["-c", "\(count)"] }
+        if let packetSize { args += ["-s", "\(packetSize)"] }
+        if let timeoutMs { args += ["-W", "\(timeoutMs)"] }
+        args += ["-i", "\(max(0.2, interval))", host]
+        return args
     }
 
     func stop() {

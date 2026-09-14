@@ -5,6 +5,8 @@ struct PingControlBar: View {
     @Binding var countText: String
     @Binding var intervalText: String
     @Binding var packetSizeText: String
+    @Binding var ipv6: Bool
+    @Binding var timeoutText: String
     @Binding var infinite: Bool
     @Binding var alertsEnabled: Bool
     let vm: PingViewModel
@@ -53,6 +55,19 @@ struct PingControlBar: View {
                 .frame(width: 48)
                 .help("Payload size, in bytes")
                 .accessibilityLabel("Payload Size")
+
+            Toggle(isOn: $ipv6) {
+                Text("IPv6").font(.caption.weight(.bold))
+            }
+            .toggleStyle(.button)
+            .help("Send ICMPv6 echo requests (ping6)")
+            .accessibilityLabel("Use IPv6")
+
+            TextField("ms", text: $timeoutText)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 44)
+                .help("Per-request timeout, in milliseconds")
+                .accessibilityLabel("Request Timeout")
 
             if !vm.results.isEmpty {
                 ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV, onCopySummary: copySummary)
