@@ -21,6 +21,8 @@ struct MultiPingControlBar: View {
                 ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV)
             }
 
+            ThresholdPresetMenu()
+
             Button(action: onAddHost) {
                 Label("Add Host", systemImage: "plus")
                     .frame(minWidth: 80)

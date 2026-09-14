@@ -58,6 +58,8 @@ struct PingControlBar: View {
                 ReportMenuButton(onExportPDF: onExportPDF, onExportCSV: onExportCSV, onCopySummary: copySummary)
             }
 
+            ThresholdPresetMenu()
+
             Button(action: onStartStop) {
                 Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                     .frame(minWidth: 60)

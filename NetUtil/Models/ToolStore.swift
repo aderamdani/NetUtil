@@ -31,6 +31,7 @@ final class ToolStore {
     let ipGeolocation = IPGeolocationViewModel()
     let dnsResolver   = DNSResolverViewModel()
     let statistics  = TrafficStatistics()
+    let thresholdPresets = ThresholdPresets()
     let sslWatchlist  = SSLWatchlist()
     let favorites     = FavoritesManager()
     let sessionHistory = SessionHistory()
