@@ -17,7 +17,7 @@ final class NetQualityViewModel {
     /// networkQuality run can't populate the result of a newer one.
     private var runID = 0
 
-    func start() {
+    func start(interface: String? = nil, privateRelay: Bool = false) {
         stop()
         error = nil
         result = nil
@@ -25,8 +25,10 @@ final class NetQualityViewModel {
         runID += 1
         let id = runID
 
+        let args = Self.netQualityArguments(interface: interface, privateRelay: privateRelay)
+
         do {
-            try subprocess.launch(executable: "/usr/bin/networkQuality", arguments: ["-c"])
+            try subprocess.launch(executable: "/usr/bin/networkQuality", arguments: args)
         } catch {
             self.error = error.localizedDescription
             isRunning = false
@@ -38,10 +40,11 @@ final class NetQualityViewModel {
             guard let output = await self?.subprocess.collectOutput() else { return }
             guard let self, self.runID == id else { return }
             self.isRunning = false
-            guard let parsed = Self.parse(output) else {
+            guard var parsed = Self.parse(output) else {
                 self.error = "networkQuality produced no parseable result"
                 return
             }
+            parsed.usedPrivateRelay = privateRelay
             self.result = parsed
             let grade = parsed.rpmGrade
             self.onSessionComplete?(SessionRecord(
@@ -51,6 +54,14 @@ final class NetQualityViewModel {
                 status: grade.label == "Low" ? .partial : .success,
                 duration: Date().timeIntervalSince(started)))
         }
+    }
+
+    /// Pure arg builder for `/usr/bin/networkQuality`. Unit-tested.
+    nonisolated static func netQualityArguments(interface: String?, privateRelay: Bool) -> [String] {
+        var args = ["-c"]
+        if let interface, !interface.isEmpty { args += ["-I", interface] }
+        if privateRelay { args += ["-p"] }
+        return args
     }
 
     func stop() {

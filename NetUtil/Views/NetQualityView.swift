@@ -2,7 +2,10 @@ import SwiftUI
 
 struct NetQualityView: View {
     @Bindable var vm: NetQualityViewModel
+    @Environment(ToolStore.self) private var tools
     @State private var showLearningGuide = false
+    @State private var useInterface = ""
+    @State private var useRelay = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -11,7 +14,7 @@ struct NetQualityView: View {
             ScrollView {
                 VStack(spacing: Metrics.spacingXL) {
                     if let err = vm.error {
-                        ErrorBanner(message: err, onRetry: { vm.start() }, onDismiss: { vm.clearError() })
+                        ErrorBanner(message: err, onRetry: { vm.start(interface: useInterface.isEmpty ? nil : useInterface, privateRelay: useRelay) }, onDismiss: { vm.clearError() })
                     }
                     if let r = vm.result {
                         resultCards(r)
@@ -47,6 +50,24 @@ struct NetQualityView: View {
 
                 Spacer()
 
+                Picker("", selection: $useInterface) {
+                    Text("Default interface").tag("")
+                    ForEach(tools.interfaces.interfaces, id: \.name) { iface in
+                        Text("\(iface.name) · \(iface.typeName)").tag(iface.name)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 170)
+                .help("Bind the test to a specific interface (-I)")
+                .accessibilityLabel("Test Interface")
+
+                Toggle(isOn: $useRelay) {
+                    Text("Relay").font(.caption.weight(.bold))
+                }
+                .toggleStyle(.button)
+                .help("Route the test through iCloud Private Relay (-p)")
+                .accessibilityLabel("Use iCloud Private Relay")
+
                 if let r = vm.result {
                     ReportMenuButton(
                         onExportPDF: { Exporter.saveNetQualityPDF(result: r) },
@@ -67,7 +88,7 @@ struct NetQualityView: View {
                     )
                 }
 
-                Button(action: { vm.isRunning ? vm.stop() : vm.start() }) {
+                Button(action: { vm.isRunning ? vm.stop() : vm.start(interface: useInterface.isEmpty ? nil : useInterface, privateRelay: useRelay) }) {
                     Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                         .frame(minWidth: 70)
                 }
@@ -118,6 +139,8 @@ struct NetQualityView: View {
     private func detailCard(_ r: NetQualityResult) -> some View {
         VStack(alignment: .leading, spacing: Metrics.spacingSM) {
             detailRow("Interface", r.interfaceName ?? "—")
+            Divider().opacity(0.5)
+            detailRow("iCloud Private Relay", r.usedPrivateRelay ? "On" : "Off")
             Divider().opacity(0.5)
             detailRow("Test Server", r.endpoint ?? "—")
             Divider().opacity(0.5)

@@ -10,6 +10,7 @@ struct NetQualityResult {
     let interfaceName: String?
     let endpoint: String?
     let timestamp: Date
+    var usedPrivateRelay: Bool = false
 
     /// RPM bands used for coloring and the verdict label. Documented in the
     /// learning guide: ≥800 feels flawless under load, <300 means noticeable
