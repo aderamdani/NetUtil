@@ -125,80 +125,52 @@ struct ContentView: View {
 
     var body: some View {
         NavigationSplitView {
-            VStack(spacing: 0) {
-                // Global Search Field
-                HStack(spacing: Metrics.spacingSM) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-                        .font(.caption2.weight(.bold))
-                    TextField("Search history... (⌘F)", text: $searchText)
-                        .textFieldStyle(.plain)
-                        .font(.subheadline)
-                        .focused($isSearchFocused)
-                    if !searchText.isEmpty {
-                        Button { searchText = "" } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(Metrics.spacingMD)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Metrics.cornerRadiusSM))
-                .padding(.horizontal, Metrics.spacingMD)
-                .padding(.vertical, Metrics.spacingSM)
-                
-                Divider().opacity(0.1)
-
+            List(selection: $selection) {
                 if !searchText.isEmpty {
-                    List {
-                        Section("History Results") {
-                            ForEach(filteredHistory, id: \.self) { host in
-                                Button {
-                                    copyToActiveTool(host)
-                                    searchText = ""
-                                    isSearchFocused = false
-                                } label: {
-                                    HStack {
-                                        Image(systemName: "clock.arrow.circlepath")
-                                            .foregroundColor(.secondary)
-                                        Text(host)
-                                            .lineLimit(1)
-                                    }
+                    Section("History Results") {
+                        ForEach(filteredHistory, id: \.self) { host in
+                            Button {
+                                copyToActiveTool(host)
+                                searchText = ""
+                            } label: {
+                                HStack {
+                                    Image(systemName: "clock.arrow.circlepath")
+                                        .foregroundColor(.secondary)
+                                    Text(host)
+                                        .lineLimit(1)
                                 }
-                                .buttonStyle(.plain)
                             }
-                            if filteredHistory.isEmpty {
-                                Text("No matches found").font(.caption).foregroundColor(.secondary)
-                            }
+                            .buttonStyle(.plain)
+                        }
+                        if filteredHistory.isEmpty {
+                            Text("No matches found").font(.caption).foregroundColor(.secondary)
                         }
                     }
                 } else {
-                    List(selection: $selection) {
-                        if !tools.favorites.favorites.isEmpty {
-                            Section("Favorites") {
-                                ForEach(tools.favorites.favorites) { fav in
-                                    FavoriteSidebarItem(fav: fav, selection: $selection, tools: tools)
-                                }
-                                .onMove { tools.favorites.move(from: $0, to: $1) }
-                                .onDelete { idxs in
-                                    idxs.map { tools.favorites.favorites[$0].id }.forEach { tools.favorites.remove(id: $0) }
-                                }
+                    if !tools.favorites.favorites.isEmpty {
+                        Section("Favorites") {
+                            ForEach(tools.favorites.favorites) { fav in
+                                FavoriteSidebarItem(fav: fav, selection: $selection, tools: tools)
+                            }
+                            .onMove { tools.favorites.move(from: $0, to: $1) }
+                            .onDelete { idxs in
+                                idxs.map { tools.favorites.favorites[$0].id }.forEach { tools.favorites.remove(id: $0) }
                             }
                         }
+                    }
 
-                        ForEach(ToolGroup.allCases, id: \.self) { group in
-                            let items = tools.catalog.availableTools(in: group)
-                            if !items.isEmpty {
-                                toolSection(group: group, items: items)
-                            }
+                    ForEach(ToolGroup.allCases, id: \.self) { group in
+                        let items = tools.catalog.availableTools(in: group)
+                        if !items.isEmpty {
+                            toolSection(group: group, items: items)
                         }
-
                     }
                 }
             }
             .listStyle(.sidebar)
             .navigationSplitViewColumnWidth(min: 175, ideal: 200, max: 240)
+            .searchable(text: $searchText, placement: .sidebar, prompt: "Search history")
+            .searchFocused($isSearchFocused)
         } detail: {
             if let selection, tools.catalog.isAvailable(selection) {
                 toolView(selection)

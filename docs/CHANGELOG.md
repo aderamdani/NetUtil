@@ -6,6 +6,11 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- **Liquid Glass redesign (phase 1, in progress)**: the sidebar history search now uses the system search field (`.searchable`) instead of a custom material field.
+
+
 ## [4.19.0] — 2026-09-14
 
 ### Added
