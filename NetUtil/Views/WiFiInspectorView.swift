@@ -162,16 +162,16 @@ struct WiFiInspectorView: View {
         let rssi = info.rssi ?? -100
         let (grade, advice): (String, String) = {
             if rssi >= -60 {
-                return ("A", "Sinyal sangat kuat — cocok untuk streaming 4K, video call, atau gaming. Pertahankan jarak dekat dengan router.")
+                return ("A", "Signal is very strong — suitable for 4K streaming, video calls, and gaming. Keep the Mac close to the router.")
             } else if rssi >= -75 {
-                return ("B", "Sinyal cukup baik untuk Zoom atau pekerjaan sehari-hari. Coba pindah ke channel yang lebih sepi jika sering putus.")
+                return ("B", "Signal is adequate for video calls and everyday work. Move to a quieter channel if the connection drops often.")
             } else {
-                return ("C", "Sinyal lemah — pertimbangkan pindah lebih dekat ke router atau ganti ke band 5/6 GHz.")
+                return ("C", "Signal is weak — move closer to the router or switch to the 5/6 GHz band.")
             }
         }()
         
         return VStack(alignment: .leading, spacing: Metrics.spacingMD) {
-            SectionHeader(title: "Penilaian & Saran", icon: "lightbulb")
+            SectionHeader(title: "Rating & Advice", icon: "lightbulb")
             HStack(alignment: .top, spacing: Metrics.spacingMD) {
                 ZStack {
                     Circle().fill(.green.opacity(0.1)).frame(width: 44, height: 44)
@@ -180,14 +180,14 @@ struct WiFiInspectorView: View {
                         .foregroundColor(.green)
                 }
                 VStack(alignment: .leading, spacing: Metrics.spacingXS) {
-                    Text("Rating Sinyal Wi-Fi")
+                    Text("Wi-Fi Signal Rating")
                         .font(.headline)
                     Text(advice)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(3)
                     if let ch = info.channel {
-                        Text("Saran channel: gunakan channel \(ch) saat ini — jika sering terganggu, coba pindah ke channel 1, 6, atau 11 (2.4 GHz) atau 36/40 (5 GHz).")
+                        Text("Channel advice: currently using channel \(ch) — if interference is frequent, try channel 1, 6, or 11 (2.4 GHz) or 36/40 (5 GHz).")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.top, 2)
