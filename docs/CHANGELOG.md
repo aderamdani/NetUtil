@@ -6,6 +6,10 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- **Settings search (P1-5)**: a search field filters every setting and jumps to the matching tab.
+
 ### Fixed
 
 - **Session History**: rows are inset from the card edge so content no longer sits flush against the border.
