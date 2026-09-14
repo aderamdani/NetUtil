@@ -63,6 +63,11 @@ struct AppCommands: Commands {
             Button("Refresh Network Status") { tools.refreshGlobalStatus() }
                 .keyboardShortcut("r", modifiers: .command)
             Toggle("Show Traffic in Menu Bar", isOn: $menuBarShowTraffic)
+            Divider()
+            Button("Enter Menu-Bar Only Mode") { NSApplication.enterMenuBarOnly() }
+                .keyboardShortcut("m", modifiers: [.command, .shift])
+            Button("Show Main Window") { NSApplication.showMainWindow() }
+                .keyboardShortcut("0", modifiers: .command)
         }
 
         CommandMenu("Tools") {

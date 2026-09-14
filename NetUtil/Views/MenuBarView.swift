@@ -7,6 +7,8 @@ struct MenuBarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            healthRow
+            Divider()
             statusHeader
             Divider()
             bandwidthSection
@@ -25,6 +27,33 @@ struct MenuBarView: View {
 
     private var primaryInterface: NetworkInterface? {
         NetworkInterface.primary(in: networkInterfaces.interfaces)
+    }
+
+    private var healthColor: Color {
+        switch tools.healthColor {
+        case "red": return .red
+        case "orange": return .orange
+        default: return .green
+        }
+    }
+
+    // MARK: - Health
+
+    private var healthRow: some View {
+        HStack(spacing: Metrics.spacingSM) {
+            Image(systemName: tools.healthIcon)
+                .font(.caption.weight(.semibold))
+                .foregroundColor(healthColor)
+            Text(tools.healthMessage)
+                .font(.caption)
+                .foregroundColor(healthColor == .green ? .secondary : healthColor)
+                .lineLimit(1)
+            Spacer()
+        }
+        .padding(.horizontal, Metrics.spacingMD)
+        .padding(.vertical, Metrics.spacingSM)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Network status: \(tools.healthMessage)")
     }
 
     // MARK: - Status Header

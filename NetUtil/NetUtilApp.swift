@@ -85,4 +85,13 @@ extension NSApplication {
             win.makeKeyAndOrderFront(nil)
         }
     }
+
+    /// Hides the main window and drops to an accessory (menu-bar only) app.
+    static func enterMenuBarOnly() {
+        NSApp.setActivationPolicy(.accessory)
+        NotificationCenter.default.post(name: .init("netutil.activationPolicyChanged"), object: nil)
+        for window in NSApp.windows where window.canBecomeMain {
+            window.orderOut(nil)
+        }
+    }
 }
