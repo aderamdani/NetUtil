@@ -51,7 +51,7 @@ struct AboutView: View {
                 Button("Check for Updates") {
                     updater.checkForUpdates()
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .disabled(updater.isChecking)
                 .accessibilityLabel("Check for software updates")
                 

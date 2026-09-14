@@ -41,7 +41,7 @@ struct TracerouteControlBar: View {
                     Label(isRunning ? "Stop" : "Start", systemImage: isRunning ? "stop.fill" : "play.fill")
                         .frame(minWidth: 80)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .tint(isRunning ? .red : .accentColor)
                 .accessibilityLabel(isRunning ? "Stop Traceroute" : "Start Traceroute")
 

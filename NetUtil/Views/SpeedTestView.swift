@@ -102,7 +102,7 @@ struct SpeedTestView: View {
                               systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 70)
                     }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .accessibilityLabel(vm.isRunning ? "Stop Speed Test" : "Start Speed Test")
 

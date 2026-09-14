@@ -59,7 +59,7 @@ struct WakeOnLanView: View {
                     Label("Wake", systemImage: "power")
                         .frame(minWidth: 70)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .disabled(!macIsValid)
                 .accessibilityLabel("Send Wake Packet")
 

@@ -63,7 +63,7 @@ struct IPGeolocationView: View {
                 Label(vm.isRunning ? "Locating..." : "Locate", systemImage: "location.magnifyingglass")
                     .frame(minWidth: 80)
             }
-            .buttonStyle(.glassProminent)
+            .buttonStyle(.borderedProminent)
             .disabled(vm.isRunning)
             .accessibilityLabel("Locate IP Address")
 

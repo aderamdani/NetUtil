@@ -79,7 +79,7 @@ struct PingControlBar: View {
                 Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                     .frame(minWidth: 60)
             }
-            .buttonStyle(.glassProminent)
+            .buttonStyle(.borderedProminent)
             .tint(vm.isRunning ? .red : .accentColor)
             .disabled(!vm.isRunning && host.isEmpty)
             .accessibilityLabel(vm.isRunning ? "Stop Ping" : "Start Ping")

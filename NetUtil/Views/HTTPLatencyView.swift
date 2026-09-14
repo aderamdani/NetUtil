@@ -119,7 +119,7 @@ struct HTTPLatencyView: View {
                         Label(vm.isRunning ? "Stop" : "Send", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
                     }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && urlString.isEmpty)
 

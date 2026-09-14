@@ -91,7 +91,7 @@ struct NetworkDoctorView: View {
                     Label(vm.isRunning ? "Stop" : "Diagnose", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                         .frame(minWidth: 90)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .tint(vm.isRunning ? .red : .accentColor)
                 .accessibilityLabel(vm.isRunning ? "Stop Diagnosis" : "Start Diagnosis")
 
@@ -158,7 +158,7 @@ struct NetworkDoctorView: View {
                 Button(action: action.perform) {
                     Label(action.label, systemImage: action.icon)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .accessibilityLabel(action.label)
             }
         }

@@ -36,7 +36,7 @@ struct OnboardingView: View {
             Button(action: onDismiss) {
                 Text("Get Started").frame(maxWidth: .infinity)
             }
-            .buttonStyle(.glassProminent)
+            .buttonStyle(.borderedProminent)
             .controlSize(.large)
             .keyboardShortcut(.defaultAction)
         }

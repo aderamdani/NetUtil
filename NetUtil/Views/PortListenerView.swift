@@ -73,7 +73,7 @@ struct PortListenerView: View {
                     Label(vm.isRunning ? "Stop" : "Listen", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                         .frame(minWidth: 70)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .tint(vm.isRunning ? .red : .accentColor)
                 .disabled(!vm.isRunning && Int(portText) == nil)
                 .accessibilityLabel(vm.isRunning ? "Stop Listener" : "Start Listener")

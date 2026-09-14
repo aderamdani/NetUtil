@@ -92,7 +92,7 @@ struct NetQualityView: View {
                     Label(vm.isRunning ? "Stop" : "Start", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                         .frame(minWidth: 70)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .tint(vm.isRunning ? .red : .accentColor)
                 .accessibilityLabel(vm.isRunning ? "Stop Test" : "Start Test")
 

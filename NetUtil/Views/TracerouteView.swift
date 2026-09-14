@@ -425,7 +425,7 @@ private struct TracerouteIPInfoSheet: View {
                     Text(hop.displayHost).font(.subheadline).foregroundColor(.secondary)
                 }
                 Spacer()
-                Button("Done") { dismiss() }.buttonStyle(.glassProminent)
+                Button("Done") { dismiss() }.buttonStyle(.borderedProminent)
                     .accessibilityLabel("Close IP info sheet")
             }
             

@@ -14,7 +14,7 @@ struct PathMTUView: View {
                     Label(vm.isRunning ? "Stop" : "Measure", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                         .frame(minWidth: 80)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .tint(vm.isRunning ? .red : .accentColor)
                 .disabled(!vm.isRunning && host.trimmingCharacters(in: .whitespaces).isEmpty)
                 .accessibilityLabel(vm.isRunning ? "Stop Measurement" : "Start Measurement")

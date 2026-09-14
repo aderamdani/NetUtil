@@ -95,7 +95,7 @@ struct SubnetScanView: View {
                         Label(viewModel.isRunning ? "Stop" : "Scan", systemImage: viewModel.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 70)
                     }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.borderedProminent)
                     .tint(viewModel.isRunning ? .red : .accentColor)
                     .accessibilityLabel(viewModel.isRunning ? "Stop Scan" : "Start Scan")
 

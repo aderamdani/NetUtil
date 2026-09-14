@@ -130,7 +130,7 @@ struct SSLInspectorView: View {
                         Label(vm.isRunning ? "Stop" : "Inspect", systemImage: vm.isRunning ? "stop.fill" : "play.fill")
                             .frame(minWidth: 80)
                     }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.borderedProminent)
                     .tint(vm.isRunning ? .red : .accentColor)
                     .disabled(!vm.isRunning && host.isEmpty)
                     .accessibilityLabel(vm.isRunning ? "Stop Inspection" : "Start Inspection")

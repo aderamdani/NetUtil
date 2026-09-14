@@ -27,7 +27,7 @@ struct MultiPingControlBar: View {
                 Label("Add Host", systemImage: "plus")
                     .frame(minWidth: 80)
             }
-            .buttonStyle(.glassProminent)
+            .buttonStyle(.borderedProminent)
             .disabled(host.trimmingCharacters(in: .whitespaces).isEmpty)
             .accessibilityLabel("Add Host to Monitor")
 

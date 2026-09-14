@@ -54,7 +54,7 @@ struct ImportHostsSheet: View {
                     onImport(detectedHosts)
                     dismiss()
                 }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.borderedProminent)
                 .disabled(detectedHosts.isEmpty)
             }
             .padding(Metrics.spacingLG)
