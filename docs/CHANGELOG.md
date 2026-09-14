@@ -6,6 +6,8 @@ All notable changes to NetUtil are documented here.
 
 ## [Unreleased]
 
+## [4.18.0] — 2026-09-14
+
 ### Added
 
 - **Settings search (P1-5)**: a search field filters every setting and jumps to the matching tab.
